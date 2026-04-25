@@ -1,0 +1,7 @@
+^Htna\.Rmd$
+^tmp$
+^\.git$
+^\.gitignore$
+^\.DS_Store$
+^\.Rproj\.user$
+^.*\.Rproj$

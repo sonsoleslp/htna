@@ -1,0 +1,28 @@
+# R session / history
+.Rhistory
+.RData
+.Ruserdata
+.Rapp.history
+.Renviron
+
+# RStudio
+.Rproj.user/
+*.Rproj
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Knit / generated artifacts
+tmp/
+*.html
+*.utf8.md
+*.knit.md
+Htna_files/
+Htna_cache/
+
+# R CMD check artifacts
+*.Rcheck/
+src/*.o
+src/*.so
+src/*.dll
