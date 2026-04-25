@@ -1,0 +1,91 @@
+---
+title: "Getting Started with htna"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with htna}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 10,
+  fig.height = 7,
+  dpi = 150
+)
+```
+
+Heterogeneous Transition Network Analysis (HTNA) extends traditional TNA to
+sequences that mix two or more actor groups (e.g. Human and AI) within the same
+interaction. The `htna` package provides a thin, focused API on top of the
+[Nestimate](https://CRAN.R-project.org/package=Nestimate) estimation engine and
+the [cograph](https://CRAN.R-project.org/package=cograph) rendering engine.
+
+## Building a heterogeneous network
+
+Start by loading the package and the example data shipped with Nestimate:
+
+```{r}
+library(htna)
+data(human_long, ai_long, package = "Nestimate")
+```
+
+`build_htna()` accepts a named list of long-format data frames, one per actor
+group. It combines the sequences, estimates transition probabilities, and stores
+the actor partition on the resulting network object:
+
+```{r}
+net <- build_htna(list(Human = human_long, AI = ai_long))
+net
+```
+
+The actor partition is available in two forms:
+
+- `net$nodes$groups` -- actor label per node (auto-detected by `plot_htna()`).
+- `net$node_groups` -- canonical `(node, group)` data frame used by
+  `cograph::get_groups()` and `cograph::cluster_summary()`.
+
+## Plotting
+
+`plot_htna()` (re-exported from cograph) auto-detects the actor groups and
+renders them with distinct colours:
+```{r}
+plot_htna(net, threshold = 0.05, layout = "circular")
+```
+
+## Meta-paths
+
+Meta-paths are type-level patterns that abstract away from concrete states and
+ask how often a typed template appears in the data. For example,
+`Human->AI->Human` captures every length-3 path that starts with a Human code,
+transitions to an AI code, and returns to a Human code.
+
+```{r}
+# Enumerate all meta-paths of length 2 to 4
+mp <- extract_meta_paths(net)
+mp
+```
+
+You can search for a specific schema (with wildcards):
+
+```{r}
+# Any length-3 path that returns to Human
+extract_meta_paths(net, schema = "Human->*->Human")
+```
+
+Gapped meta-paths allow skipping positions:
+
+```{r}
+extract_meta_paths(net, length = 3, type = "gapped", gap = 1:2)
+```
+
+Filter by lift to find over-represented meta-paths:
+
+```{r}
+extract_meta_paths(net, length = 3, min_lift = 1.2)
+```
+

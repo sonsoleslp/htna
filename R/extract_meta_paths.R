@@ -9,7 +9,6 @@
 #' wildcards).
 #'
 #' Operates on the actor partition stored on the network by [build_htna()].
-#' For state-level patterns over raw codes (not types), see [find_patterns()].
 #'
 #' @param x \[`htna_network`\]\cr
 #'   A network built with [build_htna()]. Must have `$nodes$groups`,
@@ -47,7 +46,7 @@
 #'   `n_sequences`, `support`, `frequency`, `lift`. Attributes:
 #'   `n_sequences`, `alphabet`, `level = "meta"`.
 #'
-#' @seealso [find_patterns()] for state-level patterns; [build_htna()].
+#' @seealso [build_htna()].
 #'
 #' @examples
 #' \dontrun{
