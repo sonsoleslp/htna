@@ -2,6 +2,7 @@
 
 S3method(print, htna_paths)
 
+export(bootstrap_htna)
 export(build_htna)
 export(extract_meta_paths)
 export(plot_htna)
