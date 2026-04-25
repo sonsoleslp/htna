@@ -14,7 +14,15 @@ knitr::opts_chunk$set(message = FALSE, warning = FALSE,
 
 ```{r}
 library(htna)
+library(cograph)
 data(human_long, ai_long, package = "Nestimate")
+
+Net <- build_atna(ai_long, action="code")
+splot(Net, layout = "circle")
+
+plot_simplicial(Net, dismantled = TRUE)
+
+
 ```
 
 # Build
@@ -26,8 +34,8 @@ net
 
 # Plot
 
-```{r}
+```{r fig.height=6, fig.width=8, dpi=300}
 
-plot_htna(net,  threshold = 0.05, layout="circular")
+plot_htna(net,  threshold = 0.1, layout="circular", legend = FALSE)
 
 ```
