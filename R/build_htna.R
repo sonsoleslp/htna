@@ -160,5 +160,11 @@ build_htna <- function(data,
     group = net$nodes$groups,
     stringsAsFactors = FALSE
   )
+
+  # Tag with `htna` at the front of the class chain so downstream code can
+  # detect the heterogeneous-network case via `inherits(x, "htna")`. The
+  # parent classes (`netobject`, `cograph_network`) remain in place so all
+  # Nestimate / cograph S3 methods dispatch through fallthrough as usual.
+  class(net) <- c("htna", class(net))
   net
 }
