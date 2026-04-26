@@ -19,7 +19,7 @@ library(htna)
 data(human_long, ai_long, package = "Nestimate")
 ```
 
-[`build_htna()`](https://mohsaqr.github.io/htna/reference/build_htna.md)
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
 accepts a named list of long-format data frames, one per actor group. It
 combines the sequences, estimates transition probabilities, and stores
 the actor partition on the resulting network object:
@@ -110,7 +110,7 @@ net
 The actor partition is available in two forms:
 
 - `net$nodes$groups` – actor label per node (auto-detected by
-  [`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.html)).
+  [`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md)).
 - `net$node_groups` – canonical `(node, group)` data frame used by
   [`cograph::get_groups()`](https://sonsoles.me/cograph/reference/get_groups.html)
   and
@@ -118,13 +118,13 @@ The actor partition is available in two forms:
 
 ## Plotting
 
-[`plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.html)
-(re-exported from cograph) auto-detects the actor groups and renders
-them with distinct colours:
+[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md)
+auto-detects the actor groups and renders them with distinct colours. It
+defaults to a circular layout and a 0.05 edge threshold:
 
 ``` r
 
-plot_htna(net, threshold = 0.05, layout = "circular")
+plot_htna(net)
 ```
 
 ![](htna_files/figure-html/unnamed-chunk-3-1.png)

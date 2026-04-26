@@ -51,10 +51,10 @@ The actor partition is available in two forms:
 
 ## Plotting
 
-`plot_htna()` (re-exported from cograph) auto-detects the actor groups and
-renders them with distinct colours:
+`plot_htna()` auto-detects the actor groups and renders them with distinct
+colours. It defaults to a circular layout and a 0.05 edge threshold:
 ```{r}
-plot_htna(net, threshold = 0.05, layout = "circular")
+plot_htna(net)
 ```
 
 ## Meta-paths

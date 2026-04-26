@@ -1,4 +1,4 @@
-url: https://mohsaqr.github.io/htna/
+url: https://sonsoles.me/htna/
 
 template:
   bootstrap: 5
@@ -24,8 +24,18 @@ reference:
     desc: Visualise the network
     contents:
       - plot_htna
+      
+  - title: Validation
+    desc: Validate the model
+    contents:
+      - bootstrap_htna
 
 articles:
   - title: Getting Started
     contents:
       - htna
+      - data-preparation
+  - title: Advanced
+    contents:
+      - multigroup
+      - plot-htna-gallery

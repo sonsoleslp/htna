@@ -1,0 +1,415 @@
+---
+title: "plot_htna: 2-Group Parameter Gallery"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{plot_htna: 2-Group Parameter Gallery}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 7,
+  out.width = "100%",
+  dpi = 150
+)
+library(htna)
+```
+
+This vignette demonstrates every `plot_htna()` parameter for 2-group
+(bipartite) layouts, so you can see at a glance what each option does.
+
+## Setup
+
+Start by loading the package and the example data shipped with Nestimate:
+
+```{r}
+library(htna)
+data(human_long, ai_long, package = "Nestimate")
+```
+
+Build the heterogeneous transition network:
+
+```{r}
+m <- build_htna(list(Human = human_long, AI = ai_long))
+m
+```
+
+## 1. Defaults
+
+Calling `plot_htna()` with no extra arguments uses the htna defaults: circular
+layout, 0.05 edge threshold, and the built-in colour palette.
+
+```{r defaults}
+plot_htna(m)
+```
+
+## 2. Layout
+
+The `layout` parameter controls how the two groups are arranged in space.
+
+### Bipartite (default for 2 groups)
+
+Places each group in a vertical column, with cross-group edges drawn between
+them. This is the classic bipartite layout.
+
+```{r layout-bipartite}
+plot_htna(m, layout = "bipartite")
+```
+
+### Circular
+
+Distributes all nodes along the perimeter of a circle, alternating between
+groups. Good for emphasising the overall connectivity pattern.
+
+```{r layout-circular}
+plot_htna(m, layout = "circular")
+```
+
+## 3. Orientation
+
+The `orientation` parameter rotates or rearranges the bipartite layout. It
+only applies when `layout = "bipartite"` (or `"auto"` with 2 groups).
+
+### Vertical (default)
+
+Groups are placed in two vertical columns, side by side.
+
+```{r orient-vertical}
+plot_htna(m, orientation = "vertical")
+```
+
+### Horizontal
+
+Groups are stacked as two horizontal rows, one above the other.
+
+```{r orient-horizontal}
+plot_htna(m, orientation = "horizontal")
+```
+
+### Facing
+
+Similar to vertical, but the two columns face each other with nodes aligned
+by rank, making it easier to trace individual edges.
+
+```{r orient-facing}
+plot_htna(m, orientation = "facing")
+```
+
+### Circular orientation
+
+Arranges each group along a semicircle, so both groups together form a full
+circle.
+
+```{r orient-circular}
+plot_htna(m, orientation = "circular")
+```
+
+## 4. Group spacing
+
+The `group_spacing` parameter controls the horizontal distance between the two
+columns. Larger values push the groups further apart, which can help reduce
+edge overlap in dense networks.
+
+```{r spacing-narrow}
+plot_htna(m, group_spacing = 1)
+```
+
+```{r spacing-wide}
+plot_htna(m, group_spacing = 12)
+```
+
+## 5. Node spacing
+
+The `node_spacing` parameter controls the vertical gap between nodes within a
+group. Increase it when node labels overlap; decrease it for a more compact
+plot.
+
+```{r nodespace-tight}
+plot_htna(m, node_spacing = 0.3)
+```
+
+```{r nodespace-loose}
+plot_htna(m, node_spacing = 1.5)
+```
+
+## 6. Columns
+
+The `columns` parameter splits each group into multiple sub-columns. This is
+useful when a group has many nodes and a single column would be too tall.
+A scalar applies to both groups; a length-2 vector sets each group
+independently.
+
+```{r columns-2}
+plot_htna(m, columns = 2)
+```
+
+```{r columns-asymmetric}
+plot_htna(m, columns = c(1, 2))
+```
+
+### Column spacing
+
+When using multiple columns, `column_spacing` adjusts the horizontal gap
+between sub-columns within a group.
+
+```{r column-spacing}
+plot_htna(m, columns = 2, column_spacing = 0.5)
+```
+
+## 7. Node ordering
+
+By default (`use_list_order = TRUE`), nodes appear in the order they are found
+in the data. Setting it to `FALSE` reorders nodes by edge weight, placing the
+most connected nodes at the centre of each group.
+
+```{r order-weight}
+plot_htna(m, use_list_order = FALSE)
+```
+
+## 8. Curvature
+
+The `curvature` parameter controls how much cross-group edges bend. `0`
+produces straight lines, while higher values increase the arc. Useful for
+reducing overlapping edges.
+
+```{r curv-straight}
+plot_htna(m, curvature = 0)
+```
+
+```{r curv-high}
+plot_htna(m, curvature = 1)
+```
+
+## 9. Intra-group edge curvature
+
+The `intra_curvature` parameter adds extra curvature to edges between nodes in
+the same group, arcing them away from the opposite group. This visually
+separates within-group from between-group transitions.
+
+```{r intra-curv}
+plot_htna(m, intra_curvature = 0.5)
+```
+
+## 10. Group colors
+
+### Using `group_colors` (recommended)
+
+A vector of colours, one per group. This is the recommended approach because
+it scales to any number of groups.
+
+```{r grp-colors}
+plot_htna(m, group_colors = c("red", "purple"))
+```
+
+### Using legacy `group1_color` / `group2_color`
+
+These parameters still work for two-group networks but do not generalise to
+three or more groups.
+
+```{r grp12-colors}
+plot_htna(m, group1_color = "green", group2_color = "darkred")
+```
+
+## 11. Edge colors
+
+By default, edge colours are derived (darkened) from the group colours of the
+source node.
+
+### Custom edge colors
+
+Supply a vector of colours to override the automatic derivation.
+
+```{r edge-colors}
+plot_htna(m, edge_colors = c("red", "blue"))
+```
+
+### Disable group-based edge coloring
+
+Set `edge_colors = FALSE` to use a single default colour for all edges.
+
+```{r edge-false}
+plot_htna(m, edge_colors = FALSE)
+```
+
+## 12. Group shapes
+
+The `group_shapes` parameter assigns a different node shape to each group,
+adding a second visual channel beyond colour. Common shapes include
+`"circle"`, `"square"`, `"diamond"`, and `"triangle"`.
+
+```{r grp-shapes}
+plot_htna(m, group_shapes = c("diamond", "triangle"))
+```
+
+### Legacy `group1_shape` / `group2_shape`
+
+```{r grp12-shapes}
+plot_htna(m, group1_shape = "triangle", group2_shape = "diamond")
+```
+
+## 13. Jitter
+
+Jitter shifts nodes horizontally based on their connectivity, breaking the
+rigid column alignment. Nodes with stronger cross-group edges move closer to
+the other group, giving a visual indication of coupling strength.
+
+```{r jitter-true}
+plot_htna(m, jitter = TRUE)
+```
+
+### Control jitter amount
+
+A numeric value controls the maximum displacement.
+
+```{r jitter-amount}
+plot_htna(m, jitter = 0.5)
+```
+
+### Jitter both sides
+
+By default, only the first group is jittered. Set `jitter_side = "both"` to
+apply jitter to both groups.
+
+```{r jitter-both}
+plot_htna(m, jitter = TRUE, jitter_side = "both")
+```
+
+### Jitter second group only
+
+```{r jitter-second}
+plot_htna(m, jitter = TRUE, jitter_side = "second")
+```
+
+## 14. Legend
+
+### No legend
+
+```{r legend-false}
+plot_htna(m, legend = FALSE)
+```
+
+### Legend position
+
+The `legend_position` parameter accepts standard R positions: `"bottomright"`
+(default), `"bottomleft"`, `"topleft"`, `"topright"`.
+
+```{r legend-topleft}
+plot_htna(m, legend_position = "topleft")
+```
+
+```{r legend-topright}
+plot_htna(m, legend_position = "topright")
+```
+
+## 15. Extend lines
+
+Draw extension lines outward from each node, which can help connect labels to
+nodes in dense plots. `TRUE` uses a default length; a numeric value sets the
+length explicitly.
+
+```{r extend-lines}
+plot_htna(m, extend_lines = TRUE)
+```
+
+```{r extend-lines-length}
+plot_htna(m, extend_lines = 0.3)
+```
+
+## 16. Layout margin
+
+The `layout_margin` parameter adds padding around the plot area. Increase it
+when labels are clipped at the edges.
+
+```{r margin-tight}
+plot_htna(m, layout_margin = 0)
+```
+
+```{r margin-wide}
+plot_htna(m, layout_margin = 0.4)
+```
+
+## 17. Scale
+
+The `scale` parameter adjusts all spacing proportionally, useful when
+exporting at higher resolutions. A value of 2 doubles all distances.
+
+```{r scale-2}
+plot_htna(m, scale = 2)
+```
+
+## 18. Label abbreviation
+
+The `label_abbrev` parameter truncates node labels to a fixed number of
+characters (numeric) or lets the function choose automatically (`"auto"`).
+Helpful when code names are long.
+
+```{r abbrev-3}
+plot_htna(m, label_abbrev = 3)
+```
+
+```{r abbrev-auto}
+plot_htna(m, label_abbrev = "auto")
+```
+
+## 19. Custom node metadata
+
+Pass a data frame with a `label` column (for matching) and a `labels` column
+(for display) to rename nodes in the plot without modifying the network.
+
+```{r nodes-df}
+nodes_df <- data.frame(
+  label  = c("left", "right"),
+  labels = paste0("N", 1:10)
+)
+plot_htna(m, nodes = nodes_df)
+```
+
+## 20. Angle spacing (circular/polygon layouts)
+
+The `angle_spacing` parameter controls the empty space at corners in circular
+and polygon layouts. Higher values create larger gaps at the vertices, visually
+separating the groups.
+
+```{r angle-spacing}
+plot_htna(m, layout = "circular", angle_spacing = 0.3)
+```
+
+## 21. Passthrough arguments
+
+Any additional arguments are forwarded to `cograph::splot()` via `...`. This
+gives access to the full set of rendering options.
+
+### Hide weak edges
+
+The `threshold` parameter (passed to splot) hides edges with weights below the
+given value.
+
+```{r minimum}
+plot_htna(m, threshold = 0.1)
+```
+
+### Hide edge labels
+
+```{r no-edge-labels}
+plot_htna(m, edge.labels = FALSE)
+```
+
+## 22. Combining parameters
+
+Parameters can be freely combined to fine-tune the visualisation:
+
+```{r combined}
+plot_htna(m,
+          group_colors = c("#E91E63", "#009688"),
+          group_shapes = c("circle", "diamond"),
+          group_spacing = 6,
+          jitter = TRUE,
+          jitter_side = "both",
+          curvature = 0.6,
+          threshold = 0.08,
+          legend_position = "topright")
+```

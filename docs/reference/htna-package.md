@@ -15,9 +15,9 @@ The package is a thin layer on top of two foundations:
   chord, heatmap).
 
 htna adds the heterogeneous-actor wrapper
-[`build_htna`](https://mohsaqr.github.io/htna/reference/build_htna.md)
-and re-exports the most commonly used downstream functions so users do
-not need to attach Nestimate or cograph explicitly.
+[`build_htna`](https://sonsoles.me/htna/reference/build_htna.md) and
+re-exports the most commonly used downstream functions so users do not
+need to attach Nestimate or cograph explicitly.
 
 ## See also
 

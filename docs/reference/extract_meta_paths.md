@@ -32,7 +32,7 @@ extract_meta_paths(
 
   \[`htna_network`\]  
   A network built with
-  [`build_htna()`](https://mohsaqr.github.io/htna/reference/build_htna.md).
+  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
   Must have `$nodes$groups`, `$node_groups`, and `$data` populated.
 
 - length:
@@ -103,11 +103,11 @@ with columns: `schema`, `length`, `gap`, `count`, `n_sequences`,
 ## Details
 
 Operates on the actor partition stored on the network by
-[`build_htna()`](https://mohsaqr.github.io/htna/reference/build_htna.md).
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
 
 ## See also
 
-[`build_htna()`](https://mohsaqr.github.io/htna/reference/build_htna.md).
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
 
 ## Examples
 

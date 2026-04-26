@@ -1,15 +1,21 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
-<url><loc>https://mohsaqr.github.io/htna/404.html</loc></url>
-<url><loc>https://mohsaqr.github.io/htna/LICENSE-text.html</loc></url>
-<url><loc>https://mohsaqr.github.io/htna/articles/htna.html</loc></url>
-<url><loc>https://mohsaqr.github.io/htna/articles/index.html</loc></url>
-<url><loc>https://mohsaqr.github.io/htna/authors.html</loc></url>
-<url><loc>https://mohsaqr.github.io/htna/index.html</loc></url>
-<url><loc>https://mohsaqr.github.io/htna/reference/build_htna.html</loc></url>
-<url><loc>https://mohsaqr.github.io/htna/reference/extract_meta_paths.html</loc></url>
-<url><loc>https://mohsaqr.github.io/htna/reference/htna-package.html</loc></url>
-<url><loc>https://mohsaqr.github.io/htna/reference/index.html</loc></url>
-<url><loc>https://mohsaqr.github.io/htna/reference/print.htna_paths.html</loc></url>
-<url><loc>https://mohsaqr.github.io/htna/reference/reexports.html</loc></url>
+<url><loc>https://sonsoles.me/htna/404.html</loc></url>
+<url><loc>https://sonsoles.me/htna/LICENSE-text.html</loc></url>
+<url><loc>https://sonsoles.me/htna/articles/data-preparation.html</loc></url>
+<url><loc>https://sonsoles.me/htna/articles/htna.html</loc></url>
+<url><loc>https://sonsoles.me/htna/articles/index.html</loc></url>
+<url><loc>https://sonsoles.me/htna/articles/multigroup.html</loc></url>
+<url><loc>https://sonsoles.me/htna/articles/plot-htna-gallery.html</loc></url>
+<url><loc>https://sonsoles.me/htna/authors.html</loc></url>
+<url><loc>https://sonsoles.me/htna/index.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/bootstrap_htna.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/build_htna.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/extract_meta_paths.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/htna-package.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/htna_palette.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/index.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/plot_htna.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/print.htna_paths.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/reexports.html</loc></url>
 </urlset>
 

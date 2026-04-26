@@ -1,7 +1,7 @@
 # Print Method for htna Path/Pattern Objects
 
 Shared print method for objects returned by
-[`extract_meta_paths()`](https://mohsaqr.github.io/htna/reference/extract_meta_paths.md)
+[`extract_meta_paths()`](https://sonsoles.me/htna/reference/extract_meta_paths.md)
 (class `htna_meta_paths`). Dispatches on the `htna_paths` parent class.
 
 ## Usage

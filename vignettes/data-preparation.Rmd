@@ -1,0 +1,164 @@
+---
+title: "Data Preparation for HTNA"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Data Preparation for HTNA}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 10,
+  fig.height = 7,
+  dpi = 150
+)
+```
+
+This vignette shows how to go from raw event logs to a heterogeneous
+transition network using `Nestimate::prepare()` for data preparation and
+`htna::build_htna()` for network construction.
+
+## Starting point: a raw event log
+
+In practice, interaction data often arrives as a single table with one row per
+event. Each row records which actor performed the action, what the action was,
+and when it occurred.
+
+We simulate a Human--AI tutoring interaction where each actor has four distinct
+codes:
+
+```{r}
+library(htna)
+library(Nestimate)
+
+set.seed(123)
+
+human_codes <- c("Ask", "Confirm", "Revise", "Evaluate")
+ai_codes    <- c("Suggest", "Explain", "Execute", "Clarify")
+sessions    <- paste0("S", sprintf("%03d", 1:30))
+
+make_events <- function(codes, sessions, parity) {
+  rows <- lapply(sessions, function(sid) {
+    n <- sample(15:25, 1)
+    data.frame(
+      session_id       = sid,
+      code             = sample(codes, n, replace = TRUE),
+      order_in_session = seq_len(n) * 2L - parity,
+      stringsAsFactors = FALSE
+    )
+  })
+  do.call(rbind, rows)
+}
+
+human_data <- make_events(human_codes, sessions, 1L)
+ai_data    <- make_events(ai_codes, sessions, 0L)
+```
+
+We can also combine them into a single event log with an actor column, as
+data often arrives in this form:
+
+```{r}
+events <- rbind(
+  data.frame(actor = "Human", human_data, stringsAsFactors = FALSE),
+  data.frame(actor = "AI", ai_data, stringsAsFactors = FALSE)
+) 
+events$actor = factor(events$actor, levels = c("Human","AI"))
+events <- events[order(events$session_id, events$order_in_session), ]
+head(events[, c("actor", "session_id", "code", "order_in_session")])
+```
+
+## Option 1: Single data frame with an actor column
+
+If your data is already in long format with session and order columns,
+you can pass it directly to `build_htna()` using the `actor_col` argument:
+
+```{r}
+net <- build_htna(events, actor_col = "actor")
+net
+```
+
+```{r}
+plot_htna(net)
+```
+
+## Option 2: Named list of data frames
+
+When data for each actor is stored separately (or has been prepared
+independently), pass them as a named list:
+
+```{r}
+net2 <- build_htna(list(Human = human_data, AI = ai_data))
+net2
+```
+
+## Option 3: Prepare each actor with `Nestimate::prepare()`
+
+When your raw data needs cleaning -- e.g. session detection from timestamps,
+tie-breaking, or format conversion -- you can use `Nestimate::prepare()` on
+each actor's data independently, then feed the prepared long-format data
+into `build_htna()`.
+
+```{r}
+prep_human <- prepare(
+  human_data,
+  actor   = "session_id",
+  action  = "code",
+  session = "session_id",
+  order   = "order_in_session"
+)
+
+prep_ai <- prepare(
+  ai_data,
+  actor   = "session_id",
+  action  = "code",
+  session = "session_id",
+  order   = "order_in_session"
+)
+```
+
+`prepare()` returns a list with several components. The `long_data` element
+contains the cleaned long-format data ready for network estimation:
+
+```{r}
+head(prep_human$long_data[, c("session_id", "code", "order_in_session")])
+```
+
+Pass the prepared long data as a named list:
+
+```{r}
+net3 <- build_htna(
+  list(Human = prep_human$long_data, AI = prep_ai$long_data)
+)
+net3
+```
+
+```{r}
+plot_htna(net3, layout = "auto")
+```
+
+## When to use each approach
+
+| Approach | Best for |
+|----------|----------|
+| Single data frame + `actor_col` | Data already clean, sessions and order defined |
+| Named list of data frames | Separate files per actor, no cleaning needed |
+| Separate `prepare()` per actor | Raw timestamps, automatic session splitting, different cleaning per actor |
+
+All three approaches produce the same network when the underlying data is
+equivalent. Choose whichever fits your data pipeline.
+
+## Handling overlapping codes
+
+If different actors share the same code labels (e.g. both Human and AI have a
+code called "Ask"), `build_htna()` will raise an error by default. Set
+`disambiguate = TRUE` to automatically prefix codes with the actor name:
+
+```{r, eval = FALSE}
+net <- build_htna(data, actor_col = "actor", disambiguate = TRUE)
+# Codes become "Human:Ask", "AI:Ask", etc.
+```
