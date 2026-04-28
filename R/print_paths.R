@@ -46,5 +46,3 @@ print.htna_paths <- function(x, n = 10L, ...) {
   if (nrow(x) > n) cat("... (", nrow(x) - n, " more)\n", sep = "")
   invisible(x)
 }
-
-`%||%` <- function(a, b) if (is.null(a)) b else a

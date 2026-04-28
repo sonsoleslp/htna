@@ -160,6 +160,7 @@ build_htna <- function(data,
     group = net$nodes$groups,
     stringsAsFactors = FALSE
   )
+  net$actor_levels <- actor_levels
 
   # Tag with `htna` at the front of the class chain so downstream code can
   # detect the heterogeneous-network case via `inherits(x, "htna")`. The
