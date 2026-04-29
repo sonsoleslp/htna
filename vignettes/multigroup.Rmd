@@ -1,0 +1,105 @@
+---
+title: "Multi-Group HTNA (3+ Actor Groups)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Multi-Group HTNA (3+ Actor Groups)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 10,
+  fig.height = 7,
+  dpi = 150
+)
+```
+
+HTNA is not limited to two actor groups. This vignette demonstrates how to
+build and visualise a heterogeneous transition network with three groups.
+
+## Simulating a three-actor interaction
+
+We simulate a collaborative coding session with three actors -- a Student, an
+AI assistant, and a System (e.g. IDE or automated tooling) -- each with four
+distinct codes:
+
+```{r}
+library(htna)
+
+set.seed(42)
+
+student_codes <- c("Ask", "Confirm", "Revise", "Evaluate")
+ai_codes      <- c("Suggest", "Explain", "Execute", "Clarify")
+system_codes  <- c("Log", "Notify", "Compile", "Sync")
+sessions      <- paste0("S", sprintf("%03d", 1:30))
+
+make_events <- function(codes, sessions, offset) {
+  rows <- lapply(sessions, function(sid) {
+    n <- sample(15:25, 1)
+    data.frame(
+      session_id       = sid,
+      code             = sample(codes, n, replace = TRUE),
+      order_in_session = seq_len(n) * 3L - offset,
+      stringsAsFactors = FALSE
+    )
+  })
+  do.call(rbind, rows)
+}
+
+student_data <- make_events(student_codes, sessions, 2L)
+ai_data      <- make_events(ai_codes, sessions, 1L)
+system_data  <- make_events(system_codes, sessions, 0L)
+```
+
+## Building a 3-group network
+
+Pass all three groups as a named list:
+
+```{r}
+net3 <- build_htna(
+  list(Student = student_data, AI = ai_data, System = system_data)
+)
+net3
+```
+
+The actor partition now contains three levels:
+
+```{r}
+table(net3$node_groups$group)
+```
+
+## Plotting
+
+With three or more groups, `plot_htna()` automatically switches to a polygon
+(triangle) layout. The three colours from the default HTNA palette are applied
+in order:
+
+```{r}
+plot_htna(net3)
+```
+
+You can switch to other layouts as well:
+
+```{r}
+plot_htna(net3, layout = "auto")
+```
+
+## Meta-paths across three actors
+
+Meta-paths now span all three actor types. For example, you can search for
+paths where the System mediates between Student and AI:
+
+```{r}
+extract_meta_paths(net3, schema = "Student->System->AI")
+```
+
+Or enumerate all length-3 meta-paths:
+
+```{r}
+extract_meta_paths(net3, length = 3)
+```

@@ -1,0 +1,44 @@
+url: https://sonsoles.me/htna/
+
+template:
+  bootstrap: 5
+  bootswatch: flatly
+navbar:
+  structure:
+    left: [intro, reference, articles]
+    right: [search, github]
+
+reference:
+  - title: Build
+    desc: Construct a heterogeneous transition network
+    contents:
+      - build_htna
+
+  - title: Paths & Patterns
+    desc: Discover meta-paths and state-level patterns
+    contents:
+      - extract_meta_paths
+      - print.htna_paths
+
+  - title: Plot
+    desc: Visualise the network
+    contents:
+      - plot_htna
+      - plot_htna_bootstrap
+      - plot_htna_diff
+      
+      
+  - title: Validation
+    desc: Validate the model
+    contents:
+      - bootstrap_htna
+
+articles:
+  - title: Getting Started
+    contents:
+      - htna
+      - data-preparation
+  - title: Advanced
+    contents:
+      - multigroup
+      - plot-htna-gallery

@@ -91,8 +91,13 @@ build_htna <- function(data,
       actor_col %in% names(data)
     )
     combined     <- data
-    actor_vec    <- as.character(combined[[actor_col]])
-    actor_levels <- unique(actor_vec)
+    raw_col      <- combined[[actor_col]]
+    if (is.factor(raw_col)) {
+      actor_levels <- levels(raw_col)
+    } else {
+      actor_levels <- unique(as.character(raw_col))
+    }
+    actor_vec <- as.character(raw_col)
     if (length(actor_levels) < 2L) {
       stop("`actor_col` must contain at least two distinct actors.",
            call. = FALSE)
@@ -107,8 +112,9 @@ build_htna <- function(data,
   )
 
   # ---- Build per-actor code dictionary; optionally disambiguate overlaps ----
+  actor_fac <- factor(actor_vec, levels = actor_levels)
   codes_by_actor <- lapply(
-    split(as.character(combined[[action]]), actor_vec),
+    split(as.character(combined[[action]]), actor_fac),
     unique
   )
   overlap <- Reduce(intersect, codes_by_actor)
@@ -123,7 +129,7 @@ build_htna <- function(data,
   if (disambiguate) {
     combined[[action]] <- paste(actor_vec, combined[[action]], sep = ":")
     codes_by_actor <- lapply(
-      split(as.character(combined[[action]]), actor_vec),
+      split(as.character(combined[[action]]), actor_fac),
       unique
     )
   }
@@ -154,7 +160,10 @@ build_htna <- function(data,
   codes_flat   <- unlist(unname(codes_by_actor), use.names = FALSE)
   actor_flat   <- rep(names(codes_by_actor), lengths(codes_by_actor))
   actor_lookup <- setNames(actor_flat, codes_flat)
-  net$nodes$groups <- unname(actor_lookup[net$nodes$label])
+  net$nodes$groups <- factor(
+    unname(actor_lookup[net$nodes$label]),
+    levels = actor_levels
+  )
   net$node_groups <- data.frame(
     node  = net$nodes$label,
     group = net$nodes$groups,

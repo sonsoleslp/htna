@@ -18,6 +18,6 @@ The input object, invisibly.
 }
 \description{
 Shared print method for objects returned by \code{\link[=extract_meta_paths]{extract_meta_paths()}}
-(class \code{htna_meta_paths}) and \code{\link[=find_patterns]{find_patterns()}} (class \code{htna_patterns}).
-Both inherit from \code{htna_paths}, which dispatches here.
+(class \code{htna_meta_paths}). Dispatches on the \code{htna_paths} parent class.
 }
+\keyword{internal}

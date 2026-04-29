@@ -76,7 +76,6 @@ wildcards).
 }
 \details{
 Operates on the actor partition stored on the network by \code{\link[=build_htna]{build_htna()}}.
-For state-level patterns over raw codes (not types), see \code{\link[=find_patterns]{find_patterns()}}.
 }
 \examples{
 \dontrun{
@@ -98,5 +97,5 @@ extract_meta_paths(net, length = 3, min_lift = 1.2)
 
 }
 \seealso{
-\code{\link[=find_patterns]{find_patterns()}} for state-level patterns; \code{\link[=build_htna]{build_htna()}}.
+\code{\link[=build_htna]{build_htna()}}.
 }

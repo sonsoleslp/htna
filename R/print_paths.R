@@ -1,8 +1,8 @@
 #' Print Method for htna Path/Pattern Objects
 #'
 #' Shared print method for objects returned by [extract_meta_paths()]
-#' (class `htna_meta_paths`) and [find_patterns()] (class `htna_patterns`).
-#' Both inherit from `htna_paths`, which dispatches here.
+#' (class `htna_meta_paths`). Dispatches on the `htna_paths` parent class.
+#' @keywords internal
 #'
 #' @param x An `htna_paths` object.
 #' @param n Maximum number of rows to print. Default `10`.
