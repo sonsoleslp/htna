@@ -10,11 +10,20 @@
 #'     \item A named list of long-format data frames, one per actor
 #'       (e.g. \code{list(Human = human_long, AI = ai_long)}). All frames
 #'       must share the same column schema.
-#'     \item A single long-format data frame with an actor column. In that
-#'       case \code{actor_col} must be supplied.
+#'     \item A single long-format data frame. In that case either
+#'       \code{actor_col} (row-level actor IDs) or \code{node_groups}
+#'       (node-level actor lookup) must be supplied.
 #'   }
 #' @param actor_col Character. Name of the actor column when \code{data} is
-#'   a single data frame. Ignored when \code{data} is a named list.
+#'   a single data frame and actor identity lives at the row level. Ignored
+#'   when \code{data} is a named list or when \code{node_groups} is supplied.
+#' @param node_groups Named list mapping actor labels to character vectors of
+#'   code names, e.g. \code{list(Human = c("Specify", "Command"),
+#'   AI = c("Plan", "Execute"))}. Use this when \code{data} is a single
+#'   long-format frame with no actor column and you want to declare the
+#'   node-to-actor partition directly. Each code in \code{data[[action]]}
+#'   must appear in exactly one of the vectors. Mutually exclusive with
+#'   \code{actor_col}.
 #' @param action Character. Name of the action/code column. Default
 #'   \code{"code"}.
 #' @param session Character. Name of the session column. Default
@@ -60,12 +69,18 @@
 #' @export
 build_htna <- function(data,
                        actor_col    = NULL,
+                       node_groups       = NULL,
                        action       = "code",
                        session      = "session_id",
                        order        = "order_in_session",
                        method       = "relative",
                        disambiguate = FALSE,
                        ...) {
+
+  if (!is.null(actor_col) && !is.null(node_groups)) {
+    stop("Pass either `actor_col` (row-level) or `node_groups` (node-level), ",
+         "not both.", call. = FALSE)
+  }
 
   # ---- Resolve input form to (combined_df, actor_vec) ----
   if (is.list(data) && !is.data.frame(data)) {
@@ -84,6 +99,32 @@ build_htna <- function(data,
     n_per        <- vapply(data, nrow, integer(1L))
     combined     <- do.call(rbind, unname(data))
     actor_vec    <- rep(actor_levels, times = n_per)
+  } else if (!is.null(node_groups)) {
+    stopifnot(
+      is.data.frame(data),
+      is.list(node_groups), length(node_groups) >= 2L,
+      !is.null(names(node_groups)), all(nzchar(names(node_groups))),
+      all(vapply(node_groups, is.character, logical(1L))),
+      is.character(action), length(action) == 1L,
+      action %in% names(data)
+    )
+    all_codes <- unlist(node_groups, use.names = FALSE)
+    if (anyDuplicated(all_codes)) {
+      dups <- unique(all_codes[duplicated(all_codes)])
+      stop("Code(s) appear in more than one actor list in `node_groups`: ",
+           paste(dups, collapse = ", "), call. = FALSE)
+    }
+    combined      <- data
+    code_to_actor <- setNames(rep(names(node_groups), lengths(node_groups)), all_codes)
+    raw_codes     <- as.character(combined[[action]])
+    actor_vec     <- unname(code_to_actor[raw_codes])
+    if (any(is.na(actor_vec))) {
+      missing <- unique(raw_codes[is.na(actor_vec)])
+      stop("Codes in `data` not assigned to any actor in `node_groups`: ",
+           paste(missing, collapse = ", "),
+           ". Add them to `node_groups` or filter them out.", call. = FALSE)
+    }
+    actor_levels <- names(node_groups)
   } else {
     stopifnot(
       is.data.frame(data),
