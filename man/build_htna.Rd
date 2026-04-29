@@ -7,6 +7,7 @@
 build_htna(
   data,
   actor_col = NULL,
+  node_groups = NULL,
   action = "code",
   session = "session_id",
   order = "order_in_session",
@@ -21,12 +22,22 @@ build_htna(
 \item A named list of long-format data frames, one per actor
 (e.g. \code{list(Human = human_long, AI = ai_long)}). All frames
 must share the same column schema.
-\item A single long-format data frame with an actor column. In that
-case \code{actor_col} must be supplied.
+\item A single long-format data frame. In that case either
+\code{actor_col} (row-level actor IDs) or \code{node_groups}
+(node-level actor lookup) must be supplied.
 }}
 
 \item{actor_col}{Character. Name of the actor column when \code{data} is
-a single data frame. Ignored when \code{data} is a named list.}
+a single data frame and actor identity lives at the row level. Ignored
+when \code{data} is a named list or when \code{node_groups} is supplied.}
+
+\item{node_groups}{Named list mapping actor labels to character vectors of
+code names, e.g. \code{list(Human = c("Specify", "Command"),
+  AI = c("Plan", "Execute"))}. Use this when \code{data} is a single
+long-format frame with no actor column and you want to declare the
+node-to-actor partition directly. Each code in \code{data[[action]]}
+must appear in exactly one of the vectors. Mutually exclusive with
+\code{actor_col}.}
 
 \item{action}{Character. Name of the action/code column. Default
 \code{"code"}.}

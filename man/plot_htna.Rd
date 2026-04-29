@@ -4,26 +4,20 @@
 \alias{plot_htna}
 \title{Plot a Heterogeneous Transition Network}
 \usage{
-plot_htna(
-  x,
-  layout = "circular",
-  threshold = 0.05,
-  group_colors = htna_palette,
-  ...
-)
+plot_htna(x, layout = "circular", group_colors = htna_palette, ...)
 }
 \arguments{
 \item{x}{A network object produced by \code{\link[=build_htna]{build_htna()}}.}
 
 \item{layout}{Character. Layout algorithm. Default \code{"circular"}.}
 
-\item{threshold}{Numeric. Hide edges with weight below this value.
-Default \code{0.05}.}
-
 \item{group_colors}{Character vector of colours, one per actor group.
 Defaults to the built-in \link{htna_palette}.}
 
 \item{...}{Additional arguments passed to \code{\link[cograph:plot_htna]{cograph::plot_htna()}}.}
+
+\item{threshold}{Numeric. Hide edges with weight below this value.
+Default \code{0.05}.}
 }
 \value{
 Called for its side effect (a plot). Returns \code{x} invisibly.

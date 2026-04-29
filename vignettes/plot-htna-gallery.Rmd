@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   fig.width = 7,
-  fig.height = 7,
+  fig.height = 9,
   out.width = "100%",
   dpi = 150
 )
@@ -37,6 +37,9 @@ Build the heterogeneous transition network:
 m <- build_htna(list(Human = human_long, AI = ai_long))
 m
 ```
+
+
+
 
 ## 1. Defaults
 
@@ -119,7 +122,7 @@ plot_htna(m, group_spacing = 1)
 ```
 
 ```{r spacing-wide}
-plot_htna(m, group_spacing = 12)
+plot_htna(m, group_spacing = 5)
 ```
 
 ## 5. Node spacing
@@ -289,7 +292,7 @@ plot_htna(m, jitter = TRUE, jitter_side = "second")
 ### No legend
 
 ```{r legend-false}
-plot_htna(m, legend = FALSE)
+# plot_htna(m, legend = FALSE)
 ```
 
 ### Legend position
@@ -338,7 +341,7 @@ The `scale` parameter adjusts all spacing proportionally, useful when
 exporting at higher resolutions. A value of 2 doubles all distances.
 
 ```{r scale-2}
-plot_htna(m, scale = 2)
+#plot_htna(m, scale = 2)
 ```
 
 ## 18. Label abbreviation
