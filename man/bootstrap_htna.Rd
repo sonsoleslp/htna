@@ -2,9 +2,12 @@
 % Please edit documentation in R/bootstrap_htna.R
 \name{bootstrap_htna}
 \alias{bootstrap_htna}
+\alias{bootstrap.htna}
 \title{Bootstrap an HTNA Network}
 \usage{
 bootstrap_htna(x, ...)
+
+\method{bootstrap}{htna}(x, ...)
 }
 \arguments{
 \item{x}{[\code{htna}]\cr A network built with \code{\link[=build_htna]{build_htna()}}.}

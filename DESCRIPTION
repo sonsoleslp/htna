@@ -2,27 +2,30 @@ Package: htna
 Title: Heterogeneous Transition Network Analysis
 Version: 0.1.0
 Authors@R: c(
+    person("Sonsoles", "L\u00f3pez-Pernas", email = "sonsoles.lopez@uef.fi",
+           role = c("aut", "cre", "cph")),
+    person("Kamila", "Misiejuk", role = c("aut", "cph")),
     person("Mohammed", "Saqr", email = "saqr@saqr.me",
-           role = c("aut", "cre", "cph"))
+           role = c("aut", "cph"))
   )
 Description: Heterogeneous Transition Network Analysis (HTNA) for sequences
     that mix two or more actor groups (e.g. Human and AI) within the same
-    interaction. Provides a thin, focused API on top of the 'Nestimate'
+    interaction. Provides a thin, focused API on top of the 'Nestimate' 
     estimation engine and the 'cograph' rendering engine: build a transition
     network over the combined sequence while preserving the actor partition,
     so downstream bootstrap, permutation, reliability, centrality, and
     plotting functions treat each actor's codes as a distinct node group.
 License: MIT + file LICENSE
-URL: https://github.com/mohsaqr/htna
-BugReports: https://github.com/mohsaqr/htna/issues
+URL: https://sonsoles.me/htna
+BugReports: https://github.com/sonsoleslp/htna/issues
 Depends:
     R (>= 4.1.0)
 Imports:
     Nestimate (>= 0.4.3),
     cograph (>= 2.1.0)
 Suggests:
-    tna,
     codyna,
+    ggplot2,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)

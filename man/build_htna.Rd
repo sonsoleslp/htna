@@ -12,6 +12,7 @@ build_htna(
   session = "session_id",
   order = "order_in_session",
   method = "relative",
+  group = NULL,
   disambiguate = FALSE,
   ...
 )
@@ -51,6 +52,11 @@ must appear in exactly one of the vectors. Mutually exclusive with
 \item{method}{Character. Transition method passed to
 \code{\link[Nestimate]{build_network}}: \code{"relative"} (default),
 \code{"frequency"}, or \code{"attention"}.}
+
+\item{group}{Character. Optional name of a column in \code{data} used to
+split sessions into cohorts (e.g. \code{"cluster"}). When supplied,
+one network is built per group level and the result is a named list of
+htna networks with class \code{c("htna_group", "netobject_group")}.}
 
 \item{disambiguate}{Logical. If \code{FALSE} (default), the function errors
 when a code label appears in more than one actor group. If \code{TRUE},

@@ -1,0 +1,218 @@
+---
+title: "Grouped HTNA"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Grouped HTNA}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  message  = FALSE,
+  warning  = FALSE,
+  fig.width  = 10,
+  fig.height = 7,
+  dpi = 150
+)
+```
+
+A common HTNA question is whether the same actor partition behaves
+*differently* across experimental conditions -- e.g. a control group
+versus a treatment group. `build_htna()` supports this directly: pass
+the name of a session-level grouping column and you get **one network
+per condition**, each preserving the actor partition. Every other
+function in `htna` recognises the grouped result and iterates over
+conditions.
+
+## A control / experimental example
+
+We simulate a study with two conditions, each with 30 sessions. In
+every session a Human and an AI interleave codes from the **same**
+alphabet, but the experimental condition uses a more collaborative
+transition pattern (more `Specify -> Plan` instead of `Specify ->
+Execute`). Because both conditions share the same nodes, we can compare
+them edge by edge.
+
+```{r}
+library(htna)
+set.seed(42)
+
+human_codes <- c("Specify", "Verify", "Refine")
+ai_codes    <- c("Plan", "Execute", "Explain")
+
+# Markov-style transition matrices per condition.
+# Rows = previous state, columns = next state. Both conditions share
+# the same alphabet, but Control favours fast Specify -> Execute loops
+# while Experimental favours deliberative Specify -> Plan -> Verify.
+states_ <- c("Specify", "Verify", "Refine", "Plan", "Execute", "Explain")
+
+trans_control <- matrix(c(
+  # Specify  Verify Refine  Plan Execute Explain
+    0.05,    0.05,  0.05,   0.10, 0.70,   0.05,   # from Specify
+    0.10,    0.05,  0.30,   0.05, 0.45,   0.05,   # from Verify
+    0.10,    0.10,  0.10,   0.05, 0.60,   0.05,   # from Refine
+    0.05,    0.10,  0.10,   0.05, 0.65,   0.05,   # from Plan
+    0.40,    0.20,  0.30,   0.05, 0.05,   0.00,   # from Execute
+    0.05,    0.50,  0.05,   0.10, 0.25,   0.05    # from Explain
+), nrow = 6, byrow = TRUE,
+dimnames = list(states_, states_))
+
+trans_experimental <- matrix(c(
+  # Specify  Verify Refine  Plan Execute Explain
+    0.05,    0.10,  0.05,   0.65, 0.05,   0.10,   # from Specify
+    0.05,    0.05,  0.55,   0.10, 0.05,   0.20,   # from Verify
+    0.10,    0.30,  0.05,   0.40, 0.10,   0.05,   # from Refine
+    0.05,    0.50,  0.05,   0.05, 0.05,   0.30,   # from Plan
+    0.05,    0.50,  0.05,   0.30, 0.05,   0.05,   # from Execute
+    0.05,    0.30,  0.10,   0.45, 0.05,   0.05    # from Explain
+), nrow = 6, byrow = TRUE,
+dimnames = list(states_, states_))
+
+simulate_session <- function(sid, condition, alphabet, trans) {
+  n_steps <- sample(8:24, 1)            # variable session length
+  states  <- character(n_steps)
+  states[1] <- sample(alphabet, 1)
+  for (i in seq_len(n_steps - 1L)) {
+    states[i + 1L] <- sample(alphabet, 1, prob = trans[states[i], ])
+  }
+  human_set <- human_codes
+  data.frame(
+    session_id = sid,
+    code       = states,
+    actor      = ifelse(states %in% human_set, "Human", "AI"),
+    order_in_session = seq_len(n_steps),
+    condition  = condition,
+    stringsAsFactors = FALSE
+  )
+}
+
+alphabet <- c(human_codes, ai_codes)
+
+ctrl_data <- do.call(rbind, lapply(
+  paste0("C", sprintf("%03d", 1:30)),
+  simulate_session, condition = "Control",
+  alphabet = alphabet, trans = trans_control))
+
+exp_data  <- do.call(rbind, lapply(
+  paste0("E", sprintf("%03d", 1:30)),
+  simulate_session, condition = "Experimental",
+  alphabet = alphabet, trans = trans_experimental))
+
+events <- rbind(ctrl_data, exp_data)
+head(events)
+```
+
+## Building one network per condition
+
+`build_htna()` takes the long data frame, the node-to-actor lookup
+(`node_groups`), and a `group` argument naming the session-level
+condition column:
+
+```{r}
+grp <- build_htna(
+  events,
+  node_groups = list(Human = human_codes, AI = ai_codes),
+  group       = "condition"
+)
+length(grp)
+names(grp)
+```
+
+The result is a named list of HTNA networks. Indexing one element gives
+a regular HTNA network you can use exactly like any other:
+
+```{r}
+grp$Control
+```
+
+Because both conditions were built from the same alphabet, both
+networks have the **same nodes** -- which is exactly what
+`plot_htna_diff()` and `permutation()` need.
+
+## Plotting per condition
+
+`plot_htna()` iterates over conditions and draws one network per
+element. It does not manage the layout grid -- wrap with
+`par(mfrow = ...)` if you want a panel:
+
+```{r, fig.height = 5}
+op <- par(mfrow = c(1, 2))
+plot_htna(grp)
+par(op)
+```
+
+## Per-actor sequences per condition
+
+`sequence_plot_htna()` works the same way:
+
+```{r, fig.height = 8}
+sequence_plot_htna(grp, by = "group", type = "index")
+```
+
+## Centralities per condition
+
+`centralities(grp)` returns one tidy data frame, with a leading
+`group` column identifying the condition:
+
+```{r}
+ct <- centralities(grp)
+head(ct, 10)
+```
+
+`plot_centralities()` faces a grid: rows are conditions, columns are
+measures, so condition-level differences are easy to read at a glance:
+
+```{r, fig.height = 9}
+plot_centralities(grp, by = "group")
+```
+
+## Bootstrap per condition
+
+`bootstrap_htna(grp)` runs the bootstrap on each condition and returns
+a group of bootstrap results. `plot_htna_bootstrap()` iterates again:
+
+```{r, fig.height = 5}
+boots <- bootstrap_htna(grp, iter = 200)
+op <- par(mfrow = c(1, 2))
+plot_htna_bootstrap(boots, display = "significant")
+par(op)
+```
+
+## Comparing the two conditions
+
+This is the key payoff of a control / experimental design: both
+networks share an alphabet, so you can compute the elementwise
+difference directly with `plot_htna_diff()`. Positive (experimental >
+control) is green, negative (control > experimental) is red:
+
+```{r}
+plot_htna_diff(grp$Experimental, grp$Control)
+```
+
+`permutation()` quantifies which differences are statistically
+significant:
+
+```{r}
+perm <- permutation(grp$Experimental, grp$Control, iter = 500)
+plot_htna_diff(perm)
+```
+
+```{r}
+plot_htna_diff(perm, show_nonsig = TRUE)
+```
+
+The significant edges that pop out are exactly the transitions the
+simulation was designed to bias -- in particular the
+`Specify -> Plan` versus `Specify -> Execute` switch -- which
+demonstrates the workflow on a controlled example.
+
+## Indexing
+
+Because the result of `build_htna(..., group = ...)` is a named list,
+all standard list operations work: `grp[["Control"]]`,
+`grp[c("Control", "Experimental")]`, `length(grp)`, `names(grp)`.
+Subsets keep the grouped class so they pass straight back to the
+wrappers above.

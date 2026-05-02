@@ -54,89 +54,7 @@ and stores the actor partition on the resulting network:
 
 ``` r
 net <- build_htna(list(Human = human_long, AI = ai_long))
-#> Registered S3 methods overwritten by 'Nestimate':
-#>   method             from   
-#>   plot.net_stability cograph
-#>   print.mcml         cograph
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)
-net
-#> Transition Network (relative probabilities) [directed]
-#>   Weights: [0.001, 0.646]  |  mean: 0.070
-#> 
-#>   Weight matrix:
-#>                 Ask Command Correct Delegate Execute Explain Frustrate Inquire
-#>   Ask         0.000   0.108   0.129    0.000   0.011   0.387     0.022   0.065
-#>   Command     0.006   0.003   0.054    0.014   0.353   0.030     0.016   0.000
-#>   Correct     0.011   0.000   0.038    0.011   0.264   0.050     0.088   0.005
-#>   Delegate    0.000   0.106   0.018    0.000   0.011   0.018     0.053   0.032
-#>   Execute     0.000   0.209   0.053    0.000   0.074   0.003     0.088   0.088
-#>   Explain     0.000   0.166   0.080    0.000   0.000   0.000     0.066   0.099
-#>   Frustrate   0.005   0.009   0.064    0.012   0.208   0.035     0.078   0.033
-#>   Inquire     0.029   0.011   0.054    0.027   0.285   0.163     0.025   0.033
-#>   Interrupt   0.000   0.151   0.067    0.074   0.007   0.000     0.066   0.094
-#>   Investigate 0.000   0.126   0.043    0.000   0.023   0.003     0.069   0.063
-#>   Plan        0.000   0.242   0.070    0.000   0.015   0.000     0.112   0.083
-#>   Refine      0.001   0.003   0.038    0.006   0.206   0.023     0.000   0.014
-#>   Repair      0.043   0.040   0.012    0.028   0.391   0.103     0.020   0.047
-#>   Report      0.000   0.205   0.123    0.000   0.035   0.000     0.099   0.111
-#>   Request     0.010   0.005   0.001    0.028   0.173   0.026     0.000   0.029
-#>   Specify     0.007   0.124   0.005    0.040   0.273   0.033     0.004   0.011
-#>   Verify      0.010   0.004   0.002    0.022   0.646   0.052     0.000   0.004
-#>               Interrupt Investigate  Plan Refine Repair Report Request Specify
-#>   Ask             0.161       0.000 0.022  0.022  0.022  0.011   0.011   0.022
-#>   Command         0.007       0.138 0.008  0.014  0.004  0.008   0.096   0.229
-#>   Correct         0.005       0.039 0.006  0.068  0.039  0.006   0.076   0.251
-#>   Delegate        0.057       0.000 0.611  0.014  0.000  0.000   0.025   0.035
-#>   Execute         0.055       0.061 0.107  0.069  0.002  0.007   0.083   0.065
-#>   Explain         0.037       0.136 0.058  0.047  0.039  0.103   0.076   0.068
-#>   Frustrate       0.006       0.162 0.002  0.122  0.052  0.003   0.069   0.075
-#>   Inquire         0.014       0.222 0.009  0.016  0.042  0.007   0.018   0.029
-#>   Interrupt       0.086       0.227 0.005  0.067  0.000  0.000   0.055   0.098
-#>   Investigate     0.044       0.019 0.425  0.053  0.003  0.010   0.049   0.053
-#>   Plan            0.103       0.000 0.003  0.086  0.005  0.026   0.083   0.095
-#>   Refine          0.008       0.141 0.013  0.000  0.025  0.000   0.102   0.413
-#>   Repair          0.024       0.198 0.016  0.024  0.004  0.000   0.032   0.020
-#>   Report          0.088       0.000 0.023  0.094  0.041  0.000   0.099   0.058
-#>   Request         0.003       0.146 0.007  0.001  0.012  0.000   0.000   0.545
-#>   Specify         0.092       0.262 0.015  0.002  0.013  0.004   0.002   0.101
-#>   Verify          0.002       0.214 0.012  0.000  0.024  0.000   0.002   0.006
-#>               Verify
-#>   Ask          0.011
-#>   Command      0.021
-#>   Correct      0.043
-#>   Delegate     0.021
-#>   Execute      0.034
-#>   Explain      0.023
-#>   Frustrate    0.065
-#>   Inquire      0.015
-#>   Interrupt    0.005
-#>   Investigate  0.017
-#>   Plan         0.076
-#>   Refine       0.008
-#>   Repair       0.000
-#>   Report       0.023
-#>   Request      0.016
-#>   Specify      0.012
-#>   Verify       0.000 
-#> 
-#>   Initial probabilities:
-#>   Specify       0.818  ████████████████████████████████████████
-#>   Command       0.128  ██████
-#>   Request       0.028  █
-#>   Interrupt     0.021  █
-#>   Frustrate     0.002  
-#>   Refine        0.002  
-#>   Ask           0.000  
-#>   Correct       0.000  
-#>   Delegate      0.000  
-#>   Execute       0.000  
-#>   Explain       0.000  
-#>   Inquire       0.000  
-#>   Investigate   0.000  
-#>   Plan          0.000  
-#>   Repair        0.000  
-#>   Report        0.000  
-#>   Verify        0.000
 ```
 
 ### Plot the network
@@ -146,7 +64,10 @@ distinct colours:
 
 ``` r
 plot_htna(net, threshold = 0.05, layout = "circular")
-#> Using 'groups' column for node groups
+#> Registered S3 methods overwritten by 'cograph':
+#>   method             from     
+#>   plot.net_stability Nestimate
+#>   print.mcml         Nestimate
 ```
 
 <img src="man/figures/README-htna-plot-1.png" alt="" width="60%" style="display: block; margin: auto;" />

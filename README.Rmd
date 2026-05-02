@@ -72,7 +72,6 @@ the actor partition on the resulting network:
 
 ```{r}
 net <- build_htna(list(Human = human_long, AI = ai_long))
-net
 ```
 
 ### Plot the network

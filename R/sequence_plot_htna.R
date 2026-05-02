@@ -17,6 +17,11 @@
 #'   actor, vertically stacked), `"heatmap"` (single carpet with a white
 #'   separator at the actor boundary, controllable via `k_line_width`), or
 #'   `"distribution"` (one stacked-area panel per actor).
+#' @param grouped_legend Logical. If `TRUE` (default) and `by = "state"`,
+#'   the per-state legend is split into one block per actor with the actor
+#'   name as a sub-title.
+#' @param x Same as `net`; used when calling via the `plot_sequences()`
+#'   generic.
 #' @param ... Forwarded to [Nestimate::sequence_plot()].
 #'
 #' @return Invisibly, the list returned by [Nestimate::sequence_plot()].
@@ -37,7 +42,19 @@
 sequence_plot_htna <- function(net,
                                by   = c("state", "group"),
                                type = c("index", "heatmap", "distribution"),
+                               grouped_legend = TRUE,
                                ...) {
+  if (inherits(net, "htna_group") ||
+      (is.list(net) && !inherits(net, "htna") && !is.data.frame(net))) {
+    if (length(net) == 0L) stop("Empty htna_group.", call. = FALSE)
+    nms <- names(net) %||% as.character(seq_along(net))
+    for (i in seq_along(net)) {
+      sequence_plot_htna(net[[i]], by = match.arg(by), type = match.arg(type),
+                         grouped_legend = grouped_legend,
+                         main = nms[i], ...)
+    }
+    return(invisible(net))
+  }
   by   <- match.arg(by)
   type <- match.arg(type)
 
@@ -63,6 +80,12 @@ sequence_plot_htna <- function(net,
     wide[] <- lapply(wide,
                      function(col) unname(type_map[as.character(col)]))
     user_args <- list(...)
+    if (is.null(user_args$state_colors)) {
+      actor_chr  <- as.character(actors)
+      color_map  <- setNames(htna_palette[seq_along(actor_chr)], actor_chr)
+      sorted_lvl <- sort(actor_chr)
+      user_args$state_colors <- unname(color_map[sorted_lvl])
+    }
     if (type == "distribution" && is.null(user_args$na)) {
       user_args$na <- FALSE
     }
@@ -102,14 +125,21 @@ sequence_plot_htna <- function(net,
 
   user_args <- list(...)
 
+  use_grouped_legend <- isTRUE(grouped_legend)
+  legend_position    <- user_args$legend %||% "right"
+  if (identical(legend_position, "none")) use_grouped_legend <- FALSE
+  if (use_grouped_legend) user_args$legend <- legend_position
+
   if (type == "heatmap") {
     hc <- .htna_combined_hclust(pieces)
     if (is.null(user_args$tree))         user_args$tree         <- hc
     if (is.null(user_args$k))            user_args$k            <- length(actors)
     if (is.null(user_args$k_color))      user_args$k_color      <- "white"
     if (is.null(user_args$k_line_width)) user_args$k_line_width <- 12
+    if (is.null(user_args$na_color))     user_args$na_color <- "white"
   } else {
-    user_args$group <- group
+    if (length(actors) >= 2L) user_args$group <- group
+    if (is.null(user_args$na_color)) user_args$na_color <- "white"
     if (type == "index" &&
         is.null(user_args$ncol) && is.null(user_args$nrow)) {
       user_args$ncol <- 1L
@@ -119,10 +149,122 @@ sequence_plot_htna <- function(net,
     }
   }
 
-  do.call(Nestimate::sequence_plot,
-          c(list(x = stacked, type = type), user_args))
+  result <- do.call(Nestimate::sequence_plot,
+                    c(list(x = stacked, type = type), user_args))
+
+  if (use_grouped_legend) {
+    .htna_grouped_legend(result, type_map, actors,
+                         position = legend_position)
+  }
+
+  invisible(result)
 }
 
+#' @rdname sequence_plot_htna
+#' @export
+sequence_plot.htna <- sequence_plot_htna
+
+#' Sequence plot generic
+#'
+#' S3 generic dispatched on `x`. Calling `plot_sequences(net)` on an htna
+#' network forwards to [sequence_plot_htna()].
+#'
+#' @param x An object to plot.
+#' @param ... Forwarded to the method.
+#' @return Method-defined.
+#' @export
+plot_sequences <- function(x, ...) UseMethod("plot_sequences")
+
+#' @export
+#' @rdname sequence_plot_htna
+plot_sequences.htna <- function(x, ...) sequence_plot_htna(x, ...)
+
+
+# Replicates Nestimate:::.legend_oma_size and converts the resulting outer
+# margin (in lines) to NDC fractions for par(fig=...) so the overlay aligns
+# with the actual gutter Nestimate reserved.
+.htna_legend_gutter_fig <- function(levels, position,
+                                    legend_size = NULL,
+                                    legend_ncol = NULL,
+                                    legend_title = NULL) {
+  if (is.null(legend_size)) {
+    din_w <- graphics::par("din")[1]
+    legend_size <- max(0.65, min(1.2, din_w / 10))
+  }
+  label_chars <- max(nchar(as.character(levels)))
+  title_chars <- if (!is.null(legend_title)) nchar(legend_title) else 0
+  wide_chars  <- max(label_chars, title_chars)
+  cw_per_line <- graphics::par("cin")[1] / graphics::par("csi")
+  rows <- if (!is.null(legend_ncol) && legend_ncol > 0) {
+    ceiling(length(levels) / legend_ncol)
+  } else if (position == "bottom") 1L else length(levels)
+  cols <- if (!is.null(legend_ncol) && legend_ncol > 0) {
+    legend_ncol
+  } else if (position == "bottom") length(levels) else 1L
+  h <- rows * legend_size * 1.6 +
+       (if (!is.null(legend_title)) 1.2 else 0.6)
+  w <- cols * ((wide_chars + 3) * cw_per_line * legend_size * 1.15) + 2.5
+
+  csi <- graphics::par("csi")
+  din <- graphics::par("din")
+  if (position == "right") {
+    right_frac <- 1 - (w * csi) / din[1]
+    c(max(0, right_frac), 1, 0, 1)
+  } else {
+    bot_frac <- (h * csi) / din[2]
+    c(0, 1, 0, min(1, bot_frac))
+  }
+}
+
+# Overlay one legend block per actor on top of the gutter Nestimate already
+# reserved for its (now-masked) single legend. Position must match the value
+# Nestimate received so the gutter location is correct.
+.htna_grouped_legend <- function(res, type_map, actors,
+                                 position = c("right", "bottom"),
+                                 cex = 0.7) {
+  position <- match.arg(position)
+  if (is.null(res$levels) || is.null(res$palette)) return(invisible(NULL))
+
+  state_to_actor <- unname(type_map[as.character(res$levels)])
+  actor_fac      <- factor(state_to_actor, levels = as.character(actors))
+  states_by      <- split(as.character(res$levels), actor_fac)
+  colors_by      <- split(unname(res$palette),       actor_fac)
+  keep           <- vapply(states_by, length, integer(1L)) > 0L
+  if (!any(keep)) return(invisible(NULL))
+  states_by <- states_by[keep]
+  colors_by <- colors_by[keep]
+  n_blocks  <- length(states_by)
+
+  old <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(old), add = TRUE)
+
+  fig <- .htna_legend_gutter_fig(res$levels, position)
+  graphics::par(fig = fig, new = TRUE, mar = c(0, 0, 0, 0))
+  graphics::plot.new()
+  graphics::plot.window(xlim = c(0, 1), ylim = c(0, 1),
+                        xaxs = "i", yaxs = "i")
+  graphics::rect(0, 0, 1, 1, col = "white", border = NA)
+
+  for (i in seq_len(n_blocks)) {
+    a    <- names(states_by)[i]
+    if (position == "right") {
+      block_h <- 1 / n_blocks
+      y_top   <- 1 - (i - 1) * block_h
+      graphics::legend(x = 0.05, y = y_top - 0.01,
+                       legend = states_by[[i]], fill = colors_by[[i]],
+                       title  = a, border = NA, bty = "n",
+                       xjust = 0, yjust = 1, cex = cex)
+    } else {
+      block_w <- 1 / n_blocks
+      x_left  <- (i - 1) * block_w
+      graphics::legend(x = x_left + 0.02, y = 0.95,
+                       legend = states_by[[i]], fill = colors_by[[i]],
+                       title  = a, border = NA, bty = "n",
+                       xjust = 0, yjust = 1, cex = cex)
+    }
+  }
+  invisible(NULL)
+}
 
 # Build a combined hclust that has one real per-actor subtree, joined at
 # the root. Each per-actor hclust is computed independently on that

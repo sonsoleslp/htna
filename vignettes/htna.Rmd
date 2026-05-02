@@ -10,82 +10,185 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
-  message = FALSE,
-  warning = FALSE,
-  fig.width = 10,
+  comment  = "#>",
+  message  = FALSE,
+  warning  = FALSE,
+  fig.width  = 10,
   fig.height = 7,
   dpi = 150
 )
 ```
 
-Heterogeneous Transition Network Analysis (HTNA) extends traditional TNA to
-sequences that mix two or more actor groups (e.g. Human and AI) within the same
-interaction. The `htna` package provides a thin, focused API on top of the
-[Nestimate](https://CRAN.R-project.org/package=Nestimate) estimation engine and
-the [cograph](https://CRAN.R-project.org/package=cograph) rendering engine.
+Heterogeneous Transition Network Analysis (HTNA) studies sequences in
+which two or more actors interleave -- a learner and a tutor, a human
+and an AI, a clinician and a patient -- and treats each actor's codes as
+a distinct node group. The `htna` package builds the network, computes
+the usual analytical quantities, and renders the result with the actor
+partition baked into colour, layout, and the legend.
 
-## Building a heterogeneous network
+## 1. Building a heterogeneous network
 
-Start by loading the package and the example data shipped with Nestimate:
+Start from one long-format data frame per actor and combine them with
+`build_htna()`. The result is a network whose nodes carry the actor
+label they came from:
 
 ```{r}
 library(htna)
+
 data(human_long, ai_long, package = "Nestimate")
-```
 
-`build_htna()` accepts a named list of long-format data frames, one per actor
-group. It combines the sequences, estimates transition probabilities, and stores
-the actor partition on the resulting network object:
-
-```{r}
 net <- build_htna(list(Human = human_long, AI = ai_long))
 net
 ```
 
-The actor partition is available in two forms:
+## 2. Plotting the network
 
-- `net$nodes$groups` -- actor label per node (auto-detected by `plot_htna()`).
-- `net$node_groups` -- canonical `(node, group)` data frame used by
-  `cograph::get_groups()` and `cograph::cluster_summary()`.
+`plot_htna()` lays out actor groups around the circle, colours each node
+by its actor, and draws the actor legend below the plot:
 
-## Plotting
-
-`plot_htna()` auto-detects the actor groups and renders them with distinct
-colours. It defaults to a circular layout and a 0.05 edge threshold:
 ```{r}
 plot_htna(net)
 ```
 
-## Meta-paths
+## 3. Per-actor sequence plots
 
-Meta-paths are type-level patterns that abstract away from concrete states and
-ask how often a typed template appears in the data. For example,
-`Human->AI->Human` captures every length-3 path that starts with a Human code,
-transitions to an AI code, and returns to a Human code.
+`sequence_plot_htna()` shows the temporal structure of the sessions.
+With `by = "state"` (the default) each cell is coloured by its concrete
+code; with `by = "group"` cells are coloured by actor.
 
-```{r}
-# Enumerate all meta-paths of length 2 to 4
-mp <- extract_meta_paths(net)
-mp
+```{r, fig.height = 5}
+sequence_plot_htna(net, by = "state", type = "index")
 ```
 
-You can search for a specific schema (with wildcards):
+```{r}
+sequence_plot_htna(net, by = "state", type = "heatmap")
+```
 
 ```{r}
-# Any length-3 path that returns to Human
+sequence_plot_htna(net, by = "group", type = "distribution")
+```
+
+When `by = "state"`, the legend is split into one block per actor with
+the actor name above each block, so the reader can tell at a glance
+which codes belong to which actor.
+
+## 4. Centralities
+
+`centralities()` returns a tidy data frame: one row per node, one column
+per measure, defaulting to nine standard measures (out/in strength,
+in/out closeness, closeness, betweenness, RSP betweenness, diffusion,
+clustering). Pass `measures = c(...)` to subset.
+
+```{r}
+centralities(net)
+```
+
+`plot_centralities()` is the corresponding plot. Each panel is one
+measure; bars are coloured per state by default, or by actor with
+`by = "group"`:
+
+```{r, fig.height = 9}
+plot_centralities(net, by = "state")
+```
+
+```{r, fig.height = 9}
+plot_centralities(net, by = "group")
+```
+
+## 5. Bootstrap
+
+`bootstrap_htna()` resamples sessions to obtain edge-weight stability
+and per-edge p-values. `plot_htna_bootstrap()` plots the resampled
+network with confidence intervals and a non-significant/significant
+edge style. `display = "significant"` zeros out non-significant edges.
+
+```{r}
+boot <- bootstrap_htna(net)
+plot_htna_bootstrap(boot)
+```
+
+```{r}
+plot_htna_bootstrap(boot, display = "significant")
+```
+
+## 6. Comparing two networks
+
+Given two HTNA networks built over the same node set, `plot_htna_diff()`
+draws the elementwise difference. Positive differences are green,
+negative red.
+
+```{r}
+n_h    <- nrow(human_long)
+n_a    <- nrow(ai_long)
+early  <- build_htna(list(Human = human_long[1:(n_h %/% 2), ],
+                          AI    = ai_long[1:(n_a %/% 2), ]))
+late   <- build_htna(list(Human = human_long[(n_h %/% 2 + 1):n_h, ],
+                          AI    = ai_long[(n_a %/% 2 + 1):n_a, ]))
+
+plot_htna_diff(early, late)
+```
+
+## 7. Permutation test
+
+`permutation()` provides a non-parametric significance test on each
+edge weight difference. Pass the result to `plot_htna_diff()` to render
+significant differences with the pos/neg colouring above; non-significant
+edges are dashed grey when `show_nonsig = TRUE`.
+
+```{r}
+perm <- permutation(early, late, iter = 200)
+plot_htna_diff(perm)
+```
+
+```{r}
+plot_htna_diff(perm, show_nonsig = TRUE)
+```
+
+## 8. Meta-paths
+
+Meta-paths are type-level patterns: a fixed sequence of actor labels
+that abstracts away from the concrete states. For example
+`Human->AI->Human` is every length-3 path starting and ending in Human
+states with an AI state in between.
+
+```{r}
+extract_meta_paths(net, length = 3)
+```
+
+Schemas accept a `*` wildcard to fix some positions while letting others
+vary:
+
+```{r}
 extract_meta_paths(net, schema = "Human->*->Human")
 ```
 
-Gapped meta-paths allow skipping positions:
-
-```{r}
-extract_meta_paths(net, length = 3, type = "gapped", gap = 1:2)
-```
-
-Filter by lift to find over-represented meta-paths:
+Filter by lift to surface over-represented templates (lift > 1 means
+more frequent than independence would predict):
 
 ```{r}
 extract_meta_paths(net, length = 3, min_lift = 1.2)
 ```
 
+## 9. State-level paths
+
+`extract_paths()` is the state-level counterpart: same arguments, but
+the alphabet is the concrete code set (`Ask`, `Plan`, `Verify`, ...)
+rather than the actor types. Use it to discover the most frequent
+concrete sequences:
+
+```{r}
+extract_paths(net, length = 3)
+```
+
+Wildcard schemas pin down a start and end while letting the middle vary:
+
+```{r}
+extract_paths(net, schema = "Specify->*->Verify")
+```
+
+And the lift filter surfaces concrete sequences that occur more often
+than the state marginals would predict:
+
+```{r}
+extract_paths(net, length = 3, min_lift = 2)
+```

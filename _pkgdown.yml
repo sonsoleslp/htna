@@ -18,17 +18,30 @@ reference:
     desc: Discover meta-paths and state-level patterns
     contents:
       - extract_meta_paths
+      - extract_paths
       - print.htna_paths
 
   - title: Plot
     desc: Visualise the network
     contents:
       - plot_htna
-      
+      - plot_htna_bootstrap
+      - plot_htna_diff
+      - sequence_plot_htna
+      - plot_sequences
+
+  - title: Centrality
+    desc: Compute and visualise node-level centralities
+    contents:
+      - centralities
+      - plot_centralities
+
   - title: Validation
-    desc: Validate the model
+    desc: Bootstrap and permutation tests
     contents:
       - bootstrap_htna
+      - bootstrap
+      - permutation
 
 articles:
   - title: Getting Started
@@ -38,4 +51,4 @@ articles:
   - title: Advanced
     contents:
       - multigroup
-      - plot-htna-gallery
+      - grouped

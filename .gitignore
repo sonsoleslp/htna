@@ -26,3 +26,23 @@ Htna_cache/
 src/*.o
 src/*.so
 src/*.dll
+
+# Build artifacts (local)
+*.tar.gz
+Rplots.pdf
+Meta/
+inst/doc/
+
+# pkgdown output
+docs/
+
+# Vignette knit outputs
+vignettes/*.html
+vignettes/*_files/
+vignettes/*_cache/
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*~

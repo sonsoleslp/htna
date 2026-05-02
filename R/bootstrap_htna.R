@@ -42,7 +42,15 @@
 #' }
 #'
 #' @export
+#' @rdname bootstrap_htna
 bootstrap_htna <- function(x, ...) {
+  if (inherits(x, "htna_group") ||
+      (is.list(x) && !inherits(x, "htna") && !is.data.frame(x))) {
+    res <- lapply(x, bootstrap_htna, ...)
+    names(res) <- names(x)
+    class(res) <- c("htna_bootstrap_group", "list")
+    return(res)
+  }
   if (!inherits(x, "htna")) {
     stop("`x` must be an htna network produced by build_htna().",
          call. = FALSE)
@@ -57,6 +65,9 @@ bootstrap_htna <- function(x, ...) {
     if (is.null(boot$model$node_groups) && !is.null(x$node_groups)) {
       boot$model$node_groups <- x$node_groups
     }
+    if (is.null(boot$model$actor_levels) && !is.null(x$actor_levels)) {
+      boot$model$actor_levels <- x$actor_levels
+    }
     if (!inherits(boot$model, "htna")) {
       class(boot$model) <- c("htna", class(boot$model))
     }
@@ -65,3 +76,19 @@ bootstrap_htna <- function(x, ...) {
   class(boot) <- c("htna_bootstrap", class(boot))
   boot
 }
+
+#' Bootstrap generic
+#'
+#' S3 generic dispatched on the class of `x`. Provided so `bootstrap(net)`
+#' works directly on an htna network (see [bootstrap_htna()]).
+#'
+#' @param x An object to bootstrap.
+#' @param ... Arguments forwarded to the method.
+#'
+#' @return An object whose structure is method-defined.
+#' @export
+bootstrap <- function(x, ...) UseMethod("bootstrap")
+
+#' @export
+#' @rdname bootstrap_htna
+bootstrap.htna <- function(x, ...) bootstrap_htna(x, ...)

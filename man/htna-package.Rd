@@ -24,13 +24,19 @@ not need to attach \pkg{Nestimate} or \pkg{cograph} explicitly.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/mohsaqr/htna}
-  \item Report bugs at \url{https://github.com/mohsaqr/htna/issues}
+  \item \url{https://github.com/sonsoleslp/htna}
+  \item Report bugs at \url{https://github.com/sonsoleslp/htna/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Mohammed Saqr \email{saqr@saqr.me} [copyright holder]
+\strong{Maintainer}: Sonsoles López-Pernas \email{sonsoles.lopez@uef.fi} [copyright holder]
+
+Authors:
+\itemize{
+  \item Kamila Misiejuk [copyright holder]
+  \item Mohammed Saqr \email{saqr@saqr.me} [copyright holder]
+}
 
 }
 \keyword{internal}

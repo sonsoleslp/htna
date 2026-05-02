@@ -15,4 +15,7 @@
 #' not need to attach \pkg{Nestimate} or \pkg{cograph} explicitly.
 #'
 #' @keywords internal
+#' @importFrom stats setNames
 "_PACKAGE"
+
+if (getRversion() >= "2.15.1") utils::globalVariables(".data")

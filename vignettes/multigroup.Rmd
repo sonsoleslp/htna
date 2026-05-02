@@ -83,10 +83,55 @@ in order:
 plot_htna(net3)
 ```
 
-You can switch to other layouts as well:
+## Per-actor sequences
+
+`sequence_plot_htna()` works the same way with three actors. With
+`by = "state"` each row is one (session, actor) and is coloured by
+the concrete code; with `by = "group"` cells are coloured by actor
+(here Student / AI / System):
+
+```{r, fig.height = 7}
+sequence_plot_htna(net3, by = "state", type = "index")
+```
 
 ```{r}
-plot_htna(net3, layout = "auto")
+sequence_plot_htna(net3, by = "group", type = "distribution")
+```
+
+The `by = "state"` legend is split into one block per actor with the
+actor name as a sub-title, so the reader can tell at a glance which
+codes belong to which actor.
+
+## Comparing two networks
+
+Build a second network from the same actors (e.g. with different
+session-level dynamics) and use `plot_htna_diff()` for the elementwise
+difference. Positive differences are green, negative red:
+
+```{r}
+set.seed(7)
+student_data2 <- make_events(student_codes, sessions, 2L)
+ai_data2      <- make_events(ai_codes,      sessions, 1L)
+system_data2  <- make_events(system_codes,  sessions, 0L)
+
+net3b <- build_htna(
+  list(Student = student_data2, AI = ai_data2, System = system_data2)
+)
+
+plot_htna_diff(net3, net3b)
+```
+
+`permutation()` provides the non-parametric significance test; pass the
+result to `plot_htna_diff()` to surface only the edges that differ
+significantly:
+
+```{r}
+perm3 <- permutation(net3, net3b, iter = 200)
+plot_htna_diff(perm3)
+```
+
+```{r}
+plot_htna_diff(perm3, show_nonsig = TRUE)
 ```
 
 ## Meta-paths across three actors

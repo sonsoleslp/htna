@@ -33,6 +33,10 @@
 #' @param method Character. Transition method passed to
 #'   \code{\link[Nestimate]{build_network}}: \code{"relative"} (default),
 #'   \code{"frequency"}, or \code{"attention"}.
+#' @param group Character. Optional name of a column in \code{data} used to
+#'   split sessions into cohorts (e.g. \code{"cluster"}). When supplied,
+#'   one network is built per group level and the result is a named list of
+#'   htna networks with class \code{c("htna_group", "netobject_group")}.
 #' @param disambiguate Logical. If \code{FALSE} (default), the function errors
 #'   when a code label appears in more than one actor group. If \code{TRUE},
 #'   codes are prefixed with the actor name (\code{"Human:Ask"},
@@ -74,6 +78,7 @@ build_htna <- function(data,
                        session      = "session_id",
                        order        = "order_in_session",
                        method       = "relative",
+                       group        = NULL,
                        disambiguate = FALSE,
                        ...) {
 
@@ -148,9 +153,14 @@ build_htna <- function(data,
   stopifnot(
     is.character(action),  length(action)  == 1L, action  %in% names(combined),
     is.character(session), length(session) == 1L, session %in% names(combined),
-    is.character(order),   length(order)   == 1L, order   %in% names(combined),
+    length(order)   == 1L, order   %in% names(combined),
     is.logical(disambiguate), length(disambiguate) == 1L
   )
+  if (!is.null(group)) {
+    stopifnot(
+      is.character(group), length(group) == 1L, group %in% names(combined)
+    )
+  }
 
   # ---- Build per-actor code dictionary; optionally disambiguate overlaps ----
   actor_fac <- factor(actor_vec, levels = actor_levels)
@@ -188,6 +198,7 @@ build_htna <- function(data,
     session = session,
     order   = order,
     format  = "long",
+    group   = group,
     ...
   )
 
@@ -201,6 +212,19 @@ build_htna <- function(data,
   codes_flat   <- unlist(unname(codes_by_actor), use.names = FALSE)
   actor_flat   <- rep(names(codes_by_actor), lengths(codes_by_actor))
   actor_lookup <- setNames(actor_flat, codes_flat)
+
+  if (!is.null(group)) {
+    net <- lapply(net, .inject_htna_partition, actor_lookup, actor_levels)
+    class(net) <- c("htna_group", "netobject_group", "list")
+    attr(net, "actor_levels") <- actor_levels
+    return(net)
+  }
+
+  .inject_htna_partition(net, actor_lookup, actor_levels)
+}
+
+#' @keywords internal
+.inject_htna_partition <- function(net, actor_lookup, actor_levels) {
   net$nodes$groups <- factor(
     unname(actor_lookup[net$nodes$label]),
     levels = actor_levels
@@ -211,11 +235,6 @@ build_htna <- function(data,
     stringsAsFactors = FALSE
   )
   net$actor_levels <- actor_levels
-
-  # Tag with `htna` at the front of the class chain so downstream code can
-  # detect the heterogeneous-network case via `inherits(x, "htna")`. The
-  # parent classes (`netobject`, `cograph_network`) remain in place so all
-  # Nestimate / cograph S3 methods dispatch through fallthrough as usual.
-  class(net) <- c("htna", class(net))
+  if (!inherits(net, "htna")) class(net) <- c("htna", class(net))
   net
 }

@@ -2,14 +2,27 @@
 % Please edit documentation in R/sequence_plot_htna.R
 \name{sequence_plot_htna}
 \alias{sequence_plot_htna}
+\alias{sequence_plot.htna}
+\alias{plot_sequences.htna}
 \title{Plot Per-Actor Sequences From an htna Network}
 \usage{
 sequence_plot_htna(
   net,
   by = c("state", "group"),
   type = c("index", "heatmap", "distribution"),
+  grouped_legend = TRUE,
   ...
 )
+
+sequence_plot.htna(
+  net,
+  by = c("state", "group"),
+  type = c("index", "heatmap", "distribution"),
+  grouped_legend = TRUE,
+  ...
+)
+
+\method{plot_sequences}{htna}(x, ...)
 }
 \arguments{
 \item{net}{An htna network from \code{\link[=build_htna]{build_htna()}}. Must have \verb{$data} and
@@ -25,7 +38,14 @@ actor, vertically stacked), \code{"heatmap"} (single carpet with a white
 separator at the actor boundary, controllable via \code{k_line_width}), or
 \code{"distribution"} (one stacked-area panel per actor).}
 
+\item{grouped_legend}{Logical. If \code{TRUE} (default) and \code{by = "state"},
+the per-state legend is split into one block per actor with the actor
+name as a sub-title.}
+
 \item{...}{Forwarded to \code{\link[Nestimate:sequence_plot]{Nestimate::sequence_plot()}}.}
+
+\item{x}{Same as \code{net}; used when calling via the \code{plot_sequences()}
+generic.}
 }
 \value{
 Invisibly, the list returned by \code{\link[Nestimate:sequence_plot]{Nestimate::sequence_plot()}}.
