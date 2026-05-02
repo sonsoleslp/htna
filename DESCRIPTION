@@ -21,8 +21,9 @@ BugReports: https://github.com/sonsoleslp/htna/issues
 Depends:
     R (>= 4.1.0)
 Imports:
-    Nestimate (>= 0.4.3),
-    cograph (>= 2.1.0)
+    Nestimate,
+    cograph,
+    igraph
 Suggests:
     codyna,
     ggplot2,

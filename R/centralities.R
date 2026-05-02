@@ -12,62 +12,63 @@ htna_state_palette <- c(
 
 #' Compute Centrality Measures for an htna Network
 #'
-#' Computes a fixed panel of centrality measures via [cograph] and returns
-#' them as a single tidy data frame: one row per node, one column per
-#' measure (plus a `node` column, and a `group` column if the input is an
-#' `htna_group`).
+#' Computes a fixed panel of centrality measures from the network's
+#' weight matrix and returns them as a tidy data frame: one row per
+#' node, one column per measure (plus a `node` column, an `actor`
+#' column if the htna partition is set, and a `group` column when the
+#' input is an `htna_group`).
 #'
-#' The measures are: `OutStrength`, `InStrength`, `ClosenessIn`,
-#' `ClosenessOut`, `Closeness`, `Betweenness`, `BetweennessRSP`,
-#' `Diffusion`, `Clustering`. Each is computed by the corresponding
-#' [cograph] function — see Details for the mapping.
-#'
-#' @details
-#' Mapping from measure name to cograph implementation:
-#' * `OutStrength`     → [cograph::centrality_outstrength()]
-#' * `InStrength`      → [cograph::centrality_instrength()]
-#' * `ClosenessIn`     → [cograph::centrality_incloseness()]
-#' * `ClosenessOut`    → [cograph::centrality_outcloseness()]
-#' * `Closeness`       → [cograph::centrality_closeness()]
-#' * `Betweenness`     → [cograph::centrality_betweenness()]
-#' * `BetweennessRSP`  → [cograph::centrality_current_flow_betweenness()]
-#' * `Diffusion`       → [cograph::centrality_diffusion()]
-#' * `Clustering`      → [cograph::centrality_transitivity()]
+#' The measures match `tna::centralities()` exactly: `OutStrength`,
+#' `InStrength`, `ClosenessIn`, `ClosenessOut`, `Closeness`,
+#' `Betweenness`, `BetweennessRSP`, `Diffusion`, `Clustering`. Igraph
+#' is used for the strength, closeness, and betweenness measures;
+#' `BetweennessRSP`, `Diffusion`, and `Clustering` use the same
+#' closed-form expressions tna uses (randomized shortest paths
+#' betweenness, geometric-series diffusion, weighted clustering
+#' coefficient).
 #'
 #' @param x An htna network from [build_htna()] or an `htna_group` (list of
 #'   htna networks).
 #' @param measures Character vector of measure names to compute. Defaults
 #'   to all nine.
-#' @param ... Forwarded to the underlying centrality functions.
+#' @param loops If `FALSE` (default), self-loops in the weight matrix
+#'   are zeroed before computing centralities.
+#' @param normalize If `TRUE`, each measure is rescaled to `[0, 1]`.
+#' @param invert If `TRUE` (default), igraph's distance-based measures
+#'   (closeness, betweenness) interpret edge weights as costs and use
+#'   `1 / weight` so larger transition probabilities mean shorter
+#'   distances.
+#' @param ... Reserved for future extensions.
 #'
-#' @return A data frame with one row per node and columns `node`, the
-#'   requested measures, and (for `htna_group` input) `group`.
+#' @return A data frame with one row per node and columns `node`,
+#'   `actor`, the requested measures, and (for grouped input) `group`.
 #'
 #' @examples
 #' \dontrun{
 #' data(human_long, ai_long, package = "Nestimate")
 #' net <- build_htna(list(Human = human_long, AI = ai_long))
 #' centralities(net)
-#'
-#' grp <- build_htna(list(Human = human_long, AI = ai_long),
-#'                   group = "cluster")
-#' centralities(grp)
 #' }
 #'
 #' @export
 centralities <- function(x,
-                         measures = c("OutStrength", "InStrength",
-                                      "ClosenessIn", "ClosenessOut",
-                                      "Closeness", "Betweenness",
-                                      "BetweennessRSP", "Diffusion",
-                                      "Clustering"),
+                         measures  = c("OutStrength", "InStrength",
+                                       "ClosenessIn", "ClosenessOut",
+                                       "Closeness", "Betweenness",
+                                       "BetweennessRSP", "Diffusion",
+                                       "Clustering"),
+                         loops     = FALSE,
+                         normalize = FALSE,
+                         invert    = TRUE,
                          ...) {
   if (inherits(x, "htna_group") ||
       (is.list(x) && !inherits(x, "htna") && !is.data.frame(x))) {
     if (length(x) == 0L) stop("Empty htna_group.", call. = FALSE)
     nms  <- names(x) %||% as.character(seq_along(x))
     rows <- lapply(seq_along(x), function(i) {
-      df <- centralities(x[[i]], measures = measures, ...)
+      df <- centralities(x[[i]], measures = measures,
+                         loops = loops, normalize = normalize,
+                         invert = invert, ...)
       cbind(group = nms[i], df, stringsAsFactors = FALSE)
     })
     return(do.call(rbind, rows))
@@ -77,35 +78,101 @@ centralities <- function(x,
          call. = FALSE)
   }
 
-  fns <- list(
-    OutStrength    = cograph::centrality_outstrength,
-    InStrength     = cograph::centrality_instrength,
-    ClosenessIn    = cograph::centrality_incloseness,
-    ClosenessOut   = cograph::centrality_outcloseness,
-    Closeness      = cograph::centrality_closeness,
-    Betweenness    = cograph::centrality_betweenness,
-    BetweennessRSP = cograph::centrality_current_flow_betweenness,
-    Diffusion      = cograph::centrality_diffusion,
-    Clustering     = cograph::centrality_transitivity
-  )
-  unknown <- setdiff(measures, names(fns))
+  unknown <- setdiff(measures, names(.htna_centrality_funs))
   if (length(unknown) > 0L) {
     stop("Unknown measure(s): ", paste(unknown, collapse = ", "),
-         ". Available: ", paste(names(fns), collapse = ", "), call. = FALSE)
+         ". Available: ", paste(names(.htna_centrality_funs),
+                                collapse = ", "), call. = FALSE)
   }
 
-  vals  <- lapply(measures, function(m) as.numeric(fns[[m]](x, ...)))
-  nodes <- x$nodes$label %||% rownames(.weights_of(x))
+  if (!requireNamespace("igraph", quietly = TRUE)) {  # nocov start
+    stop("`centralities()` needs the 'igraph' package. ",
+         "Install it with `install.packages(\"igraph\")`.", call. = FALSE)
+  }                                                    # nocov end
+
+  W <- .weights_of(x)
+  if (!isTRUE(loops)) diag(W) <- 0
+
+  g <- igraph::graph_from_adjacency_matrix(W, mode = "directed",
+                                           weighted = TRUE, diag = TRUE)
+  w <- if (isTRUE(invert)) 1 / igraph::E(g)$weight else igraph::E(g)$weight
+
+  vals <- lapply(measures, function(m) {
+    as.numeric(.htna_centrality_funs[[m]](g = g, x = W, w = w))
+  })
+  names(vals) <- measures
+
+  if (isTRUE(normalize)) {
+    vals <- lapply(vals, function(v) {
+      r <- range(v, na.rm = TRUE)
+      if (diff(r) == 0) rep(0, length(v)) else (v - r[1]) / diff(r)
+    })
+  }
+
+  nodes <- x$nodes$label %||% rownames(W)
   out   <- data.frame(node = nodes, stringsAsFactors = FALSE)
   if (!is.null(x$node_groups)) {
     actor_lookup <- setNames(as.character(x$node_groups$group),
                              as.character(x$node_groups$node))
     out$actor <- unname(actor_lookup[as.character(nodes)])
   }
-  for (i in seq_along(measures)) out[[measures[i]]] <- vals[[i]]
+  for (m in measures) out[[m]] <- vals[[m]]
   class(out) <- c("htna_centralities", class(out))
   out
 }
+
+# ---- Centrality engine (mirrors tna::centralities_) ------------------------
+
+#' @keywords internal
+.rsp_betweenness <- function(mat, beta = 0.01) {
+  n <- ncol(mat)
+  D <- .rowSums(mat, m = n, n = n)
+  if (any(D == 0)) return(rep(NA_real_, n))
+  P_ref <- diag(1 / D, n, n) %*% mat
+  C <- mat ^ -1
+  C[is.infinite(C)] <- 0
+  W <- P_ref * exp(-beta * C)
+  Z <- solve(diag(1, n, n) - W)
+  Z_recip <- Z ^ -1
+  Z_recip[is.infinite(Z_recip)] <- 0
+  Z_recip_diag <- diag(diag(Z_recip), n, n)
+  out <- diag(tcrossprod(Z, Z_recip - n * Z_recip_diag) %*% Z)
+  out <- round(out)
+  out - min(out) + 1
+}
+
+#' @keywords internal
+.diffusion_centrality <- function(mat) {
+  n <- ncol(mat)
+  s <- 0; p <- diag(1, n, n)
+  for (i in seq_len(n)) { p <- p %*% mat; s <- s + p }
+  .rowSums(s, n, n)
+}
+
+#' @keywords internal
+.weighted_clustering <- function(mat) {
+  diag(mat) <- 0
+  n <- ncol(mat)
+  num <- diag(mat %*% mat %*% mat)
+  den <- .colSums(mat, n, n) ^ 2 - .colSums(mat ^ 2, n, n)
+  num / den
+}
+
+#' @keywords internal
+.htna_centrality_funs <- list(
+  OutStrength    = function(g, ...) igraph::strength(g, mode = "out"),
+  InStrength     = function(g, ...) igraph::strength(g, mode = "in"),
+  ClosenessIn    = function(g, w, ...)
+                     igraph::closeness(g, mode = "in",  weights = w),
+  ClosenessOut   = function(g, w, ...)
+                     igraph::closeness(g, mode = "out", weights = w),
+  Closeness      = function(g, w, ...)
+                     igraph::closeness(g, mode = "all", weights = w),
+  Betweenness    = function(g, w, ...) igraph::betweenness(g, weights = w),
+  BetweennessRSP = function(x, ...) .rsp_betweenness(x),
+  Diffusion      = function(x, ...) .diffusion_centrality(x),
+  Clustering     = function(x, ...) .weighted_clustering(x + t(x))
+)
 
 #' Plot Centrality Measures
 #'

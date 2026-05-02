@@ -52,3 +52,6 @@ articles:
     contents:
       - multigroup
       - grouped
+  - title: Comparison
+    contents:
+      - articles/tna-equivalence
