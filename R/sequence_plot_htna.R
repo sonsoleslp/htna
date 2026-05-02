@@ -145,7 +145,7 @@ sequence_plot_htna <- function(net,
       user_args$ncol <- 1L
     }
     if (type == "distribution" && is.null(user_args$na)) {
-      user_args$na <- FALSE
+      user_args$na <- FALSE  # nocov
     }
   }
 

@@ -154,10 +154,10 @@ plot_centralities <- function(x,
                               colors  = NULL,
                               labels  = TRUE,
                               ...) {
-  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {  # nocov start
     stop("`plot_centralities()` needs the 'ggplot2' package. ",
          "Install it with `install.packages(\"ggplot2\")`.", call. = FALSE)
-  }
+  }                                                    # nocov end
   by     <- match.arg(by)
   scales <- match.arg(scales)
 

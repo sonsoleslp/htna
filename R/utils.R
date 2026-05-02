@@ -15,9 +15,3 @@ NULL
 .weights_of <- function(net) {
   net$weights %||% as.matrix(net)
 }
-
-#' @keywords internal
-#' @noRd
-.is_symmetric_matrix <- function(m) {
-  is.matrix(m) && nrow(m) == ncol(m) && isTRUE(all.equal(m, t(m)))
-}
