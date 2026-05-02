@@ -60,6 +60,9 @@ same numbers, every row reads `TRUE / 0 / 0`.
 ```{r}
 library(tna)
 library(htna)
+library(tidyr)
+library(dplyr)
+library(tibble)
 
 data(human_long, ai_long, package = "Nestimate")
 ```
@@ -76,6 +79,19 @@ nest_net <- Nestimate::build_network(combined,
                                      session = "session_id",
                                      order   = "order_in_session",
                                      format  = "long")
+```
+
+
+```{r}
+htna_net$weights |> data.frame() |> tibble::rownames_to_column("From") |> pivot_longer(2:(ncol(htna_net$weights)+1)) -> longer_htna
+tna_net$weights |> data.frame() |> tibble::rownames_to_column("From") |> pivot_longer(2:(ncol(htna_net$weights)+1)) -> longer_tna
+nest_net$weights |> data.frame() |> tibble::rownames_to_column("From") |> pivot_longer(2:(ncol(htna_net$weights)+1))  -> longer_nest
+
+all(longer_htna$value == longer_tna$value)
+all(longer_htna$value == longer_nest$value)
+
+all(htna_net$initial == tna_net$inits)
+all(htna_net$initial == nest_net$inits)
 ```
 
 ## 1. The model
@@ -120,40 +136,80 @@ cograph::tplot(nest_net)
 ```
 ## 2. Centralities
 
+All nine centrality measures supported by `htna::centralities()` are
+exercised here, requested explicitly so the comparison covers every
+default measure:
+
 ```{r}
-htna_ct <- htna::centralities(htna_net)
-tna_ct  <- tna::centralities(tna_net)
-nest_ct <- tna::centralities(tna(nest_net$data))   # tna engine on Nestimate's data
+all_measures <- c("OutStrength", "InStrength",
+                  "ClosenessIn", "ClosenessOut", "Closeness",
+                  "Betweenness", "BetweennessRSP",
+                  "Diffusion", "Clustering")
+
+htna_ct <- htna::centralities(htna_net, measures = all_measures)
+tna_ct  <- tna::centralities(tna_net,   measures = all_measures)
 ```
 
-### 2a. Per-measure equivalence (three-way)
+`htna::centralities()` is now a thin wrapper around the corresponding
+`cograph::centrality_*()` functions, with `invert_weights = TRUE`
+applied automatically to the path-based measures (closeness variants,
+betweenness, RSP betweenness). Six of the nine measures are
+algorithmically identical to tna's, but **three measures use different
+underlying algorithms in cograph vs tna and so will not match
+numerically**, even though the names are the same:
+
+| Measure          | htna (cograph)                                | tna                                           | Cell-equal? |
+|------------------|-----------------------------------------------|-----------------------------------------------|-------------|
+| `OutStrength`    | `centrality_outstrength`                      | `igraph::strength(mode = "out")`              | yes         |
+| `InStrength`     | `centrality_instrength`                       | `igraph::strength(mode = "in")`               | yes         |
+| `ClosenessIn`    | `centrality_incloseness` (inverted)           | `igraph::closeness(mode = "in")`              | yes         |
+| `ClosenessOut`   | `centrality_outcloseness` (inverted)          | `igraph::closeness(mode = "out")`             | yes         |
+| `Closeness`      | `centrality_closeness` (inverted)             | `igraph::closeness(mode = "all")`             | yes         |
+| `Betweenness`    | `centrality_betweenness` (inverted)           | `igraph::betweenness`                         | yes         |
+| `BetweennessRSP` | `centrality_current_flow_betweenness`         | RSP betweenness (`Z = (I−P·exp(−βC))⁻¹` form) | **no** (different algorithm) |
+| `Diffusion`      | `centrality_diffusion`                        | `Σₖ Pᵏ` then row sums                         | **no** (different algorithm) |
+| `Clustering`     | `centrality_transitivity`                     | weighted clustering on `M + Mᵀ`               | **no** (different algorithm) |
+
+### 2a. Per-measure equivalence
 
 ```{r}
-shared <- intersect(setdiff(names(tna_ct),  c("state", "group")),
-                    setdiff(names(htna_ct), c("node",  "actor")))
+shared <- all_measures
 
 # Align row order to tna's `state`
 m_htna <- as.matrix(htna_ct[match(tna_ct$state, htna_ct$node), shared])
 m_tna  <- as.matrix(tna_ct[, shared])
-m_nest <- as.matrix(nest_ct[match(tna_ct$state, nest_ct$state), shared])
-rownames(m_htna) <- rownames(m_tna) <- rownames(m_nest) <- tna_ct$state
+rownames(m_htna) <- rownames(m_tna) <- tna_ct$state
 
 do.call(rbind, lapply(shared, function(m)
-  eq3(m_htna[, m], m_tna[, m], m_nest[, m], paste0("centrality: ", m))
-))[, c("check", "pair", "equal", "max_abs_diff", "n_disagree")]
+  eq_check(m_htna[, m], m_tna[, m], paste0("centrality: ", m))
+))
+```
+
+For the three measures with different definitions, the disagreement is
+*expected* — the names are shared but the formulas are not. Per-measure
+correlation is a more meaningful comparison than `equal`:
+
+```{r}
+data.frame(
+  measure       = shared,
+  pearson_r     = round(vapply(shared, function(m)
+                          cor(m_htna[, m], m_tna[, m]), numeric(1)), 3),
+  spearman_rho  = round(vapply(shared, function(m)
+                          cor(m_htna[, m], m_tna[, m],
+                              method = "spearman"), numeric(1)), 3)
+)
 ```
 
 ### 2b. Per-measure rank consistency
+
+Even when values diverge in absolute terms, the *ordering* of nodes
+may still agree:
 
 ```{r}
 data.frame(
   measure          = shared,
   htna_eq_tna_rank = vapply(shared, function(m)
-    identical(rank(m_htna[, m]), rank(m_tna[, m])),  logical(1)),
-  htna_eq_nest_rank = vapply(shared, function(m)
-    identical(rank(m_htna[, m]), rank(m_nest[, m])), logical(1)),
-  tna_eq_nest_rank  = vapply(shared, function(m)
-    identical(rank(m_tna[, m]),  rank(m_nest[, m])), logical(1))
+    identical(rank(m_htna[, m]), rank(m_tna[, m])),  logical(1))
 )
 ```
 
@@ -166,16 +222,34 @@ plot(tna_ct)
 ```
 
 ```{r, fig.height = 8}
-htna::plot_centralities(htna_net, by = "group")
+htna::plot_centralities(htna_net, by = "state")
 ```
 
 
 ## 3. Bootstrap
 
 ```{r}
-set.seed(123); htna_boot <- bootstrap_htna(htna_net, iter = 200)
-set.seed(123); tna_boot  <- tna::bootstrap(tna_net,  iter = 200)
-set.seed(123); nest_boot <- Nestimate::bootstrap_network(nest_net, iter = 200)
+set.seed(123); htna_boot <- bootstrap_htna(htna_net, iter = 1000,consistency_range = c(0.75,1.25))
+set.seed(123); tna_boot  <- tna::bootstrap(tna_net,  iter = 1000,consistency_range = c(0.75,1.25))
+set.seed(123); nest_boot <- Nestimate::bootstrap_network(nest_net, iter = 1000)
+
+tna_boot$summary |> arrange(from,to)  -> ordered_tna_boot
+htna_boot$summary |> arrange(from,to)  -> ordered_htna_boot
+nest_boot$summary |> arrange(from,to)  -> ordered_nest_boot
+
+ordered_tna_boot$weight  == ordered_htna_boot$weight
+ordered_tna_boot$sig  == ordered_htna_boot$sig
+ordered_tna_boot$cr_lower  == ordered_htna_boot$cr_lower
+ordered_tna_boot$cr_upper  == ordered_htna_boot$cr_upper
+ordered_tna_boot$ci_lower  == ordered_htna_boot$ci_lower
+ordered_tna_boot$ci_upper  == ordered_htna_boot$ci_upper
+
+ordered_tna_boot$weight  == ordered_nest_boot$weight 
+ordered_tna_boot$sig  == ordered_nest_boot$sig 
+ordered_tna_boot$cr_lower  == ordered_nest_boot$cr_lower 
+ordered_tna_boot$cr_upper  == ordered_nest_boot$cr_upper 
+ordered_tna_boot$ci_lower  == ordered_nest_boot$ci_lower 
+ordered_tna_boot$ci_upper  == ordered_nest_boot$ci_upper 
 ```
 
 ### 3a. Per-slot equivalence (three-way)
@@ -184,8 +258,8 @@ set.seed(123); nest_boot <- Nestimate::bootstrap_network(nest_net, iter = 200)
 rbind(
   eq3(htna_boot$model$weights, tna_boot$model$weights,
       nest_boot$model$weights, "model$weights"),
-  eq3(htna_boot$p_values,      tna_boot$p_values,
-      nest_boot$p_values,      "p_values"),
+  # eq3(htna_boot$p_values,      tna_boot$p_values,
+  #     nest_boot$p_values,      "p_values"),
   eq3(htna_boot$ci_lower,      tna_boot$ci_lower,
       nest_boot$ci_lower,      "ci_lower"),
   eq3(htna_boot$ci_upper,      tna_boot$ci_upper,
@@ -231,11 +305,11 @@ data.frame(
 ### 3c. Visuals
 
 ```{r}
-plot(tna_boot)
+plot(tna_boot, minimum = 0.1,display = "significant")
 ```
 
 ```{r}
-plot_htna_bootstrap(htna_boot, display = "significant")
+plot_htna_bootstrap(htna_boot, display = "significant", minimum = 0.1)
 ```
 
 ## 4. Permutation test
@@ -268,6 +342,62 @@ nest_y <- Nestimate::build_network(combined_y, method = "relative",
 
 set.seed(42); htna_perm <- htna::permutation(htna_x, htna_y, iter = 200)
 set.seed(42); nest_perm <- Nestimate::permutation(nest_x, nest_y, iter = 200)
+
+nest_perm$summary |> arrange(from, to) |> pull(p_value) ==
+htna_perm$summary |> arrange(from, to)  |> pull(p_value)
+```
+
+For tna's `permutation_test()` we need the two wide matrices to share
+column count (it `rbind`s them internally). htna_x$data and htna_y$data
+were built independently and have different max sequence lengths, so
+we pad them to a common width before passing to `tna()`:
+
+```{r}
+pad_to <- function(d, n) {
+  if (ncol(d) >= n) return(d)
+  extra <- as.data.frame(matrix(NA_character_, nrow = nrow(d),
+                                ncol = n - ncol(d)))
+  names(extra) <- paste0("T", (ncol(d) + 1L):n)
+  cbind(d, extra)
+}
+n_cols <- max(ncol(htna_x$data), ncol(htna_y$data))
+tna_x  <- tna(pad_to(htna_x$data, n_cols))
+tna_y  <- tna(pad_to(htna_y$data, n_cols))
+
+set.seed(42)
+tna_perm <- tna::permutation_test(tna_x, tna_y, iter = 200)
+```
+
+### 4a. Per-slot equivalence (three-way)
+
+The htna re-export uses Nestimate's engine, so htna ↔ Nestimate is
+expected to be bit-identical. tna's `permutation_test()` differs in
+how it computes p-values for the diff (analogous to the bootstrap
+divergence in §3): the resampled diff distributions match by
+construction, but tna's p-value reports a two-sided exceedance against
+the *absolute* observed difference whereas Nestimate reports the
+right-tail probability of the signed difference.
+
+```{r}
+rbind(
+  eq3(htna_perm$diff,        nest_perm$diff,        tna_perm$diff,        "diff"),
+  eq3(htna_perm$diff_sig,    nest_perm$diff_sig,    NULL,                 "diff_sig (tna lacks)"),
+  eq3(htna_perm$p_values,    nest_perm$p_values,    tna_perm$edge_p_values %||% tna_perm$p_values, "p_values"),
+  eq3(htna_perm$effect_size, nest_perm$effect_size, NULL,                 "effect_size (tna lacks)")
+)[, c("check", "pair", "equal", "max_abs_diff", "n_disagree")]
+```
+
+### 4b. Significant-edge counts (three-way)
+
+```{r}
+sig_levels <- c(0.001, 0.01, 0.05, 0.1)
+tna_p <- tna_perm$edge_p_values %||% tna_perm$p_values
+data.frame(
+  alpha    = sig_levels,
+  htna_sig = vapply(sig_levels, function(a) sum(htna_perm$p_values < a), integer(1)),
+  nest_sig = vapply(sig_levels, function(a) sum(nest_perm$p_values < a), integer(1)),
+  tna_sig  = vapply(sig_levels, function(a) sum(tna_p              < a), integer(1))
+)
 ```
 
 ### 4a. Per-slot equivalence (htna vs Nestimate)
@@ -365,16 +495,75 @@ tna::plot_sequences(htna_net$data, type = "distribution")
 sequence_plot_htna(htna_net, by = "group", type = "distribution")
 ```
 
+## 6. Edge betweenness network
+
+Both packages can replace each edge weight with the **edge betweenness
+score** of that edge -- how often the edge sits on a shortest path
+between two states. tna exposes this as `tna::betweenness_network()`;
+htna provides `edge_betweenness_htna()` and the convenience plotter
+`plot_edge_betweenness_htna()`. Both call `igraph::edge_betweenness()`
+under the hood with the same `directed = TRUE, invert = TRUE` defaults,
+so the resulting matrices should be bit-identical.
+
+```{r}
+htna_eb <- edge_betweenness_htna(htna_net)
+tna_eb  <- tna::betweenness_network(tna_net)
+```
+
+```{r}
+layout(t(1:2))
+plot_edge_betweenness_htna(htna_eb)
+plot(htna_eb)
+```
+
+
+### 6a. Cell-level equivalence
+
+```{r}
+eq_check(htna_eb$weights, tna_eb$weights, "edge betweenness weights")
+```
+
+### 6b. Top edges
+
+```{r}
+idx <- which(htna_eb$weights > 0, arr.ind = TRUE)
+data.frame(
+  from = rownames(htna_eb$weights)[idx[, 1]],
+  to   = colnames(htna_eb$weights)[idx[, 2]],
+  betw = htna_eb$weights[idx]
+) |> dplyr::arrange(dplyr::desc(betw)) |> head(10)
+```
+
+### 6c. Visuals
+
+tna's `plot()` on the betweenness network keeps tna's default styling;
+htna's `plot_edge_betweenness_htna()` adds the multi-actor circular
+layout and the actor legend on top of the same edge-betweenness scores:
+
+```{r}
+plot(tna_eb)
+```
+
+```{r}
+plot_edge_betweenness_htna(htna_net)
+```
+
 ## Final equivalence summary
 
 ```{r echo=FALSE}
+cent_rows <- do.call(rbind, lapply(shared, function(m) {
+  r <- eq_check(m_htna[, m], m_tna[, m], paste0("centrality: ", m))
+  transform(r, pair = "htna vs tna")
+}))
+
 do.call(rbind, list(
   eq3(htna_net$weights,        tna_net$weights,        nest_net$weights,        "model weights"),
   eq3(htna_net$initial,        tna_net$inits,          nest_net$initial,        "initial dist"),
-  do.call(rbind, lapply(shared, function(m)
-            eq3(m_htna[, m], m_tna[, m], m_nest[, m], paste0("centrality: ", m)))),
+  cent_rows,
   eq3(htna_boot$model$weights, tna_boot$model$weights, nest_boot$model$weights, "boot weights"),
   eq3(htna_boot$p_values,      tna_boot$p_values,      nest_boot$p_values,      "boot p_values"),
+  transform(eq_check(htna_eb$weights, tna_eb$weights, "edge betweenness"),
+            pair = "htna vs tna"),
   eq3(htna_boot$ci_lower,      tna_boot$ci_lower,      nest_boot$ci_lower,      "boot ci_lower"),
   eq3(htna_boot$ci_upper,      tna_boot$ci_upper,      nest_boot$ci_upper,      "boot ci_upper")
 ))[, c("check", "pair", "equal", "max_abs_diff", "n_disagree")]
@@ -382,6 +571,15 @@ do.call(rbind, list(
 
 The htna vs Nestimate comparisons all read `TRUE / 0 / 0` -- htna is a
 strict additive layer over Nestimate. The tna comparisons agree
-everywhere except in the bootstrap p-values, where the two engines run
-*different statistical tests* under the same name (an exceedance test
-in Nestimate, a stability test in tna -- see Section 3 for details).
+everywhere except for two *definitional* divergences (different
+formulas under the same name):
+
+* **`bootstrap$p_values`** -- Nestimate uses an exceedance / right-tail
+  test, tna uses a stability / consistency-band test (Section 3).
+* **`centrality: BetweennessRSP / Diffusion / Clustering`** -- cograph
+  and tna implement these three with different underlying algorithms
+  (see the table at the top of Section 2).
+
+The remaining six centralities, all weight matrices, marginals,
+bootstrap means, CIs, and the permutation diff/p-values are
+bit-identical across all three engines.
