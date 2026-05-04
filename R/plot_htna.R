@@ -65,10 +65,29 @@ plot_htna <- function(x, layout = "circular",
   node_colors <- unname(color_map[as.character(ng$group)])
   dark <- .darken(node_colors)
 
-  result <- cograph::plot_htna(x, node_list = node_list,
+  # cograph's circular layout places `node_list[[1]]` clockwise from
+  # the top, which puts the first group on the right for two-group
+  # networks. Reversing `node_list` and the matching colour / shape
+  # vectors makes the first group land on the left while keeping
+  # per-group colour and shape assignments consistent with the
+  # bootstrap plot. The legend (emitted below in original order)
+  # remains correct.
+  shapes <- rep_len(htna_shape_palette, n_groups)
+  cograph_node_list <- node_list
+  cograph_colors    <- colors
+  cograph_shapes    <- shapes
+  if (n_groups >= 2L && (identical(layout, "circular") ||
+                         identical(layout, "auto"))) {
+    cograph_node_list <- rev(node_list)
+    cograph_colors    <- rev(colors)
+    cograph_shapes    <- rev(shapes)
+  }
+
+  result <- cograph::plot_htna(x, node_list = cograph_node_list,
                                node_fill    = node_colors,
                                layout       = layout,
-                               group_colors = colors,
+                               group_colors = cograph_colors,
+                               group_shapes = cograph_shapes,
                                donut_color  = dark,
                                minimum      = minimum,
                                legend       = FALSE,
@@ -102,12 +121,15 @@ plot.htna_group <- function(x, ...) plot_htna(x, ...)
   for (i in seq_len(n_groups)) {
     g_idx <- group_indices[[i]]
     n_nodes <- length(g_idx)
-    start_angle <- pi/2 - (i - 1L) * angle_per_group - gap_angle / 2
-    end_angle <- start_angle - arc_angle
+    # First group centred on the left (angle = pi); subsequent groups
+    # rotate clockwise (decreasing angle).
+    center_angle <- pi - (i - 1L) * angle_per_group
+    start_angle  <- center_angle + arc_angle / 2
+    end_angle    <- center_angle - arc_angle / 2
     if (n_nodes > 1L) {
       angles <- seq(start_angle, end_angle, length.out = n_nodes)
     } else {
-      angles <- (start_angle + end_angle) / 2
+      angles <- center_angle
     }
     x_pos[g_idx] <- radius * cos(angles)
     y_pos[g_idx] <- radius * sin(angles)

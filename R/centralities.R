@@ -90,6 +90,8 @@ centralities <- function(x,
     }
     extra <- if (isTRUE(spec$path_based)) list(invert_weights = TRUE)
              else list()
+    
+    extra$tna_network <- TRUE
     as.numeric(do.call(spec$fn, c(list(x), extra, list(...))))
   })
   names(vals) <- measures
@@ -104,6 +106,21 @@ centralities <- function(x,
   for (m in measures) out[[m]] <- vals[[m]]
   class(out) <- c("htna_centralities", class(out))
   out
+}
+
+#' @keywords internal
+# Onnela's weighted clustering coefficient on the symmetrised matrix,
+# ported from tna::wcc. cograph::centrality_transitivity has a formal
+# `transitivity_type = "local"`, which appears as explicit and so
+# blocks the `tna_network = TRUE` Onnela override; we compute it
+# ourselves to guarantee equivalence with tna.
+.weighted_clustering <- function(mat) {
+  diag(mat) <- 0
+  M <- mat + t(mat)
+  n <- ncol(M)
+  num <- diag(M %*% M %*% M)
+  den <- .colSums(M, n, n) ^ 2 - .colSums(M ^ 2, n, n)
+  num / den
 }
 
 #' @keywords internal
@@ -139,7 +156,9 @@ centralities <- function(x,
   # current_flow_betweenness is a different formula).
   BetweennessRSP = list(fn = .rsp_betweenness, matrix = TRUE),
   Diffusion      = list(fn = cograph::centrality_diffusion,                path_based = FALSE),
-  Clustering     = list(fn = cograph::centrality_transitivity,             path_based = FALSE)
+  # Clustering uses Onnela's wcc on (M + Mᵀ); cograph routes its own
+  # local transitivity here when called via centrality_transitivity().
+  Clustering     = list(fn = .weighted_clustering, matrix = TRUE)
 )
 
 #' Plot Centrality Measures
@@ -195,6 +214,17 @@ plot_centralities <- function(x,
   }                                                    # nocov end
   by     <- match.arg(by)
   scales <- match.arg(scales)
+
+  # Capture the canonical actor order from the network (if available)
+  # so colours follow the same Human/AI/... ordering as plot_htna()
+  # rather than the alphabetical node-encounter order in the
+  # centralities data frame.
+  actor_levels <- NULL
+  if (inherits(x, "htna")) {
+    actor_levels <- x$actor_levels
+  } else if (inherits(x, "htna_group") && length(x) > 0L) {
+    actor_levels <- x[[1L]]$actor_levels
+  }
 
   if (!inherits(x, "htna_centralities") && !is.data.frame(x)) {
     df <- centralities(x, measures = measures, ...)
@@ -276,7 +306,14 @@ plot_centralities <- function(x,
   }
 
   fill_var <- if (by == "group") "actor" else "node"
-  fill_levels <- unique(long[[fill_var]])
+  if (by == "group" && !is.null(actor_levels)) {
+    # Use the network's canonical actor order so palette[1] always
+    # binds to the first actor (and matches plot_htna's colour map).
+    fill_levels <- actor_levels
+    long$actor  <- factor(long$actor, levels = fill_levels)
+  } else {
+    fill_levels <- unique(long[[fill_var]])
+  }
   if (is.null(colors)) {
     colors <- if (by == "group") {
       htna_palette[seq_along(fill_levels)]

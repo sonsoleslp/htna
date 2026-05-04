@@ -73,24 +73,52 @@ sequence_plot_htna <- function(net,
 
   type_map  <- setNames(as.character(net$node_groups$group),
                         as.character(net$node_groups$node))
-  actors    <- sort(unique(net$node_groups$group))
+  # Canonical actor order from build_htna() (Human, AI, …) so colours
+  # and stacking match plot_htna(). Falls back to encounter order if
+  # the network was built without `$actor_levels`.
+  actors    <- net$actor_levels %||%
+               unique(as.character(net$node_groups$group))
 
   if (by == "group") {
+    actor_chr <- as.character(actors)
+    color_map <- setNames(htna_palette[seq_along(actor_chr)], actor_chr)
+
+    # Nestimate's `.encode_states()` always alphabetises levels, so a
+    # naive label of "Human" / "AI" would put AI as level 1 (the bottom
+    # band). Prefix actors with leading spaces so the alphabetical sort
+    # yields the canonical order (Human → " Human", AI → "AI", " " < "A"),
+    # then mask Nestimate's drawn legend with our own clean labels.
+    n_act    <- length(actor_chr)
+    rename   <- setNames(
+      paste0(strrep(" ", n_act - seq_len(n_act)), actor_chr),
+      actor_chr)
+
     wide <- net$data
-    wide[] <- lapply(wide,
-                     function(col) unname(type_map[as.character(col)]))
+    wide[] <- lapply(wide, function(col) {
+      a <- unname(type_map[as.character(col)])
+      unname(rename[a])
+    })
+
     user_args <- list(...)
     if (is.null(user_args$state_colors)) {
-      actor_chr  <- as.character(actors)
-      color_map  <- setNames(htna_palette[seq_along(actor_chr)], actor_chr)
-      sorted_lvl <- sort(actor_chr)
-      user_args$state_colors <- unname(color_map[sorted_lvl])
+      # state_colors aligned with the canonical (and now alphabetical)
+      # actor order so band 1 = first actor with its canonical colour.
+      user_args$state_colors <- unname(color_map[actor_chr])
     }
     if (type == "distribution" && is.null(user_args$na)) {
       user_args$na <- FALSE
     }
-    return(do.call(Nestimate::sequence_plot,
-                   c(list(x = wide, type = type), user_args)))
+    legend_pos <- user_args$legend %||% "right"
+    result <- do.call(Nestimate::sequence_plot,
+                      c(list(x = wide, type = type), user_args))
+    # Mask Nestimate's drawn legend (which uses the prefixed labels)
+    # and overlay our own with clean actor names in canonical order.
+    if (!identical(legend_pos, "none") && !isFALSE(legend_pos)) {
+      .htna_overlay_legend(actor_chr,
+                           unname(color_map[actor_chr]),
+                           position = legend_pos)
+    }
+    return(invisible(result))
   }
 
   state_mat <- as.matrix(net$data)
@@ -121,7 +149,11 @@ sequence_plot_htna <- function(net,
     cbind(m, extra)
   })
   stacked <- do.call(rbind, pieces)
-  group   <- rep(actors, vapply(pieces, nrow, integer(1L)))
+  # Pass `group` as a factor with the canonical actor order so
+  # Nestimate's `as.factor(group)` preserves it (instead of
+  # alphabetising and putting AI before Human).
+  group   <- factor(rep(actors, vapply(pieces, nrow, integer(1L))),
+                    levels = as.character(actors))
 
   user_args <- list(...)
 
@@ -219,6 +251,34 @@ plot_sequences.htna <- function(x, ...) sequence_plot_htna(x, ...)
 # Overlay one legend block per actor on top of the gutter Nestimate already
 # reserved for its (now-masked) single legend. Position must match the value
 # Nestimate received so the gutter location is correct.
+.htna_overlay_legend <- function(labels, colors,
+                                 position = c("right", "bottom"),
+                                 cex = 0.7) {
+  position <- match.arg(position)
+  old <- graphics::par(no.readonly = TRUE)
+  on.exit(graphics::par(old), add = TRUE)
+
+  fig <- .htna_legend_gutter_fig(labels, position)
+  graphics::par(fig = fig, new = TRUE, mar = c(0, 0, 0, 0))
+  graphics::plot.new()
+  graphics::plot.window(xlim = c(0, 1), ylim = c(0, 1),
+                        xaxs = "i", yaxs = "i")
+  graphics::rect(0, 0, 1, 1, col = "white", border = NA)
+
+  if (position == "right") {
+    graphics::legend(x = 0.05, y = 0.95,
+                     legend = labels, fill = colors,
+                     border = NA, bty = "n",
+                     xjust = 0, yjust = 1, cex = cex)
+  } else {
+    graphics::legend(x = 0.5, y = 0.95,
+                     legend = labels, fill = colors,
+                     border = NA, bty = "n", horiz = TRUE,
+                     xjust = 0.5, yjust = 1, cex = cex)
+  }
+  invisible(NULL)
+}
+
 .htna_grouped_legend <- function(res, type_map, actors,
                                  position = c("right", "bottom"),
                                  cex = 0.7) {
