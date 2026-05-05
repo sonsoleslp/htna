@@ -6,7 +6,13 @@
 \alias{plot.htna_group}
 \title{Plot a Heterogeneous Transition Network}
 \usage{
-plot_htna(x, layout = "circular", group_colors = htna_palette, ...)
+plot_htna(
+  x,
+  layout = "circular",
+  group_colors = htna_palette,
+  minimum = 0.05,
+  ...
+)
 
 \method{plot}{htna}(x, ...)
 

@@ -6,7 +6,8 @@
 \usage{
 build_htna(
   data,
-  actor_col = NULL,
+  actor_type = NULL,
+  actor = NULL,
   node_groups = NULL,
   action = "code",
   session = "session_id",
@@ -20,25 +21,42 @@ build_htna(
 \arguments{
 \item{data}{Either:
 \itemize{
-\item A named list of long-format data frames, one per actor
+\item A named list of long-format data frames, one per actor type
 (e.g. \code{list(Human = human_long, AI = ai_long)}). All frames
 must share the same column schema.
 \item A single long-format data frame. In that case either
-\code{actor_col} (row-level actor IDs) or \code{node_groups}
-(node-level actor lookup) must be supplied.
+\code{actor_type} (row-level actor-type IDs) or \code{node_groups}
+(node-level actor-type lookup) must be supplied.
 }}
 
-\item{actor_col}{Character. Name of the actor column when \code{data} is
-a single data frame and actor identity lives at the row level. Ignored
-when \code{data} is a named list or when \code{node_groups} is supplied.}
+\item{actor_type}{Character. Name of the column tagging each row's
+actor type / group (e.g. \code{"Human"} vs \code{"AI"}) when \code{data}
+is a single data frame. Ignored when \code{data} is a named list or
+when \code{node_groups} is supplied.}
 
-\item{node_groups}{Named list mapping actor labels to character vectors of
-code names, e.g. \code{list(Human = c("Specify", "Command"),
-  AI = c("Plan", "Execute"))}. Use this when \code{data} is a single
-long-format frame with no actor column and you want to declare the
-node-to-actor partition directly. Each code in \code{data[[action]]}
-must appear in exactly one of the vectors. Mutually exclusive with
-\code{actor_col}.}
+\item{actor}{Character. Name of an optional column identifying the
+individual actor that performed each event (e.g. a learner / user id).
+Forwarded to \code{\link[Nestimate]{build_network}} with the same
+semantics; orthogonal to \code{actor_type}, which encodes the
+group/type partition over codes.}
+
+\item{node_groups}{Node-to-actor-type lookup, in either of two forms:
+\itemize{
+\item A \strong{named list} mapping actor-type labels to character vectors
+of code names, e.g. \code{list(Human = c("Specify", "Command"),
+      AI = c("Plan", "Execute"))}.
+\item A \strong{2-column data frame} with one column named after
+\code{action} (the codes) and one other column tagging each code
+with its actor type, e.g.
+\code{data.frame(code = c("Specify", "Plan"),
+                       actor_type = c("Human", "AI"))}.
+The actor-type ordering follows the column's factor levels or, for
+character vectors, the order of first appearance.
+}
+Use \code{node_groups} when \code{data} is a single long-format frame
+with no actor-type column and you want to declare the node-to-type
+partition directly. Each code in \code{data[[action]]} must appear in
+exactly one entry. Mutually exclusive with \code{actor_type}.}
 
 \item{action}{Character. Name of the action/code column. Default
 \code{"code"}.}
@@ -59,9 +77,9 @@ one network is built per group level and the result is a named list of
 htna networks with class \code{c("htna_group", "netobject_group")}.}
 
 \item{disambiguate}{Logical. If \code{FALSE} (default), the function errors
-when a code label appears in more than one actor group. If \code{TRUE},
-codes are prefixed with the actor name (\code{"Human:Ask"},
-\code{"AI:Ask"}) so they become distinct nodes.}
+when a code label appears in more than one actor-type group. If
+\code{TRUE}, codes are prefixed with the actor-type label
+(\code{"Human:Ask"}, \code{"AI:Ask"}) so they become distinct nodes.}
 
 \item{...}{Additional arguments forwarded to
 \code{\link[Nestimate]{build_network}}.}
@@ -93,6 +111,12 @@ data(human_long, ai_long, package = "Nestimate")
 net <- build_htna(list(Human = human_long, AI = ai_long))
 net$node_groups            # canonical (node, group) schema
 cograph::plot_htna(net)    # auto-detects $nodes$groups, no other args
+
+# Single combined frame with row-level actor-type tag and an
+# individual-actor id forwarded to Nestimate.
+df <- rbind(transform(human_long, actor_type = "Human"),
+            transform(ai_long,    actor_type = "AI"))
+net <- build_htna(df, actor_type = "actor_type", actor = "session_id")
 }
 
 }

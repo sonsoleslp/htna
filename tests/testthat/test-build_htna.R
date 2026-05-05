@@ -19,6 +19,12 @@ test_that("build_htna() with single data frame + node_groups works", {
   )
   expect_s3_class(net, "htna")
   expect_setequal(as.character(net$node_groups$group), c("Human", "AI"))
+  # Verify each code is bound to the correct actor — without this a
+  # flipped mapping would still pass the set-equality check above.
+  ng <- net$node_groups
+  group_of <- function(node) as.character(ng$group[ng$node == node])
+  for (h in c("H1","H2","H3")) expect_identical(group_of(h), "Human")
+  for (a in c("A1","A2","A3")) expect_identical(group_of(a), "AI")
 })
 
 test_that("build_htna(group = ...) returns an htna_group", {
@@ -26,7 +32,9 @@ test_that("build_htna(group = ...) returns an htna_group", {
 
   expect_s3_class(grp, "htna_group")
   expect_s3_class(grp, "netobject_group")
-  expect_gte(length(grp), 2L)
+  # `make_htna_group()` produces exactly 2 cohorts; tighter than `>= 2`
+  # so an extra/missing cohort would fail.
+  expect_equal(length(grp), 2L)
   expect_setequal(names(grp), c("Control", "Experimental"))
   for (g in grp) {
     expect_s3_class(g, "htna")

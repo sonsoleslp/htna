@@ -36,8 +36,11 @@ test_that("centralities() on htna_group stacks per-group rows", {
   expect_s3_class(ct, "data.frame")
   expect_true("group" %in% names(ct))
   expect_setequal(unique(ct$group), names(grp))
-  # at least one row per (group, node) pair
-  expect_gte(nrow(ct), sum(vapply(grp, function(g) nrow(g$node_groups), integer(1))))
+  # Exactly one row per (group, node) — `>=` would silently allow
+  # duplicates or missing rows.
+  expect_equal(nrow(ct),
+               sum(vapply(grp, function(g) nrow(g$node_groups),
+                          integer(1))))
 })
 
 test_that("plot_centralities() requires ggplot2 (install error otherwise)", {
@@ -52,6 +55,10 @@ test_that("plot_centralities(by = 'group') colours by actor for single network",
   net <- make_htna()
   p   <- plot_centralities(net, by = "group")
   expect_s3_class(p, "ggplot")
+  # The plot must use exactly two distinct fills (one per actor), not
+  # the per-state palette used when `by = "state"`.
+  fills <- unique(ggplot2::ggplot_build(p)$data[[1]]$fill)
+  expect_length(fills, 2L)
 })
 
 test_that("plot_centralities() on htna_group returns ggplot (line+point style)", {

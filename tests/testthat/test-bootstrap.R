@@ -30,6 +30,7 @@ test_that("bootstrap_htna() iterates over htna_group", {
 
 test_that("bootstrap() generic dispatches to .htna", {
   net <- make_htna()
-  expect_true(is.function(bootstrap))
+  # Returning an `htna_bootstrap` proves the .htna method dispatched
+  # (the default method would not produce that class).
   expect_s3_class(bootstrap(net, iter = 10), "htna_bootstrap")
 })

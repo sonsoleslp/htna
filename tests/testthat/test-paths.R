@@ -27,6 +27,9 @@ test_that("extract_paths() returns state-level paths", {
 test_that("schema with wildcard filters meta-paths correctly", {
   net <- make_htna()
   mp  <- extract_meta_paths(net, schema = "Human->*->Human")
+  # Guard against vacuous truth: an empty result would make every
+  # `all(...)` below trivially TRUE without proving the filter works.
+  expect_gt(nrow(mp), 0L)
   expect_true(all(grepl("^Human->", mp$schema)))
   expect_true(all(grepl("->Human$", mp$schema)))
   expect_true(all(mp$length == 3L))
@@ -35,6 +38,8 @@ test_that("schema with wildcard filters meta-paths correctly", {
 test_that("min_lift filter keeps only over-represented paths", {
   net <- make_htna()
   mp  <- extract_meta_paths(net, length = 3, min_lift = 1.2)
+  # Same vacuous-truth guard as the wildcard test.
+  expect_gt(nrow(mp), 0L)
   expect_true(all(mp$lift >= 1.2))
 })
 

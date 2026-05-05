@@ -7,23 +7,39 @@
 #'
 #' @param data Either:
 #'   \itemize{
-#'     \item A named list of long-format data frames, one per actor
+#'     \item A named list of long-format data frames, one per actor type
 #'       (e.g. \code{list(Human = human_long, AI = ai_long)}). All frames
 #'       must share the same column schema.
 #'     \item A single long-format data frame. In that case either
-#'       \code{actor_col} (row-level actor IDs) or \code{node_groups}
-#'       (node-level actor lookup) must be supplied.
+#'       \code{actor_type} (row-level actor-type IDs) or \code{node_groups}
+#'       (node-level actor-type lookup) must be supplied.
 #'   }
-#' @param actor_col Character. Name of the actor column when \code{data} is
-#'   a single data frame and actor identity lives at the row level. Ignored
-#'   when \code{data} is a named list or when \code{node_groups} is supplied.
-#' @param node_groups Named list mapping actor labels to character vectors of
-#'   code names, e.g. \code{list(Human = c("Specify", "Command"),
-#'   AI = c("Plan", "Execute"))}. Use this when \code{data} is a single
-#'   long-format frame with no actor column and you want to declare the
-#'   node-to-actor partition directly. Each code in \code{data[[action]]}
-#'   must appear in exactly one of the vectors. Mutually exclusive with
-#'   \code{actor_col}.
+#' @param actor_type Character. Name of the column tagging each row's
+#'   actor type / group (e.g. \code{"Human"} vs \code{"AI"}) when \code{data}
+#'   is a single data frame. Ignored when \code{data} is a named list or
+#'   when \code{node_groups} is supplied.
+#' @param actor Character. Name of an optional column identifying the
+#'   individual actor that performed each event (e.g. a learner / user id).
+#'   Forwarded to \code{\link[Nestimate]{build_network}} with the same
+#'   semantics; orthogonal to \code{actor_type}, which encodes the
+#'   group/type partition over codes.
+#' @param node_groups Node-to-actor-type lookup, in either of two forms:
+#'   \itemize{
+#'     \item A **named list** mapping actor-type labels to character vectors
+#'       of code names, e.g. \code{list(Human = c("Specify", "Command"),
+#'       AI = c("Plan", "Execute"))}.
+#'     \item A **2-column data frame** with one column named after
+#'       \code{action} (the codes) and one other column tagging each code
+#'       with its actor type, e.g.
+#'       \code{data.frame(code = c("Specify", "Plan"),
+#'                        actor_type = c("Human", "AI"))}.
+#'       The actor-type ordering follows the column's factor levels or, for
+#'       character vectors, the order of first appearance.
+#'   }
+#'   Use \code{node_groups} when \code{data} is a single long-format frame
+#'   with no actor-type column and you want to declare the node-to-type
+#'   partition directly. Each code in \code{data[[action]]} must appear in
+#'   exactly one entry. Mutually exclusive with \code{actor_type}.
 #' @param action Character. Name of the action/code column. Default
 #'   \code{"code"}.
 #' @param session Character. Name of the session column. Default
@@ -38,9 +54,9 @@
 #'   one network is built per group level and the result is a named list of
 #'   htna networks with class \code{c("htna_group", "netobject_group")}.
 #' @param disambiguate Logical. If \code{FALSE} (default), the function errors
-#'   when a code label appears in more than one actor group. If \code{TRUE},
-#'   codes are prefixed with the actor name (\code{"Human:Ask"},
-#'   \code{"AI:Ask"}) so they become distinct nodes.
+#'   when a code label appears in more than one actor-type group. If
+#'   \code{TRUE}, codes are prefixed with the actor-type label
+#'   (\code{"Human:Ask"}, \code{"AI:Ask"}) so they become distinct nodes.
 #' @param ... Additional arguments forwarded to
 #'   \code{\link[Nestimate]{build_network}}.
 #'
@@ -68,12 +84,19 @@
 #' net <- build_htna(list(Human = human_long, AI = ai_long))
 #' net$node_groups            # canonical (node, group) schema
 #' cograph::plot_htna(net)    # auto-detects $nodes$groups, no other args
+#'
+#' # Single combined frame with row-level actor-type tag and an
+#' # individual-actor id forwarded to Nestimate.
+#' df <- rbind(transform(human_long, actor_type = "Human"),
+#'             transform(ai_long,    actor_type = "AI"))
+#' net <- build_htna(df, actor_type = "actor_type", actor = "session_id")
 #' }
 #'
 #' @export
 build_htna <- function(data,
-                       actor_col    = NULL,
-                       node_groups       = NULL,
+                       actor_type   = NULL,
+                       actor        = NULL,
+                       node_groups  = NULL,
                        action       = "code",
                        session      = "session_id",
                        order        = "order_in_session",
@@ -82,9 +105,14 @@ build_htna <- function(data,
                        disambiguate = FALSE,
                        ...) {
 
-  if (!is.null(actor_col) && !is.null(node_groups)) {
-    stop("Pass either `actor_col` (row-level) or `node_groups` (node-level), ",
-         "not both.", call. = FALSE)
+  if (!is.null(actor_type) && !is.null(node_groups)) {
+    stop("Pass either `actor_type` (row-level) or `node_groups` ",
+         "(node-level), not both.", call. = FALSE)
+  }
+  dots <- list(...)
+  if ("actor_col" %in% names(dots)) {
+    stop("`actor_col` was renamed to `actor_type`. Use `actor_type = ",
+         deparse(dots$actor_col), "`.", call. = FALSE)
   }
 
   # ---- Resolve input form to (combined_df, actor_vec) ----
@@ -107,12 +135,50 @@ build_htna <- function(data,
   } else if (!is.null(node_groups)) {
     stopifnot(
       is.data.frame(data),
-      is.list(node_groups), length(node_groups) >= 2L,
-      !is.null(names(node_groups)), all(nzchar(names(node_groups))),
-      all(vapply(node_groups, is.character, logical(1L))),
       is.character(action), length(action) == 1L,
       action %in% names(data)
     )
+    # Accept node_groups either as a named list (canonical form) or as
+    # a 2-column data frame whose `action`-named column lists the codes
+    # and the other column tags each code with its actor type.
+    if (is.data.frame(node_groups)) {
+      if (ncol(node_groups) != 2L) {
+        stop("If `node_groups` is a data frame, it must have exactly two ",
+             "columns: the code column (named `", action,
+             "`) and the actor-type column.", call. = FALSE)
+      }
+      if (!action %in% names(node_groups)) {
+        stop("`node_groups` data frame must contain the code column `",
+             action, "` (matching `action`).", call. = FALSE)
+      }
+      type_col   <- setdiff(names(node_groups), action)
+      type_vals  <- node_groups[[type_col]]
+      code_vals  <- as.character(node_groups[[action]])
+      if (any(is.na(type_vals))) {
+        stop("`node_groups` data frame's `", type_col,
+             "` column has missing values; every code must be tagged ",
+             "with an actor type.", call. = FALSE)
+      }
+      type_chr <- as.character(type_vals)
+      # Drop unused factor levels so they don't become phantom actors.
+      type_order <- if (is.factor(type_vals)) {
+        levels(type_vals)[levels(type_vals) %in% type_chr]
+      } else {
+        unique(type_chr)
+      }
+      node_groups <- lapply(type_order, function(g)
+        unique(code_vals[type_chr == g]))
+      names(node_groups) <- type_order
+    }
+    stopifnot(
+      is.list(node_groups), length(node_groups) >= 2L,
+      !is.null(names(node_groups)), all(nzchar(names(node_groups))),
+      all(vapply(node_groups, is.character, logical(1L)))
+    )
+    # De-duplicate codes within each actor before checking inter-actor
+    # overlap, so the error message below only reports genuine
+    # cross-actor collisions (not intra-actor typos / repeats).
+    node_groups <- lapply(node_groups, unique)
     all_codes <- unlist(node_groups, use.names = FALSE)
     if (anyDuplicated(all_codes)) {
       dups <- unique(all_codes[duplicated(all_codes)])
@@ -133,19 +199,27 @@ build_htna <- function(data,
   } else {
     stopifnot(
       is.data.frame(data),
-      is.character(actor_col), length(actor_col) == 1L,
-      actor_col %in% names(data)
+      is.character(actor_type), length(actor_type) == 1L,
+      actor_type %in% names(data)
     )
-    combined     <- data
-    raw_col      <- combined[[actor_col]]
-    if (is.factor(raw_col)) {
-      actor_levels <- levels(raw_col)
-    } else {
-      actor_levels <- unique(as.character(raw_col))
+    combined  <- data
+    raw_col   <- combined[[actor_type]]
+    if (any(is.na(raw_col))) {
+      stop("`actor_type` column has missing values; every row must be ",
+           "tagged with an actor type.", call. = FALSE)
     }
     actor_vec <- as.character(raw_col)
+    if (is.factor(raw_col)) {
+      # Honour declared factor levels but drop levels that have no
+      # rows — declared-but-absent levels would otherwise become
+      # phantom actors with empty code sets.
+      present      <- levels(raw_col)[levels(raw_col) %in% actor_vec]
+      actor_levels <- present
+    } else {
+      actor_levels <- unique(actor_vec)
+    }
     if (length(actor_levels) < 2L) {
-      stop("`actor_col` must contain at least two distinct actors.",
+      stop("`actor_type` must contain at least two distinct actor types.",
            call. = FALSE)
     }
   }
@@ -159,6 +233,11 @@ build_htna <- function(data,
   if (!is.null(group)) {
     stopifnot(
       is.character(group), length(group) == 1L, group %in% names(combined)
+    )
+  }
+  if (!is.null(actor)) {
+    stopifnot(
+      is.character(actor), length(actor) == 1L, actor %in% names(combined)
     )
   }
 
@@ -191,16 +270,17 @@ build_htna <- function(data,
   ]
 
   # ---- Delegate to Nestimate::build_network ----
-  net <- Nestimate::build_network(
-    combined,
-    method  = method,
-    action  = action,
-    session = session,
-    order   = order,
-    format  = "long",
-    group   = group,
-    ...
-  )
+  net <- do.call(Nestimate::build_network, c(
+    list(combined,
+         method  = method,
+         action  = action,
+         actor   = actor,
+         session = session,
+         order   = order,
+         format  = "long",
+         group   = group),
+    dots
+  ))
 
   # ---- Inject actor partition using cograph's canonical schema ----
   # cograph's plot_htna auto-detects nodes columns named "groups"/"group"/

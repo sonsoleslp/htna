@@ -12,38 +12,38 @@ centralities(
 )
 }
 \arguments{
-\item{x}{An htna network from \code{\link[=build_htna]{build_htna()}} or an \code{htna_group} (list of
-htna networks).}
+\item{x}{An htna network from \code{\link[=build_htna]{build_htna()}} or an \code{htna_group}.}
 
-\item{measures}{Character vector of measure names to compute. Defaults
-to all nine.}
+\item{measures}{Character vector of measure names. Defaults to all nine.}
 
-\item{...}{Forwarded to the underlying centrality functions.}
+\item{...}{Forwarded to the underlying cograph centrality functions.}
 }
 \value{
-A data frame with one row per node and columns \code{node}, the
-requested measures, and (for \code{htna_group} input) \code{group}.
+A data frame with one row per node.
 }
 \description{
-Computes a fixed panel of centrality measures via \link[cograph:cograph]{cograph::cograph} and returns
-them as a single tidy data frame: one row per node, one column per
-measure (plus a \code{node} column, and a \code{group} column if the input is an
-\code{htna_group}).
+Computes a fixed panel of centrality measures via \link[cograph:cograph]{cograph::cograph} and
+returns them as a tidy data frame: one row per node, one column per
+measure (plus \code{node}, an \code{actor} column when the htna partition is
+set, and a \code{group} column when the input is an \code{htna_group}).
 }
 \details{
 The measures are: \code{OutStrength}, \code{InStrength}, \code{ClosenessIn},
 \code{ClosenessOut}, \code{Closeness}, \code{Betweenness}, \code{BetweennessRSP},
-\code{Diffusion}, \code{Clustering}. Each is computed by the corresponding
-\link[cograph:cograph]{cograph::cograph} function — see Details for the mapping.
+\code{Diffusion}, \code{Clustering}. Path-based measures (closeness and
+betweenness variants) are computed with \code{invert_weights = TRUE},
+since in transition networks larger weight = stronger link =
+shorter distance. Strength and the closed-form measures
+(\code{Diffusion}, \code{Clustering}) use raw weights.
 
 Mapping from measure name to cograph implementation:
 \itemize{
 \item \code{OutStrength}     → \code{\link[cograph:centrality_strength]{cograph::centrality_outstrength()}}
 \item \code{InStrength}      → \code{\link[cograph:centrality_strength]{cograph::centrality_instrength()}}
-\item \code{ClosenessIn}     → \code{\link[cograph:centrality_closeness]{cograph::centrality_incloseness()}}
-\item \code{ClosenessOut}    → \code{\link[cograph:centrality_closeness]{cograph::centrality_outcloseness()}}
-\item \code{Closeness}       → \code{\link[cograph:centrality_closeness]{cograph::centrality_closeness()}}
-\item \code{Betweenness}     → \code{\link[cograph:centrality_betweenness]{cograph::centrality_betweenness()}}
+\item \code{ClosenessIn}     → \code{\link[cograph:centrality_closeness]{cograph::centrality_incloseness()}}   (inverted)
+\item \code{ClosenessOut}    → \code{\link[cograph:centrality_closeness]{cograph::centrality_outcloseness()}}  (inverted)
+\item \code{Closeness}       → \code{\link[cograph:centrality_closeness]{cograph::centrality_closeness()}}     (inverted)
+\item \code{Betweenness}     → \code{\link[cograph:centrality_betweenness]{cograph::centrality_betweenness()}}   (inverted)
 \item \code{BetweennessRSP}  → \code{\link[cograph:centrality_current_flow_betweenness]{cograph::centrality_current_flow_betweenness()}}
 \item \code{Diffusion}       → \code{\link[cograph:centrality_diffusion]{cograph::centrality_diffusion()}}
 \item \code{Clustering}      → \code{\link[cograph:centrality_transitivity]{cograph::centrality_transitivity()}}
@@ -54,10 +54,6 @@ Mapping from measure name to cograph implementation:
 data(human_long, ai_long, package = "Nestimate")
 net <- build_htna(list(Human = human_long, AI = ai_long))
 centralities(net)
-
-grp <- build_htna(list(Human = human_long, AI = ai_long),
-                  group = "cluster")
-centralities(grp)
 }
 
 }

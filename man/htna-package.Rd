@@ -24,7 +24,7 @@ not need to attach \pkg{Nestimate} or \pkg{cograph} explicitly.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/sonsoleslp/htna}
+  \item \url{https://sonsoles.me/htna}
   \item Report bugs at \url{https://github.com/sonsoleslp/htna/issues}
 }
 

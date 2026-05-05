@@ -350,7 +350,199 @@ equivalence_datasets <- function() {
   out
 }
 
+# --- Build a dataset via every supported input form -------------------
+
+# Returns a named list with one htna network per input form. Skips the
+# `node_groups` paths if any actor's code set overlaps with another's
+# (none of the test datasets do, but the guard keeps the helper safe).
+# `actor_order` is the desired actor-type ordering (a permutation of
+# `names(ds$actors)`); every form is built so its `actor_levels`
+# matches `actor_order`.
+build_all_input_forms <- function(ds, actor_order = names(ds$actors),
+                                  method = "relative") {
+  actors <- ds$actors[actor_order]
+  actor_levels <- actor_order
+
+  # 1. Named list — list-name order encodes the desired ordering
+  net_list <- build_htna(actors, method = method)
+
+  # 2. Single combined frame + actor_type column (factor with explicit levels)
+  combined <- do.call(rbind, lapply(actor_levels, function(a) {
+    df <- actors[[a]][, c("session_id", "code", "order_in_session")]
+    df$actor_type <- a
+    df
+  }))
+  combined$actor_type <- factor(combined$actor_type, levels = actor_levels)
+  combined <- combined[order(combined$session_id,
+                             combined$order_in_session), ]
+  net_at <- build_htna(combined, actor_type = "actor_type", method = method)
+
+  # 3. Single combined frame + node_groups list — list-name order encodes ordering
+  codes_per_actor <- lapply(actors, function(df) unique(df$code))
+  net_ng_list <- build_htna(
+    combined[, c("session_id", "code", "order_in_session")],
+    node_groups = codes_per_actor,
+    method = method
+  )
+
+  # 4. Single combined frame + node_groups data frame (codebook with factor)
+  codebook <- do.call(rbind, lapply(actor_levels, function(a) {
+    data.frame(code = codes_per_actor[[a]],
+               actor_type = a,
+               stringsAsFactors = FALSE)
+  }))
+  codebook$actor_type <- factor(codebook$actor_type, levels = actor_levels)
+  net_ng_df <- build_htna(
+    combined[, c("session_id", "code", "order_in_session")],
+    node_groups = codebook,
+    method = method
+  )
+
+  list(list_form        = net_list,
+       actor_type_form  = net_at,
+       node_groups_list = net_ng_list,
+       node_groups_df   = net_ng_df)
+}
+
 # --- Tests -------------------------------------------------------------
+
+test_that("all four input forms produce identical $weights, $initial, $node_groups, $nodes (diverse data)", {
+  testthat::skip_on_cran()
+  testthat::skip_if_not_installed("Nestimate")
+
+  # Per-slot alignment + comparison rules. `$data` is large enough
+  # that we test it separately in the next block.
+  cmp_slot <- function(ref_v, other_v, info) {
+    if (is.data.frame(ref_v)) {
+      # Identify the row key column: `node_groups` keys on `node`,
+      # `nodes` keys on `label`; fall back to first column otherwise.
+      key <- intersect(c("node", "label"), names(ref_v))[1L]
+      if (is.na(key)) key <- names(ref_v)[1L]
+      aligned <- other_v[match(ref_v[[key]], other_v[[key]]), ,
+                         drop = FALSE]
+      rownames(aligned) <- NULL
+      ref_clean <- ref_v
+      rownames(ref_clean) <- NULL
+      expect_identical(aligned, ref_clean, info = info)
+    } else if (!is.null(dim(ref_v))) {
+      # Verify natural row/col order matches first; if it doesn't,
+      # `[rownames(ref_v), colnames(ref_v), ]` would silently re-align
+      # and mask the divergence.
+      if (!is.null(rownames(ref_v)) && !is.null(rownames(other_v))) {
+        expect_identical(rownames(other_v), rownames(ref_v),
+                         info = paste0(info, " (rownames)"))
+        expect_identical(colnames(other_v), colnames(ref_v),
+                         info = paste0(info, " (colnames)"))
+      }
+      expect_equal(other_v, ref_v, info = info)
+    } else {
+      aligned <- if (!is.null(names(other_v)) && !is.null(names(ref_v))) {
+        other_v[names(ref_v)]
+      } else other_v
+      expect_equal(aligned, ref_v, info = info)
+    }
+  }
+
+  for (ds in equivalence_datasets()) {
+    info  <- ds$name
+    forms <- build_all_input_forms(ds)
+    ref   <- forms$list_form
+    for (slot in c("weights", "initial", "node_groups", "nodes",
+                   "actor_levels")) {
+      for (form_name in setdiff(names(forms), "list_form")) {
+        cmp_slot(ref[[slot]], forms[[form_name]][[slot]],
+                 info = paste0(info, " | ", slot, " | ", form_name))
+      }
+    }
+  }
+})
+
+test_that("all four input forms agree for every `method =` (relative, frequency, attention)", {
+  testthat::skip_on_cran()
+  testthat::skip_if_not_installed("Nestimate")
+  for (method in c("relative", "frequency", "attention")) {
+    for (ds in equivalence_datasets()) {
+      info  <- paste0(ds$name, " | method=", method)
+      forms <- build_all_input_forms(ds, method = method)
+      ref   <- forms$list_form
+      # Verify the chosen method propagates onto every form.
+      for (form_name in names(forms)) {
+        expect_identical(forms[[form_name]]$method, method,
+                         info = paste0(info, " | ", form_name, " method"))
+      }
+      # And the resulting weight matrices are bit-identical across forms.
+      for (form_name in setdiff(names(forms), "list_form")) {
+        a <- ref$weights
+        b <- forms[[form_name]]$weights[rownames(a), colnames(a),
+                                        drop = FALSE]
+        expect_equal(a, b, info = paste0(info, " | ", form_name,
+                                          " weights"))
+      }
+    }
+  }
+})
+
+test_that("all four input forms preserve the declared actor order in BOTH directions (diverse data)", {
+  testthat::skip_on_cran()
+  testthat::skip_if_not_installed("Nestimate")
+  for (ds in equivalence_datasets()) {
+    info     <- ds$name
+    natural  <- names(ds$actors)
+    reversed <- rev(natural)
+    for (declared in list(natural, reversed)) {
+      forms <- build_all_input_forms(ds, actor_order = declared)
+      for (form_name in names(forms)) {
+        expect_identical(
+          forms[[form_name]]$actor_levels,
+          declared,
+          info = paste0(info,
+                        " | declared=", paste(declared, collapse=","),
+                        " | ", form_name)
+        )
+      }
+    }
+  }
+})
+
+test_that("all four input forms produce a bit-identical wide session matrix (diverse data)", {
+  testthat::skip_on_cran()
+  testthat::skip_if_not_installed("Nestimate")
+
+  # `as.matrix(<data.frame>)` doesn't always preserve dimnames across
+  # platforms, so strip them before comparing cells + NA pattern.
+  to_plain_mat <- function(d) {
+    m <- as.matrix(d)
+    dimnames(m) <- NULL
+    m
+  }
+
+  for (ds in equivalence_datasets()) {
+    info  <- ds$name
+    forms <- build_all_input_forms(ds)
+    ref   <- forms$list_form$data
+    rn    <- rownames(ref)
+    cn    <- colnames(ref)
+    ref_mat <- to_plain_mat(ref)
+    ref_na  <- is.na(ref_mat)
+    for (form_name in setdiff(names(forms), "list_form")) {
+      raw <- forms[[form_name]]$data
+      # Natural row + column order must match the reference *before*
+      # alignment. Subsetting via `[rn, cn]` would silently re-order
+      # any divergent natural ordering and mask the bug.
+      expect_identical(rownames(raw), rn,
+                       info = paste0(info, " | ", form_name,
+                                     " natural row order"))
+      expect_identical(colnames(raw), cn,
+                       info = paste0(info, " | ", form_name,
+                                     " natural col order"))
+      m <- to_plain_mat(raw)
+      expect_identical(m, ref_mat,
+                       info = paste0(info, " | ", form_name, " cells"))
+      expect_identical(is.na(m), ref_na,
+                       info = paste0(info, " | ", form_name, " NA pattern"))
+    }
+  }
+})
 
 test_that("model weights match across htna, tna, Nestimate (diverse data)", {
   skip_if_missing_eq_deps()
