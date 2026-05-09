@@ -22,13 +22,16 @@ Depends:
     R (>= 4.1.0)
 Imports:
     Nestimate,
-    cograph
+    cograph,
+    igraph
 Suggests:
     codyna,
     ggplot2,
+    janitor,
     knitr,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    tna
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 Encoding: UTF-8

@@ -26,6 +26,9 @@ plot_htna(
 \item{group_colors}{Character vector of colours, one per actor group.
 Defaults to the built-in \link{htna_palette}.}
 
+\item{minimum}{Numeric. Minimum absolute edge weight to display.
+Edges below this threshold are hidden. Default \code{0.05}.}
+
 \item{...}{Additional arguments passed to \code{\link[cograph:plot_htna]{cograph::plot_htna()}}.}
 }
 \value{

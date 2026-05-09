@@ -1,0 +1,36 @@
+---
+title: "Equivalence with tna: synthetic balanced"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  message = FALSE, warning = FALSE,
+  fig.width = 10, fig.height = 7, dpi = 150
+)
+source("_equivalence-helpers.R")
+```
+
+20 simulated sessions (length 8--14) with a balanced 3+3 alphabet
+(`H1, H2, H3` for Human, `A1, A2, A3` for AI). Two transition rows are
+biased (H1 strongly prefers A1; A2 prefers H1 and A3); the rest is
+uniform. This is a small but non-trivial sanity-check dataset.
+
+The pipeline below runs the same htna ↔ tna ↔ Nestimate three-way
+equivalence checks as the
+[main equivalence article](tna-equivalence.html).
+
+## Setup
+
+```{r}
+library(tna)
+library(htna)
+library(tidyr)
+library(dplyr)
+library(tibble)
+
+ds <- ds_synthetic_balanced()
+```
+
+```{r child = "_equivalence-body.Rmd"}
+```

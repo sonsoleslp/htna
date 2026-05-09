@@ -1,0 +1,301 @@
+---
+title: "Input formats for build_htna()"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Input formats for build_htna()}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  message   = FALSE,
+  warning   = FALSE,
+  fig.width = 10,
+  fig.height = 7,
+  dpi = 150
+)
+```
+
+`build_htna()` accepts the same Human / AI sequence data in **three
+interchangeable shapes**: a named list of per-actor frames, a single
+combined frame with an actor-type column, or a single combined frame
+with a node-to-actor lookup. This vignette walks through each form
+using Nestimate's `human_long` + `ai_long` example and verifies that
+all three produce the same network, then covers two more parameters
+that compose with any input form: `actor` (forwarded to
+`Nestimate::build_network()`) and `disambiguate` (for code-label
+collisions).
+
+## Setup
+
+```{r}
+library(htna)
+data(human_long, ai_long, package = "Nestimate")
+
+# What the two long frames look like
+str(human_long, max.level = 1, give.attr = FALSE)
+str(ai_long,    max.level = 1, give.attr = FALSE)
+```
+
+Both frames share the canonical schema htna expects: `session_id`,
+`code`, `order_in_session`. Within each session, `order_in_session`
+is a **shared** time index across both actors — Human's events occupy
+the odd positions, AI's the even ones — so concatenating and sorting
+recovers the temporal interleaving.
+
+## Form 1 — Named list of per-actor frames
+
+The most direct form. Each entry is one actor's long frame; the list
+name becomes the actor-type label on the network.
+
+```{r}
+net_list <- build_htna(list(Human = human_long, AI = ai_long))
+summary(net_list)
+```
+
+```{r, fig.height = 7}
+plot_htna(net_list)
+```
+
+Use this form when each actor's data lives in a separate frame (the
+typical case when the two streams were prepared independently).
+
+## Form 2 — Single combined frame with `actor_type`
+
+When the data already arrives as one long table, tag each row with the
+actor-type and pass the column name to `actor_type =`.
+
+```{r}
+combined <- rbind(
+  cbind(actor_type = "Human", human_long[, c("session_id", "code",
+                                              "order_in_session")]),
+  cbind(actor_type = "AI",    ai_long[,    c("session_id", "code",
+                                              "order_in_session")])
+)
+combined$actor_type <- factor(combined$actor_type, levels = c("Human", "AI"))
+combined <- combined[order(combined$session_id, combined$order_in_session), ]
+
+head(combined)
+
+net_actor_type <- build_htna(combined, actor_type = "actor_type")
+```
+
+The actor-type order on the resulting network follows the factor levels
+(or, for character vectors, the order of first appearance), which is
+how the actor groups will be ordered in legends and plots.
+
+## Form 3 — Single combined frame with `node_groups`
+
+When the combined frame has **no** actor-type column, declare the
+node-to-actor partition directly via `node_groups`. `node_groups` accepts
+two interchangeable shapes:
+
+### 3a. Named list of code vectors
+
+```{r}
+human_codes <- unique(human_long$code)
+ai_codes    <- unique(ai_long$code)
+
+net_node_groups <- build_htna(
+  combined[, c("session_id", "code", "order_in_session")],
+  node_groups = list(Human = human_codes, AI = ai_codes)
+)
+```
+
+### 3b. Two-column data frame (codebook)
+
+The same partition expressed as a tidy codebook — one row per code, one
+column for the action and one for the actor type. The action column must
+match the `action` parameter (default `"code"`); the other column is
+treated as the actor-type tag. Column order is irrelevant.
+
+```{r}
+codebook <- data.frame(
+  code       = c(human_codes, ai_codes),
+  actor_type = c(rep("Human", length(human_codes)),
+                 rep("AI",    length(ai_codes))),
+  stringsAsFactors = FALSE
+)
+head(codebook)
+
+net_node_groups_df <- build_htna(
+  combined[, c("session_id", "code", "order_in_session")],
+  node_groups = codebook
+)
+```
+
+The actor-type ordering follows the column's factor levels (if a
+factor) or the order of first appearance (if a character vector). Use
+this form when your code/actor mapping already lives in a tidy lookup
+table.
+
+## All four forms produce the same network
+
+`build_htna()` resolves every input shape to the same combined sequence
+and forwards to `Nestimate::build_network()`. To make the equivalence
+verifiable rather than hand-waved, we compare the **wide session
+matrix** (`$data`, the input that every downstream analysis consumes)
+plus all the analytical slots — cell-for-cell, against the named-list
+reference.
+
+```{r}
+forms <- list(
+  list_form        = net_list,
+  actor_type_form  = net_actor_type,
+  node_groups_list = net_node_groups,
+  node_groups_df   = net_node_groups_df
+)
+
+ref <- forms$list_form
+
+# Helper: compare any slot from `other` to its counterpart in `ref`
+# after aligning by names where applicable. Returns TRUE iff bit-equal.
+slot_equal <- function(ref_v, other_v) {
+  if (is.null(ref_v) && is.null(other_v)) return(TRUE)
+  if (is.null(ref_v) ||  is.null(other_v)) return(FALSE)
+  if (is.data.frame(ref_v)) {
+    key <- intersect(c("node", "label"), names(ref_v))[1L]
+    if (!is.na(key))
+      other_v <- other_v[match(ref_v[[key]], other_v[[key]]), , drop = FALSE]
+    rownames(other_v) <- rownames(ref_v) <- NULL
+    return(identical(other_v, ref_v))
+  }
+  if (!is.null(dim(ref_v))) {
+    if (!is.null(rownames(ref_v)) && !is.null(rownames(other_v)))
+      other_v <- other_v[rownames(ref_v), colnames(ref_v), drop = FALSE]
+    return(isTRUE(all.equal(unname(other_v), unname(ref_v))))
+  }
+  if (!is.null(names(ref_v)) && !is.null(names(other_v)))
+    other_v <- other_v[names(ref_v)]
+  isTRUE(all.equal(unname(other_v), unname(ref_v)))
+}
+
+# Cell-by-cell `$data` comparison: same shape, same row/col order,
+# same value (or NA) at every position.
+data_identical <- function(ref_d, other_d) {
+  if (!identical(dim(ref_d), dim(other_d)))           return(FALSE)
+  if (!identical(rownames(ref_d), rownames(other_d))) return(FALSE)
+  if (!identical(colnames(ref_d), colnames(other_d))) return(FALSE)
+  m1 <- as.matrix(ref_d);   dimnames(m1) <- NULL
+  m2 <- as.matrix(other_d); dimnames(m2) <- NULL
+  identical(m1, m2)
+}
+
+# Pairwise check vs the named-list reference
+do.call(rbind, lapply(names(forms)[-1L], function(nm) {
+  net <- forms[[nm]]
+  data.frame(
+    form         = nm,
+    data_eq      = data_identical(ref$data, net$data),
+    weights_eq   = slot_equal(ref$weights,     net$weights),
+    initial_eq   = slot_equal(ref$initial,     net$initial),
+    nodes_eq     = slot_equal(ref$nodes,       net$nodes),
+    node_grps_eq = slot_equal(ref$node_groups, net$node_groups),
+    actor_lvls_eq = identical(ref$actor_levels, net$actor_levels),
+    stringsAsFactors = FALSE
+  )
+}))
+```
+
+Every cell reads `TRUE` — including the wide session matrix `$data`,
+which is the single object every downstream function (`tna()`,
+sequence plots, bootstrap, permutation, edge betweenness) actually
+consumes. The input shape only affects how you express the data;
+the produced network is bit-identical.
+
+The same checks are run as automated tests in
+`tests/testthat/test-tna-equivalence.R` across nine diverse datasets
+(small/large alphabets, imbalanced actors, disconnected components,
+variable session lengths, near-deterministic transitions, and the
+real-world `tna::group_regulation_long`).
+
+## Adding an individual-actor column with `actor =`
+
+`actor_type` partitions **codes** into actor *groups* (Human vs AI).
+The independent `actor =` parameter is forwarded to
+`Nestimate::build_network()` with the same role it has there:
+the column name identifying the **individual actor** that performed
+each event (e.g. a learner / user id). It composes with any of the
+three input forms above.
+
+```{r}
+# Treat session_id as the individual-actor key (one per conversation)
+combined_with_actor <- combined
+combined_with_actor$user_id <- combined_with_actor$session_id
+
+net_with_actor <- build_htna(
+  combined_with_actor,
+  actor_type = "actor_type",
+  actor      = "user_id"
+)
+net_with_actor
+```
+
+When `actor =` is omitted, Nestimate aggregates events at the session
+level (the default htna behaviour). When it's supplied, Nestimate
+groups events by individual actor first.
+
+## Handling code-label collisions with `disambiguate =`
+
+If both actor types share a code label (e.g. both Human and AI have a
+code called `Ask`), `build_htna()` errors by default — keeping such
+states distinct is usually what you want. Pass `disambiguate = TRUE`
+to prefix every code with its actor-type label so the two `Ask` nodes
+become `Human:Ask` and `AI:Ask`.
+
+```{r}
+overlap <- data.frame(
+  session_id        = rep(paste0("s", 1:3), each = 6),
+  code              = rep(c("Ask", "Reply", "Ask", "Reply", "Ask", "Reply"), 3),
+  actor_type        = rep(c("Human", "Human", "AI", "AI", "Human", "AI"), 3),
+  order_in_session  = rep(1:6, 3),
+  stringsAsFactors  = FALSE
+)
+
+# Without disambiguate=, this errors:
+try(build_htna(overlap, actor_type = "actor_type"))
+
+# With disambiguate=, the two `Ask`s become distinct nodes:
+net_dis <- build_htna(overlap, actor_type = "actor_type",
+                      disambiguate = TRUE)
+net_dis$nodes$label
+```
+
+## Splitting into cohorts with `group =`
+
+Any of the three input forms can additionally be split into per-cohort
+networks by passing `group =` — the result is an `htna_group`, one
+`htna` network per level of the grouping column. Below we synthesise a
+"phase" cohort variable on the combined frame and let `build_htna()`
+build one network per phase.
+
+```{r}
+combined$phase <- ifelse(combined$session_id < median(combined$session_id),
+                         "early", "late")
+
+grp <- build_htna(combined, actor_type = "actor_type", group = "phase")
+class(grp)
+names(grp)
+```
+
+```{r, fig.height = 7}
+plot_htna(grp)
+```
+
+## Cheat sheet
+
+| Form | When to use |
+|---|---|
+| `list(Human = h, AI = a)` | Each actor's data is in its own frame |
+| `df, actor_type = "actor_type"` | One combined frame, actor identity in a row-level column |
+| `df, node_groups = list(Human = ..., AI = ...)` | One combined frame; partition declared as a named list of codes |
+| `df, node_groups = data.frame(code = ..., actor_type = ...)` | One combined frame; partition declared as a tidy codebook |
+| `+ actor = "user_id"` | Identify the individual actor that performed each event (forwarded to `Nestimate::build_network()`) |
+| `+ disambiguate = TRUE` | Same code label appears in more than one actor type |
+| `+ group = "phase"` | Build one network per cohort/phase |
+
+All three input shapes are interchangeable; pick whichever matches the
+shape your data already has.

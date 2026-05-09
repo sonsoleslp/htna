@@ -23,6 +23,8 @@ htna_palette <- c(
 #' @param layout Character. Layout algorithm. Default `"circular"`.
 #' @param group_colors Character vector of colours, one per actor group.
 #'   Defaults to the built-in [htna_palette].
+#' @param minimum Numeric. Minimum absolute edge weight to display.
+#'   Edges below this threshold are hidden. Default `0.05`.
 #' @param ... Additional arguments passed to [cograph::plot_htna()].
 #'
 #' @return Called for its side effect (a plot). Returns `x` invisibly.

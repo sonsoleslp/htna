@@ -1,0 +1,39 @@
+---
+title: "Equivalence with tna: tiny dataset"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  message = FALSE, warning = FALSE,
+  fig.width = 10, fig.height = 7, dpi = 150
+)
+source("_equivalence-helpers.R")
+```
+
+The minimum-viable amount of data: only 6 sessions of length 5--7, on
+a tiny 2+2 alphabet (`h1, h2` for Human, `a1, a2` for AI). Bootstrap
+and permutation resamples will frequently be near-degenerate, so very
+few edges (often none) clear the consistency-band test at modest
+iteration counts. The point of this article is to confirm the engines
+still agree cell-for-cell even under these conditions -- including
+agreeing on which edges fail to be significant.
+
+The pipeline below runs the same htna ↔ tna ↔ Nestimate three-way
+equivalence checks as the
+[main equivalence article](tna-equivalence.html).
+
+## Setup
+
+```{r}
+library(tna)
+library(htna)
+library(tidyr)
+library(dplyr)
+library(tibble)
+
+ds <- ds_tiny()
+```
+
+```{r child = "_equivalence-body.Rmd"}
+```

@@ -1,0 +1,38 @@
+---
+title: "Equivalence with tna: imbalanced actors"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  message = FALSE, warning = FALSE,
+  fig.width = 10, fig.height = 7, dpi = 150
+)
+source("_equivalence-helpers.R")
+```
+
+20 sessions (length 10--18) with an extremely imbalanced actor split:
+the Human partition has only one code (`h_only`), while AI has five
+(`a1`-`a5`). The single-Human row of the transition matrix is
+degenerate -- there is only one possible source state for any
+Human-originating edge. This stresses how each engine handles
+singleton states and unbalanced node groups.
+
+The pipeline below runs the same htna ↔ tna ↔ Nestimate three-way
+equivalence checks as the
+[main equivalence article](tna-equivalence.html).
+
+## Setup
+
+```{r}
+library(tna)
+library(htna)
+library(tidyr)
+library(dplyr)
+library(tibble)
+
+ds <- ds_imbalanced()
+```
+
+```{r child = "_equivalence-body.Rmd"}
+```

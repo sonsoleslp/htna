@@ -1,0 +1,39 @@
+---
+title: "Equivalence with tna: group_regulation_long"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  message = FALSE, warning = FALSE,
+  fig.width = 10, fig.height = 7, dpi = 150
+)
+source("_equivalence-helpers.R")
+```
+
+Real-world data: `tna::group_regulation_long` re-cast as a two-actor
+partition. The action vocabulary is split into a **Cognitive** group
+(`plan, monitor, discuss, synthesis, adapt`) and a **Social** group
+(`cohesion, consensus, emotion, coregulate`). Sessions are grouped by
+`(Group, Course, Actor)` and ordered by `Time`. This is the largest
+dataset in the equivalence series and uses an empirical sequence-
+length distribution rather than a synthetic one.
+
+The pipeline below runs the same htna ↔ tna ↔ Nestimate three-way
+equivalence checks as the
+[main equivalence article](tna-equivalence.html).
+
+## Setup
+
+```{r}
+library(tna)
+library(htna)
+library(tidyr)
+library(dplyr)
+library(tibble)
+
+ds <- ds_tna_group_regulation()
+```
+
+```{r child = "_equivalence-body.Rmd"}
+```

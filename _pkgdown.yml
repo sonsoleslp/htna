@@ -10,9 +10,10 @@ navbar:
 
 reference:
   - title: Build
-    desc: Construct a heterogeneous transition network
+    desc: Construct and inspect a heterogeneous transition network
     contents:
       - build_htna
+      - summary.htna
 
   - title: Paths & Patterns
     desc: Discover meta-paths and state-level patterns
@@ -36,22 +37,28 @@ reference:
       - centralities
       - plot_centralities
 
+  - title: Edge betweenness
+    desc: Replace edge weights with shortest-path betweenness scores
+    contents:
+      - edge_betweenness_htna
+      - plot_edge_betweenness_htna
+
   - title: Validation
-    desc: Bootstrap and permutation tests
+    desc: Bootstrap, permutation, reliability, and stability checks
     contents:
       - bootstrap_htna
       - bootstrap
       - permutation
+      - reliability_htna
+      - centrality_stability_htna
 
 articles:
   - title: Getting Started
     contents:
       - htna
       - data-preparation
+      - input-formats
   - title: Advanced
     contents:
       - multigroup
       - grouped
-  - title: Comparison
-    contents:
-      - articles/tna-equivalence

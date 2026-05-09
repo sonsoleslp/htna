@@ -1,0 +1,38 @@
+---
+title: "Equivalence with tna: synthetic wide alphabet"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  message = FALSE, warning = FALSE,
+  fig.width = 10, fig.height = 7, dpi = 150
+)
+source("_equivalence-helpers.R")
+```
+
+30 simulated sessions (length 15--25) with a wider, asymmetric alphabet:
+5 Human codes (`Hask`, `Hexplain`, `Hcorrect`, `Hverify`, `Hreflect`)
+and 4 AI codes (`Aplan`, `Aexec`, `Adebug`, `Aexplain`). Transitions
+are drawn from a random row-normalised matrix, so the graph is dense
+and every edge gets visited multiple times. This stresses larger
+transition matrices and a non-square actor split.
+
+The pipeline below runs the same htna ↔ tna ↔ Nestimate three-way
+equivalence checks as the
+[main equivalence article](tna-equivalence.html).
+
+## Setup
+
+```{r}
+library(tna)
+library(htna)
+library(tidyr)
+library(dplyr)
+library(tibble)
+
+ds <- ds_synthetic_wide()
+```
+
+```{r child = "_equivalence-body.Rmd"}
+```

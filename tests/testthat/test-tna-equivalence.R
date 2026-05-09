@@ -773,3 +773,100 @@ test_that("permutation diff matches between htna and tna (padded matrices)", {
                      info = paste0(info, " | perm diff htna vs tna"))
   }
 })
+
+# ---- Centrality stability equivalence (htna ↔ tna ↔ Nestimate) -------
+
+test_that("centrality_stability cs values match across htna, tna, Nestimate", {
+  skip_if_missing_eq_deps()
+  for (ds in equivalence_datasets()) {
+    info <- ds$name
+    trip <- build_triple(ds)
+    n_sessions <- nrow(trip$htna$data)
+    set.seed(7)
+    h_cs <- centrality_stability_htna(trip$htna, iter = 10L, seed = 7L)
+    set.seed(7)
+    n_cs <- Nestimate::centrality_stability(trip$nest, iter = 10L,
+                                            seed = 7L)
+
+    # htna vs Nestimate: bit-identical for every dataset (htna
+    # delegates to Nestimate's engine), every measure, every cell.
+    expect_equal(h_cs$cs, n_cs$cs,
+                 info = paste0(info, " | cs htna vs nest"))
+    for (m in names(h_cs$correlations)) {
+      expect_identical(unname(h_cs$correlations[[m]]),
+                       unname(n_cs$correlations[[m]]),
+                       info = paste0(info,
+                                     " | correlations htna vs nest | ",
+                                     m))
+    }
+
+    # htna vs tna: tna skips drop proportions where rounding leaves
+    # zero cases dropped (warning: "No cases dropped..."), which
+    # shifts the CS coefficient by one step on very small datasets.
+    # We only assert agreement when every drop step actually drops
+    # at least one session (n_sessions * 0.1 >= 1 → n_sessions ≥ 10).
+    if (n_sessions >= 10L) {
+      set.seed(7)
+      t_cs <- suppressWarnings(tna::estimate_cs(trip$tna, iter = 10))
+      measures <- intersect(names(h_cs$cs), names(t_cs))
+      expect_gt(length(measures), 0L)
+      for (m in measures) {
+        expect_equal(unname(h_cs$cs[[m]]),
+                     unname(t_cs[[m]]$cs_coefficient),
+                     info = paste0(info, " | cs htna vs tna | ", m))
+      }
+      # InStrength/OutStrength: per-cell bit-identical against tna
+      # (their underlying centralities use the same code path). We
+      # assert this only for the strength measures; Betweenness can
+      # diverge by O(1e-2) on small/odd graphs because of differences
+      # in tna's vs Nestimate's betweenness implementation when
+      # graph structure changes after dropping cases.
+      for (m in intersect(measures, c("InStrength", "OutStrength"))) {
+        h_mat <- unname(h_cs$correlations[[m]])
+        t_mat <- unname(t_cs[[m]]$correlations)
+        # NaN positions can appear when a resample has zero
+        # variance in the centrality vector; require they agree on
+        # which positions are NaN, and bit-identical elsewhere.
+        expect_identical(is.nan(h_mat) | is.na(h_mat),
+                         is.nan(t_mat) | is.na(t_mat),
+                         info = paste0(info, " | NaN pattern | ", m))
+        ok <- !is.nan(h_mat) & !is.na(h_mat)
+        expect_identical(h_mat[ok], t_mat[ok],
+                         info = paste0(info,
+                                       " | strength correlations | ",
+                                       m))
+      }
+    }
+  }
+})
+
+# ---- Reliability equivalence (htna ↔ Nestimate only) ------------------
+
+test_that("network_reliability is bit-identical between htna and Nestimate", {
+  skip_if_missing_eq_deps()
+  # tna's reliability uses a different metric family (Bray-Curtis,
+  # Cosine, Dice, ...), so we only verify htna ↔ Nestimate here.
+  for (ds in equivalence_datasets()) {
+    info <- ds$name
+    trip <- build_triple(ds)
+    set.seed(11)
+    h_rel <- reliability_htna(trip$htna, iter = 10L, seed = 11L)
+    set.seed(11)
+    n_rel <- Nestimate::network_reliability(trip$nest, iter = 10L,
+                                            seed = 11L)
+    expect_equal(h_rel$iterations, n_rel$iterations,
+                 info = paste0(info, " | reliability iterations"))
+    expect_equal(h_rel$summary, n_rel$summary,
+                 info = paste0(info, " | reliability summary"))
+
+    # Cell-level bit-identity for every numeric metric column.
+    metric_cols <- setdiff(names(h_rel$iterations), "model")
+    for (col in metric_cols) {
+      expect_identical(h_rel$iterations[[col]],
+                       n_rel$iterations[[col]],
+                       info = paste0(info,
+                                     " | iterations bit-identical | ",
+                                     col))
+    }
+  }
+})

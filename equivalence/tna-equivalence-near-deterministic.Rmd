@@ -1,0 +1,39 @@
+---
+title: "Equivalence with tna: near-deterministic transitions"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  message = FALSE, warning = FALSE,
+  fig.width = 10, fig.height = 7, dpi = 150
+)
+source("_equivalence-helpers.R")
+```
+
+25 sessions (length 12--18) on a 3+3 alphabet where each row of the
+transition matrix concentrates ~90% of its mass on a single successor,
+forming a 6-cycle: `h1 → a1 → h2 → a2 → h3 → a3 → h1`. The resulting
+weight matrix is sparse -- most cells are tiny "leakage" probabilities
+-- and centrality measures are nearly constant by symmetry of the
+cycle. The article confirms the engines agree on the sparse pattern
+and on the (sometimes constant) centrality values.
+
+The pipeline below runs the same htna ↔ tna ↔ Nestimate three-way
+equivalence checks as the
+[main equivalence article](tna-equivalence.html).
+
+## Setup
+
+```{r}
+library(tna)
+library(htna)
+library(tidyr)
+library(dplyr)
+library(tibble)
+
+ds <- ds_near_deterministic()
+```
+
+```{r child = "_equivalence-body.Rmd"}
+```

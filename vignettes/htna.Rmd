@@ -38,7 +38,10 @@ library(htna)
 data(human_long, ai_long, package = "Nestimate")
 
 net <- build_htna(list(Human = human_long, AI = ai_long))
-net
+
+
+janitor::tabyl(human_long, code)
+janitor::tabyl(ai_long, code)
 ```
 
 ## 2. Plotting the network
@@ -65,7 +68,7 @@ sequence_plot_htna(net, by = "state", type = "heatmap")
 ```
 
 ```{r}
-sequence_plot_htna(net, by = "group", type = "distribution")
+sequence_plot_htna(net, by = "group", type = "distribution", na_color = "white")
 ```
 
 When `by = "state"`, the legend is split into one block per actor with
@@ -111,7 +114,58 @@ plot_htna_bootstrap(boot)
 plot_htna_bootstrap(boot, display = "significant")
 ```
 
-## 6. Comparing two networks
+## 6. Centrality stability
+
+`centrality_stability_htna()` runs the case-dropping centrality
+stability check from Costenbader & Valente (2003): drop a proportion
+of the sessions, recompute the centralities, and measure how strongly
+the dropped-sample centralities correlate with the originals. The
+returned `cs` value per measure is the **largest drop proportion at
+which the correlation with the original centralities still meets the
+threshold** (default `0.7`) for at least `certainty` (default `0.95`)
+of resamples — values above ~0.5 are typically considered stable.
+
+```{r}
+cs <- centrality_stability_htna(net, iter = 100, seed = 1)
+cs$cs
+```
+
+By default the check covers `InStrength`, `OutStrength`, and
+`Betweenness` — the three measures whose values are bit-equal between
+htna's `cograph` engine and the reference implementation. To assess
+the other six measures, pass them via `measures =` (and optionally a
+custom `centrality_fn`).
+
+For an `htna_group`, `centrality_stability_htna(grp, ...)` returns a
+named list of `htna_stability` objects (one per cohort).
+
+## 7. Split-half reliability
+
+`reliability_htna()` reports how stable each edge weight is under
+random split-half resampling: it draws `iter` random splits of the
+sessions, builds a network on each half, and summarises the
+agreement (mean / median / max absolute deviation, plus correlation)
+between paired half-networks. Pass one network or several via `...`.
+
+```{r}
+rel <- reliability_htna(net, iter = 100, seed = 1)
+rel$summary
+```
+
+`rel$summary` reports the four metrics (`mean_dev`, `median_dev`,
+`cor`, `max_dev`) per input network — high `cor` and low `*_dev`
+mean the edge structure is stable under resampling. `rel$iterations`
+holds the per-split values if you want to plot the distribution.
+
+`rel$models[[i]]` is the original htna network for input `i` with
+the actor partition preserved, so you can feed it back into any
+downstream htna function:
+
+```{r}
+identical(rel$models[[1]]$actor_levels, net$actor_levels)
+```
+
+## 8. Comparing two networks
 
 Given two HTNA networks built over the same node set, `plot_htna_diff()`
 draws the elementwise difference. Positive differences are green,
@@ -128,7 +182,7 @@ late   <- build_htna(list(Human = human_long[(n_h %/% 2 + 1):n_h, ],
 plot_htna_diff(early, late)
 ```
 
-## 7. Permutation test
+## 9. Permutation test
 
 `permutation()` provides a non-parametric significance test on each
 edge weight difference. Pass the result to `plot_htna_diff()` to render
@@ -144,7 +198,7 @@ plot_htna_diff(perm)
 plot_htna_diff(perm, show_nonsig = TRUE)
 ```
 
-## 8. Meta-paths
+## 10. Meta-paths
 
 Meta-paths are type-level patterns: a fixed sequence of actor labels
 that abstracts away from the concrete states. For example
@@ -169,7 +223,7 @@ more frequent than independence would predict):
 extract_meta_paths(net, length = 3, min_lift = 1.2)
 ```
 
-## 9. State-level paths
+## 11. State-level paths
 
 `extract_paths()` is the state-level counterpart: same arguments, but
 the alphabet is the concrete code set (`Ask`, `Plan`, `Verify`, ...)

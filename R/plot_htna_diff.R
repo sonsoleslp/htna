@@ -64,15 +64,17 @@ plot_htna_diff <- function(x, y = NULL,
     stop("Both `x` and `y` must be htna networks, or `x` a permutation result.",
          call. = FALSE)
   }
-  if (!identical(sort(unique(x$node_groups$group)),
-                 sort(unique(y$node_groups$group)))) {
-    stop("x and y must share the same actor partition.", call. = FALSE)
+  # Both networks must use the same global actor partition (same actor
+  # types in the same canonical ordering). Their node sets are allowed
+  # to differ — partial coverage is aligned to the union below.
+  if (!identical(x$actor_levels, y$actor_levels)) {
+    stop("x and y must share the same actor partition (`actor_levels`).",
+         call. = FALSE)
   }
 
-  diff_mat <- cograph::to_matrix(x) - cograph::to_matrix(y)
-  rownames(diff_mat) <- colnames(diff_mat) <- x$nodes$label
-
-  ng_styling <- .htna_node_styling(x, group_colors)
+  aligned  <- .align_diff_inputs(x, y)
+  diff_mat <- aligned$diff
+  ng_styling <- .htna_node_styling(aligned$net, group_colors)
 
   result <- do.call(cograph::splot, c(
     list(x = diff_mat,
@@ -103,7 +105,62 @@ plot_htna_diff <- function(x, y = NULL,
   invisible(result)
 }
 
-.plot_htna_diff_perm <- function(perm, pos_color, neg_color, group_colors, title = "", 
+# Align two htna networks whose node sets may differ (e.g. two cohorts
+# of an htna_group built from data where some codes appear in one
+# cohort but not the other). Returns:
+#   $diff: x - y on the union node set, with zero-padding for missing
+#          rows/cols on either side.
+#   $net : a synthetic htna network on the union nodes that
+#          `.htna_node_styling()` can consume for layout/colours/shapes.
+.align_diff_inputs <- function(x, y) {
+  rn_x <- rownames(x$weights); rn_y <- rownames(y$weights)
+  if (identical(rn_x, rn_y) && identical(colnames(x$weights),
+                                          colnames(y$weights))) {
+    diff_mat <- cograph::to_matrix(x) - cograph::to_matrix(y)
+    rownames(diff_mat) <- colnames(diff_mat) <- x$nodes$label
+    return(list(diff = diff_mat, net = x))
+  }
+  # Union of nodes. Use both networks' node_groups to derive the actor
+  # tag for every union node — they must agree on shared nodes.
+  ng_combined <- rbind(x$node_groups, y$node_groups)
+  ng_combined <- ng_combined[!duplicated(as.character(ng_combined$node)), ,
+                             drop = FALSE]
+  # Order union nodes by canonical actor_levels then alphabetically
+  # within each actor, so the layout puts each actor's nodes together.
+  ord <- order(match(as.character(ng_combined$group), x$actor_levels),
+               as.character(ng_combined$node))
+  ng_combined <- ng_combined[ord, , drop = FALSE]
+  rownames(ng_combined) <- NULL
+  union_nodes <- as.character(ng_combined$node)
+
+  pad <- function(net) {
+    W <- cograph::to_matrix(net)
+    rownames(W) <- colnames(W) <- net$nodes$label
+    out <- matrix(0, length(union_nodes), length(union_nodes),
+                  dimnames = list(union_nodes, union_nodes))
+    rn <- rownames(W); cn <- colnames(W)
+    out[rn, cn] <- W
+    out
+  }
+  W_x <- pad(x); W_y <- pad(y)
+  diff_mat <- W_x - W_y
+
+  # Synthetic htna network for the styling helper. We only need
+  # $weights, $nodes, $node_groups, $actor_levels.
+  synthetic <- list(
+    weights      = matrix(0, length(union_nodes), length(union_nodes),
+                          dimnames = list(union_nodes, union_nodes)),
+    nodes        = data.frame(label = union_nodes,
+                              groups = ng_combined$group,
+                              stringsAsFactors = FALSE),
+    node_groups  = ng_combined,
+    actor_levels = x$actor_levels
+  )
+  class(synthetic) <- c("htna", "netobject", "cograph_network")
+  list(diff = diff_mat, net = synthetic)
+}
+
+.plot_htna_diff_perm <- function(perm, pos_color, neg_color, group_colors, title = "",
                                  ...) {
   net <- perm$x
   if (!inherits(net, "htna") || is.null(net$node_groups)) {

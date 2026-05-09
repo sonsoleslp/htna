@@ -1,0 +1,50 @@
+---
+title: "Equivalence with tna"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>",
+  message  = FALSE,
+  warning  = FALSE,
+  fig.width  = 10,
+  fig.height = 7,
+  dpi = 150
+)
+source("_equivalence-helpers.R")
+```
+
+`htna` is built on the same engine as `Nestimate`, the engine that `tna`
+shares for many quantities. To make the equivalence picture explicit
+this article runs **three** parallel pipelines on the same data:
+
+* **htna**: `build_htna(ds$actors)` -- wraps `Nestimate::build_network()`
+  and stores the actor partition.
+* **tna**: `tna(htna_net$data)` -- tna's own engine on the wide matrix.
+* **Nestimate**: `Nestimate::build_network(combined_long, ...)` -- the
+  Nestimate engine without the htna partition wrapper.
+
+For each quantity we check **all three pairwise** comparisons and report
+`equal / max_abs_diff / n_disagree`. If all three engines produce the
+same numbers, every row reads `TRUE / 0 / 0`.
+
+This article uses Nestimate's `human_long` + `ai_long` data. Sibling
+articles repeat the same pipeline on diverse and pathological datasets:
+synthetic balanced, synthetic wide, tiny, imbalanced, disconnected,
+variable-length, near-deterministic, and `tna::group_regulation_long`.
+
+## Setup
+
+```{r}
+library(tna)
+library(htna)
+library(tidyr)
+library(dplyr)
+library(tibble)
+
+ds <- ds_nestimate()
+```
+
+```{r child = "_equivalence-body.Rmd"}
+```

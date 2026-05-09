@@ -1,0 +1,40 @@
+---
+title: "Equivalence with tna: disconnected actors"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  message = FALSE, warning = FALSE,
+  fig.width = 10, fig.height = 7, dpi = 150
+)
+source("_equivalence-helpers.R")
+```
+
+24 sessions in which the two actors **never transition between each
+other**: 12 Human-only sessions cycle through `h1`-`h3`, and 12 AI-only
+sessions cycle through `a1`-`a3`. The resulting transition matrix is
+block-diagonal, the graph has two disconnected components, and
+path-based centralities (closeness variants, betweenness) can produce
+`NaN` or `Inf` for cross-component pairs. The point of this article is
+that **both engines should produce the same `NaN` / `Inf` values** at
+the same cells.
+
+The pipeline below runs the same htna ↔ tna ↔ Nestimate three-way
+equivalence checks as the
+[main equivalence article](tna-equivalence.html).
+
+## Setup
+
+```{r}
+library(tna)
+library(htna)
+library(tidyr)
+library(dplyr)
+library(tibble)
+
+ds <- ds_disconnected()
+```
+
+```{r child = "_equivalence-body.Rmd"}
+```

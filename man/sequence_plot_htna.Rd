@@ -2,19 +2,10 @@
 % Please edit documentation in R/sequence_plot_htna.R
 \name{sequence_plot_htna}
 \alias{sequence_plot_htna}
-\alias{sequence_plot.htna}
 \alias{plot_sequences.htna}
 \title{Plot Per-Actor Sequences From an htna Network}
 \usage{
 sequence_plot_htna(
-  net,
-  by = c("state", "group"),
-  type = c("index", "heatmap", "distribution"),
-  grouped_legend = TRUE,
-  ...
-)
-
-sequence_plot.htna(
   net,
   by = c("state", "group"),
   type = c("index", "heatmap", "distribution"),

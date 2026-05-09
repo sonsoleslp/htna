@@ -21,12 +21,6 @@ test_that("plot_sequences() generic dispatches to .htna", {
   )
 })
 
-test_that("sequence_plot.htna alias is callable", {
-  net <- make_htna()
-  with_null_device(
-    expect_no_error(sequence_plot.htna(net))
-  )
-})
 
 test_that("sequence_plot_htna() errors when net$data is missing", {
   net <- make_htna()

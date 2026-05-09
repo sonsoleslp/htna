@@ -44,5 +44,6 @@ vignettes/*_cache/
 # Editor / IDE
 .vscode/
 .idea/
+.claude
 *.swp
 *~

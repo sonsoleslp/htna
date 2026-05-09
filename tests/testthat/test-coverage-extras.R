@@ -796,10 +796,11 @@ test_that("plot_htna_bootstrap() rejects bootstrap whose model lost its partitio
   expect_error(plot_htna_bootstrap(boot), regexp = "node_groups")
 })
 
-test_that("plot_htna_diff() rejects htna nets with different actor partitions", {
+test_that("plot_htna_diff() rejects htna nets with different actor_levels", {
   pair <- make_htna_pair()
   bad  <- pair$ctrl
-  # rename one actor so partition differs
+  # Genuinely different partition — different actor_levels vector.
+  bad$actor_levels <- c("Human", "OTHER")
   levels(bad$node_groups$group) <- c("Human", "OTHER")
   expect_error(plot_htna_diff(bad, pair$exp),
                regexp = "actor partition")

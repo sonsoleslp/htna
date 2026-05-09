@@ -1,0 +1,38 @@
+---
+title: "Equivalence with tna: variable session lengths"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE, comment = "#>",
+  message = FALSE, warning = FALSE,
+  fig.width = 10, fig.height = 7, dpi = 150
+)
+source("_equivalence-helpers.R")
+```
+
+12 sessions with deliberately bimodal lengths: 8 short sessions of
+length 4 and 4 long sessions of length 80. The resulting wide session
+matrix is mostly `NA` -- every short session contributes only 4
+non-`NA` cells but is padded out to 80 columns. The engines have to
+agree on how to ignore the padding when computing transitions; this
+article confirms they do.
+
+The pipeline below runs the same htna ↔ tna ↔ Nestimate three-way
+equivalence checks as the
+[main equivalence article](tna-equivalence.html).
+
+## Setup
+
+```{r}
+library(tna)
+library(htna)
+library(tidyr)
+library(dplyr)
+library(tibble)
+
+ds <- ds_variable_lengths()
+```
+
+```{r child = "_equivalence-body.Rmd"}
+```

@@ -192,10 +192,6 @@ sequence_plot_htna <- function(net,
   invisible(result)
 }
 
-#' @rdname sequence_plot_htna
-#' @export
-sequence_plot.htna <- sequence_plot_htna
-
 #' Sequence plot generic
 #'
 #' S3 generic dispatched on `x`. Calling `plot_sequences(net)` on an htna

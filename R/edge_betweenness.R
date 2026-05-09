@@ -39,10 +39,6 @@ edge_betweenness_htna <- function(x, directed = TRUE, invert = TRUE) {
   if (!inherits(x, "htna")) {
     stop("`x` must be an htna network from build_htna().", call. = FALSE)
   }
-  if (!requireNamespace("igraph", quietly = TRUE)) {  # nocov start
-    stop("`edge_betweenness_htna()` needs the 'igraph' package. ",
-         "Install it with `install.packages(\"igraph\")`.", call. = FALSE)
-  }                                                    # nocov end
 
   W <- .weights_of(x)
   g <- igraph::graph_from_adjacency_matrix(W, mode = "directed",

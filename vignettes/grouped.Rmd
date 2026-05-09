@@ -181,6 +181,25 @@ plot_htna_bootstrap(boots, display = "significant")
 par(op)
 ```
 
+## Centrality stability per condition
+
+`centrality_stability_htna(grp)` runs the case-dropping centrality
+stability check on each cohort and returns a named list of
+`htna_stability` objects. Each cohort's `cs` reports the largest
+session-drop proportion at which `InStrength`, `OutStrength`, and
+`Betweenness` still correlate with the originals at the default
+0.7 / 0.95 threshold:
+
+```{r}
+stab <- centrality_stability_htna(grp, iter = 100, seed = 1)
+sapply(stab, function(s) s$cs)
+```
+
+The columns are cohorts, the rows are centrality measures. Values
+near 1 mean the rank ordering of nodes by that measure barely shifts
+when half the sessions are dropped — a strong signal of stable
+centrality structure within that cohort.
+
 ## Comparing the two conditions
 
 This is the key payoff of a control / experimental design: both
