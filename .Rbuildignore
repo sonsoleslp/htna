@@ -1,5 +1,6 @@
 ^tmp$
 ^equivalence$
+^data-raw$
 ^\.git$
 ^\.gitignore$
 ^\.DS_Store$
