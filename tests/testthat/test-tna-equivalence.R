@@ -588,7 +588,7 @@ test_that("shared centrality measures match between htna and tna", {
   for (ds in equivalence_datasets()) {
     info <- ds$name
     trip <- build_triple(ds)
-    htna_ct <- htna::centralities(trip$htna,
+    htna_ct <- htna::centralities_htna(trip$htna,
                                   measures = shared_centrality_measures)
     tna_ct  <- tna::centralities(trip$tna,
                                  measures = shared_centrality_measures)
@@ -713,7 +713,7 @@ test_that("permutation diff/p_values/effect_size/diff_sig match (htna vs Nestima
                                        order = "order_in_session",
                                        format = "long")
 
-    set.seed(42); h_perm <- htna::permutation(htna_x, htna_y, iter = 50)
+    set.seed(42); h_perm <- htna::permutation_htna(htna_x, htna_y, iter = 50)
     set.seed(42); n_perm <- Nestimate::permutation(nest_x, nest_y,
                                                    iter = 50)
 
@@ -752,7 +752,7 @@ test_that("permutation diff matches between htna and tna (padded matrices)", {
     htna_x <- build_htna(lapply(halves, `[[`, "a"))
     htna_y <- build_htna(lapply(halves, `[[`, "b"))
 
-    set.seed(42); h_perm <- htna::permutation(htna_x, htna_y, iter = 50)
+    set.seed(42); h_perm <- htna::permutation_htna(htna_x, htna_y, iter = 50)
 
     n_cols <- max(ncol(htna_x$data), ncol(htna_y$data))
     tna_x  <- tna::tna(pad_to(htna_x$data, n_cols))

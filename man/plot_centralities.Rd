@@ -19,7 +19,7 @@ plot_centralities(
 }
 \arguments{
 \item{x}{An htna network, \code{htna_group}, or \code{htna_centralities} data
-frame from \code{\link[=centralities]{centralities()}}.}
+frame from \code{\link[=centralities_htna]{centralities_htna()}}.}
 
 \item{measures}{Centralities to plot. Default: all nine.}
 
@@ -37,7 +37,7 @@ frame from \code{\link[=centralities]{centralities()}}.}
 
 \item{labels}{If \code{TRUE} (default), draw the value next to each bar.}
 
-\item{...}{Forwarded to \code{\link[=centralities]{centralities()}} when computing on the fly.}
+\item{...}{Forwarded to \code{\link[=centralities_htna]{centralities_htna()}} when computing on the fly.}
 }
 \value{
 A ggplot object.
@@ -48,7 +48,7 @@ Mirrors the look of \code{\link[tna:plot.tna_centralities]{tna::plot.tna_central
 }
 \details{
 Accepts an htna network, an \code{htna_group}, or a data frame produced by
-\code{\link[=centralities]{centralities()}}. For groups, bars are coloured by group within each
+\code{\link[=centralities_htna]{centralities_htna()}}. For groups, bars are coloured by group within each
 panel.
 }
 \examples{
@@ -62,5 +62,5 @@ plot_centralities(grp)
 }
 }
 \seealso{
-\code{\link[=centralities]{centralities()}}.
+\code{\link[=centralities_htna]{centralities_htna()}}.
 }

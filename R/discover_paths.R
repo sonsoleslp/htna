@@ -28,7 +28,11 @@
       all(gap == as.integer(gap))
     )
     gap_vals <- sort(unique(as.integer(gap)))
-    if (identical(gap_vals, 0L)) gap_vals <- 1L  # nocov
+    if (any(gap_vals == 0L)) {
+      stop("`gap = 0` is not valid when `type = \"gapped\"`; ",
+           "use `type = \"contiguous\"` for adjacency-only matches.",
+           call. = FALSE)
+    }
   }
 
   marg_p <- .marginal_freq(int_seqs, T)

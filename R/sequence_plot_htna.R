@@ -81,7 +81,7 @@ sequence_plot_htna <- function(net,
 
   if (by == "group") {
     actor_chr <- as.character(actors)
-    color_map <- setNames(htna_palette[seq_along(actor_chr)], actor_chr)
+    color_map <- .htna_actor_colors(actor_chr)
 
     # Nestimate's `.encode_states()` always alphabetises levels, so a
     # naive label of "Human" / "AI" would put AI as level 1 (the bottom
@@ -111,12 +111,11 @@ sequence_plot_htna <- function(net,
     legend_pos <- user_args$legend %||% "right"
     result <- do.call(Nestimate::sequence_plot,
                       c(list(x = wide, type = type), user_args))
-    # Mask Nestimate's drawn legend (which uses the prefixed labels)
-    # and overlay our own with clean actor names in canonical order.
-    if (!identical(legend_pos, "none") && !isFALSE(legend_pos)) {
+    overlay_pos <- .htna_normalize_overlay_pos(legend_pos)
+    if (!is.null(overlay_pos)) {
       .htna_overlay_legend(actor_chr,
                            unname(color_map[actor_chr]),
-                           position = legend_pos)
+                           position = overlay_pos)
     }
     return(invisible(result))
   }
@@ -159,7 +158,8 @@ sequence_plot_htna <- function(net,
 
   use_grouped_legend <- isTRUE(grouped_legend)
   legend_position    <- user_args$legend %||% "right"
-  if (identical(legend_position, "none")) use_grouped_legend <- FALSE
+  overlay_position   <- .htna_normalize_overlay_pos(legend_position)
+  if (is.null(overlay_position)) use_grouped_legend <- FALSE
   if (use_grouped_legend) user_args$legend <- legend_position
 
   if (type == "heatmap") {
@@ -186,7 +186,7 @@ sequence_plot_htna <- function(net,
 
   if (use_grouped_legend) {
     .htna_grouped_legend(result, type_map, actors,
-                         position = legend_position)
+                         position = overlay_position)
   }
 
   invisible(result)
@@ -200,6 +200,12 @@ sequence_plot_htna <- function(net,
 #' @param x An object to plot.
 #' @param ... Forwarded to the method.
 #' @return Method-defined.
+#' @examples
+#' \donttest{
+#' data(human_long, ai_long, package = "Nestimate")
+#' net <- build_htna(list(Human = human_long, AI = ai_long))
+#' plot_sequences(net)
+#' }
 #' @export
 plot_sequences <- function(x, ...) UseMethod("plot_sequences")
 
@@ -207,6 +213,35 @@ plot_sequences <- function(x, ...) UseMethod("plot_sequences")
 #' @rdname sequence_plot_htna
 plot_sequences.htna <- function(x, ...) sequence_plot_htna(x, ...)
 
+
+# Map any base-graphics legend position spec to one of the two the gutter
+# overlay supports ("right", "bottom"). Returns NULL for "none"/FALSE/NULL
+# (caller should skip the overlay). Side-style positions (left/right
+# variants) collapse to "right"; top/bottom variants collapse to "bottom".
+# Anything else warns and falls back to "right".
+.htna_normalize_overlay_pos <- function(position) {
+  if (is.null(position) || isFALSE(position) ||
+      identical(position, "none")) {
+    return(NULL)
+  }
+  if (!is.character(position) || length(position) != 1L) {
+    warning("htna: unsupported legend position; using 'right'.",
+            call. = FALSE)
+    return("right")
+  }
+  if (position %in% c("right", "bottom")) return(position)
+  fallback <- if (grepl("bottom|top", position, fixed = FALSE)) {
+    "bottom"
+  } else if (grepl("right|left", position, fixed = FALSE)) {
+    "right"
+  } else {
+    "right"
+  }
+  warning("htna: legend position '", position,
+          "' is not supported by the actor-overlay legend; using '",
+          fallback, "'.", call. = FALSE)
+  fallback
+}
 
 # Replicates Nestimate:::.legend_oma_size and converts the resulting outer
 # margin (in lines) to NDC fractions for par(fig=...) so the overlay aligns

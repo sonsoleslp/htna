@@ -47,3 +47,15 @@ test_that("extract_*_paths() error on non-htna input", {
   expect_error(extract_meta_paths(list()),       regexp = "build_htna")
   expect_error(extract_paths(list()),            regexp = "build_htna")
 })
+
+test_that("type='gapped' rejects gap=0 with a targeted message", {
+  net <- make_htna()
+  expect_error(
+    extract_meta_paths(net, length = 2, type = "gapped", gap = 0L),
+    regexp = "contiguous"
+  )
+  expect_error(
+    extract_paths(net, length = 2, type = "gapped", gap = c(0L, 1L)),
+    regexp = "contiguous"
+  )
+})

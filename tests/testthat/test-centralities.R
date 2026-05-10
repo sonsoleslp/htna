@@ -1,6 +1,6 @@
-test_that("centralities() returns one row per node and the requested measures", {
+test_that("centralities_htna() returns one row per node and the requested measures", {
   net <- make_htna()
-  ct  <- centralities(net)
+  ct  <- centralities_htna(net)
 
   expect_s3_class(ct, "htna_centralities")
   expect_s3_class(ct, "data.frame")
@@ -14,24 +14,24 @@ test_that("centralities() returns one row per node and the requested measures", 
   expect_setequal(ct$actor, c("Human", "AI"))
 })
 
-test_that("centralities() honours `measures =` subset", {
+test_that("centralities_htna() honours `measures =` subset", {
   net <- make_htna()
-  ct  <- centralities(net, measures = c("OutStrength", "InStrength"))
+  ct  <- centralities_htna(net, measures = c("OutStrength", "InStrength"))
   expect_true(all(c("node", "actor", "OutStrength", "InStrength") %in% names(ct)))
   expect_false("Closeness" %in% names(ct))
 })
 
-test_that("centralities() rejects unknown measure", {
+test_that("centralities_htna() rejects unknown measure", {
   net <- make_htna()
   expect_error(
-    centralities(net, measures = "Bogus"),
+    centralities_htna(net, measures = "Bogus"),
     regexp = "Unknown measure"
   )
 })
 
-test_that("centralities() on htna_group stacks per-group rows", {
+test_that("centralities_htna() on htna_group stacks per-group rows", {
   grp <- make_htna_group()
-  ct  <- centralities(grp)
+  ct  <- centralities_htna(grp)
 
   expect_s3_class(ct, "data.frame")
   expect_true("group" %in% names(ct))

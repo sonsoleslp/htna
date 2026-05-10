@@ -7,7 +7,7 @@ test_that("plot_htna_diff() runs on two htna networks", {
 
 test_that("plot_htna_diff() runs on a net_permutation result", {
   pair <- make_htna_pair()
-  perm <- permutation(pair$ctrl, pair$exp, iter = 20)
+  perm <- permutation_htna(pair$ctrl, pair$exp, iter = 20)
   with_null_device(
     expect_no_error(plot_htna_diff(perm))
   )

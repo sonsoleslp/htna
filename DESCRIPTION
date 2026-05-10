@@ -16,7 +16,7 @@ Description: Heterogeneous Transition Network Analysis (HTNA) for sequences
     so downstream bootstrap, permutation, reliability, centrality, and
     plotting functions treat each actor's codes as a distinct node group.
 License: MIT + file LICENSE
-URL: https://sonsoles.me/htna
+URL: https://sonsoles.me/htna/
 BugReports: https://github.com/sonsoleslp/htna/issues
 Depends:
     R (>= 4.1.0)

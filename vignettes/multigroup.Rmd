@@ -121,12 +121,12 @@ net3b <- build_htna(
 plot_htna_diff(net3, net3b)
 ```
 
-`permutation()` provides the non-parametric significance test; pass the
+`permutation_htna()` provides the non-parametric significance test; pass the
 result to `plot_htna_diff()` to surface only the edges that differ
 significantly:
 
 ```{r}
-perm3 <- permutation(net3, net3b, iter = 200)
+perm3 <- permutation_htna(net3, net3b, iter = 200)
 plot_htna_diff(perm3)
 ```
 

@@ -18,4 +18,12 @@
 #' @importFrom stats setNames
 "_PACKAGE"
 
-if (getRversion() >= "2.15.1") utils::globalVariables(".data")
+if (getRversion() >= "2.15.1") {
+  # `.data` is ggplot2's tidy-evaluation pronoun.
+  # `.param_get` is referenced inside the body of
+  # `Nestimate::casedrop_reliability` (which is re-exported as
+  # `casedrop_reliability_htna` via assignment); R CMD check sees it as
+  # an unresolved global in this package's R-code scan even though it
+  # resolves at call time inside the Nestimate namespace.
+  utils::globalVariables(c(".data", ".param_get"))
+}

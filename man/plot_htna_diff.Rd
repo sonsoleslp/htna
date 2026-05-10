@@ -66,5 +66,5 @@ plot_htna_diff(perm, show_nonsig = TRUE)
 
 }
 \seealso{
-\code{\link[=plot_htna]{plot_htna()}}, \code{\link[=build_htna]{build_htna()}}, \code{\link[=permutation]{permutation()}}.
+\code{\link[=plot_htna]{plot_htna()}}, \code{\link[=build_htna]{build_htna()}}, \code{\link[Nestimate:permutation]{Nestimate::permutation()}}.
 }

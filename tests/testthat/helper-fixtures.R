@@ -72,3 +72,15 @@ with_null_device <- function(expr) {
   on.exit(dev.off(), add = TRUE)
   force(expr)
 }
+
+# Skip a test if the loaded Nestimate is missing internal helpers that
+# `Nestimate:::.reliability_association()` calls. Nestimate 0.5.4 ships a
+# NAMESPACE that references `.param_get` without exporting/defining it,
+# which causes a hard error at htna's call sites — out of htna's control.
+skip_if_nestimate_param_get_missing <- function() {
+  testthat::skip_if_not_installed("Nestimate")
+  if (!exists(".param_get", envir = asNamespace("Nestimate"),
+              inherits = FALSE)) {
+    testthat::skip("Nestimate is missing internal `.param_get` (upstream bug).")
+  }
+}

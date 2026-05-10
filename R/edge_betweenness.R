@@ -23,7 +23,7 @@
 #'   network had a non-zero transition. Class is
 #'   `c("htna_edge_betweenness", class(x))`.
 #'
-#' @seealso [centralities()] for node-level centrality measures,
+#' @seealso [centralities_htna()] for node-level centrality measures,
 #'   [tna::betweenness_network()] for the tna equivalent.
 #'
 #' @examples

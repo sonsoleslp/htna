@@ -45,6 +45,6 @@ plot_htna(eb)                 # edge thickness = betweenness score
 
 }
 \seealso{
-\code{\link[=centralities]{centralities()}} for node-level centrality measures,
+\code{\link[=centralities_htna]{centralities_htna()}} for node-level centrality measures,
 \code{\link[tna:betweenness_network]{tna::betweenness_network()}} for the tna equivalent.
 }

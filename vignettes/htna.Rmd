@@ -77,13 +77,13 @@ which codes belong to which actor.
 
 ## 4. Centralities
 
-`centralities()` returns a tidy data frame: one row per node, one column
+`centralities_htna()` returns a tidy data frame: one row per node, one column
 per measure, defaulting to nine standard measures (out/in strength,
 in/out closeness, closeness, betweenness, RSP betweenness, diffusion,
 clustering). Pass `measures = c(...)` to subset.
 
 ```{r}
-centralities(net)
+centralities_htna(net)
 ```
 
 `plot_centralities()` is the corresponding plot. Each panel is one
@@ -184,13 +184,13 @@ plot_htna_diff(early, late)
 
 ## 9. Permutation test
 
-`permutation()` provides a non-parametric significance test on each
+`permutation_htna()` provides a non-parametric significance test on each
 edge weight difference. Pass the result to `plot_htna_diff()` to render
 significant differences with the pos/neg colouring above; non-significant
 edges are dashed grey when `show_nonsig = TRUE`.
 
 ```{r}
-perm <- permutation(early, late, iter = 200)
+perm <- permutation_htna(early, late, iter = 200)
 plot_htna_diff(perm)
 ```
 

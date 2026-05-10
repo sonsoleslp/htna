@@ -91,7 +91,7 @@ htna_shape_palette <- c("circle", "square", "diamond", "triangle",
                                group_shapes = htna_shape_palette) {
   groups   <- net$actor_levels %||% unique(as.character(net$node_groups$group))
   n_groups <- length(groups)
-  colors   <- group_colors[seq_len(n_groups)]
+  colors   <- unname(.htna_actor_colors(n_groups, palette = group_colors))
   shapes   <- rep_len(group_shapes, n_groups)
 
   ng        <- net$node_groups

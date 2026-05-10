@@ -47,11 +47,11 @@ htna_state_palette <- c(
 #' \dontrun{
 #' data(human_long, ai_long, package = "Nestimate")
 #' net <- build_htna(list(Human = human_long, AI = ai_long))
-#' centralities(net)
+#' centralities_htna(net)
 #' }
 #'
 #' @export
-centralities <- function(x,
+centralities_htna <- function(x,
                          measures = c("OutStrength", "InStrength",
                                       "ClosenessIn", "ClosenessOut",
                                       "Closeness", "Betweenness",
@@ -63,7 +63,7 @@ centralities <- function(x,
     if (length(x) == 0L) stop("Empty htna_group.", call. = FALSE)
     nms  <- names(x) %||% as.character(seq_along(x))
     rows <- lapply(seq_along(x), function(i) {
-      df <- centralities(x[[i]], measures = measures, ...)
+      df <- centralities_htna(x[[i]], measures = measures, ...)
       cbind(group = nms[i], df, stringsAsFactors = FALSE)
     })
     return(do.call(rbind, rows))
@@ -167,11 +167,11 @@ centralities <- function(x,
 #' Mirrors the look of [tna::plot.tna_centralities()].
 #'
 #' Accepts an htna network, an `htna_group`, or a data frame produced by
-#' [centralities()]. For groups, bars are coloured by group within each
+#' [centralities_htna()]. For groups, bars are coloured by group within each
 #' panel.
 #'
 #' @param x An htna network, `htna_group`, or `htna_centralities` data
-#'   frame from [centralities()].
+#'   frame from [centralities_htna()].
 #' @param measures Centralities to plot. Default: all nine.
 #' @param by `"state"` (default) gives each node its own colour;
 #'   `"group"` colours by actor group (Human, AI, …) using
@@ -181,10 +181,10 @@ centralities <- function(x,
 #' @param scales Facet scaling: `"free_x"` (default) or `"fixed"`.
 #' @param colors Optional fill colours, recycled per group/node.
 #' @param labels If `TRUE` (default), draw the value next to each bar.
-#' @param ... Forwarded to [centralities()] when computing on the fly.
+#' @param ... Forwarded to [centralities_htna()] when computing on the fly.
 #'
 #' @return A ggplot object.
-#' @seealso [centralities()].
+#' @seealso [centralities_htna()].
 #' @examples
 #' \dontrun{
 #' net <- build_htna(list(Human = human_long, AI = ai_long))
@@ -227,7 +227,7 @@ plot_centralities <- function(x,
   }
 
   if (!inherits(x, "htna_centralities") && !is.data.frame(x)) {
-    df <- centralities(x, measures = measures, ...)
+    df <- centralities_htna(x, measures = measures, ...)
   } else {
     df <- x
     have <- intersect(measures, names(df))
@@ -244,7 +244,7 @@ plot_centralities <- function(x,
 
   if (by == "group" && !"actor" %in% names(df)) {
     stop("`by = \"group\"` needs an `actor` column. Pass an htna network ",
-         "(or a data frame from centralities()) so the actor partition is ",
+         "(or a data frame from centralities_htna()) so the actor partition is ",
          "available.", call. = FALSE)
   }
 
@@ -316,7 +316,7 @@ plot_centralities <- function(x,
   }
   if (is.null(colors)) {
     colors <- if (by == "group") {
-      htna_palette[seq_along(fill_levels)]
+      unname(.htna_actor_colors(length(fill_levels)))
     } else {
       rep_len(htna_state_palette, length(fill_levels))
     }

@@ -18,3 +18,10 @@ Method-defined.
 S3 generic dispatched on \code{x}. Calling \code{plot_sequences(net)} on an htna
 network forwards to \code{\link[=sequence_plot_htna]{sequence_plot_htna()}}.
 }
+\examples{
+\donttest{
+data(human_long, ai_long, package = "Nestimate")
+net <- build_htna(list(Human = human_long, AI = ai_long))
+plot_sequences(net)
+}
+}

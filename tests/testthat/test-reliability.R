@@ -105,8 +105,8 @@ test_that("reliability_htna() $models can be fed back into htna pipelines", {
   rel <- reliability_htna(net, iter = 3L, seed = 1L)
   m   <- rel$models[[1L]]
 
-  # centralities() should accept the recovered model without erroring
-  ct <- centralities(m, measures = c("OutStrength", "InStrength"))
+  # centralities_htna() should accept the recovered model without erroring
+  ct <- centralities_htna(m, measures = c("OutStrength", "InStrength"))
   expect_s3_class(ct, "data.frame")
   expect_setequal(ct$node, as.character(net$node_groups$node))
 
@@ -174,7 +174,7 @@ test_that("reliability_htna() rejects empty input and non-htna input", {
 # ---- Method independence (relative / frequency / attention) ----------
 
 test_that("reliability_htna() works for every build_htna() method", {
-  skip_if_not_installed("Nestimate")
+  skip_if_nestimate_param_get_missing()
   d   <- make_grouped_data()
   ng  <- list(Human = c("H1","H2","H3"), AI = c("A1","A2","A3"))
   for (m in c("relative", "frequency", "attention")) {
@@ -205,7 +205,7 @@ test_that("reliability_htna() works on htna_group cohorts via do.call(...)", {
 # reliability summary metrics must agree across forms (same seed).
 
 test_that("reliability_htna() invariant across input form × method", {
-  skip_if_not_installed("Nestimate")
+  skip_if_nestimate_param_get_missing()
   d  <- make_grouped_data()
   hum <- d[d$code %in% c("H1","H2","H3"), ]
   ai  <- d[d$code %in% c("A1","A2","A3"), ]
@@ -294,7 +294,7 @@ test_that("reliability_htna(): iter × scale combinations all work", {
 # ---- Cross-product: method × multi-network ----------------------------
 
 test_that("reliability_htna(): method × multi-network works for all methods", {
-  skip_if_not_installed("Nestimate")
+  skip_if_nestimate_param_get_missing()
   d  <- make_grouped_data()
   ng <- list(Human = c("H1","H2","H3"), AI = c("A1","A2","A3"))
   for (m in c("relative", "frequency", "attention")) {

@@ -57,7 +57,7 @@ plot_htna <- function(x, layout = "circular",
 
   groups <- x$actor_levels %||% unique(as.character(x$node_groups$group))
   n_groups <- length(groups)
-  colors <- group_colors[seq_len(n_groups)]
+  colors <- unname(.htna_actor_colors(n_groups, palette = group_colors))
 
   ng <- x$node_groups
   node_list <- lapply(groups, function(g) ng$node[as.character(ng$group) == g])
@@ -105,6 +105,37 @@ plot.htna <- function(x, ...) plot_htna(x, ...)
 #' @export
 #' @rdname plot_htna
 plot.htna_group <- function(x, ...) plot_htna(x, ...)
+
+#' Pick actor colours, recycling the palette for >6 groups
+#'
+#' Returns one colour per actor group. When the number of groups exceeds
+#' the palette length, recycles with a one-time warning so plots remain
+#' readable instead of silently producing `NA` fills.
+#'
+#' @param n_or_levels Either an integer count of groups or a character
+#'   vector of group labels (used for `names()` on the result).
+#' @param palette Colour palette to draw from. Defaults to [htna_palette].
+#' @return Character vector of colours, length `n` (named when levels given).
+#' @keywords internal
+.htna_actor_colors <- function(n_or_levels, palette = htna_palette) {
+  if (is.character(n_or_levels)) {
+    nms <- n_or_levels
+    n   <- length(nms)
+  } else {
+    nms <- NULL
+    n   <- as.integer(n_or_levels)
+  }
+  if (n <= length(palette)) {
+    cols <- palette[seq_len(n)]
+  } else {
+    warning(sprintf(
+      "htna: %d actor groups exceeds palette size %d; recycling colours.",
+      n, length(palette)), call. = FALSE)
+    cols <- rep_len(palette, n)
+  }
+  if (!is.null(nms)) names(cols) <- nms
+  cols
+}
 
 #' @keywords internal
 .htna_circular <- function(node_list, labels, radius = 2,

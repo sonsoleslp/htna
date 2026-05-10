@@ -627,7 +627,7 @@ test_that("plot_htna() and friends error on an empty htna_group", {
 
 test_that("plot_htna_diff() iterates a net_permutation_group", {
   pair <- make_htna_pair()
-  perm <- permutation(pair$ctrl, pair$exp, iter = 20)
+  perm <- permutation_htna(pair$ctrl, pair$exp, iter = 20)
   grp_perm <- structure(list(`Ctrl vs Exp` = perm),
                         class = c("net_permutation_group", "list"))
   with_null_device(
@@ -643,7 +643,7 @@ test_that("plot_htna_diff() errors on empty permutation group", {
 
 test_that(".plot_htna_diff_perm rejects perm$x without htna info", {
   pair <- make_htna_pair()
-  perm <- permutation(pair$ctrl, pair$exp, iter = 10)
+  perm <- permutation_htna(pair$ctrl, pair$exp, iter = 10)
   perm$x$node_groups <- NULL
   class(perm$x) <- setdiff(class(perm$x), "htna")
   expect_error(plot_htna_diff(perm),
@@ -694,7 +694,7 @@ test_that("sequence_plot_htna() error: missing $node_groups", {
 test_that("plot_centralities() accepts an htna_centralities data frame", {
   skip_if_not_installed("ggplot2")
   net <- make_htna()
-  ct  <- centralities(net)
+  ct  <- centralities_htna(net)
   p   <- plot_centralities(ct)
   expect_s3_class(p, "ggplot")
 })
@@ -713,10 +713,10 @@ test_that("plot_centralities(by = 'group') errors when actor column missing", {
                regexp = "actor")
 })
 
-test_that("centralities() falls back to rownames(weights) when nodes$label is NULL", {
+test_that("centralities_htna() falls back to rownames(weights) when nodes$label is NULL", {
   net <- make_htna()
   net$nodes$label <- NULL
-  ct <- centralities(net, measures = "OutStrength")
+  ct <- centralities_htna(net, measures = "OutStrength")
   expect_true(all(nzchar(ct$node)))
   expect_equal(nrow(ct), nrow(net$weights))
 })
@@ -751,12 +751,12 @@ test_that("plot_sequences.htna direct call works", {
 
 # ---- More targeted edge cases ----------------------------------------------
 
-test_that("centralities() rejects empty htna_group and non-htna input", {
+test_that("centralities_htna() rejects empty htna_group and non-htna input", {
   empty <- structure(list(),
                      class = c("htna_group", "netobject_group", "list"))
-  expect_error(centralities(empty), regexp = "Empty")
-  expect_error(centralities(list(foo = 1)), regexp = "htna")
-  expect_error(centralities("nope"),         regexp = "htna")
+  expect_error(centralities_htna(empty), regexp = "Empty")
+  expect_error(centralities_htna(list(foo = 1)), regexp = "htna")
+  expect_error(centralities_htna("nope"),         regexp = "htna")
 })
 
 test_that("plot_centralities() with reorder = FALSE keeps node order", {
@@ -978,4 +978,38 @@ test_that("sequence_plot_htna() type='heatmap' on a single-actor cluster", {
   with_null_device(
     expect_no_error(sequence_plot_htna(net, by = "state", type = "heatmap"))
   )
+})
+
+test_that(".htna_actor_colors recycles with a warning beyond palette size", {
+  expect_silent(out <- htna:::.htna_actor_colors(6L))
+  expect_length(out, 6L)
+  expect_warning(out_big <- htna:::.htna_actor_colors(9L), regexp = "recycling")
+  expect_length(out_big, 9L)
+  # Recycled positions land back at the start of the palette
+  expect_identical(out_big[7L], out_big[1L])
+})
+
+test_that(".htna_actor_colors keeps names when given a character vector", {
+  suppressWarnings(out <- htna:::.htna_actor_colors(letters[1:8]))
+  expect_named(out, letters[1:8])
+})
+
+test_that(".htna_normalize_overlay_pos passes through canonical values", {
+  expect_identical(htna:::.htna_normalize_overlay_pos("right"),  "right")
+  expect_identical(htna:::.htna_normalize_overlay_pos("bottom"), "bottom")
+})
+
+test_that(".htna_normalize_overlay_pos returns NULL for none/FALSE/NULL", {
+  expect_null(htna:::.htna_normalize_overlay_pos("none"))
+  expect_null(htna:::.htna_normalize_overlay_pos(FALSE))
+  expect_null(htna:::.htna_normalize_overlay_pos(NULL))
+})
+
+test_that(".htna_normalize_overlay_pos warns and falls back for other positions", {
+  expect_warning(p1 <- htna:::.htna_normalize_overlay_pos("topleft"))
+  expect_identical(p1, "bottom")
+  expect_warning(p2 <- htna:::.htna_normalize_overlay_pos("left"))
+  expect_identical(p2, "right")
+  expect_warning(p3 <- htna:::.htna_normalize_overlay_pos("center"))
+  expect_identical(p3, "right")
 })

@@ -130,7 +130,7 @@ grp$Control
 
 Because both conditions were built from the same alphabet, both
 networks have the **same nodes** -- which is exactly what
-`plot_htna_diff()` and `permutation()` need.
+`plot_htna_diff()` and `permutation_htna()` need.
 
 ## Plotting per condition
 
@@ -154,11 +154,11 @@ sequence_plot_htna(grp, by = "group", type = "index")
 
 ## Centralities per condition
 
-`centralities(grp)` returns one tidy data frame, with a leading
+`centralities_htna(grp)` returns one tidy data frame, with a leading
 `group` column identifying the condition:
 
 ```{r}
-ct <- centralities(grp)
+ct <- centralities_htna(grp)
 head(ct, 10)
 ```
 
@@ -211,11 +211,11 @@ control) is green, negative (control > experimental) is red:
 plot_htna_diff(grp$Experimental, grp$Control)
 ```
 
-`permutation()` quantifies which differences are statistically
+`permutation_htna()` quantifies which differences are statistically
 significant:
 
 ```{r}
-perm <- permutation(grp$Experimental, grp$Control, iter = 500)
+perm <- permutation_htna(grp$Experimental, grp$Control, iter = 500)
 plot_htna_diff(perm)
 ```
 

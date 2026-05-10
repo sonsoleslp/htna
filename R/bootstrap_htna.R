@@ -88,6 +88,12 @@ bootstrap_htna <- function(x, ...) {
 #' @param ... Arguments forwarded to the method.
 #'
 #' @return An object whose structure is method-defined.
+#' @examples
+#' \donttest{
+#' data(human_long, ai_long, package = "Nestimate")
+#' net <- build_htna(list(Human = human_long, AI = ai_long))
+#' bootstrap(net, iter = 50)
+#' }
 #' @export
 bootstrap <- function(x, ...) UseMethod("bootstrap")
 

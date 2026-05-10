@@ -18,3 +18,10 @@ An object whose structure is method-defined.
 S3 generic dispatched on the class of \code{x}. Provided so \code{bootstrap(net)}
 works directly on an htna network (see \code{\link[=bootstrap_htna]{bootstrap_htna()}}).
 }
+\examples{
+\donttest{
+data(human_long, ai_long, package = "Nestimate")
+net <- build_htna(list(Human = human_long, AI = ai_long))
+bootstrap(net, iter = 50)
+}
+}

@@ -1,0 +1,232 @@
+---
+title: "State frequencies and chi-square mosaics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{State frequencies and chi-square mosaics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  message   = FALSE,
+  warning   = FALSE,
+  fig.width = 8, fig.height = 5, dpi = 100
+)
+```
+
+# Background
+
+Two complementary classes of summary are commonly applied to a
+transition network: descriptive summaries of the marginal state
+distribution, and inferential comparisons of the joint transition
+distribution against an independence baseline. The first class
+characterises which states occur and in what proportion; the second
+identifies transitions that are over- or under-represented relative
+to what independence between source and target would predict.
+
+These classes belong to different statistical regimes and therefore
+warrant different visualisations. Marginal summaries (treemaps,
+bar charts, frequency tables) are descriptive and require only the
+empirical state counts. Joint summaries (chi-square mosaics) are
+inferential and require integer transition counts in order to
+compute residuals against an independence model.
+
+This vignette presents the htna interfaces to both classes:
+
+- The frequency family — `frequencies_htna()`,
+  `plot_frequencies_htna()`, `state_frequencies_htna()` — for
+  marginal state-level summaries.
+- The mosaic family — `mosaic_plot_htna()` — for chi-square
+  comparisons of the joint transition matrix against independence.
+
+# Data and networks
+
+Two networks are constructed from the `Human` / `AI` example
+sequences. The frequency family operates on either, but the mosaic
+family requires an integer-weighted network because the chi-square
+test acts on counts; this is the network produced under
+`method = "frequency"`.
+
+```{r load}
+library(htna)
+data(human_long, ai_long, package = "Nestimate")
+
+net      <- build_htna(list(Human = human_long, AI = ai_long))
+net_freq <- build_htna(list(Human = human_long, AI = ai_long),
+                       method = "frequency")
+```
+
+# Marginal state distributions
+
+## Tabular summary
+
+`frequencies_htna()` returns the per-actor marginal state
+distribution as a data frame with one row per (actor, state) pair.
+Columns are: actor (`group`), state, count, and within-network
+proportion. The table is the data underlying every chart in this
+section.
+
+```{r}
+frequencies_htna(net)
+```
+
+## Graphical summary: `plot_frequencies_htna()`
+
+`plot_frequencies_htna()` renders the same marginal distribution in
+three layouts. Each layout encodes the same data but is optimised
+for a different reading task.
+
+### Treemap (`view = "treemap"`, default)
+
+Each panel corresponds to one actor; tile area within a panel
+encodes the within-network proportion of the corresponding state.
+The layout is space-efficient and allows the full state vocabulary
+to be displayed simultaneously.
+
+```{r}
+plot_frequencies_htna(net)
+```
+
+The function returns a `state_freq` object (a list containing the
+rendered chart and the underlying frequency table) invisibly. Any
+argument accepted by `Nestimate::plot_state_frequencies()` may be
+passed through `...`.
+
+### Combined bars (`view = "bars"`)
+
+The bars layout collapses both actors onto a single y-axis, sorts
+the states by total count, and colours the bars by actor. This
+layout is appropriate when the analytic task is direct numerical
+comparison across the full vocabulary.
+
+```{r}
+plot_frequencies_htna(net, view = "bars")
+```
+
+The bars layout returns a ggplot object, permitting modification
+through standard ggplot composition operators:
+
+```{r}
+plot_frequencies_htna(net, view = "bars") +
+  ggplot2::labs(title = "Human vs AI: state counts")
+```
+
+### Per-actor faceted bars (`view = "facet"`)
+
+The faceted layout assigns each actor its own panel with an
+independent y-axis. This is appropriate when the actors differ
+substantially in event volume, since a shared scale would compress
+the lower-volume actor's bars beyond legibility.
+
+```{r}
+plot_frequencies_htna(net, view = "facet")
+```
+
+Like `view = "bars"`, this returns a ggplot object.
+
+## Raw-data alias: `state_frequencies_htna()`
+
+When the input is a vector of state codes rather than a constructed
+network, `state_frequencies_htna()` returns the same `state /
+count / proportion` summary without requiring `build_htna()` to be
+called first. This is useful for preliminary data inspection prior
+to network construction.
+
+```{r}
+state_frequencies_htna(human_long$code)
+```
+
+# Joint transition distribution: chi-square mosaic
+
+`mosaic_plot_htna()` displays the joint distribution of `(source,
+target)` transitions as a chi-square mosaic. Each cell of the
+transition matrix is rendered as a rectangle whose area is
+proportional to the joint share of that transition; cell colour
+encodes the standardised residual against an independence model.
+Cells with positive residuals (over-represented relative to
+independence) are coloured blue; cells with negative residuals
+(under-represented) are coloured red; cells whose observed value
+matches the independence prediction are white.
+
+The chi-square test requires integer counts, hence the requirement
+for a frequency-method network.
+
+## Default residuals (permutation-based)
+
+The default residual estimator is permutation-based, with
+`n_perm = 500` iterations. Permutation residuals are appropriate
+when cell counts are sparse or when the chi-square asymptotic
+approximation is not trusted; the trade-off is computation time.
+
+```{r}
+mosaic_plot_htna(net_freq, seed = 1L)
+```
+
+Cells with strong positive residuals identify transitions that
+characterise the process beyond what would be expected by chance;
+cells with strong negative residuals identify transitions that are
+systematically suppressed.
+
+## Asymptotic residuals (`residuals = "asymptotic"`)
+
+The closed-form chi-square standardised residual estimator
+(`chisq.test()$stdres`) is faster and is the convention used by
+`tna` and `vcd`. It is appropriate when cell counts are large
+enough for the asymptotic approximation to hold.
+
+```{r}
+mosaic_plot_htna(net_freq, residuals = "asymptotic")
+```
+
+For htna corpora of typical size (hundreds of sessions, hundreds
+to thousands of transitions per cell), permutation and asymptotic
+residuals agree closely.
+
+## Colour-scale clipping (`range = c(-4, 4)`)
+
+By default the colour scale is calibrated to the maximum absolute
+residual in the matrix. A single extreme cell can therefore
+desaturate the remainder of the chart. Clipping the range to a
+fixed interval preserves contrast across the matrix and supports
+comparison of mosaics across networks.
+
+```{r}
+mosaic_plot_htna(net_freq, range = c(-4, 4), seed = 1L)
+```
+
+A range of ±4 is conventional in mosaic displays; residuals beyond
+the range saturate to the most intense colour.
+
+## Axis-label rotation (`top_angle`, `left_angle`)
+
+For matrices with long state names or large vocabularies, axis
+labels may collide. The `top_angle` and `left_angle` arguments
+rotate the labels for legibility.
+
+```{r}
+mosaic_plot_htna(net_freq, top_angle = 45, left_angle = 0, seed = 1L)
+```
+
+These are layout adjustments and do not affect the underlying
+statistical computation.
+
+# Selection criteria
+
+| Analytic question | Recommended chart |
+| --- | --- |
+| Per-actor state mix as proportions | `plot_frequencies_htna(net)` (treemap) |
+| Cross-corpus rank ordering of codes | `plot_frequencies_htna(net, view = "bars")` |
+| Per-actor mix when event volumes differ substantially | `plot_frequencies_htna(net, view = "facet")` |
+| Numerical access to the marginal distribution | `frequencies_htna(net)` |
+| Identification of over- and under-represented transitions | `mosaic_plot_htna(net_freq, seed = 1L)` |
+| Comparison of mosaics across networks | `mosaic_plot_htna(net_freq, range = c(-4, 4))` |
+
+# Related vignettes
+
+The companion `sequence-plots` vignette covers time-preserving
+displays of the same data (per-session trajectories). The
+`model-assessment` vignette covers reliability and stability
+analyses of the network estimate.

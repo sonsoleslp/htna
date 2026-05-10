@@ -15,26 +15,33 @@ reference:
       - build_htna
       - summary.htna
 
-  - title: Paths & Patterns
-    desc: Discover meta-paths and state-level patterns
+  - title: Frequencies and distributions
+    desc: Marginal state-level summaries and chi-square mosaics
     contents:
-      - extract_meta_paths
-      - extract_paths
-      - print.htna_paths
+      - frequencies_htna
+      - plot_frequencies_htna
+      - state_frequencies_htna
+      - state_distribution_htna
+      - mosaic_plot_htna
 
-  - title: Plot
-    desc: Visualise the network
+  - title: Sequences
+    desc: Per-session trajectories and k-gram pattern comparison
+    contents:
+      - sequence_plot_htna
+      - plot_sequences
+      - sequence_compare_htna
+
+  - title: Network plots
+    desc: Visualise an htna network and contrasts between networks
     contents:
       - plot_htna
       - plot_htna_bootstrap
       - plot_htna_diff
-      - sequence_plot_htna
-      - plot_sequences
 
   - title: Centrality
     desc: Compute and visualise node-level centralities
     contents:
-      - centralities
+      - centralities_htna
       - plot_centralities
 
   - title: Edge betweenness
@@ -43,21 +50,38 @@ reference:
       - edge_betweenness_htna
       - plot_edge_betweenness_htna
 
-  - title: Validation
-    desc: Bootstrap, permutation, reliability, and stability checks
+  - title: Paths and patterns
+    desc: Discover meta-paths, state-level patterns, and association rules
+    contents:
+      - extract_meta_paths
+      - extract_paths
+      - print.htna_paths
+      - association_rules_htna
+
+  - title: Model assessment
+    desc: Reliability, stability, permutation, and Markov-order adequacy
     contents:
       - bootstrap_htna
       - bootstrap
-      - permutation
+      - permutation_htna
       - reliability_htna
+      - casedrop_reliability_htna
       - centrality_stability_htna
+      - markov_order_test_htna
 
 articles:
-  - title: Getting Started
+  - title: Getting started
     contents:
       - htna
       - data-preparation
       - input-formats
+  - title: Analysis
+    contents:
+      - frequencies-and-mosaic
+      - sequence-plots
+      - sequence-comparison
+      - model-assessment
+      - markov-order
   - title: Advanced
     contents:
       - multigroup
