@@ -10,6 +10,7 @@ plot_htna(
   x,
   layout = "circular",
   group_colors = htna_palette,
+  group_shapes = htna_shape_palette,
   minimum = 0.05,
   ...
 )
@@ -25,6 +26,9 @@ plot_htna(
 
 \item{group_colors}{Character vector of colours, one per actor group.
 Defaults to the built-in \link{htna_palette}.}
+
+\item{group_shapes}{Character vector of node shapes, one per actor group.
+Defaults to the built-in \code{htna_shape_palette}.}
 
 \item{minimum}{Numeric. Minimum absolute edge weight to display.
 Edges below this threshold are hidden. Default \code{0.05}.}

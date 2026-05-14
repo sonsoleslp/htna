@@ -28,26 +28,23 @@ partition baked into colour, layout, and the legend.
 
 ## 1. Building a heterogeneous network
 
-Start from one long-format data frame per actor and combine them with
+Start from one long-format data frame with an actor-type column tagging
+each row (`"Human"` or `"AI"`) and pass its name as `actor_type` to
 `build_htna()`. The result is a network whose nodes carry the actor
-label they came from:
+label they came from. The bundled `human_ai` corpus (see `?human_ai`)
+is used throughout this vignette.
 
 ```{r}
 library(htna)
+data(human_ai)
 
-data(human_long, ai_long, package = "Nestimate")
-
-net <- build_htna(list(Human = human_long, AI = ai_long))
-
-
-janitor::tabyl(human_long, code)
-janitor::tabyl(ai_long, code)
+net <- build_htna(human_ai, actor_type = "actor_type")
 ```
 
 ## 2. Plotting the network
 
 `plot_htna()` lays out actor groups around the circle, colours each node
-by its actor, and draws the actor legend below the plot:
+by its actor type, and draws the actor legend below the plot:
 
 ```{r}
 plot_htna(net)
@@ -56,8 +53,12 @@ plot_htna(net)
 ## 3. Per-actor sequence plots
 
 `sequence_plot_htna()` shows the temporal structure of the sessions.
-With `by = "state"` (the default) each cell is coloured by its concrete
-code; with `by = "group"` cells are coloured by actor.
+With `by = "state"` (the default) each cell is coloured by its 
+code; with `by = "group"` cells are coloured by actor type. `type`
+selects the layout: `"index"` repreents the index plot, `"heatmap"`
+collapses across sessions into a single carpet, and `"distribution"`
+shows the sequence distribution plot with the state composition per timepoint 
+as a stacked area.
 
 ```{r, fig.height = 5}
 sequence_plot_htna(net, by = "state", type = "index")
@@ -67,28 +68,29 @@ sequence_plot_htna(net, by = "state", type = "index")
 sequence_plot_htna(net, by = "state", type = "heatmap")
 ```
 
-```{r}
+```{r, fig.height=4}
 sequence_plot_htna(net, by = "group", type = "distribution", na_color = "white")
 ```
 
-When `by = "state"`, the legend is split into one block per actor with
-the actor name above each block, so the reader can tell at a glance
-which codes belong to which actor.
+When `by = "state"`, the legend is split into one block per actor type
+with the actor type name above each block, so the reader can tell at
+a glance which codes belong to which actor type. 
 
 ## 4. Centralities
 
-`centralities_htna()` returns a tidy data frame: one row per node, one column
-per measure, defaulting to nine standard measures (out/in strength,
+`centralities_htna()` calculates per-node centrality measure: one row per node, 
+one column per measure, defaulting to nine standard measures (out/in strength,
 in/out closeness, closeness, betweenness, RSP betweenness, diffusion,
-clustering). Pass `measures = c(...)` to subset.
+clustering). The `measures = c(...)` argument can be used to specify a different 
+set of measures
 
 ```{r}
 centralities_htna(net)
 ```
 
-`plot_centralities()` is the corresponding plot. Each panel is one
-measure; bars are coloured per state by default, or by actor with
-`by = "group"`:
+To plot centralities, the `plot_centralities()` function can be used. 
+Each panel is one measure; bars are coloured per state by default, 
+or by actor type with `by = "group"`:
 
 ```{r, fig.height = 9}
 plot_centralities(net, by = "state")
@@ -100,10 +102,10 @@ plot_centralities(net, by = "group")
 
 ## 5. Bootstrap
 
-`bootstrap_htna()` resamples sessions to obtain edge-weight stability
-and per-edge p-values. `plot_htna_bootstrap()` plots the resampled
-network with confidence intervals and a non-significant/significant
-edge style. `display = "significant"` zeros out non-significant edges.
+To validate which transitions of an HTNA model are stable, `bootstrap_htna()` 
+resamples sessions to  obtain edge-weight stability and per-edge p-values. 
+The `plot_htna_bootstrap()` plots the resampled network with confidence intervals and a non-significant/significant
+edge style. The argument `display = "significant"` shows also non-significant edges.
 
 ```{r}
 boot <- bootstrap_htna(net)
@@ -116,9 +118,9 @@ plot_htna_bootstrap(boot, display = "significant")
 
 ## 6. Centrality stability
 
-`centrality_stability_htna()` runs the case-dropping centrality
-stability check from Costenbader & Valente (2003): drop a proportion
-of the sessions, recompute the centralities, and measure how strongly
+The function `centrality_stability_htna()` runs a case-dropping centrality
+stability check: drops a proportion
+of the sessions, recomputes the centralities, and measures how strongly
 the dropped-sample centralities correlate with the originals. The
 returned `cs` value per measure is the **largest drop proportion at
 which the correlation with the original centralities still meets the
@@ -132,59 +134,50 @@ cs$cs
 
 By default the check covers `InStrength`, `OutStrength`, and
 `Betweenness` — the three measures whose values are bit-equal between
-htna's `cograph` engine and the reference implementation. To assess
-the other six measures, pass them via `measures =` (and optionally a
-custom `centrality_fn`).
-
-For an `htna_group`, `centrality_stability_htna(grp, ...)` returns a
-named list of `htna_stability` objects (one per cohort).
+htna's `cograph` engine and the reference implementation. 
+ 
 
 ## 7. Split-half reliability
 
-`reliability_htna()` reports how stable each edge weight is under
+The function `reliability_htna()` reports how stable each edge weight is under
 random split-half resampling: it draws `iter` random splits of the
 sessions, builds a network on each half, and summarises the
 agreement (mean / median / max absolute deviation, plus correlation)
-between paired half-networks. Pass one network or several via `...`.
+between paired half-networks.  
 
 ```{r}
 rel <- reliability_htna(net, iter = 100, seed = 1)
 rel$summary
 ```
 
-`rel$summary` reports the four metrics (`mean_dev`, `median_dev`,
-`cor`, `max_dev`) per input network — high `cor` and low `*_dev`
-mean the edge structure is stable under resampling. `rel$iterations`
-holds the per-split values if you want to plot the distribution.
-
-`rel$models[[i]]` is the original htna network for input `i` with
-the actor partition preserved, so you can feed it back into any
-downstream htna function:
-
-```{r}
-identical(rel$models[[1]]$actor_levels, net$actor_levels)
-```
 
 ## 8. Comparing two networks
 
 Given two HTNA networks built over the same node set, `plot_htna_diff()`
-draws the elementwise difference. Positive differences are green,
+draws the edge-level pairwise difference. Positive differences are green,
 negative red.
 
+For example, we compare early vs. late sessions:
+
 ```{r}
-n_h    <- nrow(human_long)
-n_a    <- nrow(ai_long)
-early  <- build_htna(list(Human = human_long[1:(n_h %/% 2), ],
-                          AI    = ai_long[1:(n_a %/% 2), ]))
-late   <- build_htna(list(Human = human_long[(n_h %/% 2 + 1):n_h, ],
-                          AI    = ai_long[(n_a %/% 2 + 1):n_a, ]))
+sess_start <- aggregate(session_date ~ session_id, data = human_ai,
+                        FUN = min)
+sess_start <- sess_start[order(sess_start$session_date,
+                               sess_start$session_id), ]
+half       <- nrow(sess_start) %/% 2L
+early_sess <- sess_start$session_id[seq_len(half)]
+
+early <- build_htna(human_ai[human_ai$session_id %in% early_sess, ],
+                    actor_type = "actor_type")
+late  <- build_htna(human_ai[!human_ai$session_id %in% early_sess, ],
+                    actor_type = "actor_type")
 
 plot_htna_diff(early, late)
 ```
 
 ## 9. Permutation test
 
-`permutation_htna()` provides a non-parametric significance test on each
+The function `permutation_htna()` provides a non-parametric significance test on each
 edge weight difference. Pass the result to `plot_htna_diff()` to render
 significant differences with the pos/neg colouring above; non-significant
 edges are dashed grey when `show_nonsig = TRUE`.
@@ -226,7 +219,7 @@ extract_meta_paths(net, length = 3, min_lift = 1.2)
 ## 11. State-level paths
 
 `extract_paths()` is the state-level counterpart: same arguments, but
-the alphabet is the concrete code set (`Ask`, `Plan`, `Verify`, ...)
+the alphabet is the concrete code set (`Ask`, `Plan`, `Check`, ...)
 rather than the actor types. Use it to discover the most frequent
 concrete sequences:
 
@@ -237,7 +230,7 @@ extract_paths(net, length = 3)
 Wildcard schemas pin down a start and end while letting the middle vary:
 
 ```{r}
-extract_paths(net, schema = "Specify->*->Verify")
+extract_paths(net, schema = "Specify->*->Check")
 ```
 
 And the lift filter surfaces concrete sequences that occur more often

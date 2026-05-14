@@ -31,7 +31,7 @@
 #' @examples
 #' \donttest{
 #' data(human_ai)
-#' net <- build_htna(human_ai, actor_type = "actor",
+#' net <- build_htna(human_ai, actor_type = "actor_type",
 #'                   method = "frequency")
 #' mosaic_plot_htna(net, n_perm = 50, seed = 1)
 #' }

@@ -19,7 +19,6 @@ knitr::opts_chunk$set(
 set.seed(20260413)
 ```
 
-# Background
 
 A transition network represents the joint distribution of single-step
 state transitions, marginalising over higher-order structure. When
@@ -30,40 +29,43 @@ pattern into independent steps and lose its identity as a unit.
 
 `sequence_compare_htna()` operates at the k-gram level. For two or
 more cohorts of sessions, the function enumerates every k-gram of
-length within a specified range, computes the per-cohort frequency,
-and tests whether the pattern's rate differs across cohorts under
-either a chi-square or a permutation null model. Standardised
-residuals identify which cohort each pattern characterises.
+length within a specified range (e.g. `Request -> Specify -> Execute`),
+computes the per-cohort frequency, and tests whether the pattern's
+rate differs across cohorts under either a chi-square or a permutation
+null model. Standardised residuals identify which cohort each pattern
+characterises.
 
-The example below applies the procedure to a within-session split:
-the first half of every Human-AI session is labelled `"early"` and
-the second half `"late"`. The analytic question is which multi-step
-patterns characterise the early phase of an interaction and which
-characterise the late phase.
+The example below applies the procedure to a between-session split:
+sessions are ranked chronologically by their first `session_date`
+(ties broken on `session_id`), the first half of sessions are
+labelled `"Early"`, and the rest `"Late"`. The analytic question is
+which patterns characterise the early phase of the
+corpus's lifetime and which characterise the late phase.  
 
 # Data preparation
 
-The two long-format datasets (`human_long`, `ai_long`) are combined
-into a single corpus, with an `actor_type` column distinguishing the
-two actors and a `half` column marking the within-session position.
-Base R `ave()` is used for both the per-session count and the
-per-session position; a single `ifelse()` writes the half label.
+The bundled `human_ai` corpus already carries an `actor_type` column
+distinguishing Human and AI events (see `?human_ai`). A
+session-level `phase` column is added, marking each session as
+`"Early"` or `"Late"` based on its rank in chronological order.
 
 ```{r data}
 library(htna)
-data(human_long, ai_long, package = "Nestimate")
+data(human_ai)
 
-human_long$actor_type <- "Human"
-ai_long$actor_type    <- "AI"
+# Chronological session order; session_id is a deterministic
+# tiebreak among sessions that started on the same date.
+sess_start <- aggregate(session_date ~ session_id, data = human_ai,
+                        FUN = min)
+sess_start <- sess_start[order(sess_start$session_date,
+                               sess_start$session_id), ]
+half       <- nrow(sess_start) %/% 2L
+early_sess <- sess_start$session_id[seq_len(half)]
 
-combined <- rbind(human_long, ai_long)
-combined <- combined[order(combined$session_id, combined$order_in_session), ]
-
-n_per <- ave(combined$order_in_session, combined$session_id, FUN = length)
-pos   <- ave(combined$order_in_session, combined$session_id, FUN = seq_along)
-combined$half <- ifelse(pos <= n_per %/% 2, "early", "late")
-
-table(combined$half)
+human_ai$phase <- ifelse(human_ai$session_id %in% early_sess,
+                         "Early", "Late")
+human_ai$phase <- factor(human_ai$phase, levels = c("Early", "Late"))
+table(human_ai$phase)
 ```
 
 # Constructing the grouped htna network
@@ -78,10 +80,9 @@ the comparison step.
 
 ```{r build}
 net_g <- build_htna(
-  combined,
+  human_ai,
   actor_type = "actor_type",
-  action     = "code",
-  group      = "half"
+  group      = "phase"
 )
 class(net_g)
 names(net_g)
@@ -91,19 +92,18 @@ names(net_g)
 
 `sequence_compare_htna()` is invoked on the grouped network. Pattern
 lengths 3 to 5 are scanned; only patterns occurring at least 25
-times across the corpus are retained. The chi-square test is used
-because the within-session split makes the two halves
-non-independent (each session contributes to both halves), violating
-the exchangeability assumption that the permutation test relies on.
-False-discovery-rate correction (`adjust = "fdr"`) controls for
-multiple testing across the candidate patterns.
+times across the corpus are retained. The permutation test is used
+because each session belongs to exactly one cohort, so the
+exchangeability assumption that underlies the permutation null is
+satisfied. False-discovery-rate correction (`adjust = "fdr"`)
+controls for multiple testing across the candidate patterns.
 
 ```{r compare}
 res <- sequence_compare_htna(
   net_g,
   sub      = 3:5,
   min_freq = 25L,
-  test     = "chisq",
+  test     = "permutation",
   adjust   = "fdr"
 )
 res
@@ -125,12 +125,14 @@ crossed with cohort:
 $$\text{stdres}_{ij} = \frac{O_{ij} - E_{ij}}{\sqrt{E_{ij} \cdot
 (1 - r_i / N) \cdot (1 - c_j / N)}}$$
 
-A positive residual on the `early` cohort indicates that the pattern
-is over-represented in the first half of sessions; a positive
-residual on the `late` cohort indicates over-representation in the
-second half. By the standardised-residual interpretation,
-$|z| > 1.96$ corresponds to $p < 0.05$ at the cell level, and
-$|z| > 3$ provides strong evidence of over- or under-representation.
+
+A positive residual on the `Early` cohort indicates that the pattern
+is over-represented in sessions from the first half of the corpus's
+lifetime; a positive residual on the `Late` cohort indicates
+over-representation in sessions from the second half. By the
+standardised-residual interpretation, $|z| > 1.96$ corresponds to
+$p < 0.05$ at the cell level, and $|z| > 3$ provides strong
+evidence of over- or under-representation.
 
 # Pyramid display
 
@@ -174,27 +176,19 @@ The two test choices supported by `sequence_compare_htna()`
 correspond to different assumptions about the source of the
 sessions in each cohort.
 
-- **Chi-square** (`test = "chisq"`) tests whether the observed
-  per-pattern, per-cohort counts depart from the expected counts
-  under independence between pattern and cohort. The test makes no
-  assumption of independence between cohorts; it is appropriate when
-  the same units (sessions, participants) contribute to multiple
-  cohorts, as in the within-session split used here.
 - **Permutation** (`test = "permutation"`) shuffles cohort labels at
   the session level and assumes exchangeability across sessions. It
   is appropriate when the cohorts comprise independent groups of
-  sessions — for example, sessions from different projects or from
-  different experimental conditions — and not when sessions
-  contribute to both cohorts.
+  sessions — for example, sessions from different time periods,
+  projects, or experimental conditions — as in the chronological
+  split used here.
+- **Chi-square** (`test = "chisq"`) tests whether the observed
+  per-pattern, per-cohort counts depart from the expected counts
+  under independence between pattern and cohort. The test makes no
+  assumption of independence between cohorts and is therefore
+  appropriate when the same units contribute to multiple cohorts —
+  for example, a within-session early/late split where each session
+  contributes events to both halves.
 
 Selection of the test should follow from the design that produced
 the cohort labels.
-
-# Related vignettes
-
-The companion `frequencies-and-mosaic` vignette covers single-step
-transition residuals (`mosaic_plot_htna()`), which answer the
-analogous question at the level of individual transitions. The
-`sequence-plots` vignette covers descriptive sequence-level
-visualisations. The `model-assessment` vignette covers reliability
-and stability of the network estimate.

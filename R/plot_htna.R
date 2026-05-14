@@ -23,6 +23,8 @@ htna_palette <- c(
 #' @param layout Character. Layout algorithm. Default `"circular"`.
 #' @param group_colors Character vector of colours, one per actor group.
 #'   Defaults to the built-in [htna_palette].
+#' @param group_shapes Character vector of node shapes, one per actor group.
+#'   Defaults to the built-in `htna_shape_palette`.
 #' @param minimum Numeric. Minimum absolute edge weight to display.
 #'   Edges below this threshold are hidden. Default `0.05`.
 #' @param ... Additional arguments passed to [cograph::plot_htna()].
@@ -43,6 +45,7 @@ htna_palette <- c(
 #' @rdname plot_htna
 plot_htna <- function(x, layout = "circular",
                       group_colors = htna_palette,
+                      group_shapes = htna_shape_palette,
                       minimum = 0.05, ...) {
   if (inherits(x, "htna_group") || (is.list(x) && !is.data.frame(x) &&
                                     !inherits(x, "htna"))) {
@@ -50,7 +53,7 @@ plot_htna <- function(x, layout = "circular",
     nms <- names(x) %||% as.character(seq_along(x))
     for (i in seq_along(x)) {
       plot_htna(x[[i]], layout = layout, group_colors = group_colors,
-                title = nms[i], ...)
+                group_shapes = group_shapes, title = nms[i], ...)
     }
     return(invisible(x))
   }
@@ -74,7 +77,7 @@ plot_htna <- function(x, layout = "circular",
   # per-group colour and shape assignments consistent with the
   # bootstrap plot. The legend (emitted below in original order)
   # remains correct.
-  shapes <- rep_len(htna_shape_palette, n_groups)
+  shapes <- rep_len(group_shapes, n_groups)
   cograph_node_list <- node_list
   cograph_colors    <- colors
   cograph_shapes    <- shapes

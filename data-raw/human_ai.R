@@ -12,7 +12,7 @@ utils::data(human_long, ai_long, package = "Nestimate")
 
 ai_simplified <- ai_long |>
   dplyr::mutate(
-    actor = "AI",
+    actor_type = "AI",
     code  = dplyr::case_when(
       code %in% c("Investigate", "Ask", "Inquire") ~ "Ask",
       code %in% c("Explain", "Report")             ~ "Report",
@@ -22,7 +22,7 @@ ai_simplified <- ai_long |>
 
 human_simplified <- human_long |>
   dplyr::mutate(
-    actor = "Human",
+    actor_type = "Human",
     code  = dplyr::case_when(
       code %in% c("Command", "Request")     ~ "Request",
       code %in% c("Correct", "Verify")      ~ "Check",

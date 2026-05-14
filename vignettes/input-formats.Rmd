@@ -19,11 +19,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-`build_htna()` accepts the same Human / AI sequence data in **three
+`build_htna()` accepts data in **three
 interchangeable shapes**: a named list of per-actor frames, a single
 combined frame with an actor-type column, or a single combined frame
 with a node-to-actor lookup. This vignette walks through each form
-using Nestimate's `human_long` + `ai_long` example and verifies that
+using `Nestimate`'s `human_long` + `ai_long` example and verifies that
 all three produce the same network, then covers two more parameters
 that compose with any input form: `actor` (forwarded to
 `Nestimate::build_network()`) and `disambiguate` (for code-label
@@ -34,10 +34,6 @@ collisions).
 ```{r}
 library(htna)
 data(human_long, ai_long, package = "Nestimate")
-
-# What the two long frames look like
-str(human_long, max.level = 1, give.attr = FALSE)
-str(ai_long,    max.level = 1, give.attr = FALSE)
 ```
 
 Both frames share the canonical schema htna expects: `session_id`,
@@ -132,16 +128,14 @@ factor) or the order of first appearance (if a character vector). Use
 this form when your code/actor mapping already lives in a tidy lookup
 table.
 
-## All four forms produce the same network
+## All forms produce the same network
 
 `build_htna()` resolves every input shape to the same combined sequence
-and forwards to `Nestimate::build_network()`. To make the equivalence
-verifiable rather than hand-waved, we compare the **wide session
-matrix** (`$data`, the input that every downstream analysis consumes)
-plus all the analytical slots — cell-for-cell, against the named-list
-reference.
+and forwards to `Nestimate::build_network()`. The four networks below
+are drawn side by side — the layout, colours, and edges are
+indistinguishable:
 
-```{r}
+```{r, fig.height = 9}
 forms <- list(
   list_form        = net_list,
   actor_type_form  = net_actor_type,
@@ -149,95 +143,23 @@ forms <- list(
   node_groups_df   = net_node_groups_df
 )
 
-ref <- forms$list_form
-
-# Helper: compare any slot from `other` to its counterpart in `ref`
-# after aligning by names where applicable. Returns TRUE iff bit-equal.
-slot_equal <- function(ref_v, other_v) {
-  if (is.null(ref_v) && is.null(other_v)) return(TRUE)
-  if (is.null(ref_v) ||  is.null(other_v)) return(FALSE)
-  if (is.data.frame(ref_v)) {
-    key <- intersect(c("node", "label"), names(ref_v))[1L]
-    if (!is.na(key))
-      other_v <- other_v[match(ref_v[[key]], other_v[[key]]), , drop = FALSE]
-    rownames(other_v) <- rownames(ref_v) <- NULL
-    return(identical(other_v, ref_v))
-  }
-  if (!is.null(dim(ref_v))) {
-    if (!is.null(rownames(ref_v)) && !is.null(rownames(other_v)))
-      other_v <- other_v[rownames(ref_v), colnames(ref_v), drop = FALSE]
-    return(isTRUE(all.equal(unname(other_v), unname(ref_v))))
-  }
-  if (!is.null(names(ref_v)) && !is.null(names(other_v)))
-    other_v <- other_v[names(ref_v)]
-  isTRUE(all.equal(unname(other_v), unname(ref_v)))
-}
-
-# Cell-by-cell `$data` comparison: same shape, same row/col order,
-# same value (or NA) at every position.
-data_identical <- function(ref_d, other_d) {
-  if (!identical(dim(ref_d), dim(other_d)))           return(FALSE)
-  if (!identical(rownames(ref_d), rownames(other_d))) return(FALSE)
-  if (!identical(colnames(ref_d), colnames(other_d))) return(FALSE)
-  m1 <- as.matrix(ref_d);   dimnames(m1) <- NULL
-  m2 <- as.matrix(other_d); dimnames(m2) <- NULL
-  identical(m1, m2)
-}
-
-# Pairwise check vs the named-list reference
-do.call(rbind, lapply(names(forms)[-1L], function(nm) {
-  net <- forms[[nm]]
-  data.frame(
-    form         = nm,
-    data_eq      = data_identical(ref$data, net$data),
-    weights_eq   = slot_equal(ref$weights,     net$weights),
-    initial_eq   = slot_equal(ref$initial,     net$initial),
-    nodes_eq     = slot_equal(ref$nodes,       net$nodes),
-    node_grps_eq = slot_equal(ref$node_groups, net$node_groups),
-    actor_lvls_eq = identical(ref$actor_levels, net$actor_levels),
-    stringsAsFactors = FALSE
-  )
-}))
+op <- par(mfrow = c(2, 2), mar = c(1, 1, 3, 1))
+for (nm in names(forms)) plot_htna(forms[[nm]], title = nm)
+par(op)
 ```
 
-Every cell reads `TRUE` — including the wide session matrix `$data`,
-which is the single object every downstream function (`tna()`,
-sequence plots, bootstrap, permutation, edge betweenness) actually
-consumes. The input shape only affects how you express the data;
-the produced network is bit-identical.
-
-The same checks are run as automated tests in
-`tests/testthat/test-tna-equivalence.R` across nine diverse datasets
-(small/large alphabets, imbalanced actors, disconnected components,
-variable session lengths, near-deterministic transitions, and the
-real-world `tna::group_regulation_long`).
-
-## Adding an individual-actor column with `actor =`
-
-`actor_type` partitions **codes** into actor *groups* (Human vs AI).
-The independent `actor =` parameter is forwarded to
-`Nestimate::build_network()` with the same role it has there:
-the column name identifying the **individual actor** that performed
-each event (e.g. a learner / user id). It composes with any of the
-three input forms above.
+A one-line sanity check confirms that the edge-weight matrices match
+the named-list reference cell-for-cell:
 
 ```{r}
-# Treat session_id as the individual-actor key (one per conversation)
-combined_with_actor <- combined
-combined_with_actor$user_id <- combined_with_actor$session_id
-
-net_with_actor <- build_htna(
-  combined_with_actor,
-  actor_type = "actor_type",
-  actor      = "user_id"
-)
-net_with_actor
+ref <- forms$list_form
+vapply(forms[-1L], function(n)
+       isTRUE(all.equal(unname(n$weights),
+                        unname(ref$weights[rownames(n$weights),
+                                           colnames(n$weights)]))),
+       logical(1L))
 ```
-
-When `actor =` is omitted, Nestimate aggregates events at the session
-level (the default htna behaviour). When it's supplied, Nestimate
-groups events by individual actor first.
-
+ 
 ## Handling code-label collisions with `disambiguate =`
 
 If both actor types share a code label (e.g. both Human and AI have a

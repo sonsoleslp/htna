@@ -17,45 +17,19 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Background
-
-Two complementary classes of summary are commonly applied to a
-transition network: descriptive summaries of the marginal state
-distribution, and inferential comparisons of the joint transition
-distribution against an independence baseline. The first class
-characterises which states occur and in what proportion; the second
-identifies transitions that are over- or under-represented relative
-to what independence between source and target would predict.
-
-These classes belong to different statistical regimes and therefore
-warrant different visualisations. Marginal summaries (treemaps,
-bar charts, frequency tables) are descriptive and require only the
-empirical state counts. Joint summaries (chi-square mosaics) are
-inferential and require integer transition counts in order to
-compute residuals against an independence model.
-
-This vignette presents the htna interfaces to both classes:
-
-- The frequency family — `frequencies_htna()`,
-  `plot_frequencies_htna()`, `state_frequencies_htna()` — for
-  marginal state-level summaries.
-- The mosaic family — `mosaic_plot_htna()` — for chi-square
-  comparisons of the joint transition matrix against independence.
-
-# Data and networks
-
-Two networks are constructed from the `Human` / `AI` example
-sequences. The frequency family operates on either, but the mosaic
-family requires an integer-weighted network because the chi-square
-test acts on counts; this is the network produced under
-`method = "frequency"`.
+In this vignette, we look at additional summary functions and 
+visualizations in `htna`. We will use two networks  constructed from the 
+bundled `human_ai` corpus (Human + AI events tagged by `actor_type`; 
+see `?human_ai`). The frequency family operates on either, but the mosaic 
+family requires an integer-weighted network because the chi-square test acts on
+counts; this is the network produced under `method = "frequency"`.
 
 ```{r load}
 library(htna)
-data(human_long, ai_long, package = "Nestimate")
+data(human_ai)
 
-net      <- build_htna(list(Human = human_long, AI = ai_long))
-net_freq <- build_htna(list(Human = human_long, AI = ai_long),
+net      <- build_htna(human_ai, actor_type = "actor_type")
+net_freq <- build_htna(human_ai, actor_type = "actor_type",
                        method = "frequency")
 ```
 
@@ -64,8 +38,9 @@ net_freq <- build_htna(list(Human = human_long, AI = ai_long),
 ## Tabular summary
 
 `frequencies_htna()` returns the per-actor marginal state
-distribution as a data frame with one row per (actor, state) pair.
-Columns are: actor (`group`), state, count, and within-network
+distribution as a data frame with one row per (`actor_type`, `state`)
+pair.
+Columns are: actor type (`group`), state, count, and within-network
 proportion. The table is the data underlying every chart in this
 section.
 
@@ -90,14 +65,11 @@ to be displayed simultaneously.
 plot_frequencies_htna(net)
 ```
 
-The function returns a `state_freq` object (a list containing the
-rendered chart and the underlying frequency table) invisibly. Any
-argument accepted by `Nestimate::plot_state_frequencies()` may be
-passed through `...`.
+ 
 
 ### Combined bars (`view = "bars"`)
 
-The bars layout collapses both actors onto a single y-axis, sorts
+The bars layout collapses both actor types onto a single y-axis, sorts
 the states by total count, and colours the bars by actor. This
 layout is appropriate when the analytic task is direct numerical
 comparison across the full vocabulary.
@@ -125,19 +97,7 @@ the lower-volume actor's bars beyond legibility.
 plot_frequencies_htna(net, view = "facet")
 ```
 
-Like `view = "bars"`, this returns a ggplot object.
 
-## Raw-data alias: `state_frequencies_htna()`
-
-When the input is a vector of state codes rather than a constructed
-network, `state_frequencies_htna()` returns the same `state /
-count / proportion` summary without requiring `build_htna()` to be
-called first. This is useful for preliminary data inspection prior
-to network construction.
-
-```{r}
-state_frequencies_htna(human_long$code)
-```
 
 # Joint transition distribution: chi-square mosaic
 
@@ -210,23 +170,4 @@ rotate the labels for legibility.
 mosaic_plot_htna(net_freq, top_angle = 45, left_angle = 0, seed = 1L)
 ```
 
-These are layout adjustments and do not affect the underlying
-statistical computation.
-
-# Selection criteria
-
-| Analytic question | Recommended chart |
-| --- | --- |
-| Per-actor state mix as proportions | `plot_frequencies_htna(net)` (treemap) |
-| Cross-corpus rank ordering of codes | `plot_frequencies_htna(net, view = "bars")` |
-| Per-actor mix when event volumes differ substantially | `plot_frequencies_htna(net, view = "facet")` |
-| Numerical access to the marginal distribution | `frequencies_htna(net)` |
-| Identification of over- and under-represented transitions | `mosaic_plot_htna(net_freq, seed = 1L)` |
-| Comparison of mosaics across networks | `mosaic_plot_htna(net_freq, range = c(-4, 4))` |
-
-# Related vignettes
-
-The companion `sequence-plots` vignette covers time-preserving
-displays of the same data (per-session trajectories). The
-`model-assessment` vignette covers reliability and stability
-analyses of the network estimate.
+ 

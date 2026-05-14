@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Background
+
 
 A heterogeneous transition network is a sample-based estimate of a
 generative process. Each edge weight is a statistic computed from
@@ -53,16 +53,17 @@ htna-aware analysis.
 
 # Data and baseline network
 
-The example uses the `Human` and `AI` long-format datasets shipped
-with `Nestimate`. The default htna network is constructed under the
+The example uses the bundled `human_ai` corpus -- Human + AI events
+in a single long frame, tagged by an `actor_type` column (see
+`?human_ai`). The default htna network is constructed under the
 relative-probability scheme (`method = "relative"`); the
 Markov-order test operates directly on the raw sequence data.
 
 ```{r load}
 library(htna)
-data(human_long, ai_long, package = "Nestimate")
+data(human_ai)
 
-net <- build_htna(list(Human = human_long, AI = ai_long))
+net <- build_htna(human_ai, actor_type = "actor_type")
 ```
 
 # Split-half reliability
@@ -92,10 +93,7 @@ rel
 plot(rel)
 ```
 
-The half-networks returned in `rel$models` retain the actor partition
-through htna's re-injection step, allowing further htna-aware
-analyses (centralities, plotting, partition summaries) to be
-performed on each half if required.
+ 
 
 # Edge-weight case-dropping stability
 
@@ -103,17 +101,19 @@ Case-dropping stability refines reliability by quantifying how much
 of the sample may be removed before the *ordering* of edge weights
 changes. For each drop proportion in a fixed grid (default: 0.1 to
 0.9 in steps of 0.1), a fraction of the sessions is removed at
-random, the network is re-estimated, and the Spearman rank
-correlation between the flattened edge-weight vector of the reduced
-network and the original is recorded. The procedure is repeated
-`iter` times per drop proportion.
+random, the network is re-estimated, and the rank correlation
+(Spearman by default; configurable via `method =`) between the
+flattened edge-weight vector (off-diagonal by default; see
+`include_diag`) of the reduced network and the original is recorded.
+The procedure is repeated `iter` times per drop proportion.
 
 The CS-coefficient (Epskamp et al., 2018) is defined as the maximum
 drop proportion at which the rank correlation remains above
 `threshold` (default 0.7) in at least `certainty` of the iterations
 (default 0.95). A coefficient of 0.5 indicates that the edge ranking
-is robust to removing half of the sample; coefficients above 0.5 are
-generally considered acceptable for inferential use.
+is robust to removing half of the sample. Conventional cut-offs
+(Epskamp et al., 2018) treat CS > 0.25 as acceptable and CS > 0.5
+as preferred for inferential use.
 
 ```{r casedrop}
 cd <- casedrop_reliability_htna(net, iter = 200L, seed = 1L)
@@ -124,11 +124,11 @@ cd
 plot(cd)
 ```
 
-The four-panel display shows the per-iteration mean of each metric
-(mean / median / maximum absolute deviation, and rank correlation)
-across drop proportions, with ribbons at the per-iteration ±1 SD.
-The dashed reference line on the correlation panel marks the
-threshold used to compute the CS-coefficient.
+The four-panel display shows the across-iteration mean of each
+metric (mean / median / maximum absolute deviation, and rank
+correlation) across drop proportions, with ribbons at ±1 SD across
+iterations. The dashed reference line on the correlation panel
+marks the threshold used to compute the CS-coefficient.
 
 # Centrality stability
 
@@ -195,8 +195,14 @@ The test operates on raw sequence data rather than on the htna
 network object, since it requires the empirical sequences directly.
 
 ```{r markov-data}
-seqs <- split(ai_long$code, ai_long$session_id)
-seqs <- seqs[lengths(seqs) >= 3L]
+# Restore per-session chronological order (the bundled dataset is
+# sorted by project + step, which interleaves sessions), then take
+# the AI-only events.
+ai_only <- human_ai[order(human_ai$session_id,
+                          human_ai$order_in_session), ]
+ai_only <- ai_only[ai_only$actor_type == "AI", ]
+seqs    <- split(ai_only$code, ai_only$session_id)
+seqs    <- seqs[lengths(seqs) >= 3L]
 length(seqs)
 ```
 
@@ -247,9 +253,3 @@ Saqr, M., et al. (2025). Transition network analysis: A novel
 framework for modeling, visualizing, and identifying the temporal
 patterns of learners and learning processes.
 
-# Related vignettes
-
-The companion `frequencies-and-mosaic` and `sequence-plots`
-vignettes cover the descriptive (state mix, chi-square mosaic) and
-trajectory-level (per-session sequence layouts) views of the same
-network.

@@ -17,7 +17,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Background
 
 A transition network compresses a corpus of trajectories into a
 single graph. The network representation supports the analysis of
@@ -51,16 +50,17 @@ suited to.
 
 # Data and network
 
-The example uses the `Human` and `AI` long-format datasets shipped
-with `Nestimate`. The actor partition (Human / AI) is recorded as
-node-level metadata on the resulting htna network and is consumed
-automatically by every plot below.
+The example uses the bundled `human_ai` corpus -- Human + AI events
+in a single long frame, tagged by an `actor_type` column (see
+`?human_ai`). The actor partition is recorded as node-level metadata
+on the resulting htna network and is consumed automatically by
+every plot below.
 
 ```{r load}
 library(htna)
-data(human_long, ai_long, package = "Nestimate")
+data(human_ai)
 
-net <- build_htna(list(Human = human_long, AI = ai_long))
+net <- build_htna(human_ai, actor_type = "actor_type")
 ```
 
 # Per-state colouring (`by = "state"`)
@@ -181,9 +181,4 @@ The six combinations address distinct analytic questions:
 The default — `sequence_plot_htna(net)` — is a general-purpose
 diagnostic suitable for an initial inspection of any htna corpus.
 
-# Related vignettes
-
-The companion `frequencies-and-mosaic` vignette covers the
-time-marginalised view of the same network (state mix and
-chi-square mosaic). The `model-assessment` vignette covers
-reliability and stability of the network estimate.
+ 

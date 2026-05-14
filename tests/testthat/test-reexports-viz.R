@@ -2,9 +2,16 @@
 # as Nestimate's source function. Guards against accidental drift -- if
 # a future change introduces validation/coercion logic, these tests
 # fire.
+#
+# `mosaic_plot_htna()` is intentionally NOT a pure alias: it wraps
+# Nestimate::mosaic_plot() to colour axis-tick labels by actor group
+# using `htna_palette`. The identity check is therefore replaced by a
+# behavioural check that the wrapper still delegates to Nestimate.
 
-test_that("mosaic_plot_htna() is Nestimate::mosaic_plot", {
-  expect_identical(htna::mosaic_plot_htna, Nestimate::mosaic_plot)
+test_that("mosaic_plot_htna() delegates to Nestimate::mosaic_plot", {
+  expect_true(any(grepl("Nestimate::mosaic_plot",
+                        deparse(body(htna::mosaic_plot_htna)),
+                        fixed = TRUE)))
 })
 
 test_that("state_distribution_htna() is Nestimate::state_distribution", {

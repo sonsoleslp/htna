@@ -68,21 +68,24 @@ reference:
       - casedrop_reliability_htna
       - centrality_stability_htna
       - markov_order_test_htna
-
+  - title: Datasets
+    desc: Sample dataset
+    contents:
+    - human_ai
 articles:
   - title: Getting started
     contents:
       - htna
       - data-preparation
       - input-formats
+      - grouped
   - title: Analysis
     contents:
       - frequencies-and-mosaic
       - sequence-plots
       - sequence-comparison
-      - model-assessment
-      - markov-order
   - title: Advanced
     contents:
       - multigroup
-      - grouped
+      - markov-order
+      - model-assessment

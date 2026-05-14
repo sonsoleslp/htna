@@ -17,7 +17,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Background
 
 A first-order Markov network represents the transition probability
 between consecutive states under the assumption that the next state
@@ -37,8 +36,8 @@ significant improvement over the lower order via a permutation test
 on the deviance statistic. The reported optimal order is the largest
 order at which the test rejects equivalence to its predecessor.
 
-In a heterogeneous setting — where two or more actors interleave in
-the same session — the question gains an additional dimension. The
+In a heterogeneous setting (where two or more actors interleave in
+the same session) the question gains an additional dimension. The
 optimal order computed on the *combined* sequences is a property of
 the joint Human-AI process. The optimal orders computed on the
 *per-actor* sequences (extracting only one actor's events from each
@@ -52,8 +51,9 @@ Human-AI corpus and compares the resulting optimal orders.
 
 # Data and three slicings
 
-The example uses the `Human` and `AI` long-format datasets shipped
-with `Nestimate`. Three sequence sets are constructed:
+The example uses the bundled `human_ai` corpus -- Human + AI events
+in a single long frame, tagged by an `actor_type` column (see
+`?human_ai`). Three sequence sets are constructed:
 
 - **Human-only**: each session restricted to its Human events,
   preserving order.
@@ -67,19 +67,22 @@ order-1 and are excluded from each set.
 
 ```{r data}
 library(htna)
-data(human_long, ai_long, package = "Nestimate")
+data(human_ai)
 
-human_seqs <- split(human_long$code, human_long$session_id)
+# Within each session, restore chronological order (the bundled
+# dataset is sorted by project + step, which interleaves sessions).
+human_ai <- human_ai[order(human_ai$session_id,
+                           human_ai$order_in_session), ]
+
+is_h <- human_ai$actor_type == "Human"
+human_seqs <- split(human_ai$code[is_h], human_ai$session_id[is_h])
 human_seqs <- human_seqs[lengths(human_seqs) >= 3L]
 
-ai_seqs <- split(ai_long$code, ai_long$session_id)
+is_a <- human_ai$actor_type == "AI"
+ai_seqs <- split(human_ai$code[is_a], human_ai$session_id[is_a])
 ai_seqs <- ai_seqs[lengths(ai_seqs) >= 3L]
 
-human_long$actor_type <- "Human"
-ai_long$actor_type    <- "AI"
-combined <- rbind(human_long, ai_long)
-combined <- combined[order(combined$session_id, combined$order_in_session), ]
-combined_seqs <- split(combined$code, combined$session_id)
+combined_seqs <- split(human_ai$code, human_ai$session_id)
 combined_seqs <- combined_seqs[lengths(combined_seqs) >= 3L]
 
 c(human = length(human_seqs),
@@ -171,14 +174,13 @@ joint process. Four interpretive cases are worth distinguishing:
 Empirically, on the example corpus the Human-only optimal order is
 **`r mo_h$optimal_order`** and the AI-only optimal order is
 **`r mo_a$optimal_order`**. The combined optimal order is
-**`r mo_c$optimal_order`**. The reading is straightforward: the
-Human process carries the deepest internal memory; the AI process
-slightly less so; the combined process inherits the deeper of the
-two via interleaving. None of the three is consistent with a
-first-order assumption at this `max_order`, which means the
-default htna network is a structural simplification of these data
-even if it remains analytically useful for descriptive and
-relational claims.
+**`r mo_c$optimal_order`**. All three saturate at the upper bound
+of the search (see the next section), so the test cannot distinguish
+which process carries the deepest internal memory at this
+`max_order` — only that none of them is consistent with a
+first-order assumption. The default htna network is therefore a
+structural simplification of these data, even if it remains
+analytically useful for descriptive and relational claims.
 
 # A note on `optimal_order` saturating at `max_order`
 
@@ -272,17 +274,16 @@ Some apparent rejections of order-1 reflect not a Markov-order
 problem but a transition-aggregation problem: the empirical
 transitions exist but are weighted, thresholded, or attended to in
 ways that the first-order relative-probability scheme does not
-express. The TNA family of constructors re-defines the transition
+express. The family of estimations re-defines the transition
 matrix under alternative aggregation rules without invoking
 higher-order memory.
 
-| Function | Description |
+| Method | Description |
 | --- | --- |
-| `Nestimate::build_atna()` | Attention-weighted transition network. Each transition is weighted by an attention coefficient that decays with sequential distance, yielding a continuous interpolation between first-order and longer-range coupling. |
-| `Nestimate::build_ftna()` | Frequency-thresholded transition network. Transitions below a configurable count are removed before estimation, restricting the model to a structurally robust subgraph. Appropriate when the first-order test passes overall but the network is dominated by sparse, low-evidence edges. |
-| `Nestimate::build_tna()` | Vanilla transition-network constructor without an actor partition. The Nestimate equivalent of `build_htna()`, used when the actor partition is no longer a useful constraint at the new modelling level. |
-
-These constructors address the modelling-specification question
+| `method = "attention"` | Attention-weighted transition network. Each transition is weighted by an attention coefficient that decays with sequential distance, yielding a continuous interpolation between first-order and longer-range coupling. |
+| `method = "frequency"` | Frequency-thresholded transition network. Transitions below a configurable count are removed before estimation, restricting the model to a structurally robust subgraph. Appropriate when the first-order test passes overall but the network is dominated by sparse, low-evidence edges. |
+ 
+These methods address the modelling-specification question
 ("what transition matrix represents this corpus?") rather than
 the order-adequacy question ("does this corpus require memory?").
 They are therefore complementary to the higher-order constructors
@@ -296,23 +297,11 @@ above rather than substitutes for them.
 | Optimal order > 1 in the combined process only | Cross-actor coupling carries dependence absent from each actor in isolation. Either retain the first-order network as a descriptive aggregate, or estimate `Nestimate::build_hon()` to represent the cross-actor memory explicitly. |
 | Optimal order > 1 within one or both actors | Within-actor memory. `Nestimate::build_hon()` or `Nestimate::build_honem()` per actor, or `Nestimate::build_mogen()` when memory depth varies across states. |
 | Optimal order saturates at `max_order` for large `max_order` | Test the corpus-mixture hypothesis with `Nestimate::build_mmm()`; high apparent order may reflect heterogeneous components rather than long memory. |
-| First-order assumption holds but edges are sparse and noisy | Aggregation-specification rather than order question: `Nestimate::build_ftna()` to restrict to structurally robust transitions. |
-
-# Related vignettes
-
-The companion `model-assessment` vignette covers reliability and
-stability assessments alongside Markov-order adequacy in a single
-checklist. The `frequencies-and-mosaic` vignette covers descriptive
-state-mix and chi-square mosaic views of the same network. The
-`sequence-comparison` vignette uses k-gram patterns to compare
-cohorts of sessions.
+| First-order assumption holds but edges are sparse and noisy | Aggregation-specification rather than order question: `build_htna(..., method = "frequency")` to restrict to structurally robust transitions. |
 
 # References
 
-Saqr, M., et al. (2025). Transition network analysis: A novel
-framework for modeling, visualizing, and identifying the temporal
-patterns of learners and learning processes.
+Saqr, M., López-Pernas, S., Törmänen, T., Kaliisa, R., Misiejuk, K., & Tikka, S. (2025). Transition network analysis: A novel framework for modeling, visualizing, and identifying the temporal patterns of learners and learning processes. Proceedings of the 15th International Learning Analytics and Knowledge Conference, 351–361. https://doi.org/10.1145/3706468.3706513
 
-Tutz, G. (2012). *Regression for Categorical Data*. Cambridge
-University Press. (Likelihood-ratio testing for nested categorical
-models.)
+Tutz, G. (2012). Regression for categorical data series number. Cambridge University Press. https://doi.org/10.1017/cbo9780511842061
+

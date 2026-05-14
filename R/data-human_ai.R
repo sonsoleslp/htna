@@ -45,8 +45,8 @@
 #'   \item{code_order}{Integer. Order of the code within the message.}
 #'   \item{order_in_session}{Integer. Order of the row within the
 #'     session — pass as the order key to \code{\link{build_htna}()}.}
-#'   \item{actor}{Character. \code{"AI"} or \code{"Human"} — the actor
-#'     partition for \code{\link{build_htna}(actor_type = "actor")}.}
+#'   \item{actor_type}{Character. \code{"AI"} or \code{"Human"} — the
+#'     actor partition for \code{\link{build_htna}(actor_type = "actor_type")}.}
 #' }
 #'
 #' @source Derived from \code{Nestimate::human_long} and
@@ -56,7 +56,7 @@
 #' @examples
 #' \dontrun{
 #' data(human_ai)
-#' net <- build_htna(human_ai, actor_type = "actor")
+#' net <- build_htna(human_ai, actor_type = "actor_type")
 #' plot_htna(net)
 #' }
 "human_ai"

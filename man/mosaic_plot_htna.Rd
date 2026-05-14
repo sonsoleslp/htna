@@ -38,13 +38,17 @@ directly. The underlying transition matrix must be integer-weighted
 (build with \code{method = "frequency"}), since the chi-square test
 needs counts.
 
+Axis tick labels are coloured by actor group using the htna
+palette (\link{htna_palette}), matching the colours used elsewhere in
+htna (e.g. \code{\link[=plot_htna]{plot_htna()}}).
+
 Suffixed \verb{_htna} to avoid clashing with \code{Nestimate::mosaic_plot()}
 when both packages are loaded.
 }
 \examples{
 \donttest{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long),
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type",
                   method = "frequency")
 mosaic_plot_htna(net, n_perm = 50, seed = 1)
 }
