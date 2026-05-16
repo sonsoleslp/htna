@@ -71,7 +71,7 @@ data(human_ai)
 `build_htna()` takes a data frame with a column indicating the actor type, combines the sequences, estimates transition probabilities, and stores
 the actor partition on the resulting network:
 
-```{r}
+```{r,warining = FALSE}
 net <- build_htna(human_ai, actor_type = "actor_type")
 ```
 
