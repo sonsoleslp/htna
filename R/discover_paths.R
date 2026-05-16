@@ -9,6 +9,7 @@
                             gap         = 1L,
                             type        = c("contiguous", "gapped"),
                             pattern     = NULL,
+                            parts_idx   = NULL,
                             min_freq    = 1L,
                             min_support = 0,
                             min_lift    = 0,
@@ -37,8 +38,8 @@
 
   marg_p <- .marginal_freq(int_seqs, T)
 
-  if (!is.null(pattern)) {
-    parts_idx <- .parse_pattern(pattern, alphabet)
+  if (!is.null(parts_idx) || !is.null(pattern)) {
+    if (is.null(parts_idx)) parts_idx <- .parse_pattern(pattern, alphabet)
     rows <- lapply(gap_vals, function(g)
       .search_pattern(int_seqs, parts_idx, T, g, n_seq, alphabet, marg_p))
   } else {
@@ -131,6 +132,76 @@
              call. = FALSE)
       }
       parts_idx[[i]] <- m - 1L
+    }
+  }
+  parts_idx
+}
+
+
+# ---- Type-level schema parsing ---------------------------------------------
+# Used by extract_meta_paths(level = "type") when a schema is supplied. Each
+# part is a type, a concrete state (resolved to its type), or "*".
+
+.parse_type_schema <- function(schema, type_alphabet, type_map) {
+  stopifnot(is.character(schema), length(schema) == 1L, nzchar(schema))
+  parts <- strsplit(gsub("\\s+", "", schema), "->", fixed = TRUE)[[1]]
+  if (length(parts) < 2L) {
+    stop("`schema` must have at least two elements separated by '->'.",
+         call. = FALSE)
+  }
+  parts_idx <- vector("list", length(parts))
+  for (i in seq_along(parts)) {
+    p <- parts[i]
+    if (p == "*") {
+      parts_idx[[i]] <- seq_along(type_alphabet) - 1L
+    } else if (p %in% type_alphabet) {
+      parts_idx[[i]] <- match(p, type_alphabet) - 1L
+    } else if (p %in% names(type_map)) {
+      parts_idx[[i]] <- match(unname(type_map[p]), type_alphabet) - 1L
+    } else {
+      stop("Unknown alphabet element in schema: '", p, "'. ",
+           "Must be a type (", paste(type_alphabet, collapse = ", "), "), ",
+           "a state, or '*'.", call. = FALSE)
+    }
+  }
+  parts_idx
+}
+
+
+# ---- Meta-schema parsing ---------------------------------------------------
+# Used by extract_meta_paths() when a schema is supplied. Each schema part
+# can be a TYPE name (expands to all concrete codes in that group), a
+# concrete state, or "*" (any code). Returns a parts_idx in the STATE
+# alphabet so .search_pattern() yields concrete state patterns matching the
+# type-level template.
+
+.expand_meta_schema <- function(schema, states, type_map) {
+  stopifnot(is.character(schema), length(schema) == 1L, nzchar(schema))
+  parts <- strsplit(gsub("\\s+", "", schema), "->", fixed = TRUE)[[1]]
+  if (length(parts) < 2L) {
+    stop("`schema` must have at least two elements separated by '->'.",
+         call. = FALSE)
+  }
+  types <- unique(unname(type_map))
+  parts_idx <- vector("list", length(parts))
+  for (i in seq_along(parts)) {
+    p <- parts[i]
+    if (p == "*") {
+      parts_idx[[i]] <- seq_along(states) - 1L
+    } else if (p %in% types) {
+      codes <- names(type_map)[type_map == p]
+      idx <- match(codes, states) - 1L
+      idx <- idx[!is.na(idx)]
+      if (!length(idx)) {
+        stop("No states found for type '", p, "'.", call. = FALSE)
+      }
+      parts_idx[[i]] <- idx
+    } else if (p %in% states) {
+      parts_idx[[i]] <- match(p, states) - 1L
+    } else {
+      stop("Unknown alphabet element in schema: '", p, "'. ",
+           "Must be a type (", paste(types, collapse = ", "), "), ",
+           "a state, or '*'.", call. = FALSE)
     }
   }
   parts_idx

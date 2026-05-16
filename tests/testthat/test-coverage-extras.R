@@ -5,7 +5,7 @@
 
 test_that("print.htna_paths emits a header and the rows", {
   net <- make_htna()
-  mp  <- extract_meta_paths(net, length = 3)
+  mp  <- extract_meta_paths(net, level = "type", length = 3)
   out <- capture.output(print(mp))
   expect_true(any(grepl("Meta-paths", out)))
   expect_true(any(grepl("schema", out)))
@@ -13,7 +13,7 @@ test_that("print.htna_paths emits a header and the rows", {
 
 test_that("print.htna_paths handles state-level and empty path objects", {
   net <- make_htna()
-  sp  <- extract_paths(net, length = 2)
+  sp  <- extract_meta_paths(net, length = 2)
   out <- capture.output(print(sp))
   expect_true(any(grepl("state-level|Patterns", out)))
 
@@ -33,7 +33,7 @@ test_that("extract_meta_paths() with type='gapped' triggers the gapped branch", 
 
 test_that("extract_meta_paths() with start/end/contain filters works", {
   net <- make_htna()
-  res <- extract_meta_paths(net, length = 3,
+  res <- extract_meta_paths(net, level = "type", length = 3,
                             start = "Human", end = "Human", contain = "AI")
   for (p in strsplit(res$schema, "->", fixed = TRUE)) {
     expect_equal(p[1], "Human")
@@ -821,18 +821,18 @@ test_that(".htna_circular handles a single-node group via plot_htna_diff", {
   )
 })
 
-test_that("extract_paths() handles a network whose $data lacks T-pattern columns", {
+test_that("extract_meta_paths() handles a network whose $data lacks T-pattern columns", {
   net <- make_htna()
   # Rename the wide columns so ^T[0-9]+$ doesn't match
   names(net$data) <- paste0("step_", seq_along(net$data))
-  res <- extract_paths(net, length = 2)
+  res <- extract_meta_paths(net, length = 2)
   expect_s3_class(res, "htna_paths")
 })
 
-test_that("extract_paths() handles a network with only NA/empty cells", {
+test_that("extract_meta_paths() handles a network with only NA/empty cells", {
   net <- make_htna()
   net$data[] <- NA_character_
-  res <- extract_paths(net, length = 2)
+  res <- extract_meta_paths(net, length = 2)
   expect_equal(nrow(res), 0L)
 })
 

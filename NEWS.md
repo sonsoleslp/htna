@@ -17,4 +17,6 @@
   `plot_htna()`, `plot_htna_bootstrap()`, `plot_htna_diff()`,
   `sequence_plot_htna()`, `reliability_htna()`,
   `centrality_stability_htna()`, `edge_betweenness_htna()`,
-  `extract_paths()`, `extract_meta_paths()`.
+  `extract_meta_paths()` (state-level by default; `level = "type"` for
+  the type-level meta-path rollup; supports schemas mixing types,
+  concrete codes, and `*`).

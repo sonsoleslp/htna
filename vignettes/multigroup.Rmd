@@ -136,15 +136,24 @@ plot_htna_diff(perm3, show_nonsig = TRUE)
 
 ## Meta-paths across three actors
 
-Meta-paths now span all three actor types. For example, you can search for
-paths where the System mediates between Student and AI:
-
-```{r}
-extract_meta_paths(net3, schema = "Student->System->AI")
-```
-
-Or enumerate all length-3 meta-paths:
+Patterns now span all three actor types. The default is state-level, with
+a `meta_schema` rollup column tagging each row with its type-level
+template:
 
 ```{r}
 extract_meta_paths(net3, length = 3)
+```
+
+Pass `level = "type"` to collapse the rows into the type-level meta-path
+summary:
+
+```{r}
+extract_meta_paths(net3, level = "type", length = 3)
+```
+
+A schema filters the search. For example, the concrete state-level
+instances of paths where the System mediates between Student and AI:
+
+```{r}
+extract_meta_paths(net3, schema = "Student->System->AI")
 ```

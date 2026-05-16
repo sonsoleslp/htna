@@ -83,20 +83,27 @@ colours:
 plot_htna(net, threshold = 0.05, layout = "circular")
 ```
 
-### Extract meta-paths
+### Extract path patterns
 
-Meta-paths are type-level patterns that abstract away from concrete states.
-For example, `Human->AI->Human` captures every length-3 path that starts with
-a Human code, transitions to an AI code, and returns to a Human code:
+By default `extract_meta_paths()` enumerates concrete state-level
+patterns and tags each row with the type-level template it instantiates:
 
 ```{r}
 extract_meta_paths(net)
 ```
 
-Search for a specific schema with wildcards:
+Filter to concrete instances of a type-level template. Schema parts can
+mix type names, concrete codes, and `*`:
 
 ```{r}
-extract_meta_paths(net, schema = "Human->*->Human")
+extract_meta_paths(net, schema = "Human->AI->Human")
+extract_meta_paths(net, schema = "Human->Ask->*")
+```
+
+Pass `level = "type"` for the type-level meta-path summary:
+
+```{r}
+extract_meta_paths(net, level = "type")
 ```
 
 ## Related packages

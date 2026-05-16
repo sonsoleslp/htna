@@ -191,51 +191,37 @@ plot_htna_diff(perm)
 plot_htna_diff(perm, show_nonsig = TRUE)
 ```
 
-## 10. Meta-paths
+## 10. Path patterns
 
-Meta-paths are type-level patterns: a fixed sequence of actor labels
-that abstracts away from the concrete states. For example
-`Human->AI->Human` is every length-3 path starting and ending in Human
-states with an AI state in between.
+`extract_meta_paths()` discovers recurring patterns at two levels. By
+default it returns concrete state-level patterns (alphabet = the code
+set `Ask`, `Plan`, `Check`, ...) and annotates each row with the
+type-level template it instantiates:
 
 ```{r}
 extract_meta_paths(net, length = 3)
 ```
 
-Schemas accept a `*` wildcard to fix some positions while letting others
-vary:
+Pass `level = "type"` for the type-level meta-path summary - a fixed
+sequence of actor labels that abstracts away from concrete states
+(e.g. `Human->AI->Human`):
 
 ```{r}
-extract_meta_paths(net, schema = "Human->*->Human")
+extract_meta_paths(net, level = "type", length = 3)
 ```
 
-Filter by lift to surface over-represented templates (lift > 1 means
+A `schema` filters the search. Each part can be a type name (expands to
+every code in that group), a concrete state, or `*`:
+
+```{r}
+extract_meta_paths(net, schema = "Human->AI->Human")
+extract_meta_paths(net, schema = "Human->Ask->*")
+```
+
+Filter by lift to surface over-represented patterns (lift > 1 means
 more frequent than independence would predict):
 
 ```{r}
-extract_meta_paths(net, length = 3, min_lift = 1.2)
-```
-
-## 11. State-level paths
-
-`extract_paths()` is the state-level counterpart: same arguments, but
-the alphabet is the concrete code set (`Ask`, `Plan`, `Check`, ...)
-rather than the actor types. Use it to discover the most frequent
-concrete sequences:
-
-```{r}
-extract_paths(net, length = 3)
-```
-
-Wildcard schemas pin down a start and end while letting the middle vary:
-
-```{r}
-extract_paths(net, schema = "Specify->*->Check")
-```
-
-And the lift filter surfaces concrete sequences that occur more often
-than the state marginals would predict:
-
-```{r}
-extract_paths(net, length = 3, min_lift = 2)
+extract_meta_paths(net, length = 3, min_lift = 2)
+extract_meta_paths(net, level = "type", length = 3, min_lift = 1.2)
 ```

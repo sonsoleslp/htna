@@ -45,8 +45,8 @@ jobs:
         with:
           extra-packages: |
             any::rcmdcheck
-            github::sonsoleslp/Nestimate
-            github::sonsoleslp/cograph
+            Nestimate
+            cograph
           needs: check
 
       - uses: r-lib/actions/check-r-package@v2

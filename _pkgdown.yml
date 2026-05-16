@@ -54,7 +54,6 @@ reference:
     desc: Discover meta-paths, state-level patterns, and association rules
     contents:
       - extract_meta_paths
-      - extract_paths
       - print.htna_paths
       - association_rules_htna
 
@@ -76,7 +75,6 @@ articles:
   - title: Getting started
     contents:
       - htna
-      - data-preparation
       - input-formats
       - grouped
   - title: Analysis

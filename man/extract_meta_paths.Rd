@@ -2,10 +2,11 @@
 % Please edit documentation in R/extract_meta_paths.R
 \name{extract_meta_paths}
 \alias{extract_meta_paths}
-\title{Extract Meta-Paths from a Heterogeneous Transition Network}
+\title{Extract Path Patterns from a Heterogeneous Transition Network}
 \usage{
 extract_meta_paths(
   x,
+  level = c("state", "type"),
   length = 2:4,
   schema = NULL,
   type = c("contiguous", "gapped"),
@@ -23,58 +24,68 @@ extract_meta_paths(
 A network built with \code{\link[=build_htna]{build_htna()}}. Must have \verb{$nodes$groups},
 \verb{$node_groups}, and \verb{$data} populated.}
 
+\item{level}{[\code{character(1)}: \code{"state"}]\cr
+\code{"state"} returns concrete state-level patterns with a \code{meta_schema}
+rollup column. \code{"type"} returns the type-level meta-path summary.}
+
 \item{length}{[\code{integer()}: \code{2:4}]\cr
-Meta-path lengths to enumerate. Ignored when \code{schema} is supplied.}
+Pattern lengths to enumerate. Ignored when \code{schema} is supplied.}
 
 \item{schema}{[\code{character(1)}]\cr
-Optional. A meta-path template to search for, written as actor names
-separated by \code{"->"} (e.g. \code{"Human->AI->Human"}). Wildcards are
-supported: \code{"Human->*->Human"} matches every length-3 meta-path that
-starts and ends with Human, with any type between.}
+Optional. A path template written as elements separated by \code{"->"}. Each
+element can be a type name, a concrete state, or \code{"*"}. See Details.}
 
 \item{type}{[\code{character(1)}: \code{"contiguous"}]\cr
 \code{"contiguous"} (default) considers consecutive positions; \code{"gapped"}
 considers positions spaced by \code{gap + 1} apart.}
 
 \item{gap}{[\code{integer()}: \code{1L}]\cr
-Gap size(s) used when \code{type = "gapped"}. Multiple values produce one row
-per (length, gap) combination, distinguished by the \code{gap} column.}
+Gap size(s) used when \code{type = "gapped"}. Multiple values produce one
+row per (length, gap) combination.}
 
 \item{min_count}{[\code{integer(1)}: \code{1L}]\cr
 Minimum total occurrences to retain.}
 
 \item{min_support}{[\code{numeric(1)}: \code{0}]\cr
-Minimum proportion of sequences containing the meta-path at least once.}
+Minimum proportion of sequences containing the pattern at least once.}
 
 \item{min_lift}{[\code{numeric(1)}: \code{0}]\cr
 Minimum lift (observed / expected under marginal independence). \code{0}
 disables the filter.}
 
-\item{start}{[\code{character()}]\cr
-Keep only meta-paths whose first type is in this set.}
-
-\item{end}{[\code{character()}]\cr
-Keep only meta-paths whose last type is in this set.}
-
-\item{contain}{[\code{character()}]\cr
-Keep only meta-paths whose type sequence contains all elements of this
-set (in any order).}
+\item{start, end, contain}{[\code{character()}]\cr
+Filter rows whose first / last element is in \code{start} / \code{end}, or whose
+element sequence contains all of \code{contain}. Compared against the
+alphabet of the chosen level (types or concrete states).}
 }
 \value{
-An object of class \code{c("htna_meta_paths", "htna_paths", "data.frame")} with columns: \code{schema}, \code{length}, \code{gap}, \code{count},
-\code{n_sequences}, \code{support}, \code{frequency}, \code{lift}. Attributes:
-\code{n_sequences}, \code{alphabet}, \code{level = "meta"}.
+An object of class \code{c("htna_meta_paths", "htna_paths", "data.frame")}. At \code{level = "state"} the columns are \code{schema},
+\code{meta_schema}, \code{length}, \code{gap}, \code{count}, \code{n_sequences}, \code{support},
+\code{frequency}, \code{lift}. At \code{level = "type"} the \code{meta_schema} column is
+omitted (the \code{schema} column already holds the type pattern).
+Attributes: \code{n_sequences}, \code{alphabet}, \code{level}, and (when supplied)
+\code{schema}.
 }
 \description{
-Discovers type-level patterns (meta-paths) over the actor-typed sequences
-that produced a heterogeneous transition network. A meta-path is a fixed
-sequence of node types - for example \code{Human->AI->Human} - that abstracts
-away from concrete states and asks how often a \emph{typed} template appears in
-the data. Two regimes are supported: enumerate every meta-path of given
-lengths (default), or search for one specific schema (with optional
-wildcards).
+Discovers recurring patterns in the actor-typed sequences that produced a
+heterogeneous transition network. Operates at two levels:
 }
 \details{
+\itemize{
+\item \code{level = "state"} (default) - enumerate concrete state-level patterns
+(e.g. \code{Command->Execute->Command}) and annotate each row with the
+type-level template it instantiates (e.g. \code{Human->AI->Human}).
+\item \code{level = "type"} - enumerate type-level meta-paths only (one row per
+actor-type pattern, summed over its concrete instances).
+}
+
+At either level, a \code{schema} can filter the search. Schema parts can be
+type names (expand to every concrete code in that group), concrete
+states, or \code{"*"} (any element). Parts can be mixed freely - e.g.
+\code{"Human->Ask->Human"} means "any Human code, then \code{Ask}, then any Human
+code". At \code{level = "type"} concrete codes resolve to their type, so the
+same schema becomes \code{Human->AI->Human}.
+
 Operates on the actor partition stored on the network by \code{\link[=build_htna]{build_htna()}}.
 }
 \examples{
@@ -82,16 +93,21 @@ Operates on the actor partition stored on the network by \code{\link[=build_htna
 data(human_long, ai_long, package = "Nestimate")
 net <- build_htna(list(Human = human_long, AI = ai_long))
 
-# All meta-paths of length 2..4
+# Concrete state-level patterns of length 2..4 (default)
 extract_meta_paths(net)
 
-# Wildcard family search: any length-3 path that returns to Human
+# Type-level meta-path summary
+extract_meta_paths(net, level = "type")
+
+# Concrete instances of a type-level template
+extract_meta_paths(net, schema = "Human->AI->Human")
+
+# Mix types, concrete codes, and wildcards
+extract_meta_paths(net, schema = "Human->Ask->Human")
 extract_meta_paths(net, schema = "Human->*->Human")
 
-# Gapped meta-paths
+# Gapped patterns; lift threshold
 extract_meta_paths(net, length = 3, type = "gapped", gap = 1:2)
-
-# Lift threshold (over-represented relative to type marginals)
 extract_meta_paths(net, length = 3, min_lift = 1.2)
 }
 

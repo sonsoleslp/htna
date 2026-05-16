@@ -11,10 +11,13 @@
 #' @return The input object, invisibly.
 #' @export
 print.htna_paths <- function(x, n = 10L, ...) {
-  level <- attr(x, "level") %||% "paths"
+  level  <- attr(x, "level") %||% "paths"
+  schema <- attr(x, "schema")
   header <- switch(level,
-    meta  = "Meta-paths (type-level)",
-    state = "Patterns (state-level)",
+    state = if (is.null(schema)) "Patterns (state-level)"
+            else sprintf("State-level instances of schema '%s'", schema),
+    type  = if (is.null(schema)) "Meta-paths (type-level)"
+            else sprintf("Type-level meta-paths matching '%s'", schema),
     "Paths"
   )
   n_seq <- attr(x, "n_sequences") %||% NA_integer_
@@ -42,6 +45,11 @@ print.htna_paths <- function(x, n = 10L, ...) {
     stringsAsFactors = FALSE,
     check.names = FALSE
   )
+  if (!is.null(shown$meta_schema)) {
+    body <- cbind(body[, "schema", drop = FALSE],
+                  meta_schema = shown$meta_schema,
+                  body[, setdiff(names(body), "schema"), drop = FALSE])
+  }
   print(body, row.names = FALSE)
   if (nrow(x) > n) cat("... (", nrow(x) - n, " more)\n", sep = "")
   invisible(x)
