@@ -12,6 +12,8 @@ knitr::opts_chunk$set(
   out.width = "60%",
   fig.width = 10,
   fig.height = 7,
+  message = FALSE,
+  warining = FALSE,
   fig.align = "center",
   dpi = 150
 )
@@ -58,20 +60,19 @@ suppressPackageStartupMessages(library("htna"))
 library("htna")
 ```
 
-Load the example data shipped with `Nestimate`:
+Load the example data shipped with `htna`:
 
 ```{r}
-data(human_long, ai_long, package = "Nestimate")
+data(human_ai)
 ```
 
 ### Build a heterogeneous transition network
 
-`build_htna()` takes a named list of long-format data frames, one per actor
-group, combines the sequences, estimates transition probabilities, and stores
+`build_htna()` takes a data frame with a column indicating the actor type, combines the sequences, estimates transition probabilities, and stores
 the actor partition on the resulting network:
 
 ```{r}
-net <- build_htna(list(Human = human_long, AI = ai_long))
+net <- build_htna(human_ai, actor_type = "actor_type")
 ```
 
 ### Plot the network

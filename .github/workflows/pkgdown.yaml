@@ -37,8 +37,6 @@ jobs:
           extra-packages: |
             any::pkgdown
             local::.
-            github::mohsaqr/Nestimate
-            github::sonsoleslp/cograph
           needs: website
 
       - name: Build site
