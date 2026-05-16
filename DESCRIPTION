@@ -24,9 +24,6 @@ Imports:
     Nestimate,
     cograph,
     igraph
-Remotes:
-    mohsaqr/Nestimate,
-    sonsoleslp/cograph
 Suggests:
     codyna,
     ggplot2,
