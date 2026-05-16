@@ -88,6 +88,7 @@ when both packages are loaded.
 # \donttest{
 data(human_long, ai_long, package = "Nestimate")
 net <- build_htna(list(Human = human_long, AI = ai_long))
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)
 markov_order_test_htna(net$data, max_order = 2, n_perm = 50, seed = 1)
 #> Markov Order Test  [within-w permutation, n_perm = 50, alpha = 0.050]

@@ -49,8 +49,6 @@ partition on the resulting network:
 ``` r
 
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: S3 methods 'print.wtna_perm_mixed', 'summary.wtna_perm_mixed' were
-#> declared in NAMESPACE but not found
 ```
 
 ### Plot the network

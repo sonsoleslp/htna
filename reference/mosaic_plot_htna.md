@@ -65,6 +65,7 @@ for the marginal-frequency companion view.
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type",
                   method = "frequency")
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 mosaic_plot_htna(net, n_perm = 50, seed = 1)
 #> Warning: Vectorized input to `element_text()` is not officially supported.

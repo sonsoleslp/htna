@@ -95,9 +95,11 @@ data(human_long, ai_long, package = "Nestimate")
 n <- nrow(human_long)
 early <- build_htna(list(Human = human_long[seq_len(n %/% 2), ],
                          AI    = ai_long[seq_len(n %/% 2), ]))
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (25 sessions)
 late  <- build_htna(list(Human = human_long[(n %/% 2 + 1):n, ],
                          AI    = ai_long[(n %/% 2 + 1):n, ]))
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (15 sessions)
 permutation_htna(early, late, iter = 100)
 #> Permutation Test:Transition Network (relative probabilities) [directed]

@@ -30,6 +30,7 @@ An object whose structure is method-defined.
 # \donttest{
 data(human_long, ai_long, package = "Nestimate")
 net <- build_htna(list(Human = human_long, AI = ai_long))
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)
 bootstrap(net, iter = 50)
 #>   Edge                   Mean     95% CI          p

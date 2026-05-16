@@ -88,6 +88,7 @@ when both packages are loaded.
 # \donttest{
 data(human_long, ai_long, package = "Nestimate")
 net <- build_htna(list(Human = human_long, AI = ai_long))
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)
 association_rules_htna(net)
 #> Association Rules  [87185 rules | 17 items | 429 transactions]
