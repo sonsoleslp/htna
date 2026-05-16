@@ -56,23 +56,25 @@ plot_htna_bootstrap <- function(boot, group_colors = htna_palette, ...) {
 
   ng_styling <- .htna_node_styling(net, group_colors)
 
-  result <- do.call(cograph::splot.net_bootstrap, c(
-    list(x      = boot,
-         layout = ng_styling$layout,
-         node_fill     = ng_styling$node_colors,
-         node_shape    = ng_styling$node_shapes,
-         node_size     = 12,
-         donut_color   = ng_styling$dark,
-         curvature     = 0.4,
-         layout_margin = 0.15,
-         rescale       = FALSE,
-         layout_scale  = 1,
-         tna_styling   = TRUE,
-         edge_label_size = 0.55,
-         label_size      = 0.8,
-         legend        = FALSE),
-    list(...)
-  ))
+  defaults <- list(
+    x      = boot,
+    layout = ng_styling$layout,
+    node_fill     = ng_styling$node_colors,
+    node_shape    = ng_styling$node_shapes,
+    node_size     = 12,
+    donut_color   = ng_styling$dark,
+    curvature     = 0.4,
+    layout_margin = 0.15,
+    rescale       = FALSE,
+    layout_scale  = 1,
+    tna_styling   = TRUE,
+    edge_label_size = 0.55,
+    label_size      = 0.8,
+    legend        = FALSE
+  )
+  user_args <- list(...)
+  defaults[names(user_args)] <- user_args
+  result <- do.call(cograph::splot.net_bootstrap, defaults)
   if (ng_styling$n_groups >= 2L) {
     .htna_legend(ng_styling$groups, ng_styling$colors)
   }
