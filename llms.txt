@@ -32,26 +32,25 @@ devtools::install_github("sonsoleslp/htna")
 library("htna")
 ```
 
-Load the example data shipped with `Nestimate`:
+Load the example data shipped with `htna`:
 
 ``` r
 
-data(human_long, ai_long, package = "Nestimate")
+data(human_ai)
 ```
 
 ### Build a heterogeneous transition network
 
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) takes
-a named list of long-format data frames, one per actor group, combines
-the sequences, estimates transition probabilities, and stores the actor
+a data frame with a column indicating the actor type, combines the
+sequences, estimates transition probabilities, and stores the actor
 partition on the resulting network:
 
 ``` r
 
-net <- build_htna(list(Human = human_long, AI = ai_long))
+net <- build_htna(human_ai, actor_type = "actor_type")
 #> Warning: S3 methods 'print.wtna_perm_mixed', 'summary.wtna_perm_mixed' were
 #> declared in NAMESPACE but not found
-#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)
 ```
 
 ### Plot the network
@@ -62,10 +61,6 @@ auto-detects the actor groups and renders them with distinct colours:
 ``` r
 
 plot_htna(net, threshold = 0.05, layout = "circular")
-#> Registered S3 methods overwritten by 'cograph':
-#>   method             from     
-#>   plot.net_stability Nestimate
-#>   print.mcml         Nestimate
 ```
 
 ![](reference/figures/README-htna-plot-1.png)
@@ -81,30 +76,19 @@ type-level template it instantiates:
 
 extract_meta_paths(net)
 #> Patterns (state-level) over 429 sequences
-#> Rows: 7952 | Lengths: 2, 3, 4 | Gaps: 0
-#>                schema  meta_schema length gap count n_seq support frequency
-#>     Investigate->Plan       AI->AI      2   0   962   346   0.807     0.051
-#>      Specify->Execute    Human->AI      2   0   796   261   0.608     0.042
-#>  Specify->Investigate    Human->AI      2   0   764   289   0.674     0.040
-#>      Command->Execute    Human->AI      2   0   722   267   0.622     0.038
-#>      Execute->Command    AI->Human      2   0   659   225   0.524     0.035
-#>      Request->Specify Human->Human      2   0   573   295   0.688     0.030
-#>      Command->Specify Human->Human      2   0   469   246   0.573     0.025
-#>         Plan->Command    AI->Human      2   0   375   220   0.513     0.020
-#>      Specify->Command Human->Human      2   0   361   354   0.825     0.019
-#>         Execute->Plan       AI->AI      2   0   337   181   0.422     0.018
-#>  lift
-#>  5.07
-#>  1.66
-#>  2.23
-#>  2.14
-#>  1.95
-#>  3.69
-#>  1.55
-#>  2.23
-#>  1.19
-#>  1.26
-#> ... (7942 more)
+#> Rows: 5445 | Lengths: 2, 3, 4 | Gaps: 0
+#>              schema  meta_schema length gap count n_seq support frequency lift
+#>    Request->Specify Human->Human      2   0  1042   402   0.937     0.055 2.27
+#>           Ask->Plan       AI->AI      2   0   964   346   0.807     0.051 4.87
+#>    Execute->Request    AI->Human      2   0   921   269   0.627     0.049 1.80
+#>    Request->Execute    Human->AI      2   0   904   299   0.697     0.048 1.77
+#>    Specify->Execute    Human->AI      2   0   796   261   0.608     0.042 1.66
+#>        Specify->Ask    Human->AI      2   0   784   292   0.681     0.041 2.20
+#>      Check->Execute    Human->AI      2   0   534   243   0.566     0.028 2.50
+#>       Plan->Request    AI->Human      2   0   503   268   0.625     0.027 1.98
+#>        Request->Ask    Human->AI      2   0   459   222   0.517     0.024 1.21
+#>  Execute->Frustrate    AI->Human      2   0   451   230   0.536     0.024 1.50
+#> ... (5435 more)
 ```
 
 Filter to concrete instances of a type-level template. Schema parts can
@@ -114,56 +98,56 @@ mix type names, concrete codes, and `*`:
 
 extract_meta_paths(net, schema = "Human->AI->Human")
 #> State-level instances of schema 'Human->AI->Human' over 429 sequences
-#> Rows: 345 | Lengths: 3 | Gaps: 0
-#>                         schema      meta_schema length gap count n_seq support
-#>      Command->Execute->Command Human->AI->Human      3   0   288   150   0.350
-#>      Specify->Execute->Command Human->AI->Human      3   0   111    83   0.193
-#>  Command->Investigate->Command Human->AI->Human      3   0    84    60   0.140
-#>      Command->Execute->Inquire Human->AI->Human      3   0    79    64   0.149
-#>  Specify->Investigate->Command Human->AI->Human      3   0    78    62   0.145
-#>      Command->Execute->Request Human->AI->Human      3   0    70    63   0.147
-#>      Specify->Execute->Request Human->AI->Human      3   0    65    47   0.110
-#>       Verify->Execute->Command Human->AI->Human      3   0    62    52   0.121
-#>    Specify->Execute->Frustrate Human->AI->Human      3   0    58    41   0.096
-#>    Command->Execute->Frustrate Human->AI->Human      3   0    57    50   0.117
+#> Rows: 163 | Lengths: 3 | Gaps: 0
+#>                       schema      meta_schema length gap count n_seq support
+#>    Request->Execute->Request Human->AI->Human      3   0   401   194   0.452
+#>    Specify->Execute->Request Human->AI->Human      3   0   176   107   0.249
+#>        Request->Ask->Request Human->AI->Human      3   0   130    91   0.212
+#>      Check->Execute->Request Human->AI->Human      3   0   123    96   0.224
+#>        Specify->Ask->Request Human->AI->Human      3   0   120    84   0.196
+#>  Specify->Execute->Frustrate Human->AI->Human      3   0   114    88   0.205
+#>  Request->Execute->Frustrate Human->AI->Human      3   0   106    88   0.205
+#>    Request->Execute->Inquire Human->AI->Human      3   0    97    76   0.177
+#>      Specify->Ask->Frustrate Human->AI->Human      3   0    86    70   0.163
+#>    Inquire->Execute->Request Human->AI->Human      3   0    73    52   0.121
 #>  frequency lift
-#>      0.080 8.22
-#>      0.031 2.23
-#>      0.023 3.37
-#>      0.022 5.43
-#>      0.022 2.20
-#>      0.019 3.90
-#>      0.018 2.54
-#>      0.017 7.26
-#>      0.016 2.54
-#>      0.016 3.56
-#> ... (335 more)
+#>      0.112 5.00
+#>      0.049 2.33
+#>      0.036 2.19
+#>      0.034 3.67
+#>      0.033 2.15
+#>      0.032 2.57
+#>      0.030 2.24
+#>      0.027 4.40
+#>      0.024 2.61
+#>      0.020 3.31
+#> ... (153 more)
 extract_meta_paths(net, schema = "Human->Ask->*")
 #> State-level instances of schema 'Human->Ask->*' over 429 sequences
-#> Rows: 39 | Lengths: 3 | Gaps: 0
+#> Rows: 63 | Lengths: 3 | Gaps: 0
 #>                   schema      meta_schema length gap count n_seq support
-#>    Inquire->Ask->Explain    Human->AI->AI      3   0    12    11   0.026
-#>  Specify->Ask->Interrupt Human->AI->Human      3   0     5     5   0.012
-#>    Inquire->Ask->Command Human->AI->Human      3   0     4     4   0.009
-#>    Command->Ask->Correct Human->AI->Human      3   0     4     4   0.009
-#>    Request->Ask->Explain    Human->AI->AI      3   0     4     4   0.009
-#>    Specify->Ask->Explain    Human->AI->AI      3   0     4     4   0.009
-#>  Inquire->Ask->Interrupt Human->AI->Human      3   0     4     4   0.009
-#>  Frustrate->Ask->Correct Human->AI->Human      3   0     3     3   0.007
-#>    Command->Ask->Explain    Human->AI->AI      3   0     3     3   0.007
-#>    Command->Ask->Command Human->AI->Human      3   0     2     2   0.005
-#>  frequency   lift
-#>      0.146 106.21
-#>      0.061   7.61
-#>      0.049   9.04
-#>      0.049   9.66
-#>      0.049  28.71
-#>      0.049  10.34
-#>      0.049  20.84
-#>      0.037  15.84
-#>      0.037  11.04
-#>      0.024   1.88
-#> ... (29 more)
+#>       Specify->Ask->Plan    Human->AI->AI      3   0   340   197   0.459
+#>     Frustrate->Ask->Plan    Human->AI->AI      3   0   214   187   0.436
+#>       Request->Ask->Plan    Human->AI->AI      3   0   139   106   0.247
+#>    Request->Ask->Request Human->AI->Human      3   0   130    91   0.212
+#>    Specify->Ask->Request Human->AI->Human      3   0   120    84   0.196
+#>  Specify->Ask->Frustrate Human->AI->Human      3   0    86    70   0.163
+#>       Inquire->Ask->Plan    Human->AI->AI      3   0    53    45   0.105
+#>        Refine->Ask->Plan    Human->AI->AI      3   0    52    46   0.107
+#>  Request->Ask->Frustrate Human->AI->Human      3   0    50    44   0.103
+#>    Specify->Ask->Specify Human->AI->Human      3   0    49    41   0.096
+#>  frequency  lift
+#>      0.170 11.65
+#>      0.107 11.71
+#>      0.070  4.48
+#>      0.065  2.19
+#>      0.060  2.15
+#>      0.043  2.61
+#>      0.027  6.22
+#>      0.026  6.57
+#>      0.025  1.43
+#>      0.025  0.93
+#> ... (53 more)
 ```
 
 Pass `level = "type"` for the type-level meta-path summary:
