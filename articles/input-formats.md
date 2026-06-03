@@ -15,7 +15,6 @@ and `disambiguate` (for code-label collisions).
 ``` r
 
 library(htna)
-library(dplyr)
 data(human_ai)
 ```
 
@@ -32,8 +31,8 @@ name becomes the actor-type label on the network.
 
 ``` r
 
-human_long <- human_ai |> filter(actor_type == "Human")
-ai_long <- human_ai |> filter(actor_type == "AI")
+human_long <- human_ai[human_ai$actor_type == "Human",]
+ai_long <- human_ai[human_ai$actor_type == "AI",]
 net_list <- build_htna(list(Human = human_long, AI = ai_long))
 summary(net_list)
 #> <htna network>

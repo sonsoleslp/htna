@@ -78,7 +78,6 @@ parameters that compose with any input form: <code>actor</code>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sonsoles.me/htna/">htna</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></code></pre></div>
 <p>Both frames share the canonical schema htna expects:
 <code>session_id</code>, <code>code</code>,
@@ -94,8 +93,8 @@ interleaving.</p>
 <p>The most direct form. Each entry is one actor’s long frame; the list
 name becomes the actor-type label on the network.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">human_long</span> <span class="op">&lt;-</span> <span class="va">human_ai</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">actor_type</span> <span class="op">==</span> <span class="st">"Human"</span><span class="op">)</span></span>
-<span><span class="va">ai_long</span> <span class="op">&lt;-</span> <span class="va">human_ai</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">actor_type</span> <span class="op">==</span> <span class="st">"AI"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">human_long</span> <span class="op">&lt;-</span> <span class="va">human_ai</span><span class="op">[</span><span class="va">human_ai</span><span class="op">$</span><span class="va">actor_type</span> <span class="op">==</span> <span class="st">"Human"</span>,<span class="op">]</span></span>
+<span><span class="va">ai_long</span> <span class="op">&lt;-</span> <span class="va">human_ai</span><span class="op">[</span><span class="va">human_ai</span><span class="op">$</span><span class="va">actor_type</span> <span class="op">==</span> <span class="st">"AI"</span>,<span class="op">]</span></span>
 <span><span class="va">net_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Human <span class="op">=</span> <span class="va">human_long</span>, AI <span class="op">=</span> <span class="va">ai_long</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">net_list</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;htna network&gt;</span></span>
