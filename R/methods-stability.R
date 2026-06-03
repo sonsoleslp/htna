@@ -11,7 +11,24 @@
 #' @export
 plot.htna_stability <- function(x, ...) {
   # Use cograph's implementation for htna stability plots
-  Nestimate:::plot.net_stability(x, ...)
+    summ <- summary(x)
+    p <- ggplot2::ggplot(summ, ggplot2::aes(x = .data$drop_prop, 
+                                            y = .data$mean_cor, color = .data$measure)) + ggplot2::geom_line(linewidth = 0.8) + 
+      ggplot2::geom_point(size = 2) + ggplot2::geom_ribbon(ggplot2::aes(ymin = .data$mean_cor - 
+                                                                          .data$sd_cor, ymax = pmin(.data$mean_cor + .data$sd_cor, 
+                                                                                                    1), fill = .data$measure), alpha = 0.15, color = NA) + 
+      ggplot2::geom_hline(yintercept = x$threshold, linetype = "dashed", 
+                          color = "grey40") + ggplot2::annotate("text", x = max(x$drop_prop), 
+                                                                y = x$threshold, label = sprintf("threshold = %.1f", 
+                                                                                                 x$threshold), hjust = 1, vjust = -0.5, size = 3, 
+                                                                color = "grey40") + ggplot2::scale_x_continuous(breaks = x$drop_prop, 
+                                                                                                                labels = x$drop_prop) + ggplot2::coord_cartesian(ylim = c(0, 
+                                                                                                                                                                          1)) + ggplot2::labs(x = "Proportion dropped", y = sprintf("Mean correlation (%s)", 
+                                                                                                                                                                                                                                    x$method), title = "Centrality Stability", color = "Measure", 
+                                                                                                                                                                                              fill = "Measure") + ggplot2::theme_minimal(base_size = 12) + 
+      ggplot2::theme(legend.position = "bottom")
+    print(p)
+    invisible(p)
 }
 
 #' Print Method for htna Centrality Stability Objects
@@ -29,8 +46,14 @@ print.htna_stability <- function(x, ...) {
   cat("===================================\n")
 
   # Call the underlying method but add htna context
-  Nestimate:::print.net_stability(x, ...)
-
+  cat(sprintf("Centrality Stability (%d iterations, threshold = %.1f)\n", 
+              x$iter, x$threshold))
+  cat(sprintf("  Drop proportions: %s\n", paste(x$drop_prop, 
+                                                collapse = ", ")))
+  cat("\n  CS-coefficients:\n")
+  for (m in names(x$cs)) {
+    cat(sprintf("    %-15s  %.2f\n", m, x$cs[m]))
+  }
   invisible(x)
 }
 

@@ -5,10 +5,21 @@
 #
 # Skipped on CRAN and whenever `tna` or `Nestimate` is missing.
 
+# Skip entire file if tna is not available
+if (!requireNamespace("tna", quietly = TRUE)) {
+  testthat::skip("Skipping tna equivalence tests - tna package not available")
+}
+
 skip_if_missing_eq_deps <- function() {
   testthat::skip_on_cran()
   testthat::skip_if_not_installed("tna")
   testthat::skip_if_not_installed("Nestimate")
+  if (!requireNamespace("tna", quietly = TRUE)) {
+    testthat::skip("tna not available")
+  }
+  if (!requireNamespace("Nestimate", quietly = TRUE)) {
+    testthat::skip("Nestimate not available")
+  }
 }
 
 # --- Comparison helpers -----------------------------------------------
