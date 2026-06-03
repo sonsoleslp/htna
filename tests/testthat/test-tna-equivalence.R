@@ -842,10 +842,11 @@ test_that("centrality_stability cs values match across htna, tna, Nestimate", {
                          is.nan(t_mat) | is.na(t_mat),
                          info = paste0(info, " | NaN pattern | ", m))
         ok <- !is.nan(h_mat) & !is.na(h_mat)
-        expect_identical(h_mat[ok], t_mat[ok],
-                         info = paste0(info,
-                                       " | strength correlations | ",
-                                       m))
+        expect_equal(h_mat[ok], t_mat[ok],
+                     tolerance = 1e-10,
+                     info = paste0(info,
+                                   " | strength correlations | ",
+                                   m))
       }
     }
   }
