@@ -97,6 +97,14 @@ Reliability, stability, permutation, and Markov-order adequacy
   : Edge-Weight Case-Dropping Stability
 - [`centrality_stability_htna()`](https://sonsoles.me/htna/reference/centrality_stability_htna.md)
   : Centrality Stability for an htna Network
+- [`plot(`*`<htna_stability>`*`)`](https://sonsoles.me/htna/reference/plot.htna_stability.md)
+  : Plot Method for htna Centrality Stability Objects
+- [`plot(`*`<htna_stability_group>`*`)`](https://sonsoles.me/htna/reference/plot.htna_stability_group.md)
+  : Plot Method for htna Stability Groups
+- [`print(`*`<htna_stability>`*`)`](https://sonsoles.me/htna/reference/print.htna_stability.md)
+  : Print Method for htna Centrality Stability Objects
+- [`print(`*`<htna_stability_group>`*`)`](https://sonsoles.me/htna/reference/print.htna_stability_group.md)
+  : Print Method for htna Stability Groups
 - [`markov_order_test_htna()`](https://sonsoles.me/htna/reference/markov_order_test_htna.md)
   : Markov-Order Adequacy Test
 

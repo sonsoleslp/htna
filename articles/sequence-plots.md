@@ -171,7 +171,7 @@ The six combinations address distinct analytic questions:
 
 | Analytic question | Recommended view |
 |----|----|
-| Within-session ordering of codes per actor | `type = "index"`, `by = "state"` |
+| Within-session ordering of codes per actor type | `type = "index"`, `by = "state"` |
 | Corpus-level differences in session length and uniformity | `type = "heatmap"`, `by = "state"` |
 | Evolution of state composition over session time, per actor | `type = "distribution"`, `by = "state"`, `na = FALSE` |
 | Turn-taking pattern within individual sessions | `type = "index"`, `by = "group"` |

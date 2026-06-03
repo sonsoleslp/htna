@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="State frequencies and chi-square mosaics">
 </head>
@@ -58,7 +58,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>State frequencies and chi-square mosaics</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sonsoleslp/htna/blob/main/vignettes/frequencies-and-mosaic.Rmd" class="external-link"><code>vignettes/frequencies-and-mosaic.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/sonsoleslp/htna/blob/main/vignettes/articles/frequencies-and-mosaic.Rmd" class="external-link"><code>vignettes/articles/frequencies-and-mosaic.Rmd</code></a></small>
       <div class="d-none name"><code>frequencies-and-mosaic.Rmd</code></div>
     </div>
 
@@ -121,7 +121,7 @@ space-efficient and allows the full state vocabulary to be displayed
 simultaneously.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_frequencies_htna.html">plot_frequencies_htna</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></code></pre></div>
-<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="800"></p>
+<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="720"></p>
 </div>
 <div class="section level4">
 <h4 id="combined-bars-view-bars">Combined bars (<code>view = "bars"</code>)<a class="anchor" aria-label="anchor" href="#combined-bars-view-bars"></a>
@@ -132,13 +132,13 @@ layout is appropriate when the analytic task is direct numerical
 comparison across the full vocabulary.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_frequencies_htna.html">plot_frequencies_htna</a></span><span class="op">(</span><span class="va">net</span>, view <span class="op">=</span> <span class="st">"bars"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="800"></p>
+<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="720"></p>
 <p>The bars layout returns a ggplot object, permitting modification
 through standard ggplot composition operators:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_frequencies_htna.html">plot_frequencies_htna</a></span><span class="op">(</span><span class="va">net</span>, view <span class="op">=</span> <span class="st">"bars"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Human vs AI: state counts"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="800"></p>
+<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="720"></p>
 </div>
 <div class="section level4">
 <h4 id="per-actor-faceted-bars-view-facet">Per-actor faceted bars (<code>view = "facet"</code>)<a class="anchor" aria-label="anchor" href="#per-actor-faceted-bars-view-facet"></a>
@@ -149,7 +149,7 @@ substantially in event volume, since a shared scale would compress the
 lower-volume actor’s bars beyond legibility.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_frequencies_htna.html">plot_frequencies_htna</a></span><span class="op">(</span><span class="va">net</span>, view <span class="op">=</span> <span class="st">"facet"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="800"></p>
+<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="720"></p>
 </div>
 </div>
 </div>
@@ -177,7 +177,7 @@ asymptotic approximation is not trusted; the trade-off is computation
 time.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/mosaic_plot_htna.html">mosaic_plot_htna</a></span><span class="op">(</span><span class="va">net_freq</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></code></pre></div>
-<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="800"></p>
+<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="720"></p>
 <p>Cells with strong positive residuals identify transitions that
 characterise the process beyond what would be expected by chance; cells
 with strong negative residuals identify transitions that are
@@ -192,7 +192,7 @@ by <code>tna</code> and <code>vcd</code>. It is appropriate when cell
 counts are large enough for the asymptotic approximation to hold.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/mosaic_plot_htna.html">mosaic_plot_htna</a></span><span class="op">(</span><span class="va">net_freq</span>, residuals <span class="op">=</span> <span class="st">"asymptotic"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="800"></p>
+<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="720"></p>
 <p>For htna corpora of typical size (hundreds of sessions, hundreds to
 thousands of transitions per cell), permutation and asymptotic residuals
 agree closely.</p>
@@ -207,7 +207,7 @@ preserves contrast across the matrix and supports comparison of mosaics
 across networks.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/mosaic_plot_htna.html">mosaic_plot_htna</a></span><span class="op">(</span><span class="va">net_freq</span>, range <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">4</span>, <span class="fl">4</span><span class="op">)</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></code></pre></div>
-<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="800"></p>
+<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="720"></p>
 <p>A range of ±4 is conventional in mosaic displays; residuals beyond
 the range saturate to the most intense colour.</p>
 </div>
@@ -220,7 +220,7 @@ may collide. The <code>top_angle</code> and <code>left_angle</code>
 arguments rotate the labels for legibility.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/mosaic_plot_htna.html">mosaic_plot_htna</a></span><span class="op">(</span><span class="va">net_freq</span>, top_angle <span class="op">=</span> <span class="fl">45</span>, left_angle <span class="op">=</span> <span class="fl">0</span>, seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span></code></pre></div>
-<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="800"></p>
+<p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="720"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Sequence plots">
 </head>
@@ -58,7 +58,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Sequence plots</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sonsoleslp/htna/blob/main/vignettes/sequence-plots.Rmd" class="external-link"><code>vignettes/sequence-plots.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/sonsoleslp/htna/blob/main/vignettes/articles/sequence-plots.Rmd" class="external-link"><code>vignettes/articles/sequence-plots.Rmd</code></a></small>
       <div class="d-none name"><code>sequence-plots.Rmd</code></div>
     </div>
 
@@ -127,7 +127,7 @@ colours along a session strip indicates the order of codes produced by
 that actor.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></code></pre></div>
-<p><img src="sequence-plots_files/figure-html/unnamed-chunk-1-1.png" class="r-plt" alt="" width="900"></p>
+<p><img src="sequence-plots_files/figure-html/unnamed-chunk-1-1.png" class="r-plt" alt="" width="810"></p>
 <p>Vertically aligned colour blocks within a panel correspond to states
 that occur in long uninterrupted runs across many sessions; these visual
 signatures map directly to strong self-loops in the underlying
@@ -142,7 +142,7 @@ emphasises corpus-level differences between actors in session length and
 uniformity.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net</span>, type <span class="op">=</span> <span class="st">"heatmap"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="sequence-plots_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="900"></p>
+<p><img src="sequence-plots_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="810"></p>
 <p>The white separator does not encode data; it is a visual marker
 distinguishing the two actor regions of the otherwise contiguous
 matrix.</p>
@@ -156,14 +156,14 @@ stacked area. The result summarises the state composition of the corpus
 as a function of session time.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net</span>, type <span class="op">=</span> <span class="st">"distribution"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="sequence-plots_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="900"></p>
+<p><img src="sequence-plots_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="810"></p>
 <p>A grey “NA” band appears in this view because each per-actor sequence
 is NA-padded at the timesteps when the other actor was acting. The
 padding is a structural feature of the per-actor extraction. Removing it
 normalises the proportions over present states only:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net</span>, type <span class="op">=</span> <span class="st">"distribution"</span>, na <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="sequence-plots_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="900"></p>
+<p><img src="sequence-plots_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="810"></p>
 <p>The NA-suppressed view is the appropriate display when the analytic
 question concerns the state mix of each actor; the default view is
 appropriate when the question concerns when each actor is silent.</p>
@@ -181,7 +181,7 @@ identifies which actor was acting at that timestep.</p>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net</span>, by <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="sequence-plots_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="900"></p>
+<p><img src="sequence-plots_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="810"></p>
 <p>Sessions in which actors alternate frequently appear striped;
 sessions in which one actor dominates appear as solid blocks.</p>
 </div>
@@ -190,7 +190,7 @@ sessions in which one actor dominates appear as solid blocks.</p>
 </h3>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net</span>, type <span class="op">=</span> <span class="st">"heatmap"</span>, by <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="sequence-plots_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="900"></p>
+<p><img src="sequence-plots_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="810"></p>
 <p>Per-actor faceting is unnecessary under group colouring because each
 cell carries actor identity through its colour. The single carpet layout
 emphasises macro-level patterns in actor balance and session length.</p>
@@ -200,7 +200,7 @@ emphasises macro-level patterns in actor balance and session length.</p>
 </h3>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net</span>, type <span class="op">=</span> <span class="st">"distribution"</span>, by <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="sequence-plots_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="900"></p>
+<p><img src="sequence-plots_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="810"></p>
 <p>The combined session matrix is fully populated (every timestep has an
 active actor), so no NA band appears. The plot displays the proportion
 of sessions in which each actor was acting at each timestep — a
@@ -222,7 +222,7 @@ turn-taking summary across the corpus.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td>Within-session ordering of codes per actor</td>
+<td>Within-session ordering of codes per actor type</td>
 <td>
 <code>type = "index"</code>, <code>by = "state"</code>
 </td>

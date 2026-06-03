@@ -3,7 +3,7 @@
 Okabe-Ito palette, matching the per-state colours used by
 [`sequence_plot_htna()`](https://sonsoles.me/htna/reference/sequence_plot_htna.md)
 (and
-[`Nestimate::sequence_plot()`](https://rdrr.io/pkg/Nestimate/man/sequence_plot.html)
+[`Nestimate::sequence_plot()`](https://saqr.me/Nestimate/reference/sequence_plot.html)
 internally). Used by
 [`plot_centralities()`](https://sonsoles.me/htna/reference/plot_centralities.md)
 when `by = "state"`.

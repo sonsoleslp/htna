@@ -1,7 +1,7 @@
 # Chi-square Mosaic Plot of a Transition Network
 
 htna-named alias of
-[`Nestimate::mosaic_plot()`](https://rdrr.io/pkg/Nestimate/man/mosaic_plot.html).
+[`Nestimate::mosaic_plot()`](https://saqr.me/Nestimate/reference/mosaic_plot.html).
 Renders a chi-square mosaic where row x column area equals the joint
 share of `(from, to)` transitions and fill encodes the standardized
 residual (blue = over-represented, red = under-represented, white =
@@ -31,7 +31,7 @@ mosaic_plot_htna(x, ...)
 ## Value
 
 A ggplot or gtable, depending on input shape. See
-[`Nestimate::mosaic_plot()`](https://rdrr.io/pkg/Nestimate/man/mosaic_plot.html)
+[`Nestimate::mosaic_plot()`](https://saqr.me/Nestimate/reference/mosaic_plot.html)
 for full details and the per-class S3 methods.
 
 ## Details
@@ -50,7 +50,7 @@ matching the colours used elsewhere in htna (e.g.
 [`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md)).
 
 Suffixed `_htna` to avoid clashing with
-[`Nestimate::mosaic_plot()`](https://rdrr.io/pkg/Nestimate/man/mosaic_plot.html)
+[`Nestimate::mosaic_plot()`](https://saqr.me/Nestimate/reference/mosaic_plot.html)
 when both packages are loaded.
 
 ## See also

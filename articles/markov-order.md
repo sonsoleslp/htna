@@ -267,10 +267,10 @@ higher-order models under different encodings of the memory:
 
 | Function | Description |
 |----|----|
-| [`Nestimate::build_hon()`](https://rdrr.io/pkg/Nestimate/man/build_hon.html) | Higher-order network constructed by introducing explicit memory nodes for sequences whose transition probabilities deviate from the first-order baseline. Appropriate when the optimal order is 2 or 3 and the analysis benefits from an explicit memory representation in the graph. |
-| [`Nestimate::build_honem()`](https://rdrr.io/pkg/Nestimate/man/build_honem.html) | Higher-order network with memory encoded on edges rather than as expanded nodes. Yields a graph of the same node cardinality as the first-order network, with the trade-off that memory information is no longer locally readable from individual nodes. |
-| [`Nestimate::build_hypa()`](https://rdrr.io/pkg/Nestimate/man/build_hypa.html) | Higher-order network restricted to memory effects that are significant against a hypergeometric null model. Reduces the risk of over-fitting that arises when high-order transitions are estimated from limited data. |
-| [`Nestimate::build_mogen()`](https://rdrr.io/pkg/Nestimate/man/build_mogen.html) | Multi-order generative model in which the order is selected per node rather than fixed globally. Appropriate when memory depth is heterogeneous across states. |
+| [`Nestimate::build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html) | Higher-order network constructed by introducing explicit memory nodes for sequences whose transition probabilities deviate from the first-order baseline. Appropriate when the optimal order is 2 or 3 and the analysis benefits from an explicit memory representation in the graph. |
+| [`Nestimate::build_honem()`](https://saqr.me/Nestimate/reference/build_honem.html) | Higher-order network with memory encoded on edges rather than as expanded nodes. Yields a graph of the same node cardinality as the first-order network, with the trade-off that memory information is no longer locally readable from individual nodes. |
+| [`Nestimate::build_hypa()`](https://saqr.me/Nestimate/reference/build_hypa.html) | Higher-order network restricted to memory effects that are significant against a hypergeometric null model. Reduces the risk of over-fitting that arises when high-order transitions are estimated from limited data. |
+| [`Nestimate::build_mogen()`](https://saqr.me/Nestimate/reference/build_mogen.html) | Multi-order generative model in which the order is selected per node rather than fixed globally. Appropriate when memory depth is heterogeneous across states. |
 
 ``` r
 
@@ -290,13 +290,13 @@ A second mechanism by which the first-order test may reject the null is
 corpus heterogeneity: the sample comprises several distinct first-order
 processes whose mixture exhibits apparent higher-order structure even
 though no individual process does. The
-[`Nestimate::build_mmm()`](https://rdrr.io/pkg/Nestimate/man/build_mmm.html)
+[`Nestimate::build_mmm()`](https://saqr.me/Nestimate/reference/build_mmm.html)
 constructor estimates a *k*-component mixture of first-order chains and
 assigns each session probabilistically to a component.
 
 | Function | Description |
 |----|----|
-| [`Nestimate::build_mmm()`](https://rdrr.io/pkg/Nestimate/man/build_mmm.html) | Mixture of *k* first-order Markov chains with EM-based estimation. Each session receives posterior probabilities of membership in each component. Diagnostic of mixture rather than higher-order structure: the per-session log-likelihood improvement under a higher-order model is concentrated in a subset of sessions rather than uniformly distributed across the corpus. |
+| [`Nestimate::build_mmm()`](https://saqr.me/Nestimate/reference/build_mmm.html) | Mixture of *k* first-order Markov chains with EM-based estimation. Each session receives posterior probabilities of membership in each component. Diagnostic of mixture rather than higher-order structure: the per-session log-likelihood improvement under a higher-order model is concentrated in a subset of sessions rather than uniformly distributed across the corpus. |
 
 ``` r
 
@@ -328,9 +328,9 @@ than substitutes for them.
 | Diagnostic from [`markov_order_test_htna()`](https://sonsoles.me/htna/reference/markov_order_test_htna.md) | Indicated next step |
 |----|----|
 | Optimal order = 1 across all slicings | First-order htna network is well-specified; no model change is indicated. |
-| Optimal order \> 1 in the combined process only | Cross-actor coupling carries dependence absent from each actor in isolation. Either retain the first-order network as a descriptive aggregate, or estimate [`Nestimate::build_hon()`](https://rdrr.io/pkg/Nestimate/man/build_hon.html) to represent the cross-actor memory explicitly. |
-| Optimal order \> 1 within one or both actors | Within-actor memory. [`Nestimate::build_hon()`](https://rdrr.io/pkg/Nestimate/man/build_hon.html) or [`Nestimate::build_honem()`](https://rdrr.io/pkg/Nestimate/man/build_honem.html) per actor, or [`Nestimate::build_mogen()`](https://rdrr.io/pkg/Nestimate/man/build_mogen.html) when memory depth varies across states. |
-| Optimal order saturates at `max_order` for large `max_order` | Test the corpus-mixture hypothesis with [`Nestimate::build_mmm()`](https://rdrr.io/pkg/Nestimate/man/build_mmm.html); high apparent order may reflect heterogeneous components rather than long memory. |
+| Optimal order \> 1 in the combined process only | Cross-actor coupling carries dependence absent from each actor in isolation. Either retain the first-order network as a descriptive aggregate, or estimate [`Nestimate::build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html) to represent the cross-actor memory explicitly. |
+| Optimal order \> 1 within one or both actors | Within-actor memory. [`Nestimate::build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html) or [`Nestimate::build_honem()`](https://saqr.me/Nestimate/reference/build_honem.html) per actor, or [`Nestimate::build_mogen()`](https://saqr.me/Nestimate/reference/build_mogen.html) when memory depth varies across states. |
+| Optimal order saturates at `max_order` for large `max_order` | Test the corpus-mixture hypothesis with [`Nestimate::build_mmm()`](https://saqr.me/Nestimate/reference/build_mmm.html); high apparent order may reflect heterogeneous components rather than long memory. |
 | First-order assumption holds but edges are sparse and noisy | Aggregation-specification rather than order question: `build_htna(..., method = "frequency")` to restrict to structurally robust transitions. |
 
 ## References

@@ -22,7 +22,7 @@ plot_frequencies_htna(x, view = c("treemap", "bars", "facet"), ...)
   One of `"treemap"` (default), `"bars"`, or `"facet"`.
 
   - `"treemap"` forwards to
-    [`Nestimate::plot_state_frequencies()`](https://rdrr.io/pkg/Nestimate/man/plot_state_frequencies.html)
+    [`Nestimate::plot_state_frequencies()`](https://saqr.me/Nestimate/reference/plot_state_frequencies.html)
     and renders the chart automatically; returns the underlying
     `state_freq` object invisibly.
 
@@ -37,7 +37,7 @@ plot_frequencies_htna(x, view = c("treemap", "bars", "facet"), ...)
 - ...:
 
   Forwarded to
-  [`Nestimate::plot_state_frequencies()`](https://rdrr.io/pkg/Nestimate/man/plot_state_frequencies.html)
+  [`Nestimate::plot_state_frequencies()`](https://saqr.me/Nestimate/reference/plot_state_frequencies.html)
   when `view = "treemap"`. Ignored for `"bars"` and `"facet"` — those
   return ggplot objects, so customisation works through standard ggplot
   composition (`+ theme(...)`, `+ labs(...)`, `+ scale_fill_*()`, etc.).
@@ -51,7 +51,7 @@ standard `+` composition works.
 ## Details
 
 Suffixed `_htna` to avoid clashing with
-[`Nestimate::plot_state_frequencies()`](https://rdrr.io/pkg/Nestimate/man/plot_state_frequencies.html)
+[`Nestimate::plot_state_frequencies()`](https://saqr.me/Nestimate/reference/plot_state_frequencies.html)
 when both packages are loaded.
 
 ## See also

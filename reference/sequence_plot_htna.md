@@ -4,7 +4,7 @@ Extracts each actor's events from the combined wide sequence in
 `net$data` (using `net$node_groups` as the node-to-actor lookup),
 compresses each session into the actor's own ordered events, pads to a
 common width, and renders with
-[`Nestimate::sequence_plot()`](https://rdrr.io/pkg/Nestimate/man/sequence_plot.html)
+[`Nestimate::sequence_plot()`](https://saqr.me/Nestimate/reference/sequence_plot.html)
 grouped by actor. Each session contributes one row per actor that had at
 least one event in it.
 
@@ -53,7 +53,7 @@ plot_sequences(x, ...)
 - ...:
 
   Forwarded to
-  [`Nestimate::sequence_plot()`](https://rdrr.io/pkg/Nestimate/man/sequence_plot.html).
+  [`Nestimate::sequence_plot()`](https://saqr.me/Nestimate/reference/sequence_plot.html).
 
 - x:
 
@@ -64,11 +64,11 @@ plot_sequences(x, ...)
 ## Value
 
 Invisibly, the list returned by
-[`Nestimate::sequence_plot()`](https://rdrr.io/pkg/Nestimate/man/sequence_plot.html).
+[`Nestimate::sequence_plot()`](https://saqr.me/Nestimate/reference/sequence_plot.html).
 
 ## See also
 
-[`Nestimate::sequence_plot()`](https://rdrr.io/pkg/Nestimate/man/sequence_plot.html),
+[`Nestimate::sequence_plot()`](https://saqr.me/Nestimate/reference/sequence_plot.html),
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
 
 ## Examples

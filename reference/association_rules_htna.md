@@ -1,7 +1,7 @@
 # Association Rule Mining over Transitions
 
 htna-named alias of
-[`Nestimate::association_rules()`](https://rdrr.io/pkg/Nestimate/man/association_rules.html).
+[`Nestimate::association_rules()`](https://saqr.me/Nestimate/reference/association_rules.html).
 Mines frequent itemsets and association rules over a transition-count
 matrix under support / confidence / lift thresholds.
 
@@ -60,7 +60,7 @@ association_rules_htna(
 ## Value
 
 A list with the discovered rules and frequent itemsets. See
-[`Nestimate::association_rules()`](https://rdrr.io/pkg/Nestimate/man/association_rules.html)
+[`Nestimate::association_rules()`](https://saqr.me/Nestimate/reference/association_rules.html)
 for details.
 
 ## Details
@@ -69,12 +69,12 @@ Foundation function in the htna-aware exploratory family. Works on
 transition-count input produced by
 [`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md)
 or
-[`Nestimate::build_network()`](https://rdrr.io/pkg/Nestimate/man/build_network.html);
+[`Nestimate::build_network()`](https://saqr.me/Nestimate/reference/build_network.html);
 the rules carry over to htna networks since the underlying transition
 counts are the same.
 
 Suffixed `_htna` to avoid clashing with
-[`Nestimate::association_rules()`](https://rdrr.io/pkg/Nestimate/man/association_rules.html)
+[`Nestimate::association_rules()`](https://saqr.me/Nestimate/reference/association_rules.html)
 when both packages are loaded.
 
 ## See also

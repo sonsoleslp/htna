@@ -1,7 +1,7 @@
 # Network Reliability for an htna Network
 
 Thin wrapper around
-[`Nestimate::network_reliability()`](https://rdrr.io/pkg/Nestimate/man/network_reliability.html)
+[`Nestimate::network_reliability()`](https://saqr.me/Nestimate/reference/network_reliability.html)
 that preserves the htna actor partition on every model in the returned
 `$models` slot, so downstream htna-aware code (plotting, centralities,
 etc.) keeps working on the reliability output.
@@ -32,7 +32,7 @@ reliability_htna(..., iter = 1000L, split = 0.5, scale = "none", seed = NULL)
 
   One of `"none"`, `"minmax"`, `"standardize"`, `"proportion"`.
   Forwarded to
-  [`Nestimate::network_reliability()`](https://rdrr.io/pkg/Nestimate/man/network_reliability.html).
+  [`Nestimate::network_reliability()`](https://saqr.me/Nestimate/reference/network_reliability.html).
 
 - seed:
 
@@ -43,7 +43,7 @@ reliability_htna(..., iter = 1000L, split = 0.5, scale = "none", seed = NULL)
 
 An object of class `c("htna_reliability", "net_reliability")`, with the
 same components as
-[`Nestimate::network_reliability()`](https://rdrr.io/pkg/Nestimate/man/network_reliability.html)
+[`Nestimate::network_reliability()`](https://saqr.me/Nestimate/reference/network_reliability.html)
 — `iterations`, `summary`, `models`, `iter`, `split`, `scale` — and each
 entry of `$models` carrying the htna actor partition (`$nodes$groups`,
 `$node_groups`, `$actor_levels`).
@@ -58,7 +58,7 @@ networks built by
 
 ## See also
 
-[`Nestimate::network_reliability()`](https://rdrr.io/pkg/Nestimate/man/network_reliability.html),
+[`Nestimate::network_reliability()`](https://saqr.me/Nestimate/reference/network_reliability.html),
 [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md).
 
 ## Examples

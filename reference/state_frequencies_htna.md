@@ -1,7 +1,7 @@
 # Tidy State Frequency Table
 
 htna-named alias of
-[`Nestimate::state_frequencies()`](https://rdrr.io/pkg/Nestimate/man/state_frequencies.html).
+[`Nestimate::state_frequencies()`](https://saqr.me/Nestimate/reference/state_frequencies.html).
 Returns a tidy data frame with `state`, `count`, and `proportion`
 columns summarising the within-network state vocabulary.
 
@@ -20,7 +20,7 @@ state_frequencies_htna(data)
 ## Value
 
 A data frame. See
-[`Nestimate::state_frequencies()`](https://rdrr.io/pkg/Nestimate/man/state_frequencies.html)
+[`Nestimate::state_frequencies()`](https://saqr.me/Nestimate/reference/state_frequencies.html)
 for details.
 
 ## Details
@@ -32,7 +32,7 @@ Companion to
 is the data side of the same family used by the htna tutorials.
 
 Suffixed `_htna` to avoid clashing with
-[`Nestimate::state_frequencies()`](https://rdrr.io/pkg/Nestimate/man/state_frequencies.html)
+[`Nestimate::state_frequencies()`](https://saqr.me/Nestimate/reference/state_frequencies.html)
 when both packages are loaded.
 
 ## See also

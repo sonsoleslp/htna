@@ -1,7 +1,7 @@
 # Edge-Weight Case-Dropping Stability
 
 htna-named alias of
-[`Nestimate::casedrop_reliability()`](https://rdrr.io/pkg/Nestimate/man/casedrop_reliability.html).
+[`Nestimate::casedrop_reliability()`](https://saqr.me/Nestimate/reference/casedrop_reliability.html).
 Computes the CS-coefficient for the edge-weight vector of a network: the
 maximum proportion of cases (rows of `x$data`) that can be dropped while
 the flattened edge-weight vector of the re-estimated network still
@@ -36,7 +36,10 @@ casedrop_reliability_htna(
 - drop_prop:
 
   Drop proportion at which to report the four metrics (mean +/- sd per
-  network). Default `0.7`.
+  network). Must be one of the drop proportions the object was built
+  with. Defaults to the object's median grid value (the stored grid is
+  used, not an assumed `0.7`); pass an explicit value not in the grid to
+  get an error listing the available proportions.
 
 - threshold:
 
@@ -69,7 +72,7 @@ casedrop_reliability_htna(
 
 An object of class `net_casedrop_reliability` (single network) or
 `net_casedrop_reliability_group` (grouped htna). See
-[`Nestimate::casedrop_reliability()`](https://rdrr.io/pkg/Nestimate/man/casedrop_reliability.html)
+[`Nestimate::casedrop_reliability()`](https://saqr.me/Nestimate/reference/casedrop_reliability.html)
 for the full component list and the corresponding
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method.
 
@@ -78,7 +81,7 @@ for the full component list and the corresponding
 Works on htna networks and grouped htna networks directly.
 
 Suffixed `_htna` to avoid clashing with
-[`Nestimate::casedrop_reliability()`](https://rdrr.io/pkg/Nestimate/man/casedrop_reliability.html)
+[`Nestimate::casedrop_reliability()`](https://saqr.me/Nestimate/reference/casedrop_reliability.html)
 when both packages are loaded.
 
 ## See also

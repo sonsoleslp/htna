@@ -293,26 +293,6 @@ extract_meta_paths(net, length = 3)
 #> ... (1048 more)
 ```
 
-Pass `level = "type"` for the type-level meta-path summary - a fixed
-sequence of actor labels that abstracts away from concrete states
-(e.g. `Human->AI->Human`):
-
-``` r
-
-extract_meta_paths(net, level = "type", length = 3)
-#> Meta-paths (type-level) over 429 sequences
-#> Rows: 8 | Lengths: 3 | Gaps: 0
-#>               schema length gap count n_seq support frequency lift
-#>     Human->AI->Human      3   0  3593   402   0.937     0.194 1.41
-#>     Human->Human->AI      3   0  3172   422   0.984     0.172 1.25
-#>     AI->Human->Human      3   0  2828   403   0.939     0.153 1.11
-#>        AI->Human->AI      3   0  2744   383   0.893     0.148 1.36
-#>        Human->AI->AI      3   0  2189   403   0.939     0.118 1.09
-#>        AI->AI->Human      3   0  2100   397   0.925     0.114 1.04
-#>  Human->Human->Human      3   0  1472   396   0.923     0.080 0.46
-#>           AI->AI->AI      3   0   392   165   0.385     0.021 0.25
-```
-
 A `schema` filters the search. Each part can be a type name (expands to
 every code in that group), a concrete state, or `*`:
 

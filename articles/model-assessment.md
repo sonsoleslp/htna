@@ -161,6 +161,8 @@ cs <- centrality_stability_htna(
   seed     = 1L
 )
 cs
+#> HTNA Centrality Stability Analysis
+#> ===================================
 #> Centrality Stability (200 iterations, threshold = 0.7)
 #>   Drop proportions: 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9
 #> 
@@ -259,9 +261,9 @@ If `optimal_order > 1`, the first-order network is misspecified for the
 corpus, and a higher-order model is indicated. htna does not implement
 higher-order networks directly; users who require them may construct
 higher-order or memory-augmented models via
-[`Nestimate::build_hon()`](https://rdrr.io/pkg/Nestimate/man/build_hon.html)
+[`Nestimate::build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html)
 or
-[`Nestimate::build_mogen()`](https://rdrr.io/pkg/Nestimate/man/build_mogen.html).
+[`Nestimate::build_mogen()`](https://saqr.me/Nestimate/reference/build_mogen.html).
 
 ## Joint interpretation
 

@@ -1,7 +1,7 @@
 # Bootstrap an HTNA Network
 
 Thin wrapper around
-[`Nestimate::bootstrap_network()`](https://rdrr.io/pkg/Nestimate/man/bootstrap_network.html)
+[`Nestimate::bootstrap_network()`](https://saqr.me/Nestimate/reference/bootstrap_network.html)
 that runs the standard state-level edge bootstrap on an htna network and
 tags the result so it is identifiable as an htna bootstrap. The
 bootstrap inference itself is Nestimate's: per-edge mean, sd, p-value,
@@ -30,14 +30,14 @@ bootstrap(x, ...)
 - ...:
 
   Arguments forwarded to
-  [`Nestimate::bootstrap_network()`](https://rdrr.io/pkg/Nestimate/man/bootstrap_network.html)
+  [`Nestimate::bootstrap_network()`](https://saqr.me/Nestimate/reference/bootstrap_network.html)
   (e.g. `iter`, `ci_level`, `consistency_range`, `seed`).
 
 ## Value
 
 An object of class `c("htna_bootstrap", "net_bootstrap")`. All slots
 produced by
-[`Nestimate::bootstrap_network()`](https://rdrr.io/pkg/Nestimate/man/bootstrap_network.html)
+[`Nestimate::bootstrap_network()`](https://saqr.me/Nestimate/reference/bootstrap_network.html)
 are preserved verbatim (`$summary`, `$mean`, `$sd`, `$p_values`,
 `$significant`, `$ci_lower`/`$ci_upper`, `$cr_lower`/`$cr_upper`,
 `$model`, `$original`, etc.).
@@ -61,7 +61,7 @@ What this wrapper adds is identity and downstream class continuity:
 
 ## See also
 
-[`Nestimate::bootstrap_network()`](https://rdrr.io/pkg/Nestimate/man/bootstrap_network.html)
+[`Nestimate::bootstrap_network()`](https://saqr.me/Nestimate/reference/bootstrap_network.html)
 for the underlying algorithm and slot documentation.
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) for
 constructing the input.

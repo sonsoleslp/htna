@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Input formats for build_htna()">
 </head>
@@ -68,18 +68,18 @@
 interchangeable shapes</strong>: a named list of per-actor frames, a
 single combined frame with an actor-type column, or a single combined
 frame with a node-to-actor lookup. This vignette walks through each form
-using <code>Nestimate</code>’s <code>human_long</code> +
-<code>ai_long</code> example and verifies that all three produce the
-same network, then covers two more parameters that compose with any
-input form: <code>actor</code> (forwarded to
-<code><a href="https://rdrr.io/pkg/Nestimate/man/build_network.html" class="external-link">Nestimate::build_network()</a></code>) and <code>disambiguate</code>
-(for code-label collisions).</p>
+using <code>htna</code>’s integrated <code>human_ai</code> dataset. All
+three input forms produce the same network, then covers two more
+parameters that compose with any input form: <code>actor</code>
+(forwarded to <code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">Nestimate::build_network()</a></code>) and
+<code>disambiguate</code> (for code-label collisions).</p>
 <div class="section level2">
 <h2 id="setup">Setup<a class="anchor" aria-label="anchor" href="#setup"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sonsoles.me/htna/">htna</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_long</span>, <span class="va">ai_long</span>, package <span class="op">=</span> <span class="st">"Nestimate"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></code></pre></div>
 <p>Both frames share the canonical schema htna expects:
 <code>session_id</code>, <code>code</code>,
 <code>order_in_session</code>. Within each session,
@@ -94,25 +94,27 @@ interleaving.</p>
 <p>The most direct form. Each entry is one actor’s long frame; the list
 name becomes the actor-type label on the network.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">net_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Human <span class="op">=</span> <span class="va">human_long</span>, AI <span class="op">=</span> <span class="va">ai_long</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">human_long</span> <span class="op">&lt;-</span> <span class="va">human_ai</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">actor_type</span> <span class="op">==</span> <span class="st">"Human"</span><span class="op">)</span></span>
+<span><span class="va">ai_long</span> <span class="op">&lt;-</span> <span class="va">human_ai</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">actor_type</span> <span class="op">==</span> <span class="st">"AI"</span><span class="op">)</span></span>
+<span><span class="va">net_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Human <span class="op">=</span> <span class="va">human_long</span>, AI <span class="op">=</span> <span class="va">ai_long</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">net_list</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;htna network&gt;</span></span>
 <span><span class="co">#&gt;   Method:    relative</span></span>
 <span><span class="co">#&gt;   Sessions:  429   (max 287 timesteps)</span></span>
-<span><span class="co">#&gt;   Nodes:     17</span></span>
-<span><span class="co">#&gt;   Edges:     246 / 289 (non-zero)</span></span>
+<span><span class="co">#&gt;   Nodes:     12</span></span>
+<span><span class="co">#&gt;   Edges:     135 / 144 (non-zero)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Actor types (2):</span></span>
-<span><span class="co">#&gt;   Human (9 nodes):  Command, Correct, Frustrate, Inquire, Interrupt, Refine, Request, Specify, Verify</span></span>
-<span><span class="co">#&gt;   AI    (8 nodes):  Ask, Delegate, Execute, Explain, Investigate, Plan, Repair, Report</span></span>
+<span><span class="co">#&gt;   Human (6 nodes):  Check, Frustrate, Inquire, Refine, Request, Specify</span></span>
+<span><span class="co">#&gt;   AI    (6 nodes):  Ask, Delegate, Execute, Plan, Repair, Report</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Edge counts by actor (rows = source, cols = target):</span></span>
 <span><span class="co">#&gt;           Human    AI</span></span>
-<span><span class="co">#&gt;   Human      72    65</span></span>
-<span><span class="co">#&gt;   AI         71    38</span></span></code></pre></div>
+<span><span class="co">#&gt;   Human      35    36</span></span>
+<span><span class="co">#&gt;   AI         36    28</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">net_list</span><span class="op">)</span></span></code></pre></div>
-<p><img src="input-formats_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="input-formats_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="900"></p>
 <p>Use this form when each actor’s data lives in a separate frame (the
 typical case when the two streams were prepared independently).</p>
 </div>
@@ -123,25 +125,7 @@ typical case when the two streams were prepared independently).</p>
 the actor-type and pass the column name to
 <code>actor_type =</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">combined</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>actor_type <span class="op">=</span> <span class="st">"Human"</span>, <span class="va">human_long</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"session_id"</span>, <span class="st">"code"</span>,</span>
-<span>                                              <span class="st">"order_in_session"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span>,</span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">cbind</a></span><span class="op">(</span>actor_type <span class="op">=</span> <span class="st">"AI"</span>,    <span class="va">ai_long</span><span class="op">[</span>,    <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"session_id"</span>, <span class="st">"code"</span>,</span>
-<span>                                              <span class="st">"order_in_session"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">combined</span><span class="op">$</span><span class="va">actor_type</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">combined</span><span class="op">$</span><span class="va">actor_type</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Human"</span>, <span class="st">"AI"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">combined</span> <span class="op">&lt;-</span> <span class="va">combined</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">combined</span><span class="op">$</span><span class="va">session_id</span>, <span class="va">combined</span><span class="op">$</span><span class="va">order_in_session</span><span class="op">)</span>, <span class="op">]</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">combined</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       actor_type   session_id      code order_in_session</span></span>
-<span><span class="co">#&gt; 1          Human 0086cabebd15   Specify                1</span></span>
-<span><span class="co">#&gt; 2          Human 0086cabebd15   Command                2</span></span>
-<span><span class="co">#&gt; 3          Human 0086cabebd15   Specify                3</span></span>
-<span><span class="co">#&gt; 4          Human 0086cabebd15 Interrupt                4</span></span>
-<span><span class="co">#&gt; 10797         AI 0086cabebd15  Delegate                5</span></span>
-<span><span class="co">#&gt; 10798         AI 0086cabebd15      Plan                6</span></span>
-<span></span>
-<span><span class="va">net_actor_type</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">combined</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">net_actor_type</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span>, session <span class="op">=</span> <span class="st">"session_id"</span>, order <span class="op">=</span>  <span class="st">"order_in_session"</span><span class="op">)</span></span></code></pre></div>
 <p>The actor-type order on the resulting network follows the factor
 levels (or, for character vectors, the order of first appearance), which
 is how the actor groups will be ordered in legends and plots.</p>
@@ -161,9 +145,54 @@ interchangeable shapes:</p>
 <span><span class="va">ai_codes</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">ai_long</span><span class="op">$</span><span class="va">code</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">net_node_groups</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span></span>
-<span>  <span class="va">combined</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"session_id"</span>, <span class="st">"code"</span>, <span class="st">"order_in_session"</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>  <span class="va">human_ai</span>,</span>
 <span>  node_groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Human <span class="op">=</span> <span class="va">human_codes</span>, AI <span class="op">=</span> <span class="va">ai_codes</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span>
+<span><span class="va">net_node_groups</span></span>
+<span><span class="co">#&gt; Transition Network (relative probabilities) [directed]</span></span>
+<span><span class="co">#&gt;   Weights: [0.002, 0.611]  |  mean: 0.089</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Weight matrix:</span></span>
+<span><span class="co">#&gt;               Ask Check Delegate Execute Frustrate Inquire  Plan Refine Repair</span></span>
+<span><span class="co">#&gt;   Ask       0.018 0.063    0.000   0.022     0.116   0.063 0.409  0.051  0.004</span></span>
+<span><span class="co">#&gt;   Check     0.117 0.050    0.015   0.411     0.058   0.005 0.008  0.042  0.033</span></span>
+<span><span class="co">#&gt;   Delegate  0.000 0.039    0.000   0.011     0.110   0.032 0.611  0.014  0.000</span></span>
+<span><span class="co">#&gt;   Execute   0.061 0.087    0.000   0.074     0.143   0.088 0.107  0.069  0.002</span></span>
+<span><span class="co">#&gt;   Frustrate 0.194 0.104    0.039   0.119     0.114   0.060 0.004  0.098  0.029</span></span>
+<span><span class="co">#&gt;   Inquire   0.251 0.069    0.027   0.285     0.039   0.033 0.009  0.016  0.042</span></span>
+<span><span class="co">#&gt;   Plan      0.000 0.146    0.000   0.015     0.215   0.083 0.003  0.086  0.005</span></span>
+<span><span class="co">#&gt;   Refine    0.143 0.045    0.006   0.206     0.008   0.014 0.013  0.000  0.025</span></span>
+<span><span class="co">#&gt;   Repair    0.241 0.012    0.028   0.391     0.043   0.047 0.016  0.024  0.004</span></span>
+<span><span class="co">#&gt;   Report    0.102 0.114    0.000   0.009     0.124   0.102 0.050  0.058  0.039</span></span>
+<span><span class="co">#&gt;   Request   0.148 0.055    0.018   0.292     0.016   0.010 0.008  0.009  0.007</span></span>
+<span><span class="co">#&gt;   Specify   0.269 0.017    0.040   0.273     0.096   0.011 0.015  0.002  0.013</span></span>
+<span><span class="co">#&gt;             Report Request Specify</span></span>
+<span><span class="co">#&gt;   Ask        0.028   0.173   0.052</span></span>
+<span><span class="co">#&gt;   Check      0.055   0.049   0.156</span></span>
+<span><span class="co">#&gt;   Delegate   0.018   0.131   0.035</span></span>
+<span><span class="co">#&gt;   Execute    0.010   0.293   0.065</span></span>
+<span><span class="co">#&gt;   Frustrate  0.021   0.135   0.085</span></span>
+<span><span class="co">#&gt;   Inquire    0.170   0.028   0.029</span></span>
+<span><span class="co">#&gt;   Plan       0.026   0.325   0.095</span></span>
+<span><span class="co">#&gt;   Refine     0.023   0.105   0.413</span></span>
+<span><span class="co">#&gt;   Repair     0.103   0.071   0.020</span></span>
+<span><span class="co">#&gt;   Report     0.077   0.257   0.066</span></span>
+<span><span class="co">#&gt;   Request    0.034   0.067   0.336</span></span>
+<span><span class="co">#&gt;   Specify    0.037   0.126   0.101 </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Initial probabilities:</span></span>
+<span><span class="co">#&gt;   Specify       0.818  ████████████████████████████████████████</span></span>
+<span><span class="co">#&gt;   Request       0.156  ████████</span></span>
+<span><span class="co">#&gt;   Frustrate     0.023  █</span></span>
+<span><span class="co">#&gt;   Refine        0.002  </span></span>
+<span><span class="co">#&gt;   Ask           0.000  </span></span>
+<span><span class="co">#&gt;   Check         0.000  </span></span>
+<span><span class="co">#&gt;   Delegate      0.000  </span></span>
+<span><span class="co">#&gt;   Execute       0.000  </span></span>
+<span><span class="co">#&gt;   Inquire       0.000  </span></span>
+<span><span class="co">#&gt;   Plan          0.000  </span></span>
+<span><span class="co">#&gt;   Repair        0.000  </span></span>
+<span><span class="co">#&gt;   Report        0.000</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="b--two-column-data-frame-codebook">3b. Two-column data frame (codebook)<a class="anchor" aria-label="anchor" href="#b--two-column-data-frame-codebook"></a>
@@ -182,15 +211,15 @@ Column order is irrelevant.</p>
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">codebook</span><span class="op">)</span></span>
 <span><span class="co">#&gt;        code actor_type</span></span>
-<span><span class="co">#&gt; 1   Specify      Human</span></span>
-<span><span class="co">#&gt; 2   Command      Human</span></span>
-<span><span class="co">#&gt; 3 Interrupt      Human</span></span>
-<span><span class="co">#&gt; 4    Verify      Human</span></span>
-<span><span class="co">#&gt; 5 Frustrate      Human</span></span>
+<span><span class="co">#&gt; 1   Request      Human</span></span>
+<span><span class="co">#&gt; 2   Specify      Human</span></span>
+<span><span class="co">#&gt; 3     Check      Human</span></span>
+<span><span class="co">#&gt; 4 Frustrate      Human</span></span>
+<span><span class="co">#&gt; 5    Refine      Human</span></span>
 <span><span class="co">#&gt; 6   Inquire      Human</span></span>
 <span></span>
 <span><span class="va">net_node_groups_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span></span>
-<span>  <span class="va">combined</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"session_id"</span>, <span class="st">"code"</span>, <span class="st">"order_in_session"</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>  <span class="va">human_ai</span>,</span>
 <span>  node_groups <span class="op">=</span> <span class="va">codebook</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>The actor-type ordering follows the column’s factor levels (if a
@@ -204,7 +233,7 @@ table.</p>
 </h2>
 <p><code><a href="../reference/build_htna.html">build_htna()</a></code> resolves every input shape to the same
 combined sequence and forwards to
-<code><a href="https://rdrr.io/pkg/Nestimate/man/build_network.html" class="external-link">Nestimate::build_network()</a></code>. The four networks below are
+<code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">Nestimate::build_network()</a></code>. The four networks below are
 drawn side by side — the layout, colours, and edges are
 indistinguishable:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -217,7 +246,7 @@ indistinguishable:</p>
 <span></span>
 <span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="kw">for</span> <span class="op">(</span><span class="va">nm</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">forms</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="../reference/plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">forms</span><span class="op">[[</span><span class="va">nm</span><span class="op">]</span><span class="op">]</span>, title <span class="op">=</span> <span class="va">nm</span><span class="op">)</span></span></code></pre></div>
-<p><img src="input-formats_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="input-formats_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="900"></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></code></pre></div>
 <p>A one-line sanity check confirms that the edge-weight matrices match
@@ -270,17 +299,17 @@ grouping column. Below we synthesise a “phase” cohort variable on the
 combined frame and let <code><a href="../reference/build_htna.html">build_htna()</a></code> build one network per
 phase.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">combined</span><span class="op">$</span><span class="va">phase</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">combined</span><span class="op">$</span><span class="va">session_id</span> <span class="op">&lt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">combined</span><span class="op">$</span><span class="va">session_id</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="va">human_ai</span><span class="op">$</span><span class="va">phase</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">session_id</span> <span class="op">&lt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">session_id</span><span class="op">)</span>,</span>
 <span>                         <span class="st">"early"</span>, <span class="st">"late"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">grp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">combined</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span>, group <span class="op">=</span> <span class="st">"phase"</span><span class="op">)</span></span>
+<span><span class="va">grp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span>, group <span class="op">=</span> <span class="st">"phase"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "htna_group"      "netobject_group" "list"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "early" "late"</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span></code></pre></div>
-<p><img src="input-formats_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="1500"><img src="input-formats_files/figure-html/unnamed-chunk-11-2.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="input-formats_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="900"><img src="input-formats_files/figure-html/unnamed-chunk-11-2.png" class="r-plt" alt="" width="900"></p>
 </div>
 <div class="section level2">
 <h2 id="cheat-sheet">Cheat sheet<a class="anchor" aria-label="anchor" href="#cheat-sheet"></a>
@@ -296,7 +325,7 @@ phase.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>list(Human = h, AI = a)</code></td>
+<td><code>list(Actor1 = a1, Actor2 = a2)</code></td>
 <td>Each actor’s data is in its own frame</td>
 </tr>
 <tr class="even">
@@ -304,7 +333,7 @@ phase.</p>
 <td>One combined frame, actor identity in a row-level column</td>
 </tr>
 <tr class="odd">
-<td><code>df, node_groups = list(Human = ..., AI = ...)</code></td>
+<td><code>df, node_groups = list(Actor1 = ..., Actor2 = ...)</code></td>
 <td>One combined frame; partition declared as a named list of codes</td>
 </tr>
 <tr class="even">
@@ -314,7 +343,7 @@ phase.</p>
 <tr class="odd">
 <td><code>+ actor = "user_id"</code></td>
 <td>Identify the individual actor that performed each event (forwarded
-to <code><a href="https://rdrr.io/pkg/Nestimate/man/build_network.html" class="external-link">Nestimate::build_network()</a></code>)</td>
+to <code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">Nestimate::build_network()</a></code>)</td>
 </tr>
 <tr class="even">
 <td><code>+ disambiguate = TRUE</code></td>

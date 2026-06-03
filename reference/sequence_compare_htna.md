@@ -1,7 +1,7 @@
 # Subsequence Pattern Comparison Across Groups
 
 htna-named alias of
-[`Nestimate::sequence_compare()`](https://rdrr.io/pkg/Nestimate/man/sequence_compare.html).
+[`Nestimate::sequence_compare()`](https://saqr.me/Nestimate/reference/sequence_compare.html).
 Extracts all k-gram patterns (subsequences of length `k`) from sequences
 in each cohort, computes standardised residuals against the independence
 model, and optionally runs a permutation or chi-square test for
@@ -61,7 +61,7 @@ sequence_compare_htna(
 ## Value
 
 An object of class `net_sequence_compare`. See
-[`Nestimate::sequence_compare()`](https://rdrr.io/pkg/Nestimate/man/sequence_compare.html)
+[`Nestimate::sequence_compare()`](https://saqr.me/Nestimate/reference/sequence_compare.html)
 for full details and the corresponding
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method.
 
@@ -74,7 +74,7 @@ argument. The actor partition itself is not consumed by the test —
 sequence comparison is between cohorts of sessions, not between actors.
 
 Suffixed `_htna` to avoid clashing with
-[`Nestimate::sequence_compare()`](https://rdrr.io/pkg/Nestimate/man/sequence_compare.html)
+[`Nestimate::sequence_compare()`](https://saqr.me/Nestimate/reference/sequence_compare.html)
 when both packages are loaded.
 
 ## See also

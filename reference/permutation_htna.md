@@ -1,7 +1,7 @@
 # Permutation Test for Network Differences
 
 htna-named alias of
-[`Nestimate::permutation()`](https://rdrr.io/pkg/Nestimate/man/permutation.html).
+[`Nestimate::permutation()`](https://saqr.me/Nestimate/reference/permutation.html).
 Tests whether observed edge-weight differences between two networks (or
 all pairwise differences within a `netobject_group`) exceed what would
 be expected under a null of identical generating processes.
@@ -26,12 +26,12 @@ permutation_htna(
 - x:
 
   A `netobject` (from
-  [`build_network`](https://rdrr.io/pkg/Nestimate/man/build_network.html)).
+  [`build_network`](https://saqr.me/Nestimate/reference/build_network.html)).
 
 - y:
 
   A `netobject` (from
-  [`build_network`](https://rdrr.io/pkg/Nestimate/man/build_network.html)).
+  [`build_network`](https://saqr.me/Nestimate/reference/build_network.html)).
   Must use the same method and have the same nodes as `x`.
 
 - iter:
@@ -67,7 +67,7 @@ permutation_htna(
 
 An object of class `net_permutation` (single pair) or
 `net_permutation_group` (multiple pairs). See
-[`Nestimate::permutation()`](https://rdrr.io/pkg/Nestimate/man/permutation.html)
+[`Nestimate::permutation()`](https://saqr.me/Nestimate/reference/permutation.html)
 for the full slot list.
 
 ## Details
@@ -79,7 +79,7 @@ so
 can render the result with htna's colour and layout conventions.
 
 Suffixed `_htna` to avoid clashing with
-[`Nestimate::permutation()`](https://rdrr.io/pkg/Nestimate/man/permutation.html)
+[`Nestimate::permutation()`](https://saqr.me/Nestimate/reference/permutation.html)
 when both packages are loaded.
 
 ## See also

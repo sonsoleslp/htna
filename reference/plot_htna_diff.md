@@ -73,7 +73,7 @@ In all cases the layout, node colours and donut match
 
 [`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md),
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md),
-[`Nestimate::permutation()`](https://rdrr.io/pkg/Nestimate/man/permutation.html).
+[`Nestimate::permutation()`](https://saqr.me/Nestimate/reference/permutation.html).
 
 ## Examples
 

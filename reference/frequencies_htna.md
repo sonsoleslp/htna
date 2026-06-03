@@ -31,11 +31,11 @@ as the canonical "give me the frequency table for this network" entry
 point.
 
 Suffixed `_htna` to avoid clashing with
-[`Nestimate::frequencies()`](https://rdrr.io/pkg/Nestimate/man/frequencies.html)
+[`Nestimate::frequencies()`](https://saqr.me/Nestimate/reference/frequencies.html)
 (which takes raw long-format data and a column-name spec) when both
 packages are loaded. If you have raw data rather than an htna network,
 call
-[`Nestimate::frequencies()`](https://rdrr.io/pkg/Nestimate/man/frequencies.html)
+[`Nestimate::frequencies()`](https://saqr.me/Nestimate/reference/frequencies.html)
 directly.
 
 ## See also

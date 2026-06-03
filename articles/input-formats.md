@@ -4,10 +4,10 @@
 accepts data in **three interchangeable shapes**: a named list of
 per-actor frames, a single combined frame with an actor-type column, or
 a single combined frame with a node-to-actor lookup. This vignette walks
-through each form using `Nestimate`’s `human_long` + `ai_long` example
-and verifies that all three produce the same network, then covers two
-more parameters that compose with any input form: `actor` (forwarded to
-[`Nestimate::build_network()`](https://rdrr.io/pkg/Nestimate/man/build_network.html))
+through each form using `htna`’s integrated `human_ai` dataset. All
+three input forms produce the same network, then covers two more
+parameters that compose with any input form: `actor` (forwarded to
+[`Nestimate::build_network()`](https://saqr.me/Nestimate/reference/build_network.html))
 and `disambiguate` (for code-label collisions).
 
 ## Setup
@@ -15,7 +15,8 @@ and `disambiguate` (for code-label collisions).
 ``` r
 
 library(htna)
-data(human_long, ai_long, package = "Nestimate")
+library(dplyr)
+data(human_ai)
 ```
 
 Both frames share the canonical schema htna expects: `session_id`,
@@ -31,22 +32,24 @@ name becomes the actor-type label on the network.
 
 ``` r
 
+human_long <- human_ai |> filter(actor_type == "Human")
+ai_long <- human_ai |> filter(actor_type == "AI")
 net_list <- build_htna(list(Human = human_long, AI = ai_long))
 summary(net_list)
 #> <htna network>
 #>   Method:    relative
 #>   Sessions:  429   (max 287 timesteps)
-#>   Nodes:     17
-#>   Edges:     246 / 289 (non-zero)
+#>   Nodes:     12
+#>   Edges:     135 / 144 (non-zero)
 #> 
 #> Actor types (2):
-#>   Human (9 nodes):  Command, Correct, Frustrate, Inquire, Interrupt, Refine, Request, Specify, Verify
-#>   AI    (8 nodes):  Ask, Delegate, Execute, Explain, Investigate, Plan, Repair, Report
+#>   Human (6 nodes):  Check, Frustrate, Inquire, Refine, Request, Specify
+#>   AI    (6 nodes):  Ask, Delegate, Execute, Plan, Repair, Report
 #> 
 #> Edge counts by actor (rows = source, cols = target):
 #>           Human    AI
-#>   Human      72    65
-#>   AI         71    38
+#>   Human      35    36
+#>   AI         36    28
 ```
 
 ``` r
@@ -66,25 +69,7 @@ actor-type and pass the column name to `actor_type =`.
 
 ``` r
 
-combined <- rbind(
-  cbind(actor_type = "Human", human_long[, c("session_id", "code",
-                                              "order_in_session")]),
-  cbind(actor_type = "AI",    ai_long[,    c("session_id", "code",
-                                              "order_in_session")])
-)
-combined$actor_type <- factor(combined$actor_type, levels = c("Human", "AI"))
-combined <- combined[order(combined$session_id, combined$order_in_session), ]
-
-head(combined)
-#>       actor_type   session_id      code order_in_session
-#> 1          Human 0086cabebd15   Specify                1
-#> 2          Human 0086cabebd15   Command                2
-#> 3          Human 0086cabebd15   Specify                3
-#> 4          Human 0086cabebd15 Interrupt                4
-#> 10797         AI 0086cabebd15  Delegate                5
-#> 10798         AI 0086cabebd15      Plan                6
-
-net_actor_type <- build_htna(combined, actor_type = "actor_type")
+net_actor_type <- build_htna(human_ai, actor_type = "actor_type", session = "session_id", order =  "order_in_session")
 ```
 
 The actor-type order on the resulting network follows the factor levels
@@ -105,9 +90,54 @@ human_codes <- unique(human_long$code)
 ai_codes    <- unique(ai_long$code)
 
 net_node_groups <- build_htna(
-  combined[, c("session_id", "code", "order_in_session")],
+  human_ai,
   node_groups = list(Human = human_codes, AI = ai_codes)
 )
+net_node_groups
+#> Transition Network (relative probabilities) [directed]
+#>   Weights: [0.002, 0.611]  |  mean: 0.089
+#> 
+#>   Weight matrix:
+#>               Ask Check Delegate Execute Frustrate Inquire  Plan Refine Repair
+#>   Ask       0.018 0.063    0.000   0.022     0.116   0.063 0.409  0.051  0.004
+#>   Check     0.117 0.050    0.015   0.411     0.058   0.005 0.008  0.042  0.033
+#>   Delegate  0.000 0.039    0.000   0.011     0.110   0.032 0.611  0.014  0.000
+#>   Execute   0.061 0.087    0.000   0.074     0.143   0.088 0.107  0.069  0.002
+#>   Frustrate 0.194 0.104    0.039   0.119     0.114   0.060 0.004  0.098  0.029
+#>   Inquire   0.251 0.069    0.027   0.285     0.039   0.033 0.009  0.016  0.042
+#>   Plan      0.000 0.146    0.000   0.015     0.215   0.083 0.003  0.086  0.005
+#>   Refine    0.143 0.045    0.006   0.206     0.008   0.014 0.013  0.000  0.025
+#>   Repair    0.241 0.012    0.028   0.391     0.043   0.047 0.016  0.024  0.004
+#>   Report    0.102 0.114    0.000   0.009     0.124   0.102 0.050  0.058  0.039
+#>   Request   0.148 0.055    0.018   0.292     0.016   0.010 0.008  0.009  0.007
+#>   Specify   0.269 0.017    0.040   0.273     0.096   0.011 0.015  0.002  0.013
+#>             Report Request Specify
+#>   Ask        0.028   0.173   0.052
+#>   Check      0.055   0.049   0.156
+#>   Delegate   0.018   0.131   0.035
+#>   Execute    0.010   0.293   0.065
+#>   Frustrate  0.021   0.135   0.085
+#>   Inquire    0.170   0.028   0.029
+#>   Plan       0.026   0.325   0.095
+#>   Refine     0.023   0.105   0.413
+#>   Repair     0.103   0.071   0.020
+#>   Report     0.077   0.257   0.066
+#>   Request    0.034   0.067   0.336
+#>   Specify    0.037   0.126   0.101 
+#> 
+#>   Initial probabilities:
+#>   Specify       0.818  ████████████████████████████████████████
+#>   Request       0.156  ████████
+#>   Frustrate     0.023  █
+#>   Refine        0.002  
+#>   Ask           0.000  
+#>   Check         0.000  
+#>   Delegate      0.000  
+#>   Execute       0.000  
+#>   Inquire       0.000  
+#>   Plan          0.000  
+#>   Repair        0.000  
+#>   Report        0.000
 ```
 
 ### 3b. Two-column data frame (codebook)
@@ -127,15 +157,15 @@ codebook <- data.frame(
 )
 head(codebook)
 #>        code actor_type
-#> 1   Specify      Human
-#> 2   Command      Human
-#> 3 Interrupt      Human
-#> 4    Verify      Human
-#> 5 Frustrate      Human
+#> 1   Request      Human
+#> 2   Specify      Human
+#> 3     Check      Human
+#> 4 Frustrate      Human
+#> 5    Refine      Human
 #> 6   Inquire      Human
 
 net_node_groups_df <- build_htna(
-  combined[, c("session_id", "code", "order_in_session")],
+  human_ai,
   node_groups = codebook
 )
 ```
@@ -148,7 +178,7 @@ when your code/actor mapping already lives in a tidy lookup table.
 
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
 resolves every input shape to the same combined sequence and forwards to
-[`Nestimate::build_network()`](https://rdrr.io/pkg/Nestimate/man/build_network.html).
+[`Nestimate::build_network()`](https://saqr.me/Nestimate/reference/build_network.html).
 The four networks below are drawn side by side — the layout, colours,
 and edges are indistinguishable:
 
@@ -228,10 +258,10 @@ one network per phase.
 
 ``` r
 
-combined$phase <- ifelse(combined$session_id < median(combined$session_id),
+human_ai$phase <- ifelse(human_ai$session_id < median(human_ai$session_id),
                          "early", "late")
 
-grp <- build_htna(combined, actor_type = "actor_type", group = "phase")
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 class(grp)
 #> [1] "htna_group"      "netobject_group" "list"
 names(grp)
@@ -249,11 +279,11 @@ plot_htna(grp)
 
 | Form | When to use |
 |----|----|
-| `list(Human = h, AI = a)` | Each actor’s data is in its own frame |
+| `list(Actor1 = a1, Actor2 = a2)` | Each actor’s data is in its own frame |
 | `df, actor_type = "actor_type"` | One combined frame, actor identity in a row-level column |
-| `df, node_groups = list(Human = ..., AI = ...)` | One combined frame; partition declared as a named list of codes |
+| `df, node_groups = list(Actor1 = ..., Actor2 = ...)` | One combined frame; partition declared as a named list of codes |
 | `df, node_groups = data.frame(code = ..., actor_type = ...)` | One combined frame; partition declared as a tidy codebook |
-| `+ actor = "user_id"` | Identify the individual actor that performed each event (forwarded to [`Nestimate::build_network()`](https://rdrr.io/pkg/Nestimate/man/build_network.html)) |
+| `+ actor = "user_id"` | Identify the individual actor that performed each event (forwarded to [`Nestimate::build_network()`](https://saqr.me/Nestimate/reference/build_network.html)) |
 | `+ disambiguate = TRUE` | Same code label appears in more than one actor type |
 | `+ group = "phase"` | Build one network per cohort/phase |
 

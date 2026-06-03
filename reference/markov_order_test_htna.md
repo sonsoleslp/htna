@@ -1,7 +1,7 @@
 # Markov-Order Adequacy Test
 
 htna-named alias of
-[`Nestimate::markov_order_test()`](https://rdrr.io/pkg/Nestimate/man/markov_order_test.html).
+[`Nestimate::markov_order_test()`](https://saqr.me/Nestimate/reference/markov_order_test.html).
 Tests whether a first-order Markov model is adequate for the observed
 sequences, or whether a higher order is required, by comparing the
 empirical transition structure against orders `1..max_order` via
@@ -58,7 +58,7 @@ markov_order_test_htna(
 
 An object of class `markov_order_test` with components `test_table`,
 `optimal_order`, and the inputs. See
-[`Nestimate::markov_order_test()`](https://rdrr.io/pkg/Nestimate/man/markov_order_test.html)
+[`Nestimate::markov_order_test()`](https://saqr.me/Nestimate/reference/markov_order_test.html)
 for full details and the corresponding
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method.
 
@@ -73,7 +73,7 @@ when assessing whether a Markov-1 transition network is appropriate
 before trusting downstream htna analyses.
 
 Suffixed `_htna` to avoid clashing with
-[`Nestimate::markov_order_test()`](https://rdrr.io/pkg/Nestimate/man/markov_order_test.html)
+[`Nestimate::markov_order_test()`](https://saqr.me/Nestimate/reference/markov_order_test.html)
 when both packages are loaded.
 
 ## See also

@@ -1,7 +1,7 @@
 # Centrality Stability for an htna Network
 
 Thin wrapper around
-[`Nestimate::centrality_stability()`](https://rdrr.io/pkg/Nestimate/man/centrality_stability.html)
+[`Nestimate::centrality_stability()`](https://saqr.me/Nestimate/reference/centrality_stability.html)
 that validates the input is an htna network (or `htna_group`), forwards
 the call, and tags the result with an `htna_stability` class so callers
 can dispatch on the htna form.
@@ -69,7 +69,7 @@ centrality_stability_htna(
 
   Optional function to compute centralities. Default `NULL` (use
   Nestimate's internal implementation). See
-  [`Nestimate::centrality_stability()`](https://rdrr.io/pkg/Nestimate/man/centrality_stability.html)
+  [`Nestimate::centrality_stability()`](https://saqr.me/Nestimate/reference/centrality_stability.html)
   for the expected signature.
 
 - loops:
@@ -85,7 +85,7 @@ centrality_stability_htna(
 
 For a single htna network, an object of class
 `c("htna_stability", "net_stability")` with the same components as
-[`Nestimate::centrality_stability()`](https://rdrr.io/pkg/Nestimate/man/centrality_stability.html):
+[`Nestimate::centrality_stability()`](https://saqr.me/Nestimate/reference/centrality_stability.html):
 `cs` (the stability coefficients, one per measure), `correlations`
 (per-drop-proportion correlation traces), and the parameters that were
 used. For an `htna_group`, a named list of such objects with class
@@ -99,7 +99,7 @@ named list (one `htna_stability` per cohort), with class
 
 ## See also
 
-[`Nestimate::centrality_stability()`](https://rdrr.io/pkg/Nestimate/man/centrality_stability.html),
+[`Nestimate::centrality_stability()`](https://saqr.me/Nestimate/reference/centrality_stability.html),
 [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md),
 [`reliability_htna()`](https://sonsoles.me/htna/reference/reliability_htna.md).
 

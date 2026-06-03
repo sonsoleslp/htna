@@ -47,7 +47,7 @@ build_htna(
 
   Character. Name of an optional column identifying the individual actor
   that performed each event (e.g. a learner / user id). Forwarded to
-  [`build_network`](https://rdrr.io/pkg/Nestimate/man/build_network.html)
+  [`build_network`](https://saqr.me/Nestimate/reference/build_network.html)
   with the same semantics; orthogonal to `actor_type`, which encodes the
   group/type partition over codes.
 
@@ -87,7 +87,7 @@ build_htna(
 - method:
 
   Character. Transition method passed to
-  [`build_network`](https://rdrr.io/pkg/Nestimate/man/build_network.html):
+  [`build_network`](https://saqr.me/Nestimate/reference/build_network.html):
   `"relative"` (default), `"frequency"`, or `"attention"`.
 
 - group:
@@ -107,7 +107,7 @@ build_htna(
 - ...:
 
   Additional arguments forwarded to
-  [`build_network`](https://rdrr.io/pkg/Nestimate/man/build_network.html).
+  [`build_network`](https://saqr.me/Nestimate/reference/build_network.html).
 
 ## Value
 
@@ -125,12 +125,12 @@ further arguments:
   `cluster_summary`, and the `print` method for `cograph_network`).
 
 All other slots are exactly as returned by
-[`build_network`](https://rdrr.io/pkg/Nestimate/man/build_network.html).
+[`build_network`](https://saqr.me/Nestimate/reference/build_network.html).
 
 ## See also
 
-[`build_network`](https://rdrr.io/pkg/Nestimate/man/build_network.html),
-[`build_tna`](https://rdrr.io/pkg/Nestimate/man/build_tna.html),
+[`build_network`](https://saqr.me/Nestimate/reference/build_network.html),
+[`build_tna`](https://saqr.me/Nestimate/reference/build_tna.html),
 [`plot_htna`](https://sonsoles.me/cograph/reference/plot_htna.html)
 
 ## Examples

@@ -13,7 +13,7 @@ grouped result and iterates over cohorts.
 ## An early / late example
 
 We use the bundled `human_ai` corpus (Human + AI codes from
-[`Nestimate::human_long`](https://rdrr.io/pkg/Nestimate/man/long-data.html)
+[`Nestimate::human_long`](https://saqr.me/Nestimate/reference/long-data.html)
 / `ai_long`, with a slightly simplified alphabet – see
 [`?human_ai`](https://sonsoles.me/htna/reference/human_ai.md)). Sessions
 are split chronologically: ordered by their first `session_date` (with

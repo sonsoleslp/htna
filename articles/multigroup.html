@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Multi-Group HTNA (3+ Actor Groups)">
 </head>
@@ -58,7 +58,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Multi-Group HTNA (3+ Actor Groups)</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sonsoleslp/htna/blob/main/vignettes/multigroup.Rmd" class="external-link"><code>vignettes/multigroup.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/sonsoleslp/htna/blob/main/vignettes/articles/multigroup.Rmd" class="external-link"><code>vignettes/articles/multigroup.Rmd</code></a></small>
       <div class="d-none name"><code>multigroup.Rmd</code></div>
     </div>
 
@@ -168,7 +168,7 @@ switches to a polygon (triangle) layout. The three colours from the
 default HTNA palette are applied in order:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">net3</span><span class="op">)</span></span></code></pre></div>
-<p><img src="multigroup_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="multigroup_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="900"></p>
 </div>
 <div class="section level2">
 <h2 id="per-actor-sequences">Per-actor sequences<a class="anchor" aria-label="anchor" href="#per-actor-sequences"></a>
@@ -179,10 +179,10 @@ and is coloured by the concrete code; with <code>by = "group"</code>
 cells are coloured by actor (here Student / AI / System):</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net3</span>, by <span class="op">=</span> <span class="st">"state"</span>, type <span class="op">=</span> <span class="st">"index"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="multigroup_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="multigroup_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="900"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net3</span>, by <span class="op">=</span> <span class="st">"group"</span>, type <span class="op">=</span> <span class="st">"distribution"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="multigroup_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="multigroup_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="900"></p>
 <p>The <code>by = "state"</code> legend is split into one block per
 actor with the actor name as a sub-title, so the reader can tell at a
 glance which codes belong to which actor.</p>
@@ -205,17 +205,17 @@ red:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">net3</span>, <span class="va">net3b</span><span class="op">)</span></span></code></pre></div>
-<p><img src="multigroup_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="multigroup_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="900"></p>
 <p><code><a href="../reference/permutation_htna.html">permutation_htna()</a></code> provides the non-parametric
 significance test; pass the result to <code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code> to
 surface only the edges that differ significantly:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">perm3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/permutation_htna.html">permutation_htna</a></span><span class="op">(</span><span class="va">net3</span>, <span class="va">net3b</span>, iter <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">perm3</span><span class="op">)</span></span></code></pre></div>
-<p><img src="multigroup_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="multigroup_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="900"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">perm3</span>, show_nonsig <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="multigroup_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="multigroup_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="900"></p>
 </div>
 <div class="section level2">
 <h2 id="meta-paths-across-three-actors">Meta-paths across three actors<a class="anchor" aria-label="anchor" href="#meta-paths-across-three-actors"></a>

@@ -1,9 +1,9 @@
 # Simplified Human + AI Interaction Sequences
 
 A long-format heterogeneous sequence dataset built from
-[`Nestimate::human_long`](https://rdrr.io/pkg/Nestimate/man/long-data.html)
+[`Nestimate::human_long`](https://saqr.me/Nestimate/reference/long-data.html)
 and
-[`Nestimate::ai_long`](https://rdrr.io/pkg/Nestimate/man/long-data.html)
+[`Nestimate::ai_long`](https://saqr.me/Nestimate/reference/long-data.html)
 by collapsing several near-synonym codes into a smaller, more
 interpretable alphabet. Suitable as a teaching example for
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
@@ -67,9 +67,9 @@ A data frame with 19347 rows and 10 columns:
 ## Source
 
 Derived from
-[`Nestimate::human_long`](https://rdrr.io/pkg/Nestimate/man/long-data.html)
+[`Nestimate::human_long`](https://saqr.me/Nestimate/reference/long-data.html)
 and
-[`Nestimate::ai_long`](https://rdrr.io/pkg/Nestimate/man/long-data.html);
+[`Nestimate::ai_long`](https://saqr.me/Nestimate/reference/long-data.html);
 see `data-raw/human_ai.R` for the build script.
 
 ## Details

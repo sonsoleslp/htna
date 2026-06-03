@@ -12,8 +12,8 @@
 <link rel="icon" sizes="any" href="../favicon.ico">
 <link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Grouped HTNA">
 </head>
@@ -58,7 +58,7 @@
       <img src="../logo.png" class="logo" alt=""><h1>Grouped HTNA</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/sonsoleslp/htna/blob/main/vignettes/grouped.Rmd" class="external-link"><code>vignettes/grouped.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/sonsoleslp/htna/blob/main/vignettes/articles/grouped.Rmd" class="external-link"><code>vignettes/articles/grouped.Rmd</code></a></small>
       <div class="d-none name"><code>grouped.Rmd</code></div>
     </div>
 
@@ -76,7 +76,7 @@ grouped result and iterates over cohorts.</p>
 <h2 id="an-early-late-example">An early / late example<a class="anchor" aria-label="anchor" href="#an-early-late-example"></a>
 </h2>
 <p>We use the bundled <code>human_ai</code> corpus (Human + AI codes
-from <code><a href="https://rdrr.io/pkg/Nestimate/man/long-data.html" class="external-link">Nestimate::human_long</a></code> / <code>ai_long</code>, with a
+from <code><a href="https://saqr.me/Nestimate/reference/long-data.html" class="external-link">Nestimate::human_long</a></code> / <code>ai_long</code>, with a
 slightly simplified alphabet – see <code><a href="../reference/human_ai.html">?human_ai</a></code>). Sessions are
 split chronologically: ordered by their first <code>session_date</code>
 (with <code>session_id</code> as a deterministic tiebreak), the first
@@ -226,7 +226,7 @@ per element. It does not manage the layout grid – wrap with
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grouped_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="grouped_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="900"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -236,7 +236,7 @@ per element. It does not manage the layout grid – wrap with
 <p><code><a href="../reference/sequence_plot_htna.html">sequence_plot_htna()</a></code> works the same way:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">grp</span>,   type <span class="op">=</span> <span class="st">"index"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grouped_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="1500"><img src="grouped_files/figure-html/unnamed-chunk-5-2.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="grouped_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="900"><img src="grouped_files/figure-html/unnamed-chunk-5-2.png" class="r-plt" alt="" width="900"></p>
 </div>
 <div class="section level2">
 <h2 id="centralities-per-cohort">Centralities per cohort<a class="anchor" aria-label="anchor" href="#centralities-per-cohort"></a>
@@ -273,7 +273,7 @@ columns are measures, so cohort-level differences are easy to read at a
 glance:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_centralities.html">plot_centralities</a></span><span class="op">(</span><span class="va">grp</span>, by <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grouped_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="grouped_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="900"></p>
 </div>
 <div class="section level2">
 <h2 id="bootstrap-per-cohort">Bootstrap per cohort<a class="anchor" aria-label="anchor" href="#bootstrap-per-cohort"></a>
@@ -285,7 +285,7 @@ and returns a group of bootstrap results.
 <code class="sourceCode R"><span><span class="va">boots</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootstrap_htna.html">bootstrap_htna</a></span><span class="op">(</span><span class="va">grp</span>, iter <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
 <span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_htna_bootstrap.html">plot_htna_bootstrap</a></span><span class="op">(</span><span class="va">boots</span>, display <span class="op">=</span> <span class="st">"significant"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grouped_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="grouped_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="900"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -319,16 +319,16 @@ difference directly with <code><a href="../reference/plot_htna_diff.html">plot_h
 &gt; Early) is green, negative (Early &gt; Late) is red:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">grp</span><span class="op">$</span><span class="va">Late</span>, <span class="va">grp</span><span class="op">$</span><span class="va">Early</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grouped_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="grouped_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="900"></p>
 <p><code><a href="../reference/permutation_htna.html">permutation_htna()</a></code> quantifies which differences are
 statistically significant:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">perm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/permutation_htna.html">permutation_htna</a></span><span class="op">(</span><span class="va">grp</span><span class="op">$</span><span class="va">Late</span>, <span class="va">grp</span><span class="op">$</span><span class="va">Early</span>, iter <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">perm</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grouped_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="grouped_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="900"></p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">perm</span>, show_nonsig <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grouped_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="1500"></p>
+<p><img src="grouped_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="900"></p>
 </div>
 <div class="section level2">
 <h2 id="indexing">Indexing<a class="anchor" aria-label="anchor" href="#indexing"></a>

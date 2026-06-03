@@ -1,7 +1,7 @@
 # State Distribution Across Time
 
 htna-named alias of
-[`Nestimate::state_distribution()`](https://rdrr.io/pkg/Nestimate/man/state_distribution.html).
+[`Nestimate::state_distribution()`](https://saqr.me/Nestimate/reference/state_distribution.html).
 Returns the per-timestep distribution of states across sequences,
 suitable for driving stacked-area or bar plots.
 
@@ -24,7 +24,7 @@ state_distribution_htna(x, ...)
 ## Value
 
 A data frame with one row per (timestep, state). See
-[`Nestimate::state_distribution()`](https://rdrr.io/pkg/Nestimate/man/state_distribution.html)
+[`Nestimate::state_distribution()`](https://saqr.me/Nestimate/reference/state_distribution.html)
 for full details.
 
 ## Details
@@ -36,7 +36,7 @@ carried by
 networks.
 
 Suffixed `_htna` to avoid clashing with
-[`Nestimate::state_distribution()`](https://rdrr.io/pkg/Nestimate/man/state_distribution.html)
+[`Nestimate::state_distribution()`](https://saqr.me/Nestimate/reference/state_distribution.html)
 when both packages are loaded.
 
 ## See also
