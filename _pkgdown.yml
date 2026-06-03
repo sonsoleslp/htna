@@ -66,6 +66,10 @@ reference:
       - reliability_htna
       - casedrop_reliability_htna
       - centrality_stability_htna
+      - plot.htna_stability
+      - plot.htna_stability_group
+      - print.htna_stability
+      - print.htna_stability_group
       - markov_order_test_htna
   - title: Datasets
     desc: Sample dataset
@@ -76,14 +80,14 @@ articles:
     contents:
       - htna
       - input-formats
-      - grouped
+      - articles/grouped
   - title: Analysis
     contents:
-      - frequencies-and-mosaic
-      - sequence-plots
-      - sequence-comparison
+      - articles/frequencies-and-mosaic
+      - articles/sequence-plots
+      - articles/sequence-comparison
   - title: Advanced
     contents:
-      - multigroup
-      - markov-order
-      - model-assessment
+      - articles/multigroup
+      - articles/markov-order
+      - articles/model-assessment

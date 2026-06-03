@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
   warning   = FALSE,
   fig.width = 10,
   fig.height = 7,
-  dpi = 150
+  dpi = 90
 )
 ```
 
@@ -23,8 +23,8 @@ knitr::opts_chunk$set(
 interchangeable shapes**: a named list of per-actor frames, a single
 combined frame with an actor-type column, or a single combined frame
 with a node-to-actor lookup. This vignette walks through each form
-using `Nestimate`'s `human_long` + `ai_long` example and verifies that
-all three produce the same network, then covers two more parameters
+using  `htna`'s integrated `human_ai` dataset.
+All three input forms produce the same network, then covers two more parameters
 that compose with any input form: `actor` (forwarded to
 `Nestimate::build_network()`) and `disambiguate` (for code-label
 collisions).
@@ -33,7 +33,8 @@ collisions).
 
 ```{r}
 library(htna)
-data(human_long, ai_long, package = "Nestimate")
+library(dplyr)
+data(human_ai)
 ```
 
 Both frames share the canonical schema htna expects: `session_id`,
@@ -48,6 +49,8 @@ The most direct form. Each entry is one actor's long frame; the list
 name becomes the actor-type label on the network.
 
 ```{r}
+human_long <- human_ai |> filter(actor_type == "Human")
+ai_long <- human_ai |> filter(actor_type == "AI")
 net_list <- build_htna(list(Human = human_long, AI = ai_long))
 summary(net_list)
 ```
@@ -65,18 +68,7 @@ When the data already arrives as one long table, tag each row with the
 actor-type and pass the column name to `actor_type =`.
 
 ```{r}
-combined <- rbind(
-  cbind(actor_type = "Human", human_long[, c("session_id", "code",
-                                              "order_in_session")]),
-  cbind(actor_type = "AI",    ai_long[,    c("session_id", "code",
-                                              "order_in_session")])
-)
-combined$actor_type <- factor(combined$actor_type, levels = c("Human", "AI"))
-combined <- combined[order(combined$session_id, combined$order_in_session), ]
-
-head(combined)
-
-net_actor_type <- build_htna(combined, actor_type = "actor_type")
+net_actor_type <- build_htna(human_ai, actor_type = "actor_type", session = "session_id", order =  "order_in_session")
 ```
 
 The actor-type order on the resulting network follows the factor levels
@@ -96,9 +88,10 @@ human_codes <- unique(human_long$code)
 ai_codes    <- unique(ai_long$code)
 
 net_node_groups <- build_htna(
-  combined[, c("session_id", "code", "order_in_session")],
+  human_ai,
   node_groups = list(Human = human_codes, AI = ai_codes)
 )
+net_node_groups
 ```
 
 ### 3b. Two-column data frame (codebook)
@@ -118,7 +111,7 @@ codebook <- data.frame(
 head(codebook)
 
 net_node_groups_df <- build_htna(
-  combined[, c("session_id", "code", "order_in_session")],
+  human_ai,
   node_groups = codebook
 )
 ```
@@ -195,10 +188,10 @@ networks by passing `group =` — the result is an `htna_group`, one
 build one network per phase.
 
 ```{r}
-combined$phase <- ifelse(combined$session_id < median(combined$session_id),
+human_ai$phase <- ifelse(human_ai$session_id < median(human_ai$session_id),
                          "early", "late")
 
-grp <- build_htna(combined, actor_type = "actor_type", group = "phase")
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 class(grp)
 names(grp)
 ```
@@ -211,9 +204,9 @@ plot_htna(grp)
 
 | Form | When to use |
 |---|---|
-| `list(Human = h, AI = a)` | Each actor's data is in its own frame |
+| `list(Actor1 = a1, Actor2 = a2)` | Each actor's data is in its own frame |
 | `df, actor_type = "actor_type"` | One combined frame, actor identity in a row-level column |
-| `df, node_groups = list(Human = ..., AI = ...)` | One combined frame; partition declared as a named list of codes |
+| `df, node_groups = list(Actor1 = ..., Actor2 = ...)` | One combined frame; partition declared as a named list of codes |
 | `df, node_groups = data.frame(code = ..., actor_type = ...)` | One combined frame; partition declared as a tidy codebook |
 | `+ actor = "user_id"` | Identify the individual actor that performed each event (forwarded to `Nestimate::build_network()`) |
 | `+ disambiguate = TRUE` | Same code label appears in more than one actor type |

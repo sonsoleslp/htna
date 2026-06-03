@@ -178,3 +178,17 @@ extract_meta_paths(net, level = "type")
   visualisation and rendering.
 - [`codyna`](https://CRAN.R-project.org/package=codyna) – Sequence
   patterns, outcomes, and indices.
+
+## Related research
+
+- López-Pernas, S., Misiejuk, K., Tikka, S., & Saqr, M. (2026). Role
+  Dynamics in Student–AI Collaboration: A Heterogeneous Transition
+  Network Analysis Approach. Innovations in Analytics of Learning
+  Dynamics: Proceedings of the 1st Workshop on Transition Network
+  Analysis (TNA).
+  <https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6082190>
+- Rinja, D., Oliveira, E. A., López-Pernas, S., Saqr, M., Specht, M., &
+  Misiejuk, K. (2026). Unpacking vibe coding: Help-seeking processes in
+  student-AI interactions while programming. Proceedings of Artificial
+  Intelligence in Education: 27th International Conference, AIED 2026.
+  <https://doi.org/10.48550/arXiv.2604.27134>

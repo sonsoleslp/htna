@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
   warning  = FALSE,
   fig.width  = 10,
   fig.height = 7,
-  dpi = 150
+  dpi = 90
 )
 ```
 
@@ -202,13 +202,7 @@ type-level template it instantiates:
 extract_meta_paths(net, length = 3)
 ```
 
-Pass `level = "type"` for the type-level meta-path summary - a fixed
-sequence of actor labels that abstracts away from concrete states
-(e.g. `Human->AI->Human`):
 
-```{r}
-extract_meta_paths(net, level = "type", length = 3)
-```
 
 A `schema` filters the search. Each part can be a type name (expands to
 every code in that group), a concrete state, or `*`:

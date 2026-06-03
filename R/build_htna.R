@@ -294,7 +294,24 @@ build_htna <- function(data,
   actor_lookup <- setNames(actor_flat, codes_flat)
 
   if (!is.null(group)) {
-    net <- lapply(net, .inject_htna_partition, actor_lookup, actor_levels)
+    # When using node_groups, filter each group to only include codes that
+    # actually appear in that group's data
+    if (!is.null(node_groups)) {
+      # Validate no NA values in group column before proceeding
+      group_col <- combined[[group]]
+      if (any(is.na(group_col))) {
+        stop("Group column `", group, "` contains NA values. Every row must be ",
+             "assigned to a group.", call. = FALSE)
+      }
+
+      group_codes <- split(as.character(combined[[action]]), group_col)
+      net <- Map(function(subnet, group_name) {
+        actual_codes <- unique(group_codes[[group_name]])
+        .inject_htna_partition_filtered(subnet, actor_lookup, actor_levels, actual_codes)
+      }, net, names(net))
+    } else {
+      net <- lapply(net, .inject_htna_partition, actor_lookup, actor_levels)
+    }
     class(net) <- c("htna_group", "netobject_group", "list")
     attr(net, "actor_levels") <- actor_levels
     return(net)
@@ -305,6 +322,33 @@ build_htna <- function(data,
 
 #' @keywords internal
 .inject_htna_partition <- function(net, actor_lookup, actor_levels) {
+  net$nodes$groups <- factor(
+    unname(actor_lookup[net$nodes$label]),
+    levels = actor_levels
+  )
+  net$node_groups <- data.frame(
+    node  = net$nodes$label,
+    group = net$nodes$groups,
+    stringsAsFactors = FALSE
+  )
+  net$actor_levels <- actor_levels
+  if (!inherits(net, "htna")) class(net) <- c("htna", class(net))
+  net
+}
+
+#' @keywords internal
+.inject_htna_partition_filtered <- function(net, actor_lookup, actor_levels, actual_codes) {
+  # Filter nodes to only include those that actually appear in this group's data
+  nodes_to_keep <- net$nodes$label %in% actual_codes
+
+  # Filter nodes dataframe
+  net$nodes <- net$nodes[nodes_to_keep, , drop = FALSE]
+
+  # Filter weights matrix
+  codes_to_keep <- rownames(net$weights) %in% actual_codes
+  net$weights <- net$weights[codes_to_keep, codes_to_keep, drop = FALSE]
+
+  # Add actor group information for remaining nodes
   net$nodes$groups <- factor(
     unname(actor_lookup[net$nodes$label]),
     levels = actor_levels
