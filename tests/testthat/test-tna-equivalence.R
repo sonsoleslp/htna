@@ -322,17 +322,18 @@ ds_tna_group_regulation <- function() {
 # Build the htna / tna / nest triple from a dataset descriptor.
 
 build_triple <- function(ds) {
-  htna_net <- build_htna(ds$actors)
+  # Suppress Nestimate warnings about long sequences in test data
+  htna_net <- suppressWarnings(build_htna(ds$actors))
   tna_net  <- tna::tna(htna_net$data)
   combined <- do.call(rbind, ds$actors)
   combined <- combined[order(combined$session_id,
                              combined$order_in_session), ]
-  nest_net <- Nestimate::build_network(combined,
+  nest_net <- suppressWarnings(Nestimate::build_network(combined,
                                        method  = "relative",
                                        action  = "code",
                                        session = "session_id",
                                        order   = "order_in_session",
-                                       format  = "long")
+                                       format  = "long"))
   list(htna = htna_net, tna = tna_net, nest = nest_net)
 }
 

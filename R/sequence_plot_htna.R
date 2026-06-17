@@ -156,6 +156,77 @@ sequence_plot_htna <- function(net,
 
   user_args <- list(...)
 
+  # For disambiguated codes, assign colors based on base code name and clean labels
+  disambiguated_mapping <- NULL
+  if (is.null(user_args$state_colors)) {
+    all_states <- unique(as.vector(stacked))
+    all_states <- all_states[!is.na(all_states)]
+
+    # Check if codes are disambiguated (contain ":")
+    disambiguated <- grepl(":", all_states, fixed = TRUE)
+    if (any(disambiguated)) {
+      # Create base code mapping
+      base_code_map <- character(length(all_states))
+      names(base_code_map) <- all_states
+
+      for (i in seq_along(all_states)) {
+        state <- all_states[i]
+        if (grepl(":", state, fixed = TRUE)) {
+          # Extract base code from disambiguated code (e.g., "Human:Ask" -> "Ask")
+          base_code_map[state] <- strsplit(state, ":", fixed = TRUE)[[1]][2]
+        } else {
+          base_code_map[state] <- state
+        }
+      }
+
+      # Store mapping for later label cleaning
+      disambiguated_mapping <- base_code_map
+
+      # Get unique base codes and assign colors using an extended palette
+      unique_base_codes <- unique(base_code_map)
+      n_states <- length(unique_base_codes)
+
+      # Use extended palette for many states
+      if (n_states <= 6) {
+        # Use nice htna colors for few states
+        base_colors <- .htna_actor_colors(unique_base_codes)
+      } else {
+        # Generate more distinct colors for many states
+        extended_palette <- c(
+          htna_palette,  # Start with htna colors
+          "#FF1493", "#2E8B57", "#8B4513", "#4169E1",
+          "#FFD700", "#32CD32", "#FF4500", "#9400D3",
+          "#DC143C", "#00CED1", "#FF69B4", "#228B22",
+          "#B22222", "#4682B4", "#D2691E", "#6A5ACD",
+          "#20B2AA", "#CD5C5C", "#8FBC8F", "#800080"
+        )
+
+        if (n_states <= length(extended_palette)) {
+          base_colors <- setNames(extended_palette[seq_len(n_states)], unique_base_codes)
+        } else {
+          # Generate even more colors using rainbow with better spacing
+          base_colors <- setNames(
+            grDevices::rainbow(n_states, s = 0.8, v = 0.9),
+            unique_base_codes
+          )
+        }
+      }
+
+      # Sort states alphabetically to match Nestimate's internal ordering
+      all_states_sorted <- sort(all_states)
+
+      # Create color vector in sorted order (unnamed vector for Nestimate)
+      state_colors <- character(length(all_states_sorted))
+      for (i in seq_along(all_states_sorted)) {
+        state <- all_states_sorted[i]
+        base_code <- base_code_map[state]
+        state_colors[i] <- base_colors[base_code]
+      }
+
+      user_args$state_colors <- state_colors
+    }
+  }
+
   use_grouped_legend <- isTRUE(grouped_legend)
   legend_position    <- user_args$legend %||% "right"
   overlay_position   <- .htna_normalize_overlay_pos(legend_position)
@@ -186,7 +257,8 @@ sequence_plot_htna <- function(net,
 
   if (use_grouped_legend) {
     .htna_grouped_legend(result, type_map, actors,
-                         position = overlay_position)
+                         position = overlay_position,
+                         disambiguated_mapping = disambiguated_mapping)
   }
 
   invisible(result)
@@ -312,7 +384,8 @@ plot_sequences.htna <- function(x, ...) sequence_plot_htna(x, ...)
 
 .htna_grouped_legend <- function(res, type_map, actors,
                                  position = c("right", "bottom"),
-                                 cex = 0.7) {
+                                 cex = 0.7,
+                                 disambiguated_mapping = NULL) {
   position <- match.arg(position)
   if (is.null(res$levels) || is.null(res$palette)) return(invisible(NULL))
 
@@ -324,6 +397,15 @@ plot_sequences.htna <- function(x, ...) sequence_plot_htna(x, ...)
   if (!any(keep)) return(invisible(NULL))
   states_by <- states_by[keep]
   colors_by <- colors_by[keep]
+
+  # Clean up labels if disambiguated mapping is provided
+  if (!is.null(disambiguated_mapping)) {
+    states_by <- lapply(states_by, function(states) {
+      clean_states <- disambiguated_mapping[states]
+      ifelse(is.na(clean_states), states, clean_states)
+    })
+  }
+
   n_blocks  <- length(states_by)
 
   old <- graphics::par(no.readonly = TRUE)

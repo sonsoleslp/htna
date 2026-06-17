@@ -226,10 +226,32 @@ build_htna <- function(data,
 
   stopifnot(
     is.character(action),  length(action)  == 1L, action  %in% names(combined),
-    is.character(session), length(session) == 1L, session %in% names(combined),
-    length(order)   == 1L, order   %in% names(combined),
+    is.character(session), length(session) == 1L,
+    length(order)   == 1L,
     is.logical(disambiguate), length(disambiguate) == 1L
   )
+
+  # Check if required columns exist
+  # Session is only required if no actor is provided
+  if (is.null(actor) && !session %in% names(combined)) {
+    stop("Column '", session, "' not found in data. ",
+         "Available columns: ", paste(names(combined), collapse = ", "), ". ",
+         "Either provide a data frame with a '", session, "' column or ",
+         "specify an 'actor' parameter to calculate sessions automatically.", call. = FALSE)
+  }
+
+  # If actor is provided and session column doesn't exist, sessions will be auto-generated
+  session_exists <- session %in% names(combined)
+
+  # Order is only required if no actor is provided
+  if (is.null(actor) && !order %in% names(combined)) {
+    stop("Column '", order, "' not found in data. ",
+         "Available columns: ", paste(names(combined), collapse = ", "), ". ",
+         "Either provide a data frame with an '", order, "' column or ",
+         "specify an 'actor' parameter for automatic ordering.", call. = FALSE)
+  }
+
+  order_exists <- order %in% names(combined)
   if (!is.null(group)) {
     stopifnot(
       is.character(group), length(group) == 1L, group %in% names(combined)
@@ -265,22 +287,34 @@ build_htna <- function(data,
   }
 
   # ---- Order within session so cross-actor transitions follow real time ----
-  combined <- combined[
-    order(combined[[session]], combined[[order]]), , drop = FALSE
-  ]
+  if (session_exists && order_exists) {
+    combined <- combined[
+      order(combined[[session]], combined[[order]]), , drop = FALSE
+    ]
+  } else if (session_exists) {
+    # Order by session only
+    combined <- combined[order(combined[[session]]), , drop = FALSE]
+  }
 
   # ---- Delegate to Nestimate::build_network ----
-  net <- do.call(Nestimate::build_network, c(
-    list(combined,
-         method  = method,
-         action  = action,
-         actor   = actor,
-         session = session,
-         order   = order,
-         format  = "long",
-         group   = group),
-    dots
-  ))
+  nestimate_args <- list(data    = combined,
+                        method  = method,
+                        action  = action,
+                        actor   = actor,
+                        format  = "long",
+                        group   = group)
+
+  # Only include session if the column exists in the data
+  if (session_exists) {
+    nestimate_args$session <- session
+  }
+
+  # Only include order if the column exists in the data
+  if (order_exists) {
+    nestimate_args$order <- order
+  }
+
+  net <- do.call(Nestimate::build_network, c(nestimate_args, dots))
 
   # ---- Inject actor partition using cograph's canonical schema ----
   # cograph's plot_htna auto-detects nodes columns named "groups"/"group"/

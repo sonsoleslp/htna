@@ -88,6 +88,15 @@ plot_htna <- function(x, layout = "circular",
     cograph_shapes    <- rev(shapes)
   }
 
+  # Create clean vertex labels for disambiguated nodes
+  vertex_labels <- as.character(ng$node)
+  disambiguated <- grepl(":", vertex_labels, fixed = TRUE)
+  if (any(disambiguated)) {
+    vertex_labels[disambiguated] <- sapply(vertex_labels[disambiguated], function(node) {
+      strsplit(node, ":", fixed = TRUE)[[1]][2]
+    })
+  }
+
   result <- cograph::plot_htna(x, node_list = cograph_node_list,
                                node_fill    = node_colors,
                                layout       = layout,
@@ -96,6 +105,7 @@ plot_htna <- function(x, layout = "circular",
                                donut_color  = dark,
                                minimum      = minimum,
                                legend       = FALSE,
+                               vertex.label = vertex_labels,
                                ...)
   if (n_groups >= 2L) .htna_legend(groups, colors)
   invisible(result)
@@ -157,9 +167,11 @@ plot.htna_group <- function(x, ...) plot_htna(x, ...)
   for (i in seq_len(n_groups)) {
     g_idx <- group_indices[[i]]
     n_nodes <- length(g_idx)
-    # First group centred on the left (angle = pi); subsequent groups
-    # rotate clockwise (decreasing angle).
-    center_angle <- pi - (i - 1L) * angle_per_group
+    # Match cograph::plot_htna's "circular" layout: first group placed
+    # clockwise from the top. First group center is at angle
+    # pi/2 - angle_per_group/2 (top, then half a group rotation clockwise).
+    # Subsequent groups continue clockwise (decreasing angle).
+    center_angle <- pi/2 - angle_per_group/2 - (i - 1L) * angle_per_group
     start_angle  <- center_angle + arc_angle / 2
     end_angle    <- center_angle - arc_angle / 2
     if (n_nodes > 1L) {

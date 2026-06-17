@@ -101,11 +101,29 @@ htna_shape_palette <- c("circle", "square", "diamond", "triangle",
                       function(g) ng$node[as.character(ng$group) == g])
   names(node_list) <- groups
 
-  labels <- net$nodes$label %||% rownames(.weights_of(net))
-  layout <- .htna_circular(node_list, labels)
+  # Apply the same reversal as plot_htna() for consistent layout and styling
+  # across plotting functions. This ensures the first group appears on the
+  # left for 2+ group networks.
+  layout_node_list <- node_list
+  layout_colors    <- colors
+  layout_shapes    <- shapes
+  if (n_groups >= 2L) {
+    layout_node_list <- rev(node_list)
+    layout_colors    <- rev(colors)
+    layout_shapes    <- rev(shapes)
+  }
 
-  color_map     <- setNames(colors, groups)
-  shape_map     <- setNames(shapes, groups)
+  labels <- net$nodes$label %||% rownames(.weights_of(net))
+  layout <- .htna_circular(layout_node_list, labels)
+
+  # Use the layout-reversed colors and shapes for consistent styling
+  if (n_groups >= 2L) {
+    color_map     <- setNames(layout_colors, names(layout_node_list))
+    shape_map     <- setNames(layout_shapes, names(layout_node_list))
+  } else {
+    color_map     <- setNames(colors, groups)
+    shape_map     <- setNames(shapes, groups)
+  }
   node_to_actor <- setNames(as.character(ng$group), as.character(ng$node))
   actor_per     <- unname(node_to_actor[labels])
   node_colors   <- unname(color_map[actor_per])
@@ -113,8 +131,8 @@ htna_shape_palette <- c("circle", "square", "diamond", "triangle",
   dark          <- .darken(node_colors)
 
   list(groups   = groups,    n_groups = n_groups,
-       colors   = colors,    shapes   = shapes,
-       node_list = node_list,
+       colors   = layout_colors,    shapes   = layout_shapes,
+       node_list = layout_node_list,
        layout   = layout,    node_colors = node_colors,
        node_shapes = node_shapes, dark = dark)
 }
