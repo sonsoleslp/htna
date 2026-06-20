@@ -175,6 +175,7 @@ The six combinations address distinct analytic questions:
 | Corpus-level differences in session length and uniformity | `type = "heatmap"`, `by = "state"` |
 | Evolution of state composition over session time, per actor | `type = "distribution"`, `by = "state"`, `na = FALSE` |
 | Turn-taking pattern within individual sessions | `type = "index"`, `by = "group"` |
+| Macro-level actor balance and session length | `type = "heatmap"`, `by = "group"` |
 | Corpus-level actor balance over session time | `type = "distribution"`, `by = "group"` |
 
 The default — `sequence_plot_htna(net)` — is a general-purpose

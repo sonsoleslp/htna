@@ -342,5 +342,5 @@ and learning processes. Proceedings of the 15th International Learning
 Analytics and Knowledge Conference, 351–361.
 <https://doi.org/10.1145/3706468.3706513>
 
-Tutz, G. (2012). Regression for categorical data series number.
-Cambridge University Press. <https://doi.org/10.1017/cbo9780511842061>
+Tutz, G. (2012). *Regression for categorical data.* Cambridge University
+Press. <https://doi.org/10.1017/cbo9780511842061>

@@ -295,17 +295,24 @@ actor-type label so the two <code>Ask</code> nodes become
 per-cohort networks by passing <code>group =</code> — the result is an
 <code>htna_group</code>, one <code>htna</code> network per level of the
 grouping column. Below we synthesise a “phase” cohort variable on the
-combined frame and let <code><a href="../reference/build_htna.html">build_htna()</a></code> build one network per
+combined frame (chronological split: first-half of sessions = early,
+rest = late) and let <code><a href="../reference/build_htna.html">build_htna()</a></code> build one network per
 phase.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">human_ai</span><span class="op">$</span><span class="va">phase</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">session_id</span> <span class="op">&lt;</span> <span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">session_id</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="va">sess_start</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></span><span class="op">(</span><span class="va">session_date</span> <span class="op">~</span> <span class="va">session_id</span>, data <span class="op">=</span> <span class="va">human_ai</span>,</span>
+<span>                        FUN <span class="op">=</span> <span class="va">min</span><span class="op">)</span></span>
+<span><span class="va">sess_start</span> <span class="op">&lt;-</span> <span class="va">sess_start</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">sess_start</span><span class="op">$</span><span class="va">session_date</span>,</span>
+<span>                               <span class="va">sess_start</span><span class="op">$</span><span class="va">session_id</span><span class="op">)</span>, <span class="op">]</span></span>
+<span><span class="va">half</span>       <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">sess_start</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%/%</a></span> <span class="fl">2L</span></span>
+<span><span class="va">early_sess</span> <span class="op">&lt;-</span> <span class="va">sess_start</span><span class="op">$</span><span class="va">session_id</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">half</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">human_ai</span><span class="op">$</span><span class="va">phase</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">session_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">early_sess</span>,</span>
 <span>                         <span class="st">"early"</span>, <span class="st">"late"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">grp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span>, group <span class="op">=</span> <span class="st">"phase"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "htna_group"      "netobject_group" "list"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "early" "late"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "late"  "early"</span></span></code></pre></div>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span></code></pre></div>
 <p><img src="input-formats_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="900"><img src="input-formats_files/figure-html/unnamed-chunk-11-2.png" class="r-plt" alt="" width="900"></p>

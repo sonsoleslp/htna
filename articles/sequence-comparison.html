@@ -264,6 +264,61 @@ regardless of their cohort difference.</p>
 <p><img src="sequence-comparison_files/figure-html/sort-frequency-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
+<h2 id="meta-path-comparison-actor-type-level">Meta-path comparison (actor-type level)<a class="anchor" aria-label="anchor" href="#meta-path-comparison-actor-type-level"></a>
+</h2>
+<p>By default, <code><a href="../reference/sequence_compare_htna.html">sequence_compare_htna()</a></code> enumerates k-grams
+over the concrete state codes. Setting <code>level = "type"</code> first
+folds each state into its actor type before pattern enumeration, so the
+comparison runs on meta-paths such as
+<code>Human -&gt; AI -&gt; Human</code> rather than concrete state
+sequences. This collapses the alphabet to the actor partition and
+surfaces which cohort is characterised by particular handover structures
+between actor types, independent of the specific codes involved.</p>
+<p><code>level = "type"</code> requires <code>x</code> to be an htna
+network carrying an actor partition (<code>$node_groups</code>) —
+<code>net_g</code> above qualifies because <code><a href="../reference/build_htna.html">build_htna()</a></code> was
+given <code>actor_type = "actor_type"</code>.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">res_type</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sequence_compare_htna.html">sequence_compare_htna</a></span><span class="op">(</span></span>
+<span>  <span class="va">net_g</span>,</span>
+<span>  level    <span class="op">=</span> <span class="st">"type"</span>,</span>
+<span>  sub      <span class="op">=</span> <span class="fl">3</span><span class="op">:</span><span class="fl">5</span>,</span>
+<span>  min_freq <span class="op">=</span> <span class="fl">25L</span>,</span>
+<span>  test     <span class="op">=</span> <span class="st">"permutation"</span>,</span>
+<span>  adjust   <span class="op">=</span> <span class="st">"fdr"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">res_type</span></span>
+<span><span class="co">#&gt; Sequence Comparison  [52 patterns | 2 groups: Early, Late]</span></span>
+<span><span class="co">#&gt;   Lengths: 3, 4, 5  |  min_freq: 25  |  permutation: 1000 iter (fdr)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;                         pattern length freq_Early freq_Late  prop_Early</span></span>
+<span><span class="co">#&gt;  Human-&gt;Human-&gt;Human-&gt;AI-&gt;Human      5        112       196 0.012021037</span></span>
+<span><span class="co">#&gt;  AI-&gt;Human-&gt;Human-&gt;Human-&gt;Human      5         41        71 0.004400558</span></span>
+<span><span class="co">#&gt;            Human-&gt;Human-&gt;AI-&gt;AI      4        846       646 0.088781614</span></span>
+<span><span class="co">#&gt;                   Human-&gt;AI-&gt;AI      3       1203       986 0.123485937</span></span>
+<span><span class="co">#&gt;     Human-&gt;Human-&gt;Human-&gt;AI-&gt;AI      5        315       228 0.033809166</span></span>
+<span><span class="co">#&gt;     Human-&gt;Human-&gt;AI-&gt;AI-&gt;Human      5        676       525 0.072555544</span></span>
+<span><span class="co">#&gt;     Human-&gt;Human-&gt;AI-&gt;Human-&gt;AI      5        323       345 0.034667812</span></span>
+<span><span class="co">#&gt;            Human-&gt;AI-&gt;AI-&gt;Human      4        976       796 0.102424179</span></span>
+<span><span class="co">#&gt;        AI-&gt;AI-&gt;Human-&gt;AI-&gt;Human      5        363       279 0.038961039</span></span>
+<span><span class="co">#&gt;                Human-&gt;AI-&gt;Human      3       1813      1780 0.186101417</span></span>
+<span><span class="co">#&gt;    prop_Late resid_Early resid_Late effect_size    p_value</span></span>
+<span><span class="co">#&gt;  0.023554861   -5.837799   5.837799    7.371409 0.05194805</span></span>
+<span><span class="co">#&gt;  0.008532628   -3.448798   3.448798    4.064398 0.05194805</span></span>
+<span><span class="co">#&gt;  0.075697211    3.189261  -3.189261    3.651386 0.05194805</span></span>
+<span><span class="co">#&gt;  0.112711477    2.264188  -2.264188    2.684103 0.12750885</span></span>
+<span><span class="co">#&gt;  0.027400553    2.459688  -2.459688    2.602828 0.12750885</span></span>
+<span><span class="co">#&gt;  0.063093378    2.490338  -2.490338    2.579126 0.12750885</span></span>
+<span><span class="co">#&gt;  0.041461363   -2.359490   2.359490    2.466456 0.12750885</span></span>
+<span><span class="co">#&gt;  0.093273963    2.064052  -2.064052    2.356914 0.12750885</span></span>
+<span><span class="co">#&gt;  0.033529624    1.922749  -1.922749    2.342807 0.12750885</span></span>
+<span><span class="co">#&gt;  0.203475080   -2.980988   2.980988    2.279054 0.12750885</span></span>
+<span><span class="co">#&gt;   ... and 42 more patterns</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">res_type</span>, style <span class="op">=</span> <span class="st">"pyramid"</span>, show_residuals <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="sequence-comparison_files/figure-html/pyramid-type-1.png" class="r-plt" alt="" width="100%" style="display: block; margin: auto;"></p>
+</div>
+<div class="section level2">
 <h2 id="choice-of-test-statistic">Choice of test statistic<a class="anchor" aria-label="anchor" href="#choice-of-test-statistic"></a>
 </h2>
 <p>The two test choices supported by
@@ -279,12 +334,12 @@ projects, or experimental conditions — as in the chronological split
 used here.</li>
 <li>
 <strong>Chi-square</strong> (<code>test = "chisq"</code>) tests
-whether the observed per-pattern, per-cohort counts depart from the
-expected counts under independence between pattern and cohort. The test
-makes no assumption of independence between cohorts and is therefore
-appropriate when the same units contribute to multiple cohorts — for
-example, a within-session early/late split where each session
-contributes events to both halves.</li>
+independence between pattern and cohort in the pooled contingency table.
+It assumes the underlying counts come from independent observations and
+is fast — useful as a default when cohorts comprise independent sessions
+and per-cell pattern counts are large enough for the asymptotic χ²
+approximation to hold. It is <em>not</em> appropriate when the same
+units contribute to multiple cohorts.</li>
 </ul>
 <p>Selection of the test should follow from the design that produced the
 cohort labels.</p>

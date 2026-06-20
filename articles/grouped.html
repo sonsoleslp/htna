@@ -306,10 +306,10 @@ default 0.7 / 0.95 threshold:</p>
 <span><span class="co">#&gt; InStrength   0.9   0.9</span></span>
 <span><span class="co">#&gt; OutStrength  0.9   0.8</span></span>
 <span><span class="co">#&gt; Betweenness  0.8   0.8</span></span></code></pre></div>
-<p>The columns are cohorts, the rows are centrality measures. Values
-near 1 mean the rank ordering of nodes by that measure barely shifts
-when half the sessions are dropped — a strong signal of stable
-centrality structure within that cohort.</p>
+<p>The columns are cohorts, the rows are centrality measures. By the
+Epskamp et al. (2018) convention, CS &gt; 0.25 is acceptable and CS &gt;
+0.5 is preferred for inferential use; the maximum reportable value is
+the upper bound of the drop-proportion grid.</p>
 </div>
 <div class="section level2">
 <h2 id="comparing-the-two-cohorts">Comparing the two cohorts<a class="anchor" aria-label="anchor" href="#comparing-the-two-cohorts"></a>
@@ -329,6 +329,18 @@ statistically significant:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">perm</span>, show_nonsig <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="grouped_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="900"></p>
+</div>
+<div class="section level2">
+<h2 id="cohort-level-pattern-comparison">Cohort-level pattern comparison<a class="anchor" aria-label="anchor" href="#cohort-level-pattern-comparison"></a>
+</h2>
+<p><code><a href="../reference/permutation_htna.html">permutation_htna()</a></code> tests edge-level differences between
+cohorts. For <em>pattern</em>-level differences — recurring k-grams that
+characterise one cohort over the other — see the <a href="sequence-comparison.html">sequence comparison vignette</a>. The
+same grouped network feeds directly into
+<code><a href="../reference/sequence_compare_htna.html">sequence_compare_htna()</a></code>, which also supports a
+<code>level = "type"</code> option that runs the comparison on
+meta-paths (e.g. <code>Human -&gt; AI -&gt; Human</code>) rather than
+concrete state codes.</p>
 </div>
 <div class="section level2">
 <h2 id="indexing">Indexing<a class="anchor" aria-label="anchor" href="#indexing"></a>

@@ -282,10 +282,10 @@ sapply(stab, function(s) s$cs)
 #> Betweenness  0.8   0.8
 ```
 
-The columns are cohorts, the rows are centrality measures. Values near 1
-mean the rank ordering of nodes by that measure barely shifts when half
-the sessions are dropped — a strong signal of stable centrality
-structure within that cohort.
+The columns are cohorts, the rows are centrality measures. By the
+Epskamp et al. (2018) convention, CS \> 0.25 is acceptable and CS \> 0.5
+is preferred for inferential use; the maximum reportable value is the
+upper bound of the drop-proportion grid.
 
 ## Comparing the two cohorts
 
@@ -318,6 +318,19 @@ plot_htna_diff(perm, show_nonsig = TRUE)
 ```
 
 ![](grouped_files/figure-html/unnamed-chunk-12-1.png)
+
+## Cohort-level pattern comparison
+
+[`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)
+tests edge-level differences between cohorts. For *pattern*-level
+differences — recurring k-grams that characterise one cohort over the
+other — see the [sequence comparison
+vignette](https://sonsoles.me/htna/articles/sequence-comparison.md). The
+same grouped network feeds directly into
+[`sequence_compare_htna()`](https://sonsoles.me/htna/reference/sequence_compare_htna.md),
+which also supports a `level = "type"` option that runs the comparison
+on meta-paths (e.g. `Human -> AI -> Human`) rather than concrete state
+codes.
 
 ## Indexing
 

@@ -43,10 +43,10 @@ plot_htna(net)
 [`sequence_plot_htna()`](https://sonsoles.me/htna/reference/sequence_plot_htna.md)
 shows the temporal structure of the sessions. With `by = "state"` (the
 default) each cell is coloured by its code; with `by = "group"` cells
-are coloured by actor type. `type` selects the layout: `"index"`
-repreents the index plot, `"heatmap"` collapses across sessions into a
-single carpet, and `"distribution"` shows the sequence distribution plot
-with the state composition per timepoint as a stacked area.
+are coloured by actor type. `type` selects the layout: `"index"` renders
+one row per session, `"heatmap"` collapses across sessions into a single
+carpet, and `"distribution"` shows the state composition per timepoint
+as a stacked area.
 
 ``` r
 
@@ -76,11 +76,10 @@ glance which codes belong to which actor type.
 ## 4. Centralities
 
 [`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md)
-calculates per-node centrality measure: one row per node, one column per
+returns per-node centrality measures: one row per node, one column per
 measure, defaulting to nine standard measures (out/in strength, in/out
 closeness, closeness, betweenness, RSP betweenness, diffusion,
-clustering). The `measures = c(...)` argument can be used to specify a
-different set of measures
+clustering). Pass `measures = c(...)` to restrict to a specific set.
 
 ``` r
 
@@ -137,11 +136,12 @@ plot_centralities(net, by = "group")
 To validate which transitions of an HTNA model are stable,
 [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
 resamples sessions to obtain edge-weight stability and per-edge
-p-values. The
+p-values.
 [`plot_htna_bootstrap()`](https://sonsoles.me/htna/reference/plot_htna_bootstrap.md)
-plots the resampled network with confidence intervals and a
-non-significant/significant edge style. The argument
-`display = "significant"` shows also non-significant edges.
+renders the resampled network. By default (`display = "styled"`) all
+edges are shown, with non-significant edges dashed; pass
+`display = "significant"` to keep only the edges that pass the
+significance threshold.
 
 ``` r
 

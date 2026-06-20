@@ -102,10 +102,10 @@ the plot:</p>
 sessions. With <code>by = "state"</code> (the default) each cell is
 coloured by its code; with <code>by = "group"</code> cells are coloured
 by actor type. <code>type</code> selects the layout:
-<code>"index"</code> repreents the index plot, <code>"heatmap"</code>
+<code>"index"</code> renders one row per session, <code>"heatmap"</code>
 collapses across sessions into a single carpet, and
-<code>"distribution"</code> shows the sequence distribution plot with
-the state composition per timepoint as a stacked area.</p>
+<code>"distribution"</code> shows the state composition per timepoint as
+a stacked area.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net</span>, by <span class="op">=</span> <span class="st">"state"</span>, type <span class="op">=</span> <span class="st">"index"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="htna_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="900"></p>
@@ -122,12 +122,11 @@ can tell at a glance which codes belong to which actor type.</p>
 <div class="section level2">
 <h2 id="centralities">4. Centralities<a class="anchor" aria-label="anchor" href="#centralities"></a>
 </h2>
-<p><code><a href="../reference/centralities_htna.html">centralities_htna()</a></code> calculates per-node centrality
-measure: one row per node, one column per measure, defaulting to nine
+<p><code><a href="../reference/centralities_htna.html">centralities_htna()</a></code> returns per-node centrality
+measures: one row per node, one column per measure, defaulting to nine
 standard measures (out/in strength, in/out closeness, closeness,
-betweenness, RSP betweenness, diffusion, clustering). The
-<code>measures = c(...)</code> argument can be used to specify a
-different set of measures</p>
+betweenness, RSP betweenness, diffusion, clustering). Pass
+<code>measures = c(...)</code> to restrict to a specific set.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/centralities_htna.html">centralities_htna</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         node actor OutStrength InStrength ClosenessIn ClosenessOut  Closeness</span></span>
@@ -171,11 +170,11 @@ default, or by actor type with <code>by = "group"</code>:</p>
 </h2>
 <p>To validate which transitions of an HTNA model are stable,
 <code><a href="../reference/bootstrap_htna.html">bootstrap_htna()</a></code> resamples sessions to obtain edge-weight
-stability and per-edge p-values. The <code><a href="../reference/plot_htna_bootstrap.html">plot_htna_bootstrap()</a></code>
-plots the resampled network with confidence intervals and a
-non-significant/significant edge style. The argument
-<code>display = "significant"</code> shows also non-significant
-edges.</p>
+stability and per-edge p-values. <code><a href="../reference/plot_htna_bootstrap.html">plot_htna_bootstrap()</a></code>
+renders the resampled network. By default
+(<code>display = "styled"</code>) all edges are shown, with
+non-significant edges dashed; pass <code>display = "significant"</code>
+to keep only the edges that pass the significance threshold.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">boot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bootstrap_htna.html">bootstrap_htna</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_htna_bootstrap.html">plot_htna_bootstrap</a></span><span class="op">(</span><span class="va">boot</span><span class="op">)</span></span></code></pre></div>

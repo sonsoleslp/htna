@@ -220,6 +220,69 @@ plot(res, style = "pyramid", sort = "frequency", show_residuals = TRUE)
 
 ![](sequence-comparison_files/figure-html/sort-frequency-1.png)
 
+## Meta-path comparison (actor-type level)
+
+By default,
+[`sequence_compare_htna()`](https://sonsoles.me/htna/reference/sequence_compare_htna.md)
+enumerates k-grams over the concrete state codes. Setting
+`level = "type"` first folds each state into its actor type before
+pattern enumeration, so the comparison runs on meta-paths such as
+`Human -> AI -> Human` rather than concrete state sequences. This
+collapses the alphabet to the actor partition and surfaces which cohort
+is characterised by particular handover structures between actor types,
+independent of the specific codes involved.
+
+`level = "type"` requires `x` to be an htna network carrying an actor
+partition (`$node_groups`) — `net_g` above qualifies because
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) was
+given `actor_type = "actor_type"`.
+
+``` r
+
+res_type <- sequence_compare_htna(
+  net_g,
+  level    = "type",
+  sub      = 3:5,
+  min_freq = 25L,
+  test     = "permutation",
+  adjust   = "fdr"
+)
+res_type
+#> Sequence Comparison  [52 patterns | 2 groups: Early, Late]
+#>   Lengths: 3, 4, 5  |  min_freq: 25  |  permutation: 1000 iter (fdr)
+#> 
+#>                         pattern length freq_Early freq_Late  prop_Early
+#>  Human->Human->Human->AI->Human      5        112       196 0.012021037
+#>  AI->Human->Human->Human->Human      5         41        71 0.004400558
+#>            Human->Human->AI->AI      4        846       646 0.088781614
+#>                   Human->AI->AI      3       1203       986 0.123485937
+#>     Human->Human->Human->AI->AI      5        315       228 0.033809166
+#>     Human->Human->AI->AI->Human      5        676       525 0.072555544
+#>     Human->Human->AI->Human->AI      5        323       345 0.034667812
+#>            Human->AI->AI->Human      4        976       796 0.102424179
+#>        AI->AI->Human->AI->Human      5        363       279 0.038961039
+#>                Human->AI->Human      3       1813      1780 0.186101417
+#>    prop_Late resid_Early resid_Late effect_size    p_value
+#>  0.023554861   -5.837799   5.837799    7.371409 0.05194805
+#>  0.008532628   -3.448798   3.448798    4.064398 0.05194805
+#>  0.075697211    3.189261  -3.189261    3.651386 0.05194805
+#>  0.112711477    2.264188  -2.264188    2.684103 0.12750885
+#>  0.027400553    2.459688  -2.459688    2.602828 0.12750885
+#>  0.063093378    2.490338  -2.490338    2.579126 0.12750885
+#>  0.041461363   -2.359490   2.359490    2.466456 0.12750885
+#>  0.093273963    2.064052  -2.064052    2.356914 0.12750885
+#>  0.033529624    1.922749  -1.922749    2.342807 0.12750885
+#>  0.203475080   -2.980988   2.980988    2.279054 0.12750885
+#>   ... and 42 more patterns
+```
+
+``` r
+
+plot(res_type, style = "pyramid", show_residuals = TRUE)
+```
+
+![](sequence-comparison_files/figure-html/pyramid-type-1.png)
+
 ## Choice of test statistic
 
 The two test choices supported by
@@ -232,13 +295,13 @@ each cohort.
   appropriate when the cohorts comprise independent groups of sessions —
   for example, sessions from different time periods, projects, or
   experimental conditions — as in the chronological split used here.
-- **Chi-square** (`test = "chisq"`) tests whether the observed
-  per-pattern, per-cohort counts depart from the expected counts under
-  independence between pattern and cohort. The test makes no assumption
-  of independence between cohorts and is therefore appropriate when the
-  same units contribute to multiple cohorts — for example, a
-  within-session early/late split where each session contributes events
-  to both halves.
+- **Chi-square** (`test = "chisq"`) tests independence between pattern
+  and cohort in the pooled contingency table. It assumes the underlying
+  counts come from independent observations and is fast — useful as a
+  default when cohorts comprise independent sessions and per-cell
+  pattern counts are large enough for the asymptotic χ² approximation to
+  hold. It is *not* appropriate when the same units contribute to
+  multiple cohorts.
 
 Selection of the test should follow from the design that produced the
 cohort labels.
