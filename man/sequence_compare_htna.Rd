@@ -7,6 +7,7 @@
 sequence_compare_htna(
   x,
   group = NULL,
+  level = c("state", "type"),
   sub = 3:5,
   min_freq = 5L,
   test = c("permutation", "chisq", "none"),
@@ -21,6 +22,12 @@ a \code{netobject} (requires \code{group}), or a wide-format
 
 \item{group}{Character or vector. Column name or vector of group labels.
 Not needed for \code{netobject_group}.}
+
+\item{level}{Character. \code{"state"} (default) compares concrete
+state-level k-grams; \code{"type"} first replaces each state with its
+actor type so the comparison runs on meta-paths
+(e.g. \code{Human->AI->Human}). Only meaningful when \code{x} is an htna
+network with an actor partition.}
 
 \item{sub}{Integer vector. Pattern lengths to analyze. Default: \code{3:5}.}
 
@@ -42,22 +49,24 @@ An object of class \code{net_sequence_compare}. See
 corresponding \code{plot()} method.
 }
 \description{
-htna-named alias of \code{\link[Nestimate:sequence_compare]{Nestimate::sequence_compare()}}. Extracts all
-k-gram patterns (subsequences of length \code{k}) from sequences in
-each cohort, computes standardised residuals against the
-independence model, and optionally runs a permutation or
-chi-square test for differences in pattern rates between cohorts.
+Extends \code{\link[Nestimate:sequence_compare]{Nestimate::sequence_compare()}} with a \code{level} argument that
+lets the comparison run on type-level (meta-path) sequences as well
+as state-level sequences.
 }
 \details{
+Extracts all k-gram patterns (subsequences of length \code{k}) from the
+sequences in each cohort, computes standardised residuals against
+the independence model, and optionally runs a permutation or
+chi-square test for differences in pattern rates between cohorts.
+
 Operates on grouped htna networks (built via
 \code{build_htna(..., group = ...)}), single htna networks paired with a
 \code{group} argument, or wide-format sequence data with an explicit
-\code{group} argument. The actor partition itself is not consumed by
-the test — sequence comparison is between cohorts of sessions, not
-between actors.
-
-Suffixed \verb{_htna} to avoid clashing with
-\code{Nestimate::sequence_compare()} when both packages are loaded.
+\code{group} argument. The actor partition itself is not consumed when
+\code{level = "state"} — sequence comparison is between cohorts of
+sessions, not between actors. When \code{level = "type"}, concrete codes
+are folded into their actor type before pattern enumeration, so the
+comparison runs on meta-paths.
 }
 \examples{
 \donttest{
@@ -65,10 +74,16 @@ data(human_long, ai_long, package = "Nestimate")
 net <- build_htna(list(Human = human_long, AI = ai_long))
 n   <- nrow(net$data)
 grp <- rep(c("early", "late"), length.out = n)
+
+# State-level comparison (default)
 sequence_compare_htna(net, group = grp, iter = 50)
+
+# Meta-path comparison
+sequence_compare_htna(net, group = grp, level = "type", iter = 50)
 }
 }
 \seealso{
 \code{\link[=permutation_htna]{permutation_htna()}} for whole-network differences,
-\code{\link[=mosaic_plot_htna]{mosaic_plot_htna()}} for single-step transition residuals.
+\code{\link[=mosaic_plot_htna]{mosaic_plot_htna()}} for single-step transition residuals,
+\code{\link[=extract_meta_paths]{extract_meta_paths()}} for descriptive meta-path enumeration.
 }

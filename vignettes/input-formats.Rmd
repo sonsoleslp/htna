@@ -183,11 +183,18 @@ net_dis$nodes$label
 Any of the three input forms can additionally be split into per-cohort
 networks by passing `group =` — the result is an `htna_group`, one
 `htna` network per level of the grouping column. Below we synthesise a
-"phase" cohort variable on the combined frame and let `build_htna()`
+"phase" cohort variable on the combined frame (chronological split:
+first-half of sessions = early, rest = late) and let `build_htna()`
 build one network per phase.
 
 ```{r}
-human_ai$phase <- ifelse(human_ai$session_id < median(human_ai$session_id),
+sess_start <- aggregate(session_date ~ session_id, data = human_ai,
+                        FUN = min)
+sess_start <- sess_start[order(sess_start$session_date,
+                               sess_start$session_id), ]
+half       <- nrow(sess_start) %/% 2L
+early_sess <- sess_start$session_id[seq_len(half)]
+human_ai$phase <- ifelse(human_ai$session_id %in% early_sess,
                          "early", "late")
 
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")

@@ -170,6 +170,37 @@ common patterns regardless of their cohort difference.
 plot(res, style = "pyramid", sort = "frequency", show_residuals = TRUE)
 ```
 
+# Meta-path comparison (actor-type level)
+
+By default, `sequence_compare_htna()` enumerates k-grams over the
+concrete state codes. Setting `level = "type"` first folds each state
+into its actor type before pattern enumeration, so the comparison
+runs on meta-paths such as `Human -> AI -> Human` rather than
+concrete state sequences. This collapses the alphabet to the actor
+partition and surfaces which cohort is characterised by particular
+handover structures between actor types, independent of the specific
+codes involved.
+
+`level = "type"` requires `x` to be an htna network carrying an
+actor partition (`$node_groups`) — `net_g` above qualifies because
+`build_htna()` was given `actor_type = "actor_type"`.
+
+```{r compare-type}
+res_type <- sequence_compare_htna(
+  net_g,
+  level    = "type",
+  sub      = 3:5,
+  min_freq = 25L,
+  test     = "permutation",
+  adjust   = "fdr"
+)
+res_type
+```
+
+```{r pyramid-type}
+plot(res_type, style = "pyramid", show_residuals = TRUE)
+```
+
 # Choice of test statistic
 
 The two test choices supported by `sequence_compare_htna()`
@@ -182,13 +213,13 @@ sessions in each cohort.
   sessions — for example, sessions from different time periods,
   projects, or experimental conditions — as in the chronological
   split used here.
-- **Chi-square** (`test = "chisq"`) tests whether the observed
-  per-pattern, per-cohort counts depart from the expected counts
-  under independence between pattern and cohort. The test makes no
-  assumption of independence between cohorts and is therefore
-  appropriate when the same units contribute to multiple cohorts —
-  for example, a within-session early/late split where each session
-  contributes events to both halves.
+- **Chi-square** (`test = "chisq"`) tests independence between
+  pattern and cohort in the pooled contingency table. It assumes
+  the underlying counts come from independent observations and is
+  fast — useful as a default when cohorts comprise independent
+  sessions and per-cell pattern counts are large enough for the
+  asymptotic χ² approximation to hold. It is *not* appropriate
+  when the same units contribute to multiple cohorts.
 
 Selection of the test should follow from the design that produced
 the cohort labels.
