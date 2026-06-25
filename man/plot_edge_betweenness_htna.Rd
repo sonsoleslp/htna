@@ -27,9 +27,9 @@ colours, actor legend). Edges are scaled by their betweenness
 score, so the most-traveled shortest-path edges stand out.
 }
 \examples{
-\dontrun{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+\donttest{
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
 plot_edge_betweenness_htna(net)
 plot_edge_betweenness_htna(net, minimum = 5)
 }

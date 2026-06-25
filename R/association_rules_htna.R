@@ -20,9 +20,9 @@
 #' @seealso [frequencies_htna()], [mosaic_plot_htna()].
 #' @examples
 #' \donttest{
-#' data(human_long, ai_long, package = "Nestimate")
-#' net <- build_htna(list(Human = human_long, AI = ai_long))
-#' association_rules_htna(net)
+#' data(human_ai)
+#' net <- build_htna(human_ai, actor_type = "actor_type")
+#' association_rules_htna(net, max_length = 3L)
 #' }
 #' @export
 association_rules_htna <- Nestimate::association_rules

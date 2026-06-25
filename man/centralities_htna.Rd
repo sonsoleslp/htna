@@ -50,9 +50,9 @@ Mapping from measure name to cograph implementation:
 }
 }
 \examples{
-\dontrun{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+\donttest{
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
 centralities_htna(net)
 }
 

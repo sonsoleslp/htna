@@ -9,6 +9,13 @@
 #' @param ... Unused.
 #'
 #' @return The input object, invisibly.
+#' @examples
+#' \donttest{
+#' data(human_ai)
+#' net <- build_htna(human_ai, actor_type = "actor_type")
+#' p <- extract_meta_paths(net, length = 3)
+#' print(p, n = 5)
+#' }
 #' @export
 print.htna_paths <- function(x, n = 10L, ...) {
   level  <- attr(x, "level") %||% "paths"

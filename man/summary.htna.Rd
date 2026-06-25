@@ -35,10 +35,8 @@ actor partition. The result is also returned invisibly as a list so
 callers can inspect the structured summary programmatically.
 }
 \examples{
-\dontrun{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
 summary(net)
-}
 
 }

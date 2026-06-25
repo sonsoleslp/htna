@@ -17,3 +17,11 @@ A combined plot or list of plots for each group.
 \description{
 S3 method for plotting grouped htna stability results.
 }
+\examples{
+\donttest{
+data(human_ai)
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+cs  <- centrality_stability_htna(grp, iter = 20, seed = 1)
+plot(cs)
+}
+}

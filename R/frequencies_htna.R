@@ -23,9 +23,11 @@
 #'   [state_distribution_htna()] (same function under the upstream
 #'   name), [mosaic_plot_htna()].
 #' @examples
-#' data(human_long, ai_long, package = "Nestimate")
-#' net <- build_htna(list(Human = human_long, AI = ai_long))
+#' \donttest{
+#' data(human_ai)
+#' net <- build_htna(human_ai, actor_type = "actor_type")
 #' frequencies_htna(net)
+#' }
 #' @export
 frequencies_htna <- function(x) {
   if (!inherits(x, "htna")) {

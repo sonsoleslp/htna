@@ -58,8 +58,8 @@ Suffixed \verb{_htna} to avoid clashing with
 }
 \examples{
 \donttest{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
 markov_order_test_htna(net$data, max_order = 2, n_perm = 50, seed = 1)
 }
 }

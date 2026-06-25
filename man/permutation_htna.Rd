@@ -61,13 +61,9 @@ when both packages are loaded.
 }
 \examples{
 \donttest{
-data(human_long, ai_long, package = "Nestimate")
-n <- nrow(human_long)
-early <- build_htna(list(Human = human_long[seq_len(n \%/\% 2), ],
-                         AI    = ai_long[seq_len(n \%/\% 2), ]))
-late  <- build_htna(list(Human = human_long[(n \%/\% 2 + 1):n, ],
-                         AI    = ai_long[(n \%/\% 2 + 1):n, ]))
-permutation_htna(early, late, iter = 100)
+data(human_ai)
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+permutation_htna(grp$Early, grp$Late, iter = 50)
 }
 }
 \seealso{

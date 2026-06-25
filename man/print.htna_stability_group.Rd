@@ -17,3 +17,11 @@ Invisibly returns the object, prints group stability information.
 \description{
 S3 method for printing grouped htna stability results.
 }
+\examples{
+\donttest{
+data(human_ai)
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+cs  <- centrality_stability_htna(grp, iter = 20, seed = 1)
+print(cs)
+}
+}

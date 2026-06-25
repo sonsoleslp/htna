@@ -33,8 +33,8 @@
 #'   [mosaic_plot_htna()].
 #' @examples
 #' \donttest{
-#' data(human_long, ai_long, package = "Nestimate")
-#' net <- build_htna(list(Human = human_long, AI = ai_long))
+#' data(human_ai)
+#' net <- build_htna(human_ai, actor_type = "actor_type")
 #' plot_frequencies_htna(net, view = "treemap")
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
 #'   plot_frequencies_htna(net, view = "bars")

@@ -29,9 +29,9 @@
 #' @seealso [Nestimate::sequence_plot()], [build_htna()].
 #'
 #' @examples
-#' \dontrun{
-#' data(human_long, ai_long, package = "Nestimate")
-#' net <- build_htna(list(Human = human_long, AI = ai_long))
+#' \donttest{
+#' data(human_ai)
+#' net <- build_htna(human_ai, actor_type = "actor_type")
 #'
 #' sequence_plot_htna(net)                       # index, faceted
 #' sequence_plot_htna(net, type = "heatmap")     # single carpet, white gulf
@@ -274,8 +274,8 @@ sequence_plot_htna <- function(net,
 #' @return Method-defined.
 #' @examples
 #' \donttest{
-#' data(human_long, ai_long, package = "Nestimate")
-#' net <- build_htna(list(Human = human_long, AI = ai_long))
+#' data(human_ai)
+#' net <- build_htna(human_ai, actor_type = "actor_type")
 #' plot_sequences(net)
 #' }
 #' @export

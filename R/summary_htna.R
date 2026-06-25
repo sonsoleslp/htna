@@ -21,11 +21,9 @@
 #'   }
 #'
 #' @examples
-#' \dontrun{
-#' data(human_long, ai_long, package = "Nestimate")
-#' net <- build_htna(list(Human = human_long, AI = ai_long))
+#' data(human_ai)
+#' net <- build_htna(human_ai, actor_type = "actor_type")
 #' summary(net)
-#' }
 #'
 #' @export
 summary.htna <- function(object, max_nodes = 12L, ...) {

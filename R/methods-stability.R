@@ -8,6 +8,13 @@
 #'
 #' @return A ggplot object or plot output, depending on the underlying method.
 #'
+#' @examples
+#' \donttest{
+#' data(human_ai)
+#' net <- build_htna(human_ai, actor_type = "actor_type")
+#' cs  <- centrality_stability_htna(net, iter = 20, seed = 1)
+#' plot(cs)
+#' }
 #' @export
 plot.htna_stability <- function(x, ...) {
   # Use cograph's implementation for htna stability plots
@@ -40,6 +47,13 @@ plot.htna_stability <- function(x, ...) {
 #'
 #' @return Invisibly returns the object, prints stability information.
 #'
+#' @examples
+#' \donttest{
+#' data(human_ai)
+#' net <- build_htna(human_ai, actor_type = "actor_type")
+#' cs  <- centrality_stability_htna(net, iter = 20, seed = 1)
+#' print(cs)
+#' }
 #' @export
 print.htna_stability <- function(x, ...) {
   cat("HTNA Centrality Stability Analysis\n")
@@ -66,6 +80,13 @@ print.htna_stability <- function(x, ...) {
 #'
 #' @return A combined plot or list of plots for each group.
 #'
+#' @examples
+#' \donttest{
+#' data(human_ai)
+#' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#' cs  <- centrality_stability_htna(grp, iter = 20, seed = 1)
+#' plot(cs)
+#' }
 #' @export
 plot.htna_stability_group <- function(x, ...) {
   # Plot each group's stability
@@ -94,6 +115,13 @@ plot.htna_stability_group <- function(x, ...) {
 #'
 #' @return Invisibly returns the object, prints group stability information.
 #'
+#' @examples
+#' \donttest{
+#' data(human_ai)
+#' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#' cs  <- centrality_stability_htna(grp, iter = 20, seed = 1)
+#' print(cs)
+#' }
 #' @export
 print.htna_stability_group <- function(x, ...) {
   cat("HTNA Centrality Stability Analysis (Grouped)\n")

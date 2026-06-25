@@ -8,8 +8,8 @@
 #' @param data Either:
 #'   \itemize{
 #'     \item A named list of long-format data frames, one per actor type
-#'       (e.g. \code{list(Human = human_long, AI = ai_long)}). All frames
-#'       must share the same column schema.
+#'       (e.g. \code{list(Human = human_simplified, AI = ai_simplified)}).
+#'       All frames must share the same column schema.
 #'     \item A single long-format data frame. In that case either
 #'       \code{actor_type} (row-level actor-type IDs) or \code{node_groups}
 #'       (node-level actor-type lookup) must be supplied.
@@ -79,18 +79,14 @@
 #'   \code{\link[cograph]{plot_htna}}
 #'
 #' @examples
-#' \dontrun{
-#' data(human_long, ai_long, package = "Nestimate")
-#' net <- build_htna(list(Human = human_long, AI = ai_long))
-#' net$node_groups            # canonical (node, group) schema
-#' cograph::plot_htna(net)    # auto-detects $nodes$groups, no other args
+#' data(human_ai, human_simplified, ai_simplified)
 #'
-#' # Single combined frame with row-level actor-type tag and an
-#' # individual-actor id forwarded to Nestimate.
-#' df <- rbind(transform(human_long, actor_type = "Human"),
-#'             transform(ai_long,    actor_type = "AI"))
-#' net <- build_htna(df, actor_type = "actor_type", actor = "session_id")
-#' }
+#' # Form 1: named list of per-actor frames
+#' net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
+#' head(net$node_groups)
+#'
+#' # Form 2: single combined frame with a row-level actor-type tag
+#' net <- build_htna(human_ai, actor_type = "actor_type")
 #'
 #' @export
 build_htna <- function(data,

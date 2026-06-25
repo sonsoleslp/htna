@@ -28,9 +28,11 @@ Suffixed \verb{_htna} to avoid clashing with
 \code{Nestimate::state_frequencies()} when both packages are loaded.
 }
 \examples{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+\donttest{
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
 state_frequencies_htna(net$data)
+}
 }
 \seealso{
 \code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}}, \code{\link[=state_distribution_htna]{state_distribution_htna()}}.

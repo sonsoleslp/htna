@@ -66,9 +66,9 @@ Suffixed \verb{_htna} to avoid clashing with
 }
 \examples{
 \donttest{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
-casedrop_reliability_htna(net, iter = 50, seed = 1)
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
+casedrop_reliability_htna(net, iter = 20, seed = 1)
 }
 }
 \seealso{

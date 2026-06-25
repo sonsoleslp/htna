@@ -62,7 +62,7 @@
 #'   \code{\link{human_ai_codebook}}.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' plot_htna(net)
@@ -88,7 +88,7 @@
 #'   \code{\link{human_ai_codebook}}.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(human_simplified, ai_simplified)
 #' net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
 #' plot_htna(net)
@@ -113,7 +113,7 @@
 #'   \code{\link{human_ai_codebook}}.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(human_simplified, ai_simplified)
 #' net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
 #' plot_htna(net)
@@ -142,7 +142,7 @@
 #'   \code{\link{ai_simplified}}.
 #'
 #' @examples
-#' \dontrun{
+#' \donttest{
 #' data(human_ai, human_ai_codebook)
 #' net <- build_htna(human_ai, node_groups = human_ai_codebook)
 #' plot_htna(net)

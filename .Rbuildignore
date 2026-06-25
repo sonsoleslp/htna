@@ -7,7 +7,6 @@
 ^\.Rproj\.user$
 ^.*\.Rproj$
 ^README\.Rmd$
-^README\.md$
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$

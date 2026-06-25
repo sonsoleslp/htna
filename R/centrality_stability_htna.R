@@ -48,10 +48,10 @@
 #'   [bootstrap_htna()], [reliability_htna()].
 #'
 #' @examples
-#' \dontrun{
-#' data(human_long, ai_long, package = "Nestimate")
-#' net <- build_htna(list(Human = human_long, AI = ai_long))
-#' cs  <- centrality_stability_htna(net, iter = 100, seed = 1)
+#' \donttest{
+#' data(human_ai)
+#' net <- build_htna(human_ai, actor_type = "actor_type")
+#' cs  <- centrality_stability_htna(net, iter = 30, seed = 1)
 #' cs$cs
 #' }
 #'

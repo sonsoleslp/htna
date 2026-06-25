@@ -53,13 +53,12 @@ plots each (no \code{par(mfrow=...)} management - user controls layout).
 In all cases the layout, node colours and donut match \code{\link[=plot_htna]{plot_htna()}}.
 }
 \examples{
-\dontrun{
-data(human_long, ai_long, package = "Nestimate")
-net1 <- build_htna(list(Human = human_long,        AI = ai_long))
-net2 <- build_htna(list(Human = human_long[1:50,], AI = ai_long))
-plot_htna_diff(net1, net2)
+\donttest{
+data(human_ai)
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+plot_htna_diff(grp$Early, grp$Late)
 
-perm <- permutation(net1, net2, iter = 200)
+perm <- permutation_htna(grp$Early, grp$Late, iter = 50)
 plot_htna_diff(perm)
 plot_htna_diff(perm, show_nonsig = TRUE)
 }

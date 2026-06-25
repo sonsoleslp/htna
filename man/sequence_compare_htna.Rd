@@ -70,16 +70,14 @@ comparison runs on meta-paths.
 }
 \examples{
 \donttest{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
-n   <- nrow(net$data)
-grp <- rep(c("early", "late"), length.out = n)
+data(human_ai)
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 
 # State-level comparison (default)
-sequence_compare_htna(net, group = grp, iter = 50)
+sequence_compare_htna(grp, iter = 50)
 
 # Meta-path comparison
-sequence_compare_htna(net, group = grp, level = "type", iter = 50)
+sequence_compare_htna(grp, level = "type", iter = 50)
 }
 }
 \seealso{

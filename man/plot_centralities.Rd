@@ -52,12 +52,12 @@ Accepts an htna network, an \code{htna_group}, or a data frame produced by
 panel.
 }
 \examples{
-\dontrun{
-net <- build_htna(list(Human = human_long, AI = ai_long))
+\donttest{
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
 plot_centralities(net)
 
-grp <- build_htna(list(Human = human_long, AI = ai_long),
-                  group = "cluster")
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 plot_centralities(grp)
 }
 }

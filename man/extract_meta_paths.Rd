@@ -89,9 +89,9 @@ same schema becomes \code{Human->AI->Human}.
 Operates on the actor partition stored on the network by \code{\link[=build_htna]{build_htna()}}.
 }
 \examples{
-\dontrun{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+\donttest{
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
 
 # Concrete state-level patterns of length 2..4 (default)
 extract_meta_paths(net)

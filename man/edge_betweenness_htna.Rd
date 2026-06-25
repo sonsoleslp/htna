@@ -36,9 +36,9 @@ larger transition probability means the edge is "easier" and so the
 equivalent path cost is smaller.
 }
 \examples{
-\dontrun{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+\donttest{
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
 eb  <- edge_betweenness_htna(net)
 plot_htna(eb)                 # edge thickness = betweenness score
 }

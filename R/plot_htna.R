@@ -3,6 +3,9 @@
 #' A colour palette for up to 6 actor groups, used by [plot_htna()] when
 #' no explicit colours are supplied.
 #'
+#' @return A character vector of 6 hex colour codes.
+#' @examples
+#' htna:::htna_palette
 #' @keywords internal
 htna_palette <- c(
   "#FFD966",
@@ -34,11 +37,11 @@ htna_palette <- c(
 #' @seealso [cograph::plot_htna()], [build_htna()]
 #'
 #' @examples
-#' \dontrun{
-#' data(human_long, ai_long, package = "Nestimate")
-#' net <- build_htna(list(Human = human_long, AI = ai_long))
+#' \donttest{
+#' data(human_ai)
+#' net <- build_htna(human_ai, actor_type = "actor_type")
 #' plot_htna(net)
-#' plot_htna(net, layout = "auto", threshold = 0.1)
+#' plot_htna(net, layout = "auto", minimum = 0.1)
 #' }
 #'
 #' @export
@@ -129,7 +132,7 @@ plot.htna_group <- function(x, ...) plot_htna(x, ...)
 #'   vector of group labels (used for `names()` on the result).
 #' @param palette Colour palette to draw from. Defaults to [htna_palette].
 #' @return Character vector of colours, length `n` (named when levels given).
-#' @keywords internal
+#' @noRd
 .htna_actor_colors <- function(n_or_levels, palette = htna_palette) {
   if (is.character(n_or_levels)) {
     nms <- n_or_levels

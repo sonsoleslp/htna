@@ -30,9 +30,11 @@ both packages are loaded. If you have raw data rather than an htna
 network, call \code{Nestimate::frequencies()} directly.
 }
 \examples{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+\donttest{
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
 frequencies_htna(net)
+}
 }
 \seealso{
 \code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}} for the rendered version,

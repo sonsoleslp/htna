@@ -4,7 +4,7 @@
 #' [sequence_plot_htna()] (and `Nestimate::sequence_plot()` internally).
 #' Used by [plot_centralities()] when `by = "state"`.
 #'
-#' @keywords internal
+#' @noRd
 htna_state_palette <- c(
   "#E69F00", "#56B4E9", "#009E73", "#F0E442",
   "#0072B2", "#D55E00", "#CC79A7", "#999999", "#000000"
@@ -44,9 +44,9 @@ htna_state_palette <- c(
 #' @return A data frame with one row per node.
 #'
 #' @examples
-#' \dontrun{
-#' data(human_long, ai_long, package = "Nestimate")
-#' net <- build_htna(list(Human = human_long, AI = ai_long))
+#' \donttest{
+#' data(human_ai)
+#' net <- build_htna(human_ai, actor_type = "actor_type")
 #' centralities_htna(net)
 #' }
 #'
@@ -186,12 +186,12 @@ centralities_htna <- function(x,
 #' @return A ggplot object.
 #' @seealso [centralities_htna()].
 #' @examples
-#' \dontrun{
-#' net <- build_htna(list(Human = human_long, AI = ai_long))
+#' \donttest{
+#' data(human_ai)
+#' net <- build_htna(human_ai, actor_type = "actor_type")
 #' plot_centralities(net)
 #'
-#' grp <- build_htna(list(Human = human_long, AI = ai_long),
-#'                   group = "cluster")
+#' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 #' plot_centralities(grp)
 #' }
 #' @export

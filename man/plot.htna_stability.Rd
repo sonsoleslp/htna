@@ -18,3 +18,11 @@ A ggplot object or plot output, depending on the underlying method.
 S3 method for plotting htna centrality stability results.
 Dispatches to cograph's plotting method with htna-specific styling.
 }
+\examples{
+\donttest{
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
+cs  <- centrality_stability_htna(net, iter = 20, seed = 1)
+plot(cs)
+}
+}

@@ -45,10 +45,10 @@ to what \code{\link[=build_htna]{build_htna()}} returns.
 }
 }
 \examples{
-\dontrun{
-data(human_long, ai_long, package = "Nestimate")
-net  <- build_htna(list(Human = human_long, AI = ai_long))
-boot <- bootstrap_htna(net, iter = 200)
+\donttest{
+data(human_ai)
+net  <- build_htna(human_ai, actor_type = "actor_type")
+boot <- bootstrap_htna(net, iter = 50)
 inherits(boot, "htna_bootstrap")            # TRUE
 inherits(boot$model, "htna")                # TRUE
 head(boot$summary)                          # state-level edge stability

@@ -38,10 +38,10 @@ element is plotted individually with its name as the title - this
 function does not manage \code{par(mfrow=...)}.
 }
 \examples{
-\dontrun{
-data(human_long, ai_long, package = "Nestimate")
-net  <- build_htna(list(Human = human_long, AI = ai_long))
-boot <- bootstrap_htna(net, iter = 200)
+\donttest{
+data(human_ai)
+net  <- build_htna(human_ai, actor_type = "actor_type")
+boot <- bootstrap_htna(net, iter = 50)
 plot_htna_bootstrap(boot)
 plot_htna_bootstrap(boot, display = "significant")
 }

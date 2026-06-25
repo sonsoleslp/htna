@@ -10,8 +10,14 @@ An object of class \code{character} of length 6.
 \usage{
 htna_palette
 }
+\value{
+A character vector of 6 hex colour codes.
+}
 \description{
 A colour palette for up to 6 actor groups, used by \code{\link[=plot_htna]{plot_htna()}} when
 no explicit colours are supplied.
+}
+\examples{
+htna:::htna_palette
 }
 \keyword{internal}

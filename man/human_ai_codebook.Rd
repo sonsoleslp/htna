@@ -27,7 +27,7 @@ A tidy two-column lookup tagging every simplified code in
 \code{vignette("input-formats", package = "htna")}).
 }
 \examples{
-\dontrun{
+\donttest{
 data(human_ai, human_ai_codebook)
 net <- build_htna(human_ai, node_groups = human_ai_codebook)
 plot_htna(net)

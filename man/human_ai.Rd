@@ -70,7 +70,7 @@ label across rows. The \code{cluster} column is preserved verbatim
 from the source data and should be treated as informational only.
 }
 \examples{
-\dontrun{
+\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 plot_htna(net)

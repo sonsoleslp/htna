@@ -44,11 +44,11 @@ networks built by \code{\link[=build_htna]{build_htna()}}. When \code{layout = "
 layout is computed so that the first actor group appears on the left.
 }
 \examples{
-\dontrun{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+\donttest{
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
 plot_htna(net)
-plot_htna(net, layout = "auto", threshold = 0.1)
+plot_htna(net, layout = "auto", minimum = 0.1)
 }
 
 }

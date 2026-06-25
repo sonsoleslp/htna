@@ -23,7 +23,7 @@ Codes have already been collapsed into the simplified AI alphabet;
 see \code{\link{human_ai}} for the remapping rules.
 }
 \examples{
-\dontrun{
+\donttest{
 data(human_simplified, ai_simplified)
 net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
 plot_htna(net)

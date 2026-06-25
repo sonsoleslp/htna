@@ -4,6 +4,7 @@
 #'
 #' @keywords internal
 #' @name htna-utils
+#' @noRd
 NULL
 
 #' @keywords internal

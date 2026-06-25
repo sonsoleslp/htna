@@ -20,8 +20,8 @@ network forwards to \code{\link[=sequence_plot_htna]{sequence_plot_htna()}}.
 }
 \examples{
 \donttest{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
 plot_sequences(net)
 }
 }
