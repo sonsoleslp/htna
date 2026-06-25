@@ -66,31 +66,34 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of <code>htna</code> from <a href="https://github.com/sonsoleslp/htna" class="external-link">GitHub</a>:</p>
+<p>Install the released version of <code>htna</code> from CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"htna"</span><span class="op">)</span></span></code></pre></div>
+<p>Or the development version from <a href="https://github.com/sonsoleslp/htna" class="external-link">GitHub</a>:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"sonsoleslp/htna"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://sonsoles.me/htna/">"htna"</a></span><span class="op">)</span></span></code></pre></div>
 <p>Load the example data shipped with <code>htna</code>:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="build-a-heterogeneous-transition-network">Build a heterogeneous transition network<a class="anchor" aria-label="anchor" href="#build-a-heterogeneous-transition-network"></a>
 </h3>
 <p><code><a href="reference/build_htna.html">build_htna()</a></code> takes a data frame with a column indicating the actor type, combines the sequences, estimates transition probabilities, and stores the actor partition on the resulting network:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="plot-the-network">Plot the network<a class="anchor" aria-label="anchor" href="#plot-the-network"></a>
 </h3>
 <p><code><a href="reference/plot_htna.html">plot_htna()</a></code> auto-detects the actor groups and renders them with distinct colours:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">net</span>, threshold <span class="op">=</span> <span class="fl">0.05</span>, layout <span class="op">=</span> <span class="st">"circular"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-htna-plot-1.png" alt="" width="60%" style="display: block; margin: auto;"></p>
 </div>
@@ -98,7 +101,7 @@
 <h3 id="extract-path-patterns">Extract path patterns<a class="anchor" aria-label="anchor" href="#extract-path-patterns"></a>
 </h3>
 <p>By default <code><a href="reference/extract_meta_paths.html">extract_meta_paths()</a></code> enumerates concrete state-level patterns and tags each row with the type-level template it instantiates:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/extract_meta_paths.html">extract_meta_paths</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Patterns (state-level) over 429 sequences</span></span>
 <span><span class="co">#&gt; Rows: 5445 | Lengths: 2, 3, 4 | Gaps: 0</span></span>
@@ -115,7 +118,7 @@
 <span><span class="co">#&gt;  Execute-&gt;Frustrate    AI-&gt;Human      2   0   451   230   0.536     0.024 1.50</span></span>
 <span><span class="co">#&gt; ... (5435 more)</span></span></code></pre></div>
 <p>Filter to concrete instances of a type-level template. Schema parts can mix type names, concrete codes, and <code>*</code>:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/extract_meta_paths.html">extract_meta_paths</a></span><span class="op">(</span><span class="va">net</span>, schema <span class="op">=</span> <span class="st">"Human-&gt;AI-&gt;Human"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; State-level instances of schema 'Human-&gt;AI-&gt;Human' over 429 sequences</span></span>
 <span><span class="co">#&gt; Rows: 163 | Lengths: 3 | Gaps: 0</span></span>
@@ -169,7 +172,7 @@
 <span><span class="co">#&gt;      0.025  0.93</span></span>
 <span><span class="co">#&gt; ... (53 more)</span></span></code></pre></div>
 <p>Pass <code>level = "type"</code> for the type-level meta-path summary:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/extract_meta_paths.html">extract_meta_paths</a></span><span class="op">(</span><span class="va">net</span>, level <span class="op">=</span> <span class="st">"type"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Meta-paths (type-level) over 429 sequences</span></span>
 <span><span class="co">#&gt; Rows: 28 | Lengths: 2, 3, 4 | Gaps: 0</span></span>
@@ -206,6 +209,8 @@
 </h2>
 <ul>
 <li>López-Pernas, S., Misiejuk, K., Tikka, S., &amp; Saqr, M. (2026). Role Dynamics in Student–AI Collaboration: A Heterogeneous Transition Network Analysis Approach. Innovations in Analytics of Learning Dynamics: Proceedings of the 1st Workshop on Transition Network Analysis (TNA). <a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6082190" class="external-link uri">https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6082190</a>
+</li>
+<li>López-Pernas, S., Misiejuk, K., &amp; Saqr, M. (2026). How AI ‐generated feedback hinders or helps learning: A heterogeneous TNA study of learning dynamics. Journal of Computer Assisted Learning, 42(4), e70285. <a href="https://doi.org/10.1002/jcal.70285" class="external-link uri">https://doi.org/10.1002/jcal.70285</a>
 </li>
 <li>Rinja, D., Oliveira, E. A., López-Pernas, S., Saqr, M., Specht, M., &amp; Misiejuk, K. (2026). Unpacking vibe coding: Help-seeking processes in student-AI interactions while programming. Proceedings of Artificial Intelligence in Education: 27th International Conference, AIED 2026. <a href="https://doi.org/10.48550/arXiv.2604.27134" class="external-link uri">https://doi.org/10.48550/arXiv.2604.27134</a>
 </li>

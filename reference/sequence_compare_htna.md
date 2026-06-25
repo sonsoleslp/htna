@@ -100,69 +100,69 @@ for descriptive meta-path enumeration.
 
 ``` r
 # \donttest{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+data(human_ai)
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 #> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
-#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)
-n   <- nrow(net$data)
-grp <- rep(c("early", "late"), length.out = n)
+#> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
 
 # State-level comparison (default)
-sequence_compare_htna(net, group = grp, iter = 50)
-#> Sequence Comparison  [647 patterns | 2 groups: early, late]
+sequence_compare_htna(grp, iter = 50)
+#> Sequence Comparison  [699 patterns | 2 groups: Early, Late]
 #>   Lengths: 3, 4, 5  |  min_freq: 5  |  permutation: 50 iter (fdr)
 #> 
-#>                                    pattern length freq_early freq_late
-#>                Specify->Execute->Interrupt      3         16        40
-#>     Command->Specify->Investigate->Command      4         17         6
-#>     Specify->Investigate->Specify->Specify      4         17         5
-#>         Specify->Execute->Specify->Specify      4          7        17
-#>         Command->Execute->Inquire->Execute      4          7        19
-#>  Plan->Specify->Specify->Investigate->Plan      5         20         8
-#>      Execute->Refine->Specify->Investigate      4         23        10
-#>                Frustrate->Specify->Execute      3          9        20
-#>              Frustrate->Execute->Frustrate      3         17         6
-#>                  Execute->Inquire->Execute      3         38        66
-#>    prop_early    prop_late resid_early resid_late effect_size p_value
-#>  0.0016576875 0.0045259108   -3.545384   3.545384    5.078925       1
-#>  0.0018014199 0.0006955715    2.081757  -2.081757    2.932710       1
-#>  0.0018014199 0.0005796429    2.351619  -2.351619    2.645629       1
-#>  0.0007417612 0.0019707860   -2.264986   2.264986    2.274416       1
-#>  0.0007417612 0.0022026432   -2.586801   2.586801    2.266562       1
-#>  0.0021687270 0.0009505703    2.029712  -2.029712    2.262807       1
-#>  0.0024372152 0.0011592859    2.008948  -2.008948    2.130374       1
-#>  0.0009324492 0.0022629554   -2.283728   2.283728    2.029105       1
-#>  0.0017612930 0.0006788866    2.085847  -2.085847    2.008580       1
-#>  0.0039370079 0.0074677529   -3.206714   3.206714    2.003553       1
-#>   ... and 637 more patterns
+#>                                 pattern length freq_Early freq_Late
+#>          Specify->Request->Specify->Ask      4         10        58
+#>             Frustrate->Ask->Plan->Check      4         39         7
+#>    Specify->Request->Specify->Ask->Plan      5          8        35
+#>    Specify->Frustrate->Ask->Plan->Check      5         37         6
+#>               Specify->Request->Specify      3         82       116
+#>  Request->Specify->Frustrate->Ask->Plan      5        105        51
+#>                    Ask->Plan->Frustrate      3         74       112
+#>             Request->Specify->Frustrate      3        160        88
+#>                   Request->Specify->Ask      3        147       197
+#>                   Execute->Ask->Request      3          6        22
+#>    prop_Early    prop_Late resid_Early resid_Late effect_size   p_value
+#>  0.0010494281 0.0067963440   -6.296503   6.296503    8.420388 0.3114973
+#>  0.0040927694 0.0008202484    4.356696  -4.356696    6.541789 0.3114973
+#>  0.0008586455 0.0042062252   -4.500415   4.500415    6.420094 0.3114973
+#>  0.0039712354 0.0007210672    4.369457  -4.369457    6.374350 0.3114973
+#>  0.0084171628 0.0132601738   -3.194473   3.194473    5.130398 0.3114973
+#>  0.0112697220 0.0061290710    3.640078  -3.640078    5.102890 0.3114973
+#>  0.0075959762 0.0128029264   -3.542427   3.542427    5.033177 0.3114973
+#>  0.0164237323 0.0100594422    3.756080  -3.756080    4.866214 0.3114973
+#>  0.0150893040 0.0225194330   -3.733134   3.733134    4.556679 0.3114973
+#>  0.0006158900 0.0025148605   -3.315483   3.315483    4.490829 0.3114973
+#>   ... and 689 more patterns
 
 # Meta-path comparison
-sequence_compare_htna(net, group = grp, level = "type", iter = 50)
-#> Sequence Comparison  [55 patterns | 2 groups: early, late]
+sequence_compare_htna(grp, level = "type", iter = 50)
+#> Sequence Comparison  [55 patterns | 2 groups: Early, Late]
 #>   Lengths: 3, 4, 5  |  min_freq: 5  |  permutation: 50 iter (fdr)
 #> 
-#>                      pattern length freq_early freq_late prop_early  prop_late
-#>     Human->AI->Human->AI->AI      5        203       187 0.02201258 0.02221958
-#>     Human->Human->AI->AI->AI      5        121       108 0.01312080 0.01283270
-#>          Human->Human->Human      3        765       707 0.07925818 0.07999547
-#>  Human->Human->AI->Human->AI      5        348       320 0.03773585 0.03802281
-#>     AI->Human->Human->AI->AI      5        489       447 0.05302537 0.05311312
-#>      AI->Human->Human->Human      4        280       252 0.02967045 0.02921400
-#>            AI->AI->Human->AI      4        496       457 0.05255908 0.05297936
-#>      Human->Human->Human->AI      4        454       422 0.04810851 0.04892186
-#>  AI->Human->AI->Human->Human      5        438       402 0.04749512 0.04776616
-#>   Human->Human->Human->Human      4        308       278 0.03263749 0.03222815
-#>  resid_early  resid_late effect_size   p_value
-#>  -0.09338247  0.09338247   -1.433885 0.9766926
-#>   0.16882097 -0.16882097   -1.342532 0.9766926
-#>  -0.18500516  0.18500516   -1.245541 0.9766926
-#>  -0.09972162  0.09972162   -1.218174 0.9766926
-#>  -0.02596475  0.02596475   -1.209401 0.9766926
-#>   0.18123540 -0.18123540   -1.140339 0.9766926
-#>  -0.12620976  0.12620976   -1.094861 0.9766926
-#>  -0.25418197  0.25418197   -1.085603 0.9766926
-#>  -0.08442168  0.08442168   -1.061727 0.9766926
-#>   0.15510366 -0.15510366   -1.053529 0.9766926
+#>                         pattern length freq_Early freq_Late  prop_Early
+#>  Human->Human->Human->AI->Human      5        112       196 0.012021037
+#>  AI->Human->Human->Human->Human      5         41        71 0.004400558
+#>            Human->AI->AI->Human      4        976       796 0.102424179
+#>            Human->Human->AI->AI      4        846       646 0.088781614
+#>                   Human->AI->AI      3       1203       986 0.123485937
+#>                Human->AI->Human      3       1813      1780 0.186101417
+#>     Human->AI->Human->AI->Human      5        647       695 0.069442954
+#>           AI->Human->AI->AI->AI      5         44        63 0.004722550
+#>     Human->Human->AI->AI->Human      5        676       525 0.072555544
+#>        AI->AI->Human->AI->Human      5        363       279 0.038961039
+#>    prop_Late resid_Early resid_Late effect_size   p_value
+#>  0.023554861   -5.837799   5.837799    7.627748 0.1540616
+#>  0.008532628   -3.448798   3.448798    3.804741 0.1540616
+#>  0.093273963    2.064052  -2.064052    3.517733 0.1540616
+#>  0.075697211    3.189261  -3.189261    3.499731 0.1540616
+#>  0.112711477    2.264188  -2.264188    3.290279 0.1540616
+#>  0.203475080   -2.980988   2.980988    3.252581 0.1540616
+#>  0.083523615   -3.520925   3.520925    2.749593 0.1540616
+#>  0.007571205   -2.432177   2.432177    2.809446 0.1659125
+#>  0.063093378    2.490338  -2.490338    2.556875 0.1659125
+#>  0.033529624    1.922749  -1.922749    2.477371 0.1659125
 #>   ... and 45 more patterns
 # }
 ```

@@ -135,69 +135,69 @@ comparison runs on meta-paths.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_long</span>, <span class="va">ai_long</span>, package <span class="op">=</span> <span class="st">"Nestimate"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Human <span class="op">=</span> <span class="va">human_long</span>, AI <span class="op">=</span> <span class="va">ai_long</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">grp</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span>, group <span class="op">=</span> <span class="st">"phase"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)</span>
-<span class="r-in"><span><span class="va">n</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">net</span><span class="op">$</span><span class="va">data</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">grp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"early"</span>, <span class="st">"late"</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="va">n</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># State-level comparison (default)</span></span></span>
-<span class="r-in"><span><span class="fu">sequence_compare_htna</span><span class="op">(</span><span class="va">net</span>, group <span class="op">=</span> <span class="va">grp</span>, iter <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sequence Comparison  [647 patterns | 2 groups: early, late]</span>
+<span class="r-in"><span><span class="fu">sequence_compare_htna</span><span class="op">(</span><span class="va">grp</span>, iter <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sequence Comparison  [699 patterns | 2 groups: Early, Late]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Lengths: 3, 4, 5  |  min_freq: 5  |  permutation: 50 iter (fdr)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                    pattern length freq_early freq_late</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                Specify-&gt;Execute-&gt;Interrupt      3         16        40</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Command-&gt;Specify-&gt;Investigate-&gt;Command      4         17         6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Specify-&gt;Investigate-&gt;Specify-&gt;Specify      4         17         5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         Specify-&gt;Execute-&gt;Specify-&gt;Specify      4          7        17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         Command-&gt;Execute-&gt;Inquire-&gt;Execute      4          7        19</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Plan-&gt;Specify-&gt;Specify-&gt;Investigate-&gt;Plan      5         20         8</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      Execute-&gt;Refine-&gt;Specify-&gt;Investigate      4         23        10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                Frustrate-&gt;Specify-&gt;Execute      3          9        20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>              Frustrate-&gt;Execute-&gt;Frustrate      3         17         6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                  Execute-&gt;Inquire-&gt;Execute      3         38        66</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    prop_early    prop_late resid_early resid_late effect_size p_value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0016576875 0.0045259108   -3.545384   3.545384    5.078925       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0018014199 0.0006955715    2.081757  -2.081757    2.932710       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0018014199 0.0005796429    2.351619  -2.351619    2.645629       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0007417612 0.0019707860   -2.264986   2.264986    2.274416       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0007417612 0.0022026432   -2.586801   2.586801    2.266562       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0021687270 0.0009505703    2.029712  -2.029712    2.262807       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0024372152 0.0011592859    2.008948  -2.008948    2.130374       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0009324492 0.0022629554   -2.283728   2.283728    2.029105       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0017612930 0.0006788866    2.085847  -2.085847    2.008580       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0039370079 0.0074677529   -3.206714   3.206714    2.003553       1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ... and 637 more patterns</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                 pattern length freq_Early freq_Late</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          Specify-&gt;Request-&gt;Specify-&gt;Ask      4         10        58</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Frustrate-&gt;Ask-&gt;Plan-&gt;Check      4         39         7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Specify-&gt;Request-&gt;Specify-&gt;Ask-&gt;Plan      5          8        35</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Specify-&gt;Frustrate-&gt;Ask-&gt;Plan-&gt;Check      5         37         6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               Specify-&gt;Request-&gt;Specify      3         82       116</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Request-&gt;Specify-&gt;Frustrate-&gt;Ask-&gt;Plan      5        105        51</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                    Ask-&gt;Plan-&gt;Frustrate      3         74       112</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Request-&gt;Specify-&gt;Frustrate      3        160        88</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Request-&gt;Specify-&gt;Ask      3        147       197</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Execute-&gt;Ask-&gt;Request      3          6        22</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    prop_Early    prop_Late resid_Early resid_Late effect_size   p_value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0010494281 0.0067963440   -6.296503   6.296503    8.420388 0.3114973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0040927694 0.0008202484    4.356696  -4.356696    6.541789 0.3114973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0008586455 0.0042062252   -4.500415   4.500415    6.420094 0.3114973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0039712354 0.0007210672    4.369457  -4.369457    6.374350 0.3114973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0084171628 0.0132601738   -3.194473   3.194473    5.130398 0.3114973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0112697220 0.0061290710    3.640078  -3.640078    5.102890 0.3114973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0075959762 0.0128029264   -3.542427   3.542427    5.033177 0.3114973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0164237323 0.0100594422    3.756080  -3.756080    4.866214 0.3114973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0150893040 0.0225194330   -3.733134   3.733134    4.556679 0.3114973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.0006158900 0.0025148605   -3.315483   3.315483    4.490829 0.3114973</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ... and 689 more patterns</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Meta-path comparison</span></span></span>
-<span class="r-in"><span><span class="fu">sequence_compare_htna</span><span class="op">(</span><span class="va">net</span>, group <span class="op">=</span> <span class="va">grp</span>, level <span class="op">=</span> <span class="st">"type"</span>, iter <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Sequence Comparison  [55 patterns | 2 groups: early, late]</span>
+<span class="r-in"><span><span class="fu">sequence_compare_htna</span><span class="op">(</span><span class="va">grp</span>, level <span class="op">=</span> <span class="st">"type"</span>, iter <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Sequence Comparison  [55 patterns | 2 groups: Early, Late]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Lengths: 3, 4, 5  |  min_freq: 5  |  permutation: 50 iter (fdr)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                      pattern length freq_early freq_late prop_early  prop_late</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Human-&gt;AI-&gt;Human-&gt;AI-&gt;AI      5        203       187 0.02201258 0.02221958</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Human-&gt;Human-&gt;AI-&gt;AI-&gt;AI      5        121       108 0.01312080 0.01283270</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>          Human-&gt;Human-&gt;Human      3        765       707 0.07925818 0.07999547</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Human-&gt;Human-&gt;AI-&gt;Human-&gt;AI      5        348       320 0.03773585 0.03802281</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     AI-&gt;Human-&gt;Human-&gt;AI-&gt;AI      5        489       447 0.05302537 0.05311312</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      AI-&gt;Human-&gt;Human-&gt;Human      4        280       252 0.02967045 0.02921400</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>            AI-&gt;AI-&gt;Human-&gt;AI      4        496       457 0.05255908 0.05297936</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      Human-&gt;Human-&gt;Human-&gt;AI      4        454       422 0.04810851 0.04892186</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  AI-&gt;Human-&gt;AI-&gt;Human-&gt;Human      5        438       402 0.04749512 0.04776616</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Human-&gt;Human-&gt;Human-&gt;Human      4        308       278 0.03263749 0.03222815</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  resid_early  resid_late effect_size   p_value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.09338247  0.09338247   -1.433885 0.9766926</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.16882097 -0.16882097   -1.342532 0.9766926</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.18500516  0.18500516   -1.245541 0.9766926</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.09972162  0.09972162   -1.218174 0.9766926</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.02596475  0.02596475   -1.209401 0.9766926</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.18123540 -0.18123540   -1.140339 0.9766926</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.12620976  0.12620976   -1.094861 0.9766926</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.25418197  0.25418197   -1.085603 0.9766926</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  -0.08442168  0.08442168   -1.061727 0.9766926</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   0.15510366 -0.15510366   -1.053529 0.9766926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                         pattern length freq_Early freq_Late  prop_Early</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Human-&gt;Human-&gt;Human-&gt;AI-&gt;Human      5        112       196 0.012021037</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  AI-&gt;Human-&gt;Human-&gt;Human-&gt;Human      5         41        71 0.004400558</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Human-&gt;AI-&gt;AI-&gt;Human      4        976       796 0.102424179</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Human-&gt;Human-&gt;AI-&gt;AI      4        846       646 0.088781614</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Human-&gt;AI-&gt;AI      3       1203       986 0.123485937</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                Human-&gt;AI-&gt;Human      3       1813      1780 0.186101417</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Human-&gt;AI-&gt;Human-&gt;AI-&gt;Human      5        647       695 0.069442954</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           AI-&gt;Human-&gt;AI-&gt;AI-&gt;AI      5         44        63 0.004722550</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Human-&gt;Human-&gt;AI-&gt;AI-&gt;Human      5        676       525 0.072555544</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        AI-&gt;AI-&gt;Human-&gt;AI-&gt;Human      5        363       279 0.038961039</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    prop_Late resid_Early resid_Late effect_size   p_value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.023554861   -5.837799   5.837799    7.627748 0.1540616</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.008532628   -3.448798   3.448798    3.804741 0.1540616</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.093273963    2.064052  -2.064052    3.517733 0.1540616</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.075697211    3.189261  -3.189261    3.499731 0.1540616</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.112711477    2.264188  -2.264188    3.290279 0.1540616</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.203475080   -2.980988   2.980988    3.252581 0.1540616</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.083523615   -3.520925   3.520925    2.749593 0.1540616</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.007571205   -2.432177   2.432177    2.809446 0.1659125</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.063093378    2.490338  -2.490338    2.556875 0.1659125</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  0.033529624    1.922749  -1.922749    2.477371 0.1659125</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ... and 45 more patterns</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>

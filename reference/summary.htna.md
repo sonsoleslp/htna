@@ -47,9 +47,23 @@ Invisibly, a list with components:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 summary(net)
-} # }
+#> <htna network>
+#>   Method:    relative
+#>   Sessions:  429   (max 287 timesteps)
+#>   Nodes:     12
+#>   Edges:     135 / 144 (non-zero)
+#> 
+#> Actor types (2):
+#>   Human (6 nodes):  Check, Frustrate, Inquire, Refine, Request, Specify
+#>   AI    (6 nodes):  Ask, Delegate, Execute, Plan, Repair, Report
+#> 
+#> Edge counts by actor (rows = source, cols = target):
+#>           Human    AI
+#>   Human      35    36
+#>   AI         36    28
 ```

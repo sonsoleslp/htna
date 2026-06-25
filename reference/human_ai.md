@@ -16,7 +16,7 @@ human_ai
 
 ## Format
 
-A data frame with 19347 rows and 10 columns:
+A data frame with 19347 rows and 11 columns:
 
 - message_id:
 
@@ -64,6 +64,14 @@ A data frame with 19347 rows and 10 columns:
   Character. `"AI"` or `"Human"` — the actor partition for
   [`build_htna`](https://sonsoles.me/htna/reference/build_htna.md)`(actor_type = "actor_type")`.
 
+- phase:
+
+  Factor with levels `"Early"` and `"Late"`. Session-level cohort tag
+  from a chronological split: sessions ordered by their first
+  `session_date` (with `session_id` as a deterministic tiebreak), then
+  split in half. Suitable for
+  [`build_htna`](https://sonsoles.me/htna/reference/build_htna.md)`(group = "phase")`.
+
 ## Source
 
 Derived from
@@ -95,12 +103,21 @@ originally belonging to different `cluster` values, a single simplified
 `cluster` column is preserved verbatim from the source data and should
 be treated as informational only.
 
+## See also
+
+[`human_simplified`](https://sonsoles.me/htna/reference/human_simplified.md),
+[`ai_simplified`](https://sonsoles.me/htna/reference/ai_simplified.md),
+[`human_ai_codebook`](https://sonsoles.me/htna/reference/human_ai_codebook.md).
+
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 plot_htna(net)
-} # }
+
+# }
 ```

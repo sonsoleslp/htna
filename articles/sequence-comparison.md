@@ -26,27 +26,15 @@ characterise the late phase.
 
 The bundled `human_ai` corpus already carries an `actor_type` column
 distinguishing Human and AI events (see
-[`?human_ai`](https://sonsoles.me/htna/reference/human_ai.md)). A
-session-level `phase` column is added, marking each session as `"Early"`
-or `"Late"` based on its rank in chronological order.
+[`?human_ai`](https://sonsoles.me/htna/reference/human_ai.md)). The
+session-level `phase` column marks each session as `"Early"` or `"Late"`
+based on its rank in chronological order.
 
 ``` r
 
 library(htna)
 data(human_ai)
 
-# Chronological session order; session_id is a deterministic
-# tiebreak among sessions that started on the same date.
-sess_start <- aggregate(session_date ~ session_id, data = human_ai,
-                        FUN = min)
-sess_start <- sess_start[order(sess_start$session_date,
-                               sess_start$session_id), ]
-half       <- nrow(sess_start) %/% 2L
-early_sess <- sess_start$session_id[seq_len(half)]
-
-human_ai$phase <- ifelse(human_ai$session_id %in% early_sess,
-                         "Early", "Late")
-human_ai$phase <- factor(human_ai$phase, levels = c("Early", "Late"))
 table(human_ai$phase)
 #> 
 #> Early  Late 

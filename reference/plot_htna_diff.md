@@ -78,14 +78,20 @@ In all cases the layout, node colours and donut match
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-data(human_long, ai_long, package = "Nestimate")
-net1 <- build_htna(list(Human = human_long,        AI = ai_long))
-net2 <- build_htna(list(Human = human_long[1:50,], AI = ai_long))
-plot_htna_diff(net1, net2)
+# \donttest{
+data(human_ai)
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
+plot_htna_diff(grp$Early, grp$Late)
 
-perm <- permutation(net1, net2, iter = 200)
+
+perm <- permutation_htna(grp$Early, grp$Late, iter = 50)
 plot_htna_diff(perm)
+
 plot_htna_diff(perm, show_nonsig = TRUE)
-} # }
+
+# }
 ```

@@ -69,8 +69,8 @@ distinct node group.</p>
 
 <dl><dt id="arg-data">data<a class="anchor" aria-label="anchor" href="#arg-data"></a></dt>
 <dd><p>Either:</p><ul><li><p>A named list of long-format data frames, one per actor type
-(e.g. <code>list(Human = human_long, AI = ai_long)</code>). All frames
-must share the same column schema.</p></li>
+(e.g. <code>list(Human = human_simplified, AI = ai_simplified)</code>).
+All frames must share the same column schema.</p></li>
 <li><p>A single long-format data frame. In that case either
 <code>actor_type</code> (row-level actor-type IDs) or <code>node_groups</code>
 (node-level actor-type lookup) must be supplied.</p></li>
@@ -171,18 +171,25 @@ the <code>print</code> method for <code>cograph_network</code>).</p></li>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_long</span>, <span class="va">ai_long</span>, package <span class="op">=</span> <span class="st">"Nestimate"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu">build_htna</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Human <span class="op">=</span> <span class="va">human_long</span>, AI <span class="op">=</span> <span class="va">ai_long</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span><span class="op">$</span><span class="va">node_groups</span>            <span class="co"># canonical (node, group) schema</span></span></span>
-<span class="r-in"><span><span class="fu">cograph</span><span class="fu">::</span><span class="fu"><a href="https://sonsoles.me/cograph/reference/plot_htna.html" class="external-link">plot_htna</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span>    <span class="co"># auto-detects $nodes$groups, no other args</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span>, <span class="va">human_simplified</span>, <span class="va">ai_simplified</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Single combined frame with row-level actor-type tag and an</span></span></span>
-<span class="r-in"><span><span class="co"># individual-actor id forwarded to Nestimate.</span></span></span>
-<span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">human_long</span>, actor_type <span class="op">=</span> <span class="st">"Human"</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>            <span class="fu"><a href="https://rdrr.io/r/base/transform.html" class="external-link">transform</a></span><span class="op">(</span><span class="va">ai_long</span>,    actor_type <span class="op">=</span> <span class="st">"AI"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu">build_htna</span><span class="op">(</span><span class="va">df</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span>, actor <span class="op">=</span> <span class="st">"session_id"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># Form 1: named list of per-actor frames</span></span></span>
+<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu">build_htna</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Human <span class="op">=</span> <span class="va">human_simplified</span>, AI <span class="op">=</span> <span class="va">ai_simplified</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">net</span><span class="op">$</span><span class="va">node_groups</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        node group</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1       Ask    AI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     Check Human</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  Delegate    AI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   Execute    AI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 Frustrate Human</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   Inquire Human</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Form 2: single combined frame with a row-level actor-type tag</span></span></span>
+<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu">build_htna</span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

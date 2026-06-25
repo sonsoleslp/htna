@@ -14,6 +14,7 @@
 <url><loc>https://sonsoles.me/htna/authors.html</loc></url>
 <url><loc>https://sonsoles.me/htna/index.html</loc></url>
 <url><loc>https://sonsoles.me/htna/news/index.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/ai_simplified.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/association_rules_htna.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/bootstrap.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/bootstrap_htna.html</loc></url>
@@ -21,15 +22,14 @@
 <url><loc>https://sonsoles.me/htna/reference/casedrop_reliability_htna.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/centralities_htna.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/centrality_stability_htna.html</loc></url>
-<url><loc>https://sonsoles.me/htna/reference/dot-htna_actor_colors.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/edge_betweenness_htna.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/extract_meta_paths.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/frequencies_htna.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/htna-package.html</loc></url>
-<url><loc>https://sonsoles.me/htna/reference/htna-utils.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/htna_palette.html</loc></url>
-<url><loc>https://sonsoles.me/htna/reference/htna_state_palette.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/human_ai.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/human_ai_codebook.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/human_simplified.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/index.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/markov_order_test_htna.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/mosaic_plot_htna.html</loc></url>

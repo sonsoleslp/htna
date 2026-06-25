@@ -81,29 +81,26 @@ name), <code><a href="mosaic_plot_htna.html">mosaic_plot_htna()</a></code>.</p><
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_long</span>, <span class="va">ai_long</span>, package <span class="op">=</span> <span class="st">"Nestimate"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Human <span class="op">=</span> <span class="va">human_long</span>, AI <span class="op">=</span> <span class="va">ai_long</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
 <span class="r-in"><span><span class="fu">frequencies_htna</span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    group       state count proportion</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1     AI     Execute  3258 0.38100807</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2  Human     Specify  2920 0.27047054</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3     AI Investigate  2317 0.27096246</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4  Human     Command  2052 0.19007040</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5     AI        Plan  1620 0.18945153</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  Human     Request  1052 0.09744350</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7  Human   Frustrate   939 0.08697666</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8  Human   Interrupt   890 0.08243794</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9  Human     Inquire   853 0.07901074</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10 Human     Correct   798 0.07391627</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11 Human      Refine   792 0.07336050</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12    AI     Explain   524 0.06127938</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 13 Human      Verify   500 0.04631345</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14    AI    Delegate   295 0.03449889</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15    AI      Repair   257 0.03005496</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 16    AI      Report   181 0.02116711</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17    AI         Ask    99 0.01157759</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    group     state count proportion</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     AI   Execute  3258 0.38100807</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  Human   Request  3104 0.28751389</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  Human   Specify  2920 0.27047054</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4     AI       Ask  2416 0.28254005</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  Human Frustrate  1829 0.16941460</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6     AI      Plan  1620 0.18945153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  Human     Check  1298 0.12022971</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  Human   Inquire   853 0.07901074</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  Human    Refine   792 0.07336050</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10    AI    Report   705 0.08244650</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11    AI  Delegate   295 0.03449889</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12    AI    Repair   257 0.03005496</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

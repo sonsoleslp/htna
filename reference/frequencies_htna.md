@@ -49,27 +49,24 @@ for the rendered version,
 ## Examples
 
 ``` r
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+# \donttest{
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
 #> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
-#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 frequencies_htna(net)
-#>    group       state count proportion
-#> 1     AI     Execute  3258 0.38100807
-#> 2  Human     Specify  2920 0.27047054
-#> 3     AI Investigate  2317 0.27096246
-#> 4  Human     Command  2052 0.19007040
-#> 5     AI        Plan  1620 0.18945153
-#> 6  Human     Request  1052 0.09744350
-#> 7  Human   Frustrate   939 0.08697666
-#> 8  Human   Interrupt   890 0.08243794
-#> 9  Human     Inquire   853 0.07901074
-#> 10 Human     Correct   798 0.07391627
-#> 11 Human      Refine   792 0.07336050
-#> 12    AI     Explain   524 0.06127938
-#> 13 Human      Verify   500 0.04631345
-#> 14    AI    Delegate   295 0.03449889
-#> 15    AI      Repair   257 0.03005496
-#> 16    AI      Report   181 0.02116711
-#> 17    AI         Ask    99 0.01157759
+#>    group     state count proportion
+#> 1     AI   Execute  3258 0.38100807
+#> 2  Human   Request  3104 0.28751389
+#> 3  Human   Specify  2920 0.27047054
+#> 4     AI       Ask  2416 0.28254005
+#> 5  Human Frustrate  1829 0.16941460
+#> 6     AI      Plan  1620 0.18945153
+#> 7  Human     Check  1298 0.12022971
+#> 8  Human   Inquire   853 0.07901074
+#> 9  Human    Refine   792 0.07336050
+#> 10    AI    Report   705 0.08244650
+#> 11    AI  Delegate   295 0.03449889
+#> 12    AI    Repair   257 0.03005496
+# }
 ```

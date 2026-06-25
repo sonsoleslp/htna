@@ -124,20 +124,20 @@ appropriate before trusting downstream htna analyses.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_long</span>, <span class="va">ai_long</span>, package <span class="op">=</span> <span class="st">"Nestimate"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Human <span class="op">=</span> <span class="va">human_long</span>, AI <span class="op">=</span> <span class="va">ai_long</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
 <span class="r-in"><span><span class="fu">markov_order_test_htna</span><span class="op">(</span><span class="va">net</span><span class="op">$</span><span class="va">data</span>, max_order <span class="op">=</span> <span class="fl">2</span>, n_perm <span class="op">=</span> <span class="fl">50</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Markov Order Test  [within-w permutation, n_perm = 50, alpha = 0.050]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   428 sequences / 19346 observations / 17 states</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   428 sequences / 19346 observations / 12 states</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Selected order  BIC: 1   AIC: 2   permutation-LRT: 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  order    loglik      AIC      BIC   df       g2 p_permutation p_asymptotic</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      0 -48676.14 97384.28 97510.21   NA       NA            NA           NA</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      1 -40117.17 80724.35 82652.56  256 17081.82    0.01960784            0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      2 -35329.94 74293.88 88594.10 3118  9023.34    0.01960784            0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      0 -43741.91 87505.83 87592.40   NA       NA            NA           NA</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      1 -37315.96 74899.92 75954.53  121 12815.99    0.01960784            0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      2 -33812.56 69739.12 78057.97 1272  6481.76    0.01960784            0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  significant</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           NA</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         TRUE</span>

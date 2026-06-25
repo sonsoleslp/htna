@@ -86,25 +86,25 @@ when both packages are loaded.
 
 ``` r
 # \donttest{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
 #> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
-#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)
-association_rules_htna(net)
-#> Association Rules  [87185 rules | 17 items | 429 transactions]
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
+association_rules_htna(net, max_length = 3L)
+#> Association Rules  [1054 rules | 12 items | 429 transactions]
 #>   Support >= 0.10  |  Confidence >= 0.50  |  Lift >= 1.00
 #> 
 #>   Top rules (by lift):
-#>     1. Frustrate, Inquire, Report -> Explain, Repair  (sup=0.105 conf=0.570 lift=2.44)
-#>     2. Repair, Report -> Explain, Frustrate, Inquire  (sup=0.105 conf=0.776 lift=2.43)
-#>     3. Inquire, Repair -> Explain, Frustrate, Verify  (sup=0.152 conf=0.602 lift=2.39)
-#>     4. Explain, Frustrate, Verify -> Inquire, Repair  (sup=0.152 conf=0.602 lift=2.39)
-#>     5. Correct, Repair -> Explain, Frustrate, Verify  (sup=0.147 conf=0.594 lift=2.36)
-#>     6. Explain, Frustrate, Verify -> Correct, Repair  (sup=0.147 conf=0.583 lift=2.36)
-#>     7. Repair, Report -> Explain, Frustrate, Request  (sup=0.105 conf=0.776 lift=2.33)
-#>     8. Explain, Frustrate, Report -> Inquire, Repair  (sup=0.105 conf=0.584 lift=2.32)
-#>     9. Refine, Repair -> Explain, Frustrate, Verify  (sup=0.117 conf=0.581 lift=2.31)
-#>     10. Explain, Inquire, Repair -> Frustrate, Report  (sup=0.105 conf=0.506 lift=2.31)
-#>     ... and 87175 more rules
+#>     1. Repair -> Inquire, Report  (sup=0.217 conf=0.721 lift=1.65)
+#>     2. Repair -> Check, Report  (sup=0.233 conf=0.775 lift=1.61)
+#>     3. Inquire, Repair -> Report  (sup=0.217 conf=0.861 lift=1.56)
+#>     4. Repair -> Refine, Report  (sup=0.166 conf=0.550 lift=1.55)
+#>     5. Repair -> Inquire, Refine  (sup=0.172 conf=0.574 lift=1.55)
+#>     6. Repair -> Execute, Report  (sup=0.245 conf=0.814 lift=1.55)
+#>     7. Repair -> Frustrate, Report  (sup=0.245 conf=0.814 lift=1.52)
+#>     8. Repair -> Plan, Report  (sup=0.245 conf=0.814 lift=1.52)
+#>     9. Check, Repair -> Report  (sup=0.233 conf=0.840 lift=1.52)
+#>     10. Execute, Repair -> Report  (sup=0.245 conf=0.840 lift=1.52)
+#>     ... and 1044 more rules
 # }
 ```

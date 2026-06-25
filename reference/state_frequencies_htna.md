@@ -43,27 +43,24 @@ when both packages are loaded.
 ## Examples
 
 ``` r
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+# \donttest{
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
 #> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
-#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 state_frequencies_htna(net$data)
-#>          state count proportion
-#> 1      Execute  3258     0.1684
-#> 2      Specify  2920     0.1509
-#> 3  Investigate  2317     0.1198
-#> 4      Command  2052     0.1061
-#> 5         Plan  1620     0.0837
-#> 6      Request  1052     0.0544
-#> 7    Frustrate   939     0.0485
-#> 8    Interrupt   890     0.0460
-#> 9      Inquire   853     0.0441
-#> 10     Correct   798     0.0412
-#> 11      Refine   792     0.0409
-#> 12     Explain   524     0.0271
-#> 13      Verify   500     0.0258
-#> 14    Delegate   295     0.0152
-#> 15      Repair   257     0.0133
-#> 16      Report   181     0.0094
-#> 17         Ask    99     0.0051
+#>        state count proportion
+#> 1    Execute  3258     0.1684
+#> 2    Request  3104     0.1604
+#> 3    Specify  2920     0.1509
+#> 4        Ask  2416     0.1249
+#> 5  Frustrate  1829     0.0945
+#> 6       Plan  1620     0.0837
+#> 7      Check  1298     0.0671
+#> 8    Inquire   853     0.0441
+#> 9     Refine   792     0.0409
+#> 10    Report   705     0.0364
+#> 11  Delegate   295     0.0152
+#> 12    Repair   257     0.0133
+# }
 ```

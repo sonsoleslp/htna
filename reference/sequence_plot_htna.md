@@ -74,12 +74,17 @@ Invisibly, the list returned by
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
+# \donttest{
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 
 sequence_plot_htna(net)                       # index, faceted
+
 sequence_plot_htna(net, type = "heatmap")     # single carpet, white gulf
+
 sequence_plot_htna(net, type = "distribution")
-} # }
+
+# }
 ```

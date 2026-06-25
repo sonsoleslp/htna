@@ -136,24 +136,24 @@ and the corresponding <code><a href="https://rdrr.io/r/graphics/plot.default.htm
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_long</span>, <span class="va">ai_long</span>, package <span class="op">=</span> <span class="st">"Nestimate"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Human <span class="op">=</span> <span class="va">human_long</span>, AI <span class="op">=</span> <span class="va">ai_long</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)</span>
-<span class="r-in"><span><span class="fu">casedrop_reliability_htna</span><span class="op">(</span><span class="va">net</span>, iter <span class="op">=</span> <span class="fl">50</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
+<span class="r-in"><span><span class="fu">casedrop_reliability_htna</span><span class="op">(</span><span class="va">net</span>, iter <span class="op">=</span> <span class="fl">20</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Edge-weight Case-dropping Stability</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Cases (rows of $data) : 429</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges assessed        : 272 (diagonal excluded)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Iterations / prop     : 50</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges assessed        : 132 (diagonal excluded)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Iterations / prop     : 20</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Correlation method    : spearman</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   CS-coefficient (r)    : 0.90  (threshold=0.70, certainty=0.95)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Model-level reliability across iterations (mean +/- sd per drop):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   drop_prop      p=0.1        p=0.2        p=0.3        p=0.4        p=0.5        p=0.6        p=0.7        p=0.8        p=0.9      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   mean|diff|      0.002+- 0.000   0.003+- 0.000   0.004+- 0.000   0.005+- 0.000   0.006+- 0.001   0.008+- 0.001   0.010+- 0.001   0.013+- 0.001   0.019+- 0.002</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   MAD             0.001+- 0.000   0.002+- 0.000   0.002+- 0.000   0.003+- 0.000   0.003+- 0.000   0.004+- 0.000   0.005+- 0.001   0.007+- 0.001   0.010+- 0.001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   cor             0.998+- 0.001   0.994+- 0.002   0.990+- 0.003   0.986+- 0.004   0.979+- 0.005   0.967+- 0.006   0.951+- 0.010   0.922+- 0.013   0.861+- 0.024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   max|diff|       0.022+- 0.006   0.033+- 0.009   0.042+- 0.013   0.057+- 0.016   0.062+- 0.019   0.085+- 0.029   0.097+- 0.030   0.153+- 0.059   0.229+- 0.137</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   mean|diff|      0.002+- 0.000   0.003+- 0.000   0.004+- 0.000   0.005+- 0.001   0.007+- 0.001   0.008+- 0.001   0.010+- 0.001   0.013+- 0.002   0.019+- 0.003</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   MAD             0.001+- 0.000   0.002+- 0.000   0.003+- 0.000   0.003+- 0.000   0.004+- 0.000   0.005+- 0.001   0.006+- 0.001   0.008+- 0.001   0.012+- 0.002</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   cor             0.998+- 0.001   0.997+- 0.001   0.995+- 0.001   0.992+- 0.002   0.989+- 0.003   0.984+- 0.004   0.976+- 0.005   0.962+- 0.007   0.926+- 0.020</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   max|diff|       0.016+- 0.006   0.024+- 0.008   0.028+- 0.009   0.039+- 0.017   0.052+- 0.016   0.059+- 0.018   0.076+- 0.021   0.101+- 0.039   0.118+- 0.028</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

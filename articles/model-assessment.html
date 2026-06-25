@@ -256,13 +256,9 @@ reported as the optimal order.</p>
 <p>The test operates on raw sequence data rather than on the htna
 network object, since it requires the empirical sequences directly.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Restore per-session chronological order (the bundled dataset is</span></span>
-<span><span class="co"># sorted by project + step, which interleaves sessions), then take</span></span>
-<span><span class="co"># the AI-only events.</span></span>
-<span><span class="va">ai_only</span> <span class="op">&lt;-</span> <span class="va">human_ai</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">session_id</span>,</span>
-<span>                          <span class="va">human_ai</span><span class="op">$</span><span class="va">order_in_session</span><span class="op">)</span>, <span class="op">]</span></span>
-<span><span class="va">ai_only</span> <span class="op">&lt;-</span> <span class="va">ai_only</span><span class="op">[</span><span class="va">ai_only</span><span class="op">$</span><span class="va">actor_type</span> <span class="op">==</span> <span class="st">"AI"</span>, <span class="op">]</span></span>
-<span><span class="va">seqs</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">ai_only</span><span class="op">$</span><span class="va">code</span>, <span class="va">ai_only</span><span class="op">$</span><span class="va">session_id</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"ai_simplified"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">seqs</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">ai_simplified</span><span class="op">$</span><span class="va">code</span>, <span class="va">ai_simplified</span><span class="op">$</span><span class="va">session_id</span><span class="op">)</span></span>
 <span><span class="va">seqs</span>    <span class="op">&lt;-</span> <span class="va">seqs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lengths.html" class="external-link">lengths</a></span><span class="op">(</span><span class="va">seqs</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">3L</span><span class="op">]</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">seqs</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 416</span></span></code></pre></div>
@@ -344,9 +340,12 @@ at which inferential claims should be qualified.</p>
 <p>Epskamp, S., Borsboom, D., &amp; Fried, E. I. (2018). Estimating
 psychological networks and their accuracy: A tutorial paper.
 <em>Behavior Research Methods</em>, 50(1), 195-212.</p>
-<p>Saqr, M., et al. (2025). Transition network analysis: A novel
-framework for modeling, visualizing, and identifying the temporal
-patterns of learners and learning processes.</p>
+<p>Saqr, M., López-Pernas, S., Törmänen, T., Kaliisa, R., Misiejuk, K.,
+&amp; Tikka, S. (2025). Transition network analysis: A novel framework
+for modeling, visualizing, and identifying the temporal patterns of
+learners and learning processes. <em>Proceedings of the 15th
+International Learning Analytics and Knowledge Conference</em>, 351–361.
+<a href="https://doi.org/10.1145/3706468.3706513" class="external-link uri">https://doi.org/10.1145/3706468.3706513</a></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

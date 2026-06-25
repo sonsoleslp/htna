@@ -81,23 +81,11 @@ slightly simplified alphabet – see <code><a href="../reference/human_ai.html">
 split chronologically: ordered by their first <code>session_date</code>
 (with <code>session_id</code> as a deterministic tiebreak), the first
 half of the sessions form the <em>Early</em> cohort and the rest form
-the <em>Late</em> cohort.</p>
+the <em>Late</em> cohort, reflected in the <code>phase</code>
+column.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sonsoles.me/htna/">htna</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Order sessions chronologically by their first `session_date`, with</span></span>
-<span><span class="co"># `session_id` as a deterministic tiebreak for sessions that started</span></span>
-<span><span class="co"># the same day. First half = Early, rest = Late.</span></span>
-<span><span class="va">sess_start</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/aggregate.html" class="external-link">aggregate</a></span><span class="op">(</span><span class="va">session_date</span> <span class="op">~</span> <span class="va">session_id</span>, data <span class="op">=</span> <span class="va">human_ai</span>, FUN <span class="op">=</span> <span class="va">min</span><span class="op">)</span></span>
-<span><span class="va">sess_start</span> <span class="op">&lt;-</span> <span class="va">sess_start</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">sess_start</span><span class="op">$</span><span class="va">session_date</span>,</span>
-<span>                               <span class="va">sess_start</span><span class="op">$</span><span class="va">session_id</span><span class="op">)</span>, <span class="op">]</span></span>
-<span><span class="va">half</span>       <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">sess_start</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%/%</a></span> <span class="fl">2L</span></span>
-<span><span class="va">early_sess</span> <span class="op">&lt;-</span> <span class="va">sess_start</span><span class="op">$</span><span class="va">session_id</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="va">half</span><span class="op">)</span><span class="op">]</span></span>
-<span></span>
-<span><span class="va">human_ai</span><span class="op">$</span><span class="va">phase</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">session_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="va">early_sess</span>,</span>
-<span>                         <span class="st">"Early"</span>, <span class="st">"Late"</span><span class="op">)</span></span>
-<span><span class="va">human_ai</span><span class="op">$</span><span class="va">phase</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">phase</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Early"</span>, <span class="st">"Late"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">phase</span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Early  Late </span></span>

@@ -69,12 +69,30 @@ constructing the input.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-data(human_long, ai_long, package = "Nestimate")
-net  <- build_htna(list(Human = human_long, AI = ai_long))
-boot <- bootstrap_htna(net, iter = 200)
+# \donttest{
+data(human_ai)
+net  <- build_htna(human_ai, actor_type = "actor_type")
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
+boot <- bootstrap_htna(net, iter = 50)
 inherits(boot, "htna_bootstrap")            # TRUE
+#> [1] TRUE
 inherits(boot$model, "htna")                # TRUE
+#> [1] TRUE
 head(boot$summary)                          # state-level edge stability
-} # }
+#>   from        to     weight       mean          sd    p_value   sig   ci_lower
+#> 1  Ask       Ask 0.01823579 0.01816094 0.003196253 0.17647059 FALSE 0.01264274
+#> 2  Ask     Check 0.06318914 0.06295842 0.005074601 0.01960784  TRUE 0.05493032
+#> 3  Ask   Execute 0.02205259 0.02151466 0.003435516 0.15686275 FALSE 0.01512313
+#> 4  Ask Frustrate 0.11577608 0.11618293 0.007063159 0.01960784  TRUE 0.10475565
+#> 5  Ask   Inquire 0.06318914 0.06305100 0.005471929 0.01960784  TRUE 0.05356894
+#> 6  Ask      Plan 0.40882103 0.41042171 0.014962235 0.01960784  TRUE 0.38207243
+#>     ci_upper   cr_lower   cr_upper
+#> 1 0.02458365 0.01367684 0.02279474
+#> 2 0.07155427 0.04739186 0.07898643
+#> 3 0.02742455 0.01653944 0.02756573
+#> 4 0.12988671 0.08683206 0.14472010
+#> 5 0.07531484 0.04739186 0.07898643
+#> 6 0.44045715 0.30661578 0.51102629
+# }
 ```

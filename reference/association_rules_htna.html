@@ -116,26 +116,26 @@ since the underlying transition counts are the same.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_long</span>, <span class="va">ai_long</span>, package <span class="op">=</span> <span class="st">"Nestimate"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Human <span class="op">=</span> <span class="va">human_long</span>, AI <span class="op">=</span> <span class="va">ai_long</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)</span>
-<span class="r-in"><span><span class="fu">association_rules_htna</span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Association Rules  [87185 rules | 17 items | 429 transactions]</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
+<span class="r-in"><span><span class="fu">association_rules_htna</span><span class="op">(</span><span class="va">net</span>, max_length <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Association Rules  [1054 rules | 12 items | 429 transactions]</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Support &gt;= 0.10  |  Confidence &gt;= 0.50  |  Lift &gt;= 1.00</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Top rules (by lift):</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1. Frustrate, Inquire, Report -&gt; Explain, Repair  (sup=0.105 conf=0.570 lift=2.44)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Repair, Report -&gt; Explain, Frustrate, Inquire  (sup=0.105 conf=0.776 lift=2.43)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     3. Inquire, Repair -&gt; Explain, Frustrate, Verify  (sup=0.152 conf=0.602 lift=2.39)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     4. Explain, Frustrate, Verify -&gt; Inquire, Repair  (sup=0.152 conf=0.602 lift=2.39)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     5. Correct, Repair -&gt; Explain, Frustrate, Verify  (sup=0.147 conf=0.594 lift=2.36)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     6. Explain, Frustrate, Verify -&gt; Correct, Repair  (sup=0.147 conf=0.583 lift=2.36)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     7. Repair, Report -&gt; Explain, Frustrate, Request  (sup=0.105 conf=0.776 lift=2.33)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     8. Explain, Frustrate, Report -&gt; Inquire, Repair  (sup=0.105 conf=0.584 lift=2.32)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     9. Refine, Repair -&gt; Explain, Frustrate, Verify  (sup=0.117 conf=0.581 lift=2.31)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     10. Explain, Inquire, Repair -&gt; Frustrate, Report  (sup=0.105 conf=0.506 lift=2.31)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ... and 87175 more rules</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1. Repair -&gt; Inquire, Report  (sup=0.217 conf=0.721 lift=1.65)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Repair -&gt; Check, Report  (sup=0.233 conf=0.775 lift=1.61)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3. Inquire, Repair -&gt; Report  (sup=0.217 conf=0.861 lift=1.56)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     4. Repair -&gt; Refine, Report  (sup=0.166 conf=0.550 lift=1.55)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     5. Repair -&gt; Inquire, Refine  (sup=0.172 conf=0.574 lift=1.55)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     6. Repair -&gt; Execute, Report  (sup=0.245 conf=0.814 lift=1.55)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     7. Repair -&gt; Frustrate, Report  (sup=0.245 conf=0.814 lift=1.52)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     8. Repair -&gt; Plan, Report  (sup=0.245 conf=0.814 lift=1.52)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     9. Check, Repair -&gt; Report  (sup=0.233 conf=0.840 lift=1.52)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     10. Execute, Repair -&gt; Report  (sup=0.245 conf=0.840 lift=1.52)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ... and 1044 more rules</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

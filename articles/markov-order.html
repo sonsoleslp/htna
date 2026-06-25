@@ -116,7 +116,9 @@ and are excluded from each set.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Within each session, restore chronological order (the bundled</span></span>
-<span><span class="co"># dataset is sorted by project + step, which interleaves sessions).</span></span>
+<span><span class="co"># dataset is sorted by project + step [order_in_session],</span></span>
+<span><span class="co"># which interleaves sessions).</span></span>
+<span></span>
 <span><span class="va">human_ai</span> <span class="op">&lt;-</span> <span class="va">human_ai</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">session_id</span>,</span>
 <span>                           <span class="va">human_ai</span><span class="op">$</span><span class="va">order_in_session</span><span class="op">)</span>, <span class="op">]</span></span>
 <span></span>

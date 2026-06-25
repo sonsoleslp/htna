@@ -30,8 +30,8 @@ build_htna(
   Either:
 
   - A named list of long-format data frames, one per actor type (e.g.
-    `list(Human = human_long, AI = ai_long)`). All frames must share the
-    same column schema.
+    `list(Human = human_simplified, AI = ai_simplified)`). All frames
+    must share the same column schema.
 
   - A single long-format data frame. In that case either `actor_type`
     (row-level actor-type IDs) or `node_groups` (node-level actor-type
@@ -136,16 +136,23 @@ All other slots are exactly as returned by
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
-data(human_long, ai_long, package = "Nestimate")
-net <- build_htna(list(Human = human_long, AI = ai_long))
-net$node_groups            # canonical (node, group) schema
-cograph::plot_htna(net)    # auto-detects $nodes$groups, no other args
+data(human_ai, human_simplified, ai_simplified)
 
-# Single combined frame with row-level actor-type tag and an
-# individual-actor id forwarded to Nestimate.
-df <- rbind(transform(human_long, actor_type = "Human"),
-            transform(ai_long,    actor_type = "AI"))
-net <- build_htna(df, actor_type = "actor_type", actor = "session_id")
-} # }
+# Form 1: named list of per-actor frames
+net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
+head(net$node_groups)
+#>        node group
+#> 1       Ask    AI
+#> 2     Check Human
+#> 3  Delegate    AI
+#> 4   Execute    AI
+#> 5 Frustrate Human
+#> 6   Inquire Human
+
+# Form 2: single combined frame with a row-level actor-type tag
+net <- build_htna(human_ai, actor_type = "actor_type")
+#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 ```

@@ -22,7 +22,7 @@ throughout this vignette.
 library(htna)
 data(human_ai)
 
-net <- build_htna(human_ai, actor_type = "actor_type")
+net <- build_htna(human_ai, actor_type = "actor_type", actor = "session_id")
 ```
 
 ## 2. Plotting the network
@@ -209,21 +209,15 @@ Given two HTNA networks built over the same node set,
 draws the edge-level pairwise difference. Positive differences are
 green, negative red.
 
-For example, we compare early vs. late sessions:
+For example, we compare early vs. late sessions using the `phase` column
+in the dataset:
 
 ``` r
 
-sess_start <- aggregate(session_date ~ session_id, data = human_ai,
-                        FUN = min)
-sess_start <- sess_start[order(sess_start$session_date,
-                               sess_start$session_id), ]
-half       <- nrow(sess_start) %/% 2L
-early_sess <- sess_start$session_id[seq_len(half)]
+grouped <-  build_htna(human_ai, actor_type = "actor_type", group = "phase")
 
-early <- build_htna(human_ai[human_ai$session_id %in% early_sess, ],
-                    actor_type = "actor_type")
-late  <- build_htna(human_ai[!human_ai$session_id %in% early_sess, ],
-                    actor_type = "actor_type")
+early <- grouped[["Early"]]
+late  <- grouped[["Late"]]
 
 plot_htna_diff(early, late)
 ```

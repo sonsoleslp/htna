@@ -1,4 +1,4 @@
 # License
 
     YEAR: 2026
-    COPYRIGHT HOLDER: Mohammed Saqr
+    COPYRIGHT HOLDER: Sonsoles López-Pernas, Kamila Misiejuk, Mohammed Saqr

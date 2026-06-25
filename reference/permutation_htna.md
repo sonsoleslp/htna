@@ -91,19 +91,15 @@ to plot the result.
 
 ``` r
 # \donttest{
-data(human_long, ai_long, package = "Nestimate")
-n <- nrow(human_long)
-early <- build_htna(list(Human = human_long[seq_len(n %/% 2), ],
-                         AI    = ai_long[seq_len(n %/% 2), ]))
+data(human_ai)
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 #> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
-#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (25 sessions)
-late  <- build_htna(list(Human = human_long[(n %/% 2 + 1):n, ],
-                         AI    = ai_long[(n %/% 2 + 1):n, ]))
+#> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
 #> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
-#> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (15 sessions)
-permutation_htna(early, late, iter = 100)
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
+permutation_htna(grp$Early, grp$Late, iter = 50)
 #> Permutation Test:Transition Network (relative probabilities) [directed]
-#>   Iterations: 100  |  Alpha: 0.05
-#>   Nodes: 17  |  Edges tested: 272  |  Significant: 59
+#>   Iterations: 50  |  Alpha: 0.05
+#>   Nodes: 12  |  Edges tested: 135  |  Significant: 24
 # }
 ```

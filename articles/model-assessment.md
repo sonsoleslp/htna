@@ -216,13 +216,9 @@ object, since it requires the empirical sequences directly.
 
 ``` r
 
-# Restore per-session chronological order (the bundled dataset is
-# sorted by project + step, which interleaves sessions), then take
-# the AI-only events.
-ai_only <- human_ai[order(human_ai$session_id,
-                          human_ai$order_in_session), ]
-ai_only <- ai_only[ai_only$actor_type == "AI", ]
-seqs    <- split(ai_only$code, ai_only$session_id)
+data("ai_simplified")
+
+seqs    <- split(ai_simplified$code, ai_simplified$session_id)
 seqs    <- seqs[lengths(seqs) >= 3L]
 length(seqs)
 #> [1] 416
@@ -288,6 +284,9 @@ Epskamp, S., Borsboom, D., & Fried, E. I. (2018). Estimating
 psychological networks and their accuracy: A tutorial paper. *Behavior
 Research Methods*, 50(1), 195-212.
 
-Saqr, M., et al. (2025). Transition network analysis: A novel framework
-for modeling, visualizing, and identifying the temporal patterns of
-learners and learning processes.
+Saqr, M., López-Pernas, S., Törmänen, T., Kaliisa, R., Misiejuk, K., &
+Tikka, S. (2025). Transition network analysis: A novel framework for
+modeling, visualizing, and identifying the temporal patterns of learners
+and learning processes. *Proceedings of the 15th International Learning
+Analytics and Knowledge Conference*, 351–361.
+<https://doi.org/10.1145/3706468.3706513>

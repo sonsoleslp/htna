@@ -1,14 +1,25 @@
 # Input formats for build_htna()
 
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
-accepts data in **three interchangeable shapes**: a named list of
-per-actor frames, a single combined frame with an actor-type column, or
-a single combined frame with a node-to-actor lookup. This vignette walks
-through each form using `htna`’s integrated `human_ai` dataset. All
-three input forms produce the same network, then covers two more
-parameters that compose with any input form: `actor` (forwarded to
-[`Nestimate::build_network()`](https://saqr.me/Nestimate/reference/build_network.html))
-and `disambiguate` (for code-label collisions).
+accepts data in **three interchangeable shapes**: 1. a named list of
+per-actor-type nodes 2. a single combined frame with an actor-type
+column 3. a single combined frame with a node-to-actor-type dictionary.
+
+This vignette walks through each form, shows that all three produce the
+same network, and then covers two extra parameters that compose with any
+input form: `disambiguate` (for code-label collisions) and `group` (for
+per-cohort networks).
+
+To keep the examples concrete, `htna` ships four bundled objects
+covering every shape the vignette needs:
+
+- `human_simplified` and `ai_simplified`: per-actor long datasets, one
+  per actor type. These feed **Form 1** directly.
+- `human_ai`: the same data row-bound into one long frame with an
+  `actor_type` column (and a pre-computed `phase` cohort tag for the
+  grouped example at the end). This feeds **Form 2** and **Form 3**.
+- `human_ai_codebook` — a tidy two-column code → actor-type lookup,
+  ready to pass to **Form 3**.
 
 ## Setup
 
@@ -16,24 +27,26 @@ and `disambiguate` (for code-label collisions).
 
 library(htna)
 data(human_ai)
+data(human_simplified)
+data(ai_simplified)
+data(human_ai_codebook)
 ```
 
-Both frames share the canonical schema htna expects: `session_id`,
-`code`, `order_in_session`. Within each session, `order_in_session` is a
-**shared** time index across both actors — Human’s events occupy the odd
-positions, AI’s the even ones — so concatenating and sorting recovers
-the temporal interleaving.
+All three long frames share the canonical schema `htna` expects:
+`actor`/`session_id`, `code`, `order_in_session`. Within each session,
+`order_in_session` is a **shared** time index across both actors.
 
 ## Form 1 — Named list of per-actor frames
 
 The most direct form. Each entry is one actor’s long frame; the list
-name becomes the actor-type label on the network.
+name becomes the actor-type label on the network. The bundled
+`human_simplified` and `ai_simplified` frames already have this shape —
+one per actor type, sharing the canonical schema.
 
 ``` r
 
-human_long <- human_ai[human_ai$actor_type == "Human",]
-ai_long <- human_ai[human_ai$actor_type == "AI",]
-net_list <- build_htna(list(Human = human_long, AI = ai_long))
+net_list <- build_htna(list(Human = human_simplified, AI = ai_simplified), 
+                       actor = "session_id")
 summary(net_list)
 #> <htna network>
 #>   Method:    relative
@@ -63,12 +76,15 @@ typical case when the two streams were prepared independently).
 
 ## Form 2 — Single combined frame with `actor_type`
 
-When the data already arrives as one long table, tag each row with the
+When the data already comes as one long table, tag each row with the
 actor-type and pass the column name to `actor_type =`.
 
 ``` r
 
-net_actor_type <- build_htna(human_ai, actor_type = "actor_type", session = "session_id", order =  "order_in_session")
+net_actor_type <- build_htna(human_ai, 
+                             actor_type = "actor_type", 
+                             actor = "session_id", 
+                             order = "order_in_session")
 ```
 
 The actor-type order on the resulting network follows the factor levels
@@ -83,13 +99,18 @@ accepts two interchangeable shapes:
 
 ### 3a. Named list of code vectors
 
+Extract the per-actor code sets from the bundled per-actor frames and
+pass them as a named list. The list names become the actor-type labels
+on the network.
+
 ``` r
 
-human_codes <- unique(human_long$code)
-ai_codes    <- unique(ai_long$code)
+human_codes <- c("Specify", "Request", "Frustrate", "Check", "Inquire", "Refine")
+ai_codes    <- c("Delegate", "Plan", "Execute", "Ask", "Repair", "Report")
 
 net_node_groups <- build_htna(
   human_ai,
+  actor = "session_id",
   node_groups = list(Human = human_codes, AI = ai_codes)
 )
 net_node_groups
@@ -146,26 +167,24 @@ column for the action and one for the actor type. The action column must
 match the `action` parameter (default `"code"`); the other column is
 treated as the actor-type tag. Column order is irrelevant.
 
+The bundled `human_ai_codebook` already has this shape, so it can be
+passed straight through:
+
 ``` r
 
-codebook <- data.frame(
-  code       = c(human_codes, ai_codes),
-  actor_type = c(rep("Human", length(human_codes)),
-                 rep("AI",    length(ai_codes))),
-  stringsAsFactors = FALSE
-)
-head(codebook)
+head(human_ai_codebook)
 #>        code actor_type
-#> 1   Request      Human
-#> 2   Specify      Human
-#> 3     Check      Human
-#> 4 Frustrate      Human
-#> 5    Refine      Human
-#> 6   Inquire      Human
+#> 1   Specify      Human
+#> 2   Request      Human
+#> 3 Frustrate      Human
+#> 4     Check      Human
+#> 5   Inquire      Human
+#> 6    Refine      Human
 
 net_node_groups_df <- build_htna(
   human_ai,
-  node_groups = codebook
+  session = "session_id",
+  node_groups = human_ai_codebook
 )
 ```
 
@@ -201,25 +220,10 @@ for (nm in names(forms)) plot_htna(forms[[nm]], title = nm)
 par(op)
 ```
 
-A one-line sanity check confirms that the edge-weight matrices match the
-named-list reference cell-for-cell:
-
-``` r
-
-ref <- forms$list_form
-vapply(forms[-1L], function(n)
-       isTRUE(all.equal(unname(n$weights),
-                        unname(ref$weights[rownames(n$weights),
-                                           colnames(n$weights)]))),
-       logical(1L))
-#>  actor_type_form node_groups_list   node_groups_df 
-#>             TRUE             TRUE             TRUE
-```
-
 ## Handling code-label collisions with `disambiguate =`
 
 If both actor types share a code label (e.g. both Human and AI have a
-code called `Ask`),
+code called `Ask` and another code called `Reply`),
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
 errors by default — keeping such states distinct is usually what you
 want. Pass `disambiguate = TRUE` to prefix every code with its
@@ -244,34 +248,27 @@ net_dis <- build_htna(overlap, actor_type = "actor_type",
                       disambiguate = TRUE)
 net_dis$nodes$label
 #> [1] "AI:Ask"      "AI:Reply"    "Human:Ask"   "Human:Reply"
+plot(net_dis)
 ```
+
+![](input-formats_files/figure-html/unnamed-chunk-8-1.png)
 
 ## Splitting into cohorts with `group =`
 
 Any of the three input forms can additionally be split into per-cohort
 networks by passing `group =` — the result is an `htna_group`, one
-`htna` network per level of the grouping column. Below we synthesise a
-“phase” cohort variable on the combined frame (chronological split:
-first-half of sessions = early, rest = late) and let
-[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) build
-one network per phase.
+`htna` network per level of the grouping column. `human_ai` already
+ships with a `phase` column tagging each session as `Early` or `Late` (a
+chronological split: first-half of sessions = early, rest = late), so
+the cohort build is a one-liner:
 
 ``` r
-
-sess_start <- aggregate(session_date ~ session_id, data = human_ai,
-                        FUN = min)
-sess_start <- sess_start[order(sess_start$session_date,
-                               sess_start$session_id), ]
-half       <- nrow(sess_start) %/% 2L
-early_sess <- sess_start$session_id[seq_len(half)]
-human_ai$phase <- ifelse(human_ai$session_id %in% early_sess,
-                         "early", "late")
 
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 class(grp)
 #> [1] "htna_group"      "netobject_group" "list"
 names(grp)
-#> [1] "late"  "early"
+#> [1] "Late"  "Early"
 ```
 
 ``` r
@@ -279,7 +276,7 @@ names(grp)
 plot_htna(grp)
 ```
 
-![](input-formats_files/figure-html/unnamed-chunk-11-1.png)![](input-formats_files/figure-html/unnamed-chunk-11-2.png)
+![](input-formats_files/figure-html/unnamed-chunk-10-1.png)![](input-formats_files/figure-html/unnamed-chunk-10-2.png)
 
 ## Cheat sheet
 

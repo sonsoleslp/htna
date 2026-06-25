@@ -54,7 +54,9 @@ library(htna)
 data(human_ai)
 
 # Within each session, restore chronological order (the bundled
-# dataset is sorted by project + step, which interleaves sessions).
+# dataset is sorted by project + step [order_in_session],
+# which interleaves sessions).
+
 human_ai <- human_ai[order(human_ai$session_id,
                            human_ai$order_in_session), ]
 

@@ -110,7 +110,18 @@ Reliability, stability, permutation, and Markov-order adequacy
 
 ## Datasets
 
-Sample dataset
+Sample datasets
 
 - [`human_ai`](https://sonsoles.me/htna/reference/human_ai.md) :
   Simplified Human + AI Interaction Sequences
+
+- [`human_simplified`](https://sonsoles.me/htna/reference/human_simplified.md)
+  : Simplified Human Interaction Sequences (per-actor frame)
+
+- [`ai_simplified`](https://sonsoles.me/htna/reference/ai_simplified.md)
+  : Simplified AI Interaction Sequences (per-actor frame)
+
+- [`human_ai_codebook`](https://sonsoles.me/htna/reference/human_ai_codebook.md)
+  :
+
+  Code → Actor-Type Codebook for `human_ai`

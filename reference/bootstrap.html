@@ -65,23 +65,23 @@ works directly on an htna network (see <code><a href="bootstrap_htna.html">boots
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_long</span>, <span class="va">ai_long</span>, package <span class="op">=</span> <span class="st">"Nestimate"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Human <span class="op">=</span> <span class="va">human_long</span>, AI <span class="op">=</span> <span class="va">ai_long</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
 <span class="r-in"><span><span class="fu">bootstrap</span><span class="op">(</span><span class="va">net</span>, iter <span class="op">=</span> <span class="fl">50</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Edge                   Mean     95% CI          p</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   -----------------------------------------------</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Verify → Execute     0.649  [0.604, 0.701]  *  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Delegate → Plan      0.615  [0.556, 0.675]  *  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Request → Specify    0.545  [0.516, 0.573]  *  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Investigate → Plan   0.426  [0.401, 0.452]  *  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Refine → Specify     0.412  [0.361, 0.463]  *  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ... and 62 more significant edges</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Check → Execute      0.411  [0.385, 0.438]  *  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Ask → Plan           0.409  [0.387, 0.435]  *  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Repair → Execute     0.385  [0.298, 0.448]  *  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ... and 54 more significant edges</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Bootstrap Network  [Transition Network (relative) | directed]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Iterations : 50  |  Nodes : 17</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges      : 67 significant / 246 total</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Iterations : 50  |  Nodes : 12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges      : 59 significant / 135 total</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   CI         : 95%  |  Inference: stability  |  CR [0.75, 1.25]</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
