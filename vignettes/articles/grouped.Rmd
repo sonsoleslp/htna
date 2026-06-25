@@ -35,24 +35,12 @@ We use the bundled `human_ai` corpus (Human + AI codes from
 alphabet -- see `?human_ai`). Sessions are split chronologically:
 ordered by their first `session_date` (with `session_id` as a
 deterministic tiebreak), the first half of the sessions form the
-*Early* cohort and the rest form the *Late* cohort.
+*Early* cohort and the rest form the *Late* cohort, reflected 
+in the `phase` column.
 
 ```{r}
 library(htna)
 data(human_ai)
-
-# Order sessions chronologically by their first `session_date`, with
-# `session_id` as a deterministic tiebreak for sessions that started
-# the same day. First half = Early, rest = Late.
-sess_start <- aggregate(session_date ~ session_id, data = human_ai, FUN = min)
-sess_start <- sess_start[order(sess_start$session_date,
-                               sess_start$session_id), ]
-half       <- nrow(sess_start) %/% 2L
-early_sess <- sess_start$session_id[seq_len(half)]
-
-human_ai$phase <- ifelse(human_ai$session_id %in% early_sess,
-                         "Early", "Late")
-human_ai$phase <- factor(human_ai$phase, levels = c("Early", "Late"))
 table(human_ai$phase)
 ```
 

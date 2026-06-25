@@ -1,0 +1,376 @@
+---
+title: "Synthetic Datasets for HTNA Validation"
+author: "htna"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: false
+    embed-resources: true
+execute:
+  warning: false
+  message: false
+---
+
+```{r setup}
+library(htna)
+set.seed(2026)
+```
+
+This document exercises every documented input shape and feature of
+`build_htna()` against small, hand-built synthetic datasets. Each
+section ships a self-contained dataset, builds the network, prints a
+quick sanity check, and runs one downstream wrapper to make sure the
+actor partition and metadata round-trip correctly.
+
+The cohort split used in the grouped vignette (Early vs. Late, computed
+from `session_date`) is materialised here as a real `phase` column on
+the dataset so it can be passed straight to `group = "phase"`.
+
+## Helpers
+
+A single helper that fabricates a long-format frame from a per-actor
+transition matrix. Sessions vary in length so every fixture exercises
+the order/session bookkeeping.
+
+```{r helpers}
+sim_sessions <- function(actors, alphabets, trans, sessions,
+                         len_range = c(6L, 14L)) {
+  rows <- list()
+  for (sid in sessions) {
+    n  <- sample(seq(len_range[1], len_range[2]), 1L)
+    a  <- sample(actors, 1L)
+    seq_codes  <- character(n)
+    seq_actors <- character(n)
+    seq_codes[1]  <- sample(alphabets[[a]], 1L)
+    seq_actors[1] <- a
+    for (i in seq_len(n - 1L)) {
+      probs <- trans[[a]][seq_codes[i], ]
+      nxt   <- sample(names(probs), 1L, prob = probs)
+      a     <- attr(alphabets, "owner")[nxt]
+      seq_codes[i + 1L]  <- nxt
+      seq_actors[i + 1L] <- a
+    }
+    rows[[sid]] <- data.frame(
+      session_id       = sid,
+      code             = seq_codes,
+      actor_type       = seq_actors,
+      order_in_session = seq_len(n),
+      stringsAsFactors = FALSE
+    )
+  }
+  do.call(rbind, rows)
+}
+
+make_owner <- function(alphabets) {
+  owner <- unlist(lapply(names(alphabets), function(a)
+    setNames(rep(a, length(alphabets[[a]])), alphabets[[a]])))
+  attr(alphabets, "owner") <- owner
+  alphabets
+}
+
+uniform_trans <- function(full_alphabet) {
+  matrix(1 / length(full_alphabet),
+         nrow = length(full_alphabet),
+         ncol = length(full_alphabet),
+         dimnames = list(full_alphabet, full_alphabet))
+}
+```
+
+## Dataset 1 — Combined frame with `actor_type` (canonical)
+
+The most common shape: one long frame, one row-level `actor_type`
+column, two actor types. Session lengths vary 6–14 events. A `phase`
+column (Early vs. Late) is included so the same fixture can be reused
+for grouped builds in section 7.
+
+```{r ds1-build}
+alpha1 <- make_owner(list(
+  Human = c("Ask", "Specify", "Refine", "Check"),
+  AI    = c("Plan", "Execute", "Report", "Repair")
+))
+full1  <- unlist(alpha1, use.names = FALSE)
+trans1 <- list(Human = uniform_trans(full1),
+               AI    = uniform_trans(full1))
+
+ds1 <- sim_sessions(
+  actors    = c("Human", "AI"),
+  alphabets = alpha1,
+  trans     = trans1,
+  sessions  = sprintf("S%03d", 1:40)
+)
+
+# Bake the early/late split into the dataset (chronological order by
+# session_id is enough since session ids are zero-padded).
+sess_ids        <- sort(unique(ds1$session_id))
+early_ids       <- sess_ids[seq_len(length(sess_ids) %/% 2L)]
+ds1$phase       <- ifelse(ds1$session_id %in% early_ids, "Early", "Late")
+ds1$phase       <- factor(ds1$phase, levels = c("Early", "Late"))
+
+head(ds1)
+table(ds1$actor_type, ds1$phase)
+```
+
+```{r ds1-net}
+net1 <- build_htna(ds1, actor_type = "actor_type")
+net1
+table(net1$node_groups$group)
+plot_htna(net1)
+```
+
+## Dataset 2 — Named list of per-actor frames
+
+Splits the same generator into two frames; the list names become the
+actor labels. Each frame keeps the canonical schema. This exercises
+the "Form 1" branch of `build_htna()`.
+
+```{r ds2}
+ds2_human <- ds1[ds1$actor_type == "Human",
+                 c("session_id", "code", "order_in_session")]
+ds2_ai    <- ds1[ds1$actor_type == "AI",
+                 c("session_id", "code", "order_in_session")]
+
+net2 <- build_htna(list(Human = ds2_human, AI = ds2_ai))
+identical(sort(net2$node_groups$node), sort(net1$node_groups$node))
+plot_htna(net2)
+```
+
+## Dataset 3 — `node_groups` as a named list
+
+A combined frame with no actor-type column; the partition is declared
+directly. Useful when the codebook is authoritative and the long frame
+is "plain".
+
+```{r ds3}
+ds3 <- ds1[, c("session_id", "code", "order_in_session")]
+
+net3 <- build_htna(
+  ds3,
+  node_groups = list(Human = alpha1$Human, AI = alpha1$AI)
+)
+net3
+```
+
+## Dataset 4 — `node_groups` as a tidy codebook data frame
+
+Same partition expressed as a two-column lookup. The `code` column
+matches the `action` parameter; the other column carries the actor
+type.
+
+```{r ds4}
+codebook4 <- data.frame(
+  code       = c(alpha1$Human, alpha1$AI),
+  actor_type = factor(
+    c(rep("Human", length(alpha1$Human)),
+      rep("AI",    length(alpha1$AI))),
+    levels = c("Human", "AI")
+  ),
+  stringsAsFactors = FALSE
+)
+
+net4 <- build_htna(ds3, node_groups = codebook4)
+levels(net4$node_groups$group)            # honours factor ordering
+```
+
+## Dataset 5 — Three-actor heterogeneous network
+
+Stresses the multigroup path: Student / AI / System with disjoint
+alphabets. `plot_htna()` should auto-switch to a polygon layout.
+
+```{r ds5}
+alpha5 <- make_owner(list(
+  Student = c("Ask", "Confirm", "Revise", "Evaluate"),
+  AI      = c("Suggest", "Explain", "Execute", "Clarify"),
+  System  = c("Log", "Notify", "Compile", "Sync")
+))
+full5  <- unlist(alpha5, use.names = FALSE)
+trans5 <- list(Student = uniform_trans(full5),
+               AI      = uniform_trans(full5),
+               System  = uniform_trans(full5))
+
+ds5 <- sim_sessions(
+  actors    = c("Student", "AI", "System"),
+  alphabets = alpha5,
+  trans     = trans5,
+  sessions  = sprintf("M%03d", 1:25),
+  len_range = c(12L, 20L)
+)
+
+net5 <- build_htna(ds5, actor_type = "actor_type")
+table(net5$node_groups$group)
+plot_htna(net5)
+```
+
+## Dataset 6 — Overlapping code labels with `disambiguate = TRUE`
+
+Both actors share the labels `Ask` and `Reply`. Without
+`disambiguate = TRUE`, `build_htna()` errors. With it, codes are
+prefixed with the actor label so they become distinct nodes.
+
+```{r ds6}
+ds6 <- data.frame(
+  session_id       = rep(sprintf("O%02d", 1:8), each = 6L),
+  code             = rep(c("Ask", "Reply", "Ask", "Reply", "Ask", "Reply"), 8L),
+  actor_type       = rep(c("Human", "Human", "AI", "AI", "Human", "AI"), 8L),
+  order_in_session = rep(1:6, 8L),
+  stringsAsFactors = FALSE
+)
+
+# Default behaviour: error on label collision.
+err <- tryCatch(
+  build_htna(ds6, actor_type = "actor_type"),
+  error = function(e) conditionMessage(e)
+)
+err
+
+net6 <- build_htna(ds6, actor_type = "actor_type", disambiguate = TRUE)
+net6$nodes$label
+```
+
+## Dataset 7 — Grouped build (`group = "phase"`) using the baked-in field
+
+Reuses `ds1`, which already carries `phase` as a factor with levels
+`c("Early", "Late")`. The result is one network per cohort over a
+shared alphabet, so it feeds straight into `plot_htna_diff()` and
+`permutation_htna()`.
+
+```{r ds7-build}
+grp <- build_htna(ds1, actor_type = "actor_type", group = "phase")
+class(grp)
+names(grp)
+```
+
+```{r ds7-plot, fig.height=5}
+op <- par(mfrow = c(1, 2))
+plot_htna(grp)
+par(op)
+```
+
+```{r ds7-diff}
+plot_htna_diff(grp$Late, grp$Early)
+```
+
+## Dataset 8 — Individual `actor` IDs (forwarded to Nestimate)
+
+Adds a per-event `user_id` distinct from `actor_type`. The same actor
+*type* may be performed by multiple individuals; `actor =` forwards
+that grain to `Nestimate::build_network()`.
+
+```{r ds8}
+ds8 <- ds1
+ds8$user_id <- ifelse(
+  ds8$actor_type == "Human",
+  sample(c("h01", "h02", "h03"), nrow(ds8), replace = TRUE),
+  sample(c("ai_a", "ai_b"),     nrow(ds8), replace = TRUE)
+)
+table(ds8$actor_type, ds8$user_id)
+
+net8 <- build_htna(ds8, actor_type = "actor_type", actor = "user_id")
+net8
+```
+
+## Dataset 9 — Custom column names (non-default `session` / `order` / `action`)
+
+The schema columns are renamed so we can verify the `action =`,
+`session =`, and `order =` parameters all flow through. Same data as
+`ds1` under different aliases.
+
+```{r ds9}
+ds9 <- ds1
+names(ds9)[names(ds9) == "session_id"]       <- "conversation"
+names(ds9)[names(ds9) == "code"]             <- "move"
+names(ds9)[names(ds9) == "order_in_session"] <- "turn"
+
+net9 <- build_htna(
+  ds9,
+  actor_type = "actor_type",
+  action     = "move",
+  session    = "conversation",
+  order      = "turn"
+)
+identical(sort(net9$node_groups$node), sort(net1$node_groups$node))
+```
+
+## Dataset 10 — Factor-level ordering controls legend order
+
+`actor_type` is a factor with the *less common* level listed first.
+`build_htna()` honours declared factor levels for ordering even when
+the order of first appearance differs.
+
+```{r ds10}
+ds10 <- ds1
+ds10$actor_type <- factor(ds10$actor_type, levels = c("AI", "Human"))
+
+net10 <- build_htna(ds10, actor_type = "actor_type")
+levels(net10$node_groups$group)   # AI first, Human second
+```
+
+## Dataset 11 — Highly variable session lengths
+
+Some sessions are length 2 (the minimum that produces a transition),
+some are length 30+. This stresses bootstrap and reliability resampling
+on heterogeneous session sizes.
+
+```{r ds11}
+ds11 <- sim_sessions(
+  actors    = c("Human", "AI"),
+  alphabets = alpha1,
+  trans     = trans1,
+  sessions  = sprintf("V%03d", 1:50),
+  len_range = c(2L, 30L)
+)
+range(table(ds11$session_id))     # min/max session length
+
+net11  <- build_htna(ds11, actor_type = "actor_type")
+boot11 <- bootstrap_htna(net11, iter = 100)
+plot_htna_bootstrap(boot11, display = "significant")
+```
+
+## Dataset 12 — Strongly biased transitions (sanity check for diff/perm)
+
+Two cohorts share the alphabet but differ in transition structure:
+`Early` is uniform, `Late` strongly prefers `Human:Ask -> AI:Plan`.
+`permutation_htna()` should flag that edge as significant.
+
+```{r ds12}
+alpha12 <- make_owner(list(
+  Human = c("Ask", "Specify"),
+  AI    = c("Plan", "Execute")
+))
+full12 <- unlist(alpha12, use.names = FALSE)
+
+trans_early <- list(Human = uniform_trans(full12),
+                    AI    = uniform_trans(full12))
+trans_late  <- trans_early
+trans_late$Human["Ask", ] <- c(0.05, 0.05, 0.80, 0.10)
+
+ds12_early <- sim_sessions(c("Human", "AI"), alpha12, trans_early,
+                           sprintf("E%03d", 1:30))
+ds12_late  <- sim_sessions(c("Human", "AI"), alpha12, trans_late,
+                           sprintf("L%03d", 1:30))
+ds12_early$phase <- "Early"
+ds12_late$phase  <- "Late"
+ds12 <- rbind(ds12_early, ds12_late)
+ds12$phase <- factor(ds12$phase, levels = c("Early", "Late"))
+
+grp12  <- build_htna(ds12, actor_type = "actor_type", group = "phase")
+perm12 <- permutation_htna(grp12$Late, grp12$Early, iter = 300)
+plot_htna_diff(perm12)
+```
+
+## Cheat sheet of fixtures
+
+| Fixture | Form / feature exercised                              |
+|---------|-------------------------------------------------------|
+| `ds1`   | Combined frame, `actor_type`, baked-in `phase`        |
+| `ds2`   | Named list of per-actor frames                        |
+| `ds3`   | `node_groups` as a named list                         |
+| `ds4`   | `node_groups` as a tidy codebook                      |
+| `ds5`   | Three-actor multigroup                                |
+| `ds6`   | Code-label collision + `disambiguate = TRUE`          |
+| `ds7`   | `group = "phase"` from the baked-in field             |
+| `ds8`   | Individual `actor =` (user IDs)                       |
+| `ds9`   | Custom `action` / `session` / `order` column names    |
+| `ds10`  | Factor-level ordering controls legend order           |
+| `ds11`  | Highly variable session lengths                       |
+| `ds12`  | Biased transitions, used for diff / permutation       |

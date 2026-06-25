@@ -34,4 +34,31 @@ human_simplified <- human_long |>
 human_ai <- dplyr::bind_rows(ai_simplified, human_simplified) |>
   dplyr::arrange(project, order_in_session)
 
+# Chronological session order; session_id is a deterministic
+# tiebreak among sessions that started on the same date.
+sess_start <- aggregate(session_date ~ session_id, data = human_ai,
+                        FUN = min)
+sess_start <- sess_start[order(sess_start$session_date,
+                               sess_start$session_id), ]
+half       <- nrow(sess_start) %/% 2L
+early_sess <- sess_start$session_id[seq_len(half)]
+
+human_ai$phase <- ifelse(human_ai$session_id %in% early_sess,
+                         "Early", "Late")
+human_ai$phase <- factor(human_ai$phase, levels = c("Early", "Late"))
+
+
+human_codes <- unique(human_simplified$code)
+ai_codes    <- unique(ai_simplified$code)
+
+human_ai_codebook <- data.frame(
+  code       = c(human_codes, ai_codes),
+  actor_type = c(rep("Human", length(human_codes)),
+                 rep("AI",    length(ai_codes))),
+  stringsAsFactors = FALSE
+)
+
 usethis::use_data(human_ai, overwrite = TRUE, compress = "xz")
+usethis::use_data(ai_simplified, overwrite = TRUE, compress = "xz")
+usethis::use_data(human_simplified, overwrite = TRUE, compress = "xz")
+usethis::use_data(human_ai_codebook, overwrite = TRUE, compress = "xz")

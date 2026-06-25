@@ -29,7 +29,7 @@
 #' label across rows. The \code{cluster} column is preserved verbatim
 #' from the source data and should be treated as informational only.
 #'
-#' @format A data frame with 19347 rows and 10 columns:
+#' @format A data frame with 19347 rows and 11 columns:
 #' \describe{
 #'   \item{message_id}{Integer. Source message identifier.}
 #'   \item{project}{Character. Project label (e.g. \code{"Project_1"}).}
@@ -47,11 +47,19 @@
 #'     session — pass as the order key to \code{\link{build_htna}()}.}
 #'   \item{actor_type}{Character. \code{"AI"} or \code{"Human"} — the
 #'     actor partition for \code{\link{build_htna}(actor_type = "actor_type")}.}
+#'   \item{phase}{Factor with levels \code{"Early"} and \code{"Late"}.
+#'     Session-level cohort tag from a chronological split: sessions
+#'     ordered by their first \code{session_date} (with \code{session_id}
+#'     as a deterministic tiebreak), then split in half. Suitable for
+#'     \code{\link{build_htna}(group = "phase")}.}
 #' }
 #'
 #' @source Derived from \code{Nestimate::human_long} and
 #'   \code{Nestimate::ai_long}; see \code{data-raw/human_ai.R} for the
 #'   build script.
+#'
+#' @seealso \code{\link{human_simplified}}, \code{\link{ai_simplified}},
+#'   \code{\link{human_ai_codebook}}.
 #'
 #' @examples
 #' \dontrun{
@@ -60,3 +68,83 @@
 #' plot_htna(net)
 #' }
 "human_ai"
+
+#' Simplified Human Interaction Sequences (per-actor frame)
+#'
+#' The Human-only slice of \code{\link{human_ai}}, in a long-format
+#' data frame ready to feed the named-list form of
+#' \code{\link{build_htna}()}. Codes have already been collapsed into
+#' the simplified Human alphabet; see \code{\link{human_ai}} for the
+#' remapping rules.
+#'
+#' @format A data frame with 10796 rows and 10 columns. Schema matches
+#'   \code{\link{human_ai}} minus the \code{phase} column; every value
+#'   in \code{actor_type} is \code{"Human"}.
+#'
+#' @source Derived from \code{Nestimate::human_long}; see
+#'   \code{data-raw/human_ai.R} for the build script.
+#'
+#' @seealso \code{\link{human_ai}}, \code{\link{ai_simplified}},
+#'   \code{\link{human_ai_codebook}}.
+#'
+#' @examples
+#' \dontrun{
+#' data(human_simplified, ai_simplified)
+#' net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
+#' plot_htna(net)
+#' }
+"human_simplified"
+
+#' Simplified AI Interaction Sequences (per-actor frame)
+#'
+#' The AI-only slice of \code{\link{human_ai}}, in a long-format data
+#' frame ready to feed the named-list form of \code{\link{build_htna}()}.
+#' Codes have already been collapsed into the simplified AI alphabet;
+#' see \code{\link{human_ai}} for the remapping rules.
+#'
+#' @format A data frame with 8551 rows and 10 columns. Schema matches
+#'   \code{\link{human_ai}} minus the \code{phase} column; every value
+#'   in \code{actor_type} is \code{"AI"}.
+#'
+#' @source Derived from \code{Nestimate::ai_long}; see
+#'   \code{data-raw/human_ai.R} for the build script.
+#'
+#' @seealso \code{\link{human_ai}}, \code{\link{human_simplified}},
+#'   \code{\link{human_ai_codebook}}.
+#'
+#' @examples
+#' \dontrun{
+#' data(human_simplified, ai_simplified)
+#' net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
+#' plot_htna(net)
+#' }
+"ai_simplified"
+
+#' Code → Actor-Type Codebook for \code{human_ai}
+#'
+#' A tidy two-column lookup tagging every simplified code in
+#' \code{\link{human_ai}} with its actor type. Ready to pass as
+#' \code{node_groups} to \code{\link{build_htna}()} (Form 3b in the
+#' \code{vignette("input-formats", package = "htna")}).
+#'
+#' @format A data frame with 12 rows and 2 columns:
+#' \describe{
+#'   \item{code}{Character. Simplified action code (one of the 12
+#'     Human + AI codes in \code{\link{human_ai}}).}
+#'   \item{actor_type}{Character. \code{"Human"} or \code{"AI"}.}
+#' }
+#'
+#' @source Derived from \code{\link{human_simplified}} and
+#'   \code{\link{ai_simplified}}; see \code{data-raw/human_ai.R} for
+#'   the build script.
+#'
+#' @seealso \code{\link{human_ai}}, \code{\link{human_simplified}},
+#'   \code{\link{ai_simplified}}.
+#'
+#' @examples
+#' \dontrun{
+#' data(human_ai, human_ai_codebook)
+#' net <- build_htna(human_ai, node_groups = human_ai_codebook)
+#' plot_htna(net)
+#' }
+"human_ai_codebook"

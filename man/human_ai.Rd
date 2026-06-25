@@ -5,7 +5,7 @@
 \alias{human_ai}
 \title{Simplified Human + AI Interaction Sequences}
 \format{
-A data frame with 19347 rows and 10 columns:
+A data frame with 19347 rows and 11 columns:
 \describe{
 \item{message_id}{Integer. Source message identifier.}
 \item{project}{Character. Project label (e.g. \code{"Project_1"}).}
@@ -23,6 +23,11 @@ data, retained for reference (see Details).}
 session — pass as the order key to \code{\link{build_htna}()}.}
 \item{actor_type}{Character. \code{"AI"} or \code{"Human"} — the
 actor partition for \code{\link{build_htna}(actor_type = "actor_type")}.}
+\item{phase}{Factor with levels \code{"Early"} and \code{"Late"}.
+Session-level cohort tag from a chronological split: sessions
+ordered by their first \code{session_date} (with \code{session_id}
+as a deterministic tiebreak), then split in half. Suitable for
+\code{\link{build_htna}(group = "phase")}.}
 }
 }
 \source{
@@ -70,5 +75,9 @@ data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 plot_htna(net)
 }
+}
+\seealso{
+\code{\link{human_simplified}}, \code{\link{ai_simplified}},
+\code{\link{human_ai_codebook}}.
 }
 \keyword{datasets}
