@@ -72,9 +72,12 @@ reference:
       - print.htna_stability_group
       - markov_order_test_htna
   - title: Datasets
-    desc: Sample dataset
+    desc: Sample datasets
     contents:
     - human_ai
+    - human_simplified
+    - ai_simplified
+    - human_ai_codebook
 articles:
   - title: Getting started
     contents:
