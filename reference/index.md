@@ -50,6 +50,8 @@ Visualise an htna network and contrasts between networks
   : Plot an htna Bootstrap Result
 - [`plot_htna_diff()`](https://sonsoles.me/htna/reference/plot_htna_diff.md)
   : Plot the Difference Between Two htna Networks
+- [`htna_palette`](https://sonsoles.me/htna/reference/htna_palette.md) :
+  Default HTNA colour palette
 
 ## Centrality
 

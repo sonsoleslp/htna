@@ -21,6 +21,6 @@ A character vector of 6 hex colour codes.
 ## Examples
 
 ``` r
-htna:::htna_palette
+htna_palette
 #> [1] "#FFD966" "#B4A7D6" "#93C47D" "#E06666" "#6FA8DC" "#F6B26B"
 ```
