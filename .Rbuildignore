@@ -11,7 +11,6 @@
 ^docs$
 ^pkgdown$
 ^Rplots\.pdf$
-^agent_note_for_sonsoles_HTNA\.md$
 ^AGENT-NOTE-HTNA-REVIEW\.md$
 ^HANDOFF\.md$
 ^LEARNINGS\.md$
@@ -20,3 +19,4 @@
 ^htna_hex\.png$
 ^\.github$
 ^\.claude$
+^inst/.*\.qmd$

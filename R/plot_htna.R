@@ -5,8 +5,8 @@
 #'
 #' @return A character vector of 6 hex colour codes.
 #' @examples
-#' htna:::htna_palette
-#' @keywords internal
+#' htna_palette
+#' @export
 htna_palette <- c(
   "#FFD966",
   "#B4A7D6",

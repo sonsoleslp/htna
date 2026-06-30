@@ -37,6 +37,7 @@ reference:
       - plot_htna
       - plot_htna_bootstrap
       - plot_htna_diff
+      - htna_palette
 
   - title: Centrality
     desc: Compute and visualise node-level centralities

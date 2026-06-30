@@ -18,6 +18,6 @@ A colour palette for up to 6 actor groups, used by \code{\link[=plot_htna]{plot_
 no explicit colours are supplied.
 }
 \examples{
-htna:::htna_palette
+htna_palette
 }
-\keyword{internal}
+\keyword{datasets}
