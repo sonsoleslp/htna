@@ -797,8 +797,13 @@ test_that("centrality_stability cs values match across htna, tna, Nestimate", {
     set.seed(7)
     h_cs <- centrality_stability_htna(trip$htna, iter = 10L, seed = 7L)
     set.seed(7)
-    n_cs <- Nestimate::centrality_stability(trip$nest, iter = 10L,
-                                            seed = 7L)
+    # Request the same measures htna requests. Nestimate's own default set
+    # differs (it includes Diffusion), and both sides independently drop
+    # measures with zero variance on the data, so the returned sets only
+    # line up when the requested sets do.
+    n_cs <- Nestimate::centrality_stability(trip$nest,
+                                            measures = htna_cs_measures(),
+                                            iter = 10L, seed = 7L)
 
     # htna vs Nestimate: bit-identical for every dataset (htna
     # delegates to Nestimate's engine), every measure, every cell.
