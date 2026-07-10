@@ -137,3 +137,9 @@ skip_if_nestimate_param_get_missing <- function() {
     testthat::skip("Nestimate is missing internal `.param_get` (upstream bug).")
   }
 }
+
+# The measure set `centrality_stability_htna()` requests, read off its own
+# formals so the equivalence tests cannot drift from the default.
+htna_cs_measures <- function() {
+  eval(formals(centrality_stability_htna)$measures)
+}
