@@ -1,3 +1,12 @@
+# htna 0.1.1
+
+* Compatibility with Nestimate 0.8.0. `Nestimate::permutation()` gained a
+  `measures` argument (for centrality permutation tests); since
+  `permutation_htna()` re-exports that function, its documentation is
+  regenerated to include the new argument, resolving a code/documentation
+  mismatch flagged by `R CMD check`. No behavioural change.
+* `Imports: Nestimate (>= 0.8.0)`.
+
 # htna 0.1.0
 
 * Initial release.
