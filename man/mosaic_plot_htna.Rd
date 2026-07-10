@@ -16,7 +16,8 @@ mosaic_plot_htna(x, ...)
 so the geometry matches). Also accepts a contingency \code{table} or
 plain numeric \code{matrix} for ad-hoc plotting.}
 
-\item{...}{Ignored.}
+\item{...}{Flat styling overrides forwarded to the flat renderer when
+\code{style = "flat"} (otherwise ignored).}
 }
 \value{
 A ggplot or gtable, depending on input shape. See
