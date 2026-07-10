@@ -16,6 +16,7 @@ permutation_htna(
   alpha = 0.05,
   paired = FALSE,
   adjust = "none",
+  measures = NULL,
   nlambda = 50L,
   seed = NULL
 )
@@ -26,13 +27,18 @@ permutation_htna(
 - x:
 
   A `netobject` (from
-  [`build_network`](https://saqr.me/Nestimate/reference/build_network.html)).
+  [`build_network`](https://saqr.me/Nestimate/reference/build_network.html))
+  or a
+  [`net_edge_betweenness`](https://saqr.me/Nestimate/reference/net_edge_betweenness.html)
+  object.
 
 - y:
 
   A `netobject` (from
-  [`build_network`](https://saqr.me/Nestimate/reference/build_network.html)).
-  Must use the same method and have the same nodes as `x`.
+  [`build_network`](https://saqr.me/Nestimate/reference/build_network.html))
+  or a
+  [`net_edge_betweenness`](https://saqr.me/Nestimate/reference/net_edge_betweenness.html)
+  object. Must use the same method and have the same nodes as `x`.
 
 - iter:
 
@@ -52,6 +58,17 @@ permutation_htna(
   Character. p-value adjustment method passed to
   [`p.adjust`](https://rdrr.io/r/stats/p.adjust.html) (default:
   `"none"`). Common choices: `"holm"`, `"BH"`, `"bonferroni"`.
+
+- measures:
+
+  Character vector of centrality measures to permutation-test in
+  addition to the edges, or `"all"` for every built-in measure. Default
+  `NULL` (edges only). When supplied, the result gains a `$centralities`
+  block matching the layout of `tna::permutation_test(measures = )`: per
+  state and measure it reports the observed difference, an effect size
+  (difference / SD of the permutation null), and a permutation p-value,
+  all using the same permuted networks as the edge test. Not supported
+  for `net_edge_betweenness` inputs.
 
 - nlambda:
 

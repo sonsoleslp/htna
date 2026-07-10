@@ -25,7 +25,7 @@ association_rules_htna(
 
   netobject
 
-  :   Uses `$data` sequences — each sequence becomes a transaction of
+  :   Uses `$data` sequences - each sequence becomes a transaction of
       its unique states.
 
   list

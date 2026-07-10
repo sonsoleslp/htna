@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,13 +33,20 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.1" id="htna-011">htna 0.1.1<a class="anchor" aria-label="anchor" href="#htna-011"></a></h2>
+<ul><li>Compatibility with Nestimate 0.8.0. <code><a href="https://saqr.me/Nestimate/reference/permutation.html" class="external-link">Nestimate::permutation()</a></code> gained a <code>measures</code> argument (for centrality permutation tests); since <code><a href="../reference/permutation_htna.html">permutation_htna()</a></code> re-exports that function, its documentation is regenerated to include the new argument, resolving a code/documentation mismatch flagged by <code>R CMD check</code>. No behavioural change.</li>
+<li>
+<code>Imports: Nestimate (&gt;= 0.8.0)</code>.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0" id="htna-010">htna 0.1.0<a class="anchor" aria-label="anchor" href="#htna-010"></a></h2><p class="text-muted">CRAN release: 2026-07-06</p>
 <ul><li>Initial release.</li>
 <li>Builds heterogeneous transition networks for sequences mixing two or more actor groups (e.g. Human and AI) within the same interaction, via <code><a href="../reference/build_htna.html">build_htna()</a></code>.</li>
 <li>Re-exports the most commonly used <code>Nestimate</code> and <code>cograph</code> downstream functions under <code>_htna</code>-suffixed aliases so callers do not need to attach <code>Nestimate</code> or <code>cograph</code> explicitly: <code><a href="../reference/permutation_htna.html">permutation_htna()</a></code>, <code><a href="../reference/casedrop_reliability_htna.html">casedrop_reliability_htna()</a></code>, <code><a href="../reference/markov_order_test_htna.html">markov_order_test_htna()</a></code>, <code><a href="../reference/mosaic_plot_htna.html">mosaic_plot_htna()</a></code>, <code><a href="../reference/state_distribution_htna.html">state_distribution_htna()</a></code>, <code><a href="../reference/state_frequencies_htna.html">state_frequencies_htna()</a></code>, <code><a href="../reference/association_rules_htna.html">association_rules_htna()</a></code>, <code><a href="../reference/sequence_compare_htna.html">sequence_compare_htna()</a></code>.</li>
 <li>htna-side wrappers add ergonomics over the upstream API: <code><a href="../reference/frequencies_htna.html">frequencies_htna()</a></code>, <code><a href="../reference/plot_frequencies_htna.html">plot_frequencies_htna()</a></code> (treemap / bars / facet views), <code><a href="../reference/centralities_htna.html">centralities_htna()</a></code>, <code><a href="../reference/plot_centralities.html">plot_centralities()</a></code>, <code><a href="../reference/plot_htna.html">plot_htna()</a></code>, <code><a href="../reference/plot_htna_bootstrap.html">plot_htna_bootstrap()</a></code>, <code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code>, <code><a href="../reference/sequence_plot_htna.html">sequence_plot_htna()</a></code>, <code><a href="../reference/reliability_htna.html">reliability_htna()</a></code>, <code><a href="../reference/centrality_stability_htna.html">centrality_stability_htna()</a></code>, <code><a href="../reference/edge_betweenness_htna.html">edge_betweenness_htna()</a></code>, <code><a href="../reference/extract_meta_paths.html">extract_meta_paths()</a></code> (state-level by default; <code>level = "type"</code> for the type-level meta-path rollup; supports schemas mixing types, concrete codes, and <code>*</code>).</li>
 </ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

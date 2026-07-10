@@ -26,7 +26,8 @@ mosaic_plot_htna(x, ...)
 
 - ...:
 
-  Ignored.
+  Flat styling overrides forwarded to the flat renderer when
+  `style = "flat"` (otherwise ignored).
 
 ## Value
 
