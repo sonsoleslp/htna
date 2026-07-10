@@ -15,7 +15,12 @@
 #' Suffixed `_htna` to avoid clashing with
 #' `Nestimate::markov_order_test()` when both packages are loaded.
 #'
-#' @inheritParams Nestimate::markov_order_test
+#' @param data Raw sequence data: a list of character vectors or a
+#'   wide-format data frame. See [Nestimate::markov_order_test()].
+#' @param ... Additional arguments passed to
+#'   [Nestimate::markov_order_test()], such as `max_order`, `n_perm`,
+#'   `alpha`, `parallel`, `n_cores`, and `seed`. See that function for
+#'   the full, current argument list.
 #'
 #' @return An object of class `markov_order_test` with components
 #'   `test_table`, `optimal_order`, and the inputs. See
@@ -31,4 +36,6 @@
 #' markov_order_test_htna(net$data, max_order = 2, n_perm = 50, seed = 1)
 #' }
 #' @export
-markov_order_test_htna <- Nestimate::markov_order_test
+markov_order_test_htna <- function(data, ...) {
+  Nestimate::markov_order_test(data, ...)
+}

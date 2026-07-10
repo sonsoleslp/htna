@@ -4,10 +4,14 @@
 \alias{state_frequencies_htna}
 \title{Tidy State Frequency Table}
 \usage{
-state_frequencies_htna(data)
+state_frequencies_htna(data, ...)
 }
 \arguments{
-\item{data}{A list of character vectors (trajectories) or a data.frame.}
+\item{data}{Raw sequence data summarised into a state-frequency
+table. See \code{\link[Nestimate:state_frequencies]{Nestimate::state_frequencies()}}.}
+
+\item{...}{Additional arguments passed to
+\code{\link[Nestimate:state_frequencies]{Nestimate::state_frequencies()}}. See that function for details.}
 }
 \value{
 A data frame. See \code{\link[Nestimate:state_frequencies]{Nestimate::state_frequencies()}} for

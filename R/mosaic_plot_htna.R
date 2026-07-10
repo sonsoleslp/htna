@@ -20,7 +20,11 @@
 #' Suffixed `_htna` to avoid clashing with `Nestimate::mosaic_plot()`
 #' when both packages are loaded.
 #'
-#' @inheritParams Nestimate::mosaic_plot
+#' @param x An htna network built with `method = "frequency"` (or other
+#'   object accepted by [Nestimate::mosaic_plot()]); S3 dispatch on `x`
+#'   is preserved, so `htna` objects use `mosaic_plot.htna`.
+#' @param ... Additional arguments passed to [Nestimate::mosaic_plot()],
+#'   such as `n_perm` and `seed`. See that function for details.
 #'
 #' @return A ggplot or gtable, depending on input shape. See
 #'   [Nestimate::mosaic_plot()] for full details and the per-class S3

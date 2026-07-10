@@ -13,7 +13,12 @@
 #' Suffixed `_htna` to avoid clashing with `Nestimate::permutation()`
 #' when both packages are loaded.
 #'
-#' @inheritParams Nestimate::permutation
+#' @param x,y The two networks to compare, or a single
+#'   `netobject_group` in `x` (with `y = NULL`) for all pairwise
+#'   comparisons. See [Nestimate::permutation()].
+#' @param ... Additional arguments passed to [Nestimate::permutation()],
+#'   such as `iter`, `alpha`, `paired`, `adjust`, `measures`, `nlambda`,
+#'   and `seed`. See that function for the full, current argument list.
 #'
 #' @return An object of class `net_permutation` (single pair) or
 #'   `net_permutation_group` (multiple pairs). See
@@ -27,4 +32,6 @@
 #' permutation_htna(grp$Early, grp$Late, iter = 50)
 #' }
 #' @export
-permutation_htna <- Nestimate::permutation
+permutation_htna <- function(x, y = NULL, ...) {
+  Nestimate::permutation(x, y = y, ...)
+}

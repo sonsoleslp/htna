@@ -12,7 +12,10 @@
 #' Suffixed `_htna` to avoid clashing with
 #' `Nestimate::state_frequencies()` when both packages are loaded.
 #'
-#' @inheritParams Nestimate::state_frequencies
+#' @param data Raw sequence data summarised into a state-frequency
+#'   table. See [Nestimate::state_frequencies()].
+#' @param ... Additional arguments passed to
+#'   [Nestimate::state_frequencies()]. See that function for details.
 #'
 #' @return A data frame. See [Nestimate::state_frequencies()] for
 #'   details.
@@ -25,4 +28,6 @@
 #' state_frequencies_htna(net$data)
 #' }
 #' @export
-state_frequencies_htna <- Nestimate::state_frequencies
+state_frequencies_htna <- function(data, ...) {
+  Nestimate::state_frequencies(data, ...)
+}

@@ -4,33 +4,16 @@
 \alias{association_rules_htna}
 \title{Association Rule Mining over Transitions}
 \usage{
-association_rules_htna(
-  x,
-  min_support = 0.1,
-  min_confidence = 0.5,
-  min_lift = 1,
-  max_length = 5L
-)
+association_rules_htna(x, ...)
 }
 \arguments{
-\item{x}{Input data. Accepts:
-\describe{
-\item{netobject}{Uses \code{$data} sequences - each sequence becomes
-a transaction of its unique states.}
-\item{list}{Each element is a character vector of items (one transaction).}
-\item{data.frame}{Wide format: each row is a transaction, character
-columns are item occurrences. Or a binary matrix (0/1).}
-\item{matrix}{Binary transaction matrix (rows = transactions,
-columns = items).}
-}}
+\item{x}{A transition-count matrix or an htna network. See
+\code{\link[Nestimate:association_rules]{Nestimate::association_rules()}}.}
 
-\item{min_support}{Numeric. Minimum support threshold. Default: 0.1.}
-
-\item{min_confidence}{Numeric. Minimum confidence threshold. Default: 0.5.}
-
-\item{min_lift}{Numeric. Minimum lift threshold. Default: 1.0.}
-
-\item{max_length}{Integer. Maximum itemset size. Default: 5.}
+\item{...}{Additional arguments passed to
+\code{\link[Nestimate:association_rules]{Nestimate::association_rules()}}, such as \code{min_support},
+\code{min_confidence}, \code{min_lift}, and \code{max_length}. See that function
+for the full, current argument list.}
 }
 \value{
 A list with the discovered rules and frequent itemsets. See

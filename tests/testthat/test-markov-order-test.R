@@ -1,5 +1,14 @@
-test_that("markov_order_test_htna() is the same function as Nestimate::markov_order_test()", {
-  expect_identical(htna::markov_order_test_htna, Nestimate::markov_order_test)
+test_that("markov_order_test_htna() is a stable ...-forwarding wrapper", {
+  # Durable-wrapper design: documented formals stay `data, ...` (see NEWS 0.1.2).
+  expect_identical(names(formals(htna::markov_order_test_htna)), c("data", "..."))
+
+  data(human_long, package = "Nestimate", envir = environment())
+  seqs <- split(human_long$code, human_long$session_id)
+  seqs <- seqs[lengths(seqs) >= 3L]
+
+  via_htna <- markov_order_test_htna(seqs, max_order = 2L, n_perm = 20L, seed = 1L)
+  direct   <- Nestimate::markov_order_test(seqs, max_order = 2L, n_perm = 20L, seed = 1L)
+  expect_equal(via_htna$optimal_order, direct$optimal_order)
 })
 
 test_that("markov_order_test_htna() runs on Human-only sequences", {

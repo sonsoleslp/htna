@@ -12,7 +12,12 @@
 #' Suffixed `_htna` to avoid clashing with
 #' `Nestimate::casedrop_reliability()` when both packages are loaded.
 #'
-#' @inheritParams Nestimate::casedrop_reliability
+#' @param x An htna network or grouped htna network. See
+#'   [Nestimate::casedrop_reliability()].
+#' @param ... Additional arguments passed to
+#'   [Nestimate::casedrop_reliability()], such as `iter`, `drop_prop`,
+#'   `threshold`, `certainty`, `method`, `include_diag`, and `seed`. See
+#'   that function for the full, current argument list.
 #'
 #' @return An object of class `net_casedrop_reliability` (single
 #'   network) or `net_casedrop_reliability_group` (grouped htna). See
@@ -28,4 +33,6 @@
 #' casedrop_reliability_htna(net, iter = 20, seed = 1)
 #' }
 #' @export
-casedrop_reliability_htna <- Nestimate::casedrop_reliability
+casedrop_reliability_htna <- function(x, ...) {
+  Nestimate::casedrop_reliability(x, ...)
+}

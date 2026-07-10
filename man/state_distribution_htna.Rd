@@ -7,10 +7,12 @@
 state_distribution_htna(x, ...)
 }
 \arguments{
-\item{x}{A \code{netobject}, \code{netobject_group}, \code{mcml}, or
-\code{htna} object.}
+\item{x}{An htna network (or other object accepted by
+\code{\link[Nestimate:state_distribution]{Nestimate::state_distribution()}}); S3 dispatch on \code{x} is
+preserved, so \code{htna} objects use \code{state_distribution.htna}.}
 
-\item{...}{Currently unused.}
+\item{...}{Additional arguments passed to
+\code{\link[Nestimate:state_distribution]{Nestimate::state_distribution()}}. See that function for details.}
 }
 \value{
 A data frame with one row per (timestep, state). See

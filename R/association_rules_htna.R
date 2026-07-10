@@ -12,7 +12,12 @@
 #' Suffixed `_htna` to avoid clashing with
 #' `Nestimate::association_rules()` when both packages are loaded.
 #'
-#' @inheritParams Nestimate::association_rules
+#' @param x A transition-count matrix or an htna network. See
+#'   [Nestimate::association_rules()].
+#' @param ... Additional arguments passed to
+#'   [Nestimate::association_rules()], such as `min_support`,
+#'   `min_confidence`, `min_lift`, and `max_length`. See that function
+#'   for the full, current argument list.
 #'
 #' @return A list with the discovered rules and frequent itemsets. See
 #'   [Nestimate::association_rules()] for details.
@@ -25,4 +30,6 @@
 #' association_rules_htna(net, max_length = 3L)
 #' }
 #' @export
-association_rules_htna <- Nestimate::association_rules
+association_rules_htna <- function(x, ...) {
+  Nestimate::association_rules(x, ...)
+}

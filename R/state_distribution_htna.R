@@ -11,7 +11,11 @@
 #' Suffixed `_htna` to avoid clashing with
 #' `Nestimate::state_distribution()` when both packages are loaded.
 #'
-#' @inheritParams Nestimate::state_distribution
+#' @param x An htna network (or other object accepted by
+#'   [Nestimate::state_distribution()]); S3 dispatch on `x` is
+#'   preserved, so `htna` objects use `state_distribution.htna`.
+#' @param ... Additional arguments passed to
+#'   [Nestimate::state_distribution()]. See that function for details.
 #'
 #' @return A data frame with one row per (timestep, state). See
 #'   [Nestimate::state_distribution()] for full details.
@@ -24,4 +28,6 @@
 #' state_distribution_htna(net)
 #' }
 #' @export
-state_distribution_htna <- Nestimate::state_distribution
+state_distribution_htna <- function(x, ...) {
+  Nestimate::state_distribution(x, ...)
+}

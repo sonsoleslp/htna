@@ -7,17 +7,12 @@
 mosaic_plot_htna(x, ...)
 }
 \arguments{
-\item{x}{One of the four data-bearing Nestimate classes:
-\code{netobject} (single mosaic of \code{$weights}),
-\code{netobject_group} (one panel per group),
-\code{mcml} (between-cluster mosaic by default; per-cluster panels with
-\code{level = "within"}), or
-\code{htna} (single mosaic of \code{$weights}; htna inherits netobject
-so the geometry matches). Also accepts a contingency \code{table} or
-plain numeric \code{matrix} for ad-hoc plotting.}
+\item{x}{An htna network built with \code{method = "frequency"} (or other
+object accepted by \code{\link[Nestimate:mosaic_plot]{Nestimate::mosaic_plot()}}); S3 dispatch on \code{x}
+is preserved, so \code{htna} objects use \code{mosaic_plot.htna}.}
 
-\item{...}{Flat styling overrides forwarded to the flat renderer when
-\code{style = "flat"} (otherwise ignored).}
+\item{...}{Additional arguments passed to \code{\link[Nestimate:mosaic_plot]{Nestimate::mosaic_plot()}},
+such as \code{n_perm} and \code{seed}. See that function for details.}
 }
 \value{
 A ggplot or gtable, depending on input shape. See

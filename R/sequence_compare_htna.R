@@ -18,12 +18,21 @@
 #' are folded into their actor type before pattern enumeration, so the
 #' comparison runs on meta-paths.
 #'
-#' @inheritParams Nestimate::sequence_compare
+#' @param x A grouped htna network, a single htna network (paired with
+#'   `group`), or wide-format sequence data. See
+#'   [Nestimate::sequence_compare()].
+#' @param group Grouping specification for the cohorts to compare, when
+#'   not already carried by a grouped htna network. See
+#'   [Nestimate::sequence_compare()].
 #' @param level Character. `"state"` (default) compares concrete
 #'   state-level k-grams; `"type"` first replaces each state with its
 #'   actor type so the comparison runs on meta-paths
 #'   (e.g. `Human->AI->Human`). Only meaningful when `x` is an htna
 #'   network with an actor partition.
+#' @param ... Additional arguments passed to
+#'   [Nestimate::sequence_compare()], such as `sub`, `min_freq`,
+#'   `test`, `iter`, and `adjust`. See that function for the full,
+#'   current argument list.
 #'
 #' @return An object of class `net_sequence_compare`. See
 #'   [Nestimate::sequence_compare()] for full details and the
@@ -45,15 +54,10 @@
 #' }
 #' @export
 sequence_compare_htna <- function(x,
-                                  group    = NULL,
-                                  level    = c("state", "type"),
-                                  sub      = 3:5,
-                                  min_freq = 5L,
-                                  test     = c("permutation", "chisq", "none"),
-                                  iter     = 1000L,
-                                  adjust   = "fdr") {
+                                  group = NULL,
+                                  level = c("state", "type"),
+                                  ...) {
   level <- match.arg(level)
-  test  <- match.arg(test)
 
   if (level == "type") {
     if (inherits(x, "htna_group")) {
@@ -75,15 +79,7 @@ sequence_compare_htna <- function(x,
     }
   }
 
-  Nestimate::sequence_compare(
-    x        = x,
-    group    = group,
-    sub      = sub,
-    min_freq = min_freq,
-    test     = test,
-    iter     = iter,
-    adjust   = adjust
-  )
+  Nestimate::sequence_compare(x = x, group = group, ...)
 }
 
 # Replace concrete state codes in $data with their actor types so that

@@ -1,3 +1,23 @@
+# htna 0.1.2
+
+* The six re-exported Nestimate functions (`permutation_htna()`,
+  `association_rules_htna()`, `casedrop_reliability_htna()`,
+  `markov_order_test_htna()`, `state_distribution_htna()`,
+  `state_frequencies_htna()`) are now thin `...`-forwarding wrappers
+  instead of direct aliases. Their documented formals are fixed, so a
+  future change to any of these functions' signatures in Nestimate can
+  no longer produce a code/documentation-mismatch (codoc) `WARNING` in
+  `R CMD check`. No behavioural change: each call forwards unchanged to
+  Nestimate (including S3 dispatch for `state_distribution_htna()`), and
+  extra arguments pass straight through `...`.
+* `sequence_compare_htna()` no longer restates Nestimate's `sequence_compare()`
+  arguments (`sub`, `min_freq`, `test`, `iter`, `adjust`) as its own formals;
+  they now pass through `...`. Its signature is `x, group, level, ...` — the
+  htna-specific `level` argument is retained. Same defaults and behaviour, but
+  new Nestimate arguments flow through automatically and the code/documentation
+  coupling is removed. `mosaic_plot_htna()`'s documentation is likewise
+  decoupled from Nestimate's signature (it was already a `...` wrapper).
+
 # htna 0.1.1
 
 * Compatibility with Nestimate 0.8.0. `Nestimate::permutation()` gained a

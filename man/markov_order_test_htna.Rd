@@ -4,34 +4,16 @@
 \alias{markov_order_test_htna}
 \title{Markov-Order Adequacy Test}
 \usage{
-markov_order_test_htna(
-  data,
-  max_order = 3L,
-  n_perm = 500L,
-  alpha = 0.05,
-  parallel = FALSE,
-  n_cores = 2L,
-  seed = NULL
-)
+markov_order_test_htna(data, ...)
 }
 \arguments{
-\item{data}{A data.frame (wide format, one sequence per row) or list
-of character vectors (one per trajectory). NAs are treated as end
-of sequence.}
+\item{data}{Raw sequence data: a list of character vectors or a
+wide-format data frame. See \code{\link[Nestimate:markov_order_test]{Nestimate::markov_order_test()}}.}
 
-\item{max_order}{Integer. Highest Markov order to test. Default 3.}
-
-\item{n_perm}{Integer. Number of within-\eqn{w} permutations per order.
-Default 500.}
-
-\item{alpha}{Numeric. Significance level for order selection. Default 0.05.}
-
-\item{parallel}{Logical. Use \code{parallel::mclapply} for permutations.
-Default \code{FALSE} (set \code{TRUE} only on Unix-like systems).}
-
-\item{n_cores}{Integer. Cores for parallel execution. Default 2.}
-
-\item{seed}{Optional integer seed for reproducibility.}
+\item{...}{Additional arguments passed to
+\code{\link[Nestimate:markov_order_test]{Nestimate::markov_order_test()}}, such as \code{max_order}, \code{n_perm},
+\code{alpha}, \code{parallel}, \code{n_cores}, and \code{seed}. See that function for
+the full, current argument list.}
 }
 \value{
 An object of class \code{markov_order_test} with components

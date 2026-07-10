@@ -4,45 +4,16 @@
 \alias{casedrop_reliability_htna}
 \title{Edge-Weight Case-Dropping Stability}
 \usage{
-casedrop_reliability_htna(
-  x,
-  iter = 1000L,
-  drop_prop = seq(0.1, 0.9, by = 0.1),
-  threshold = 0.7,
-  certainty = 0.95,
-  method = c("spearman", "pearson", "kendall"),
-  include_diag = FALSE,
-  seed = NULL
-)
+casedrop_reliability_htna(x, ...)
 }
 \arguments{
-\item{x}{A \code{net_casedrop_reliability_group} object.}
+\item{x}{An htna network or grouped htna network. See
+\code{\link[Nestimate:casedrop_reliability]{Nestimate::casedrop_reliability()}}.}
 
-\item{iter}{Integer. Iterations per drop proportion. Default \code{1000}.}
-
-\item{drop_prop}{Drop proportion at which to report the four metrics
-(mean +/- sd per network). Must be one of the drop proportions the
-object was built with. Defaults to the object's median grid value
-(the stored grid is used, not an assumed \code{0.7}); pass an explicit
-value not in the grid to get an error listing the available
-proportions.}
-
-\item{threshold}{Numeric in \verb{[0, 1]}. Minimum edge-vector correlation
-for an iteration to count as stable. Default \code{0.7}.}
-
-\item{certainty}{Numeric in \verb{[0, 1]}. Required fraction of iterations
-whose correlation must exceed \code{threshold} for a drop proportion to
-qualify. Default \code{0.95}.}
-
-\item{method}{Correlation method: \code{"pearson"} (weight magnitudes),
-\code{"spearman"} (ranks, robust to scale), or \code{"kendall"}. Default
-\code{"spearman"} because edge weights often span several orders of
-magnitude and rank stability is the typical target.}
-
-\item{include_diag}{Logical. Include diagonal (self-loop) edges in the
-edge vector. Default \code{FALSE}.}
-
-\item{seed}{Optional integer for reproducibility.}
+\item{...}{Additional arguments passed to
+\code{\link[Nestimate:casedrop_reliability]{Nestimate::casedrop_reliability()}}, such as \code{iter}, \code{drop_prop},
+\code{threshold}, \code{certainty}, \code{method}, \code{include_diag}, and \code{seed}. See
+that function for the full, current argument list.}
 }
 \value{
 An object of class \code{net_casedrop_reliability} (single

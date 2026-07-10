@@ -4,24 +4,16 @@
 \alias{sequence_compare_htna}
 \title{Subsequence Pattern Comparison Across Groups}
 \usage{
-sequence_compare_htna(
-  x,
-  group = NULL,
-  level = c("state", "type"),
-  sub = 3:5,
-  min_freq = 5L,
-  test = c("permutation", "chisq", "none"),
-  iter = 1000L,
-  adjust = "fdr"
-)
+sequence_compare_htna(x, group = NULL, level = c("state", "type"), ...)
 }
 \arguments{
-\item{x}{A \code{netobject_group} (from grouped \code{build_network}),
-a \code{netobject} (requires \code{group}), or a wide-format
-\code{data.frame} (requires \code{group}).}
+\item{x}{A grouped htna network, a single htna network (paired with
+\code{group}), or wide-format sequence data. See
+\code{\link[Nestimate:sequence_compare]{Nestimate::sequence_compare()}}.}
 
-\item{group}{Character or vector. Column name or vector of group labels.
-Not needed for \code{netobject_group}.}
+\item{group}{Grouping specification for the cohorts to compare, when
+not already carried by a grouped htna network. See
+\code{\link[Nestimate:sequence_compare]{Nestimate::sequence_compare()}}.}
 
 \item{level}{Character. \code{"state"} (default) compares concrete
 state-level k-grams; \code{"type"} first replaces each state with its
@@ -29,19 +21,10 @@ actor type so the comparison runs on meta-paths
 (e.g. \code{Human->AI->Human}). Only meaningful when \code{x} is an htna
 network with an actor partition.}
 
-\item{sub}{Integer vector. Pattern lengths to analyze. Default: \code{3:5}.}
-
-\item{min_freq}{Integer. Minimum frequency in each group for a pattern
-to be included. Default: 5.}
-
-\item{test}{Character. Inference method: one of \code{"permutation"}
-(default), \code{"chisq"}, or \code{"none"}. See Details.}
-
-\item{iter}{Integer. Permutation iterations. Only used when
-\code{test = "permutation"}. Default: 1000.}
-
-\item{adjust}{Character. P-value correction method (see
-\code{\link[stats]{p.adjust}}). Default: \code{"fdr"}.}
+\item{...}{Additional arguments passed to
+\code{\link[Nestimate:sequence_compare]{Nestimate::sequence_compare()}}, such as \code{sub}, \code{min_freq},
+\code{test}, \code{iter}, and \code{adjust}. See that function for the full,
+current argument list.}
 }
 \value{
 An object of class \code{net_sequence_compare}. See

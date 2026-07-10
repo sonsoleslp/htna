@@ -4,52 +4,16 @@
 \alias{permutation_htna}
 \title{Permutation Test for Network Differences}
 \usage{
-permutation_htna(
-  x,
-  y = NULL,
-  iter = 1000L,
-  alpha = 0.05,
-  paired = FALSE,
-  adjust = "none",
-  measures = NULL,
-  nlambda = 50L,
-  seed = NULL
-)
+permutation_htna(x, y = NULL, ...)
 }
 \arguments{
-\item{x}{A \code{netobject} (from \code{\link[Nestimate]{build_network}}) or a
-\code{\link[Nestimate]{net_edge_betweenness}} object.}
+\item{x, y}{The two networks to compare, or a single
+\code{netobject_group} in \code{x} (with \code{y = NULL}) for all pairwise
+comparisons. See \code{\link[Nestimate:permutation]{Nestimate::permutation()}}.}
 
-\item{y}{A \code{netobject} (from \code{\link[Nestimate]{build_network}}) or a
-\code{\link[Nestimate]{net_edge_betweenness}} object.
-Must use the same method and have the same nodes as \code{x}.}
-
-\item{iter}{Integer. Number of permutation iterations (default: 1000).}
-
-\item{alpha}{Numeric. Significance level (default: 0.05).}
-
-\item{paired}{Logical. If \code{TRUE}, permute within pairs (requires
-equal number of observations in \code{x} and \code{y}). Default: FALSE.}
-
-\item{adjust}{Character. p-value adjustment method passed to
-\code{\link[stats]{p.adjust}} (default: \code{"none"}). Common choices:
-\code{"holm"}, \code{"BH"}, \code{"bonferroni"}.}
-
-\item{measures}{Character vector of centrality measures to permutation-test
-in addition to the edges, or \code{"all"} for every built-in measure.
-Default \code{NULL} (edges only). When supplied, the result gains a
-\code{$centralities} block matching the layout of
-\code{tna::permutation_test(measures = )}: per state and measure it reports
-the observed difference, an effect size (difference / SD of the permutation
-null), and a permutation p-value, all using the same permuted networks as
-the edge test. Not supported for \code{net_edge_betweenness} inputs.}
-
-\item{nlambda}{Integer. Number of lambda values for the \code{glassopath}
-regularisation path (only used when \code{method = "glasso"}).
-Higher values give finer lambda resolution at the cost of speed.
-Default: 50.}
-
-\item{seed}{Integer or NULL. RNG seed for reproducibility.}
+\item{...}{Additional arguments passed to \code{\link[Nestimate:permutation]{Nestimate::permutation()}},
+such as \code{iter}, \code{alpha}, \code{paired}, \code{adjust}, \code{measures}, \code{nlambda},
+and \code{seed}. See that function for the full, current argument list.}
 }
 \value{
 An object of class \code{net_permutation} (single pair) or
