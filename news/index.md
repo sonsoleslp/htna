@@ -2,6 +2,8 @@
 
 ## htna 0.1.0
 
+CRAN release: 2026-07-06
+
 - Initial release.
 - Builds heterogeneous transition networks for sequences mixing two or
   more actor groups (e.g. Human and AI) within the same interaction, via
