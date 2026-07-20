@@ -469,10 +469,10 @@ test_that("all four input forms produce identical $weights, $initial, $node_grou
   }
 })
 
-test_that("all four input forms agree for every `method =` (relative, frequency, attention)", {
+test_that("all four input forms agree for every transition/co-occurrence method", {
   testthat::skip_on_cran()
   testthat::skip_if_not_installed("Nestimate")
-  for (method in c("relative", "frequency", "attention")) {
+  for (method in c("relative", "frequency", "co_occurrence", "attention")) {
     for (ds in equivalence_datasets()) {
       info  <- paste0(ds$name, " | method=", method)
       forms <- build_all_input_forms(ds, method = method)
@@ -569,6 +569,41 @@ test_that("model weights match across htna, tna, Nestimate (diverse data)", {
     expect_mat_equiv(trip$htna$weights, trip$nest$weights,
                      info = paste0(info, " | weights htna vs nest"))
   }
+})
+
+test_that("co-occurrence weights match across htna, tna, and Nestimate", {
+  skip_if_missing_eq_deps()
+  checked_cells <- 0L
+  for (ds in equivalence_datasets()) {
+    info <- paste0(ds$name, " | co_occurrence")
+    htna_net <- suppressWarnings(build_htna(
+      ds$actors, method = "co_occurrence"
+    ))
+    tna_net <- tna::ctna(htna_net$data)
+
+    combined <- do.call(rbind, ds$actors)
+    combined <- combined[order(combined$session_id,
+                               combined$order_in_session), ]
+    nest_net <- suppressWarnings(Nestimate::build_network(
+      combined,
+      method = "co_occurrence",
+      action = "code",
+      session = "session_id",
+      order = "order_in_session",
+      format = "long"
+    ))
+
+    expect_mat_equiv(htna_net$weights, tna_net$weights,
+                     info = paste0(info, " | htna vs tna"))
+    expect_mat_equiv(htna_net$weights, nest_net$weights,
+                     info = paste0(info, " | htna vs Nestimate"))
+    expect_false(htna_net$directed, info = info)
+    expect_true(isSymmetric(htna_net$weights), info = info)
+    expect_identical(htna_net$actor_levels, names(ds$actors), info = info)
+    expect_false(anyNA(htna_net$node_groups$group), info = info)
+    checked_cells <- checked_cells + length(htna_net$weights)
+  }
+  expect_gte(checked_cells, 300L)
 })
 
 test_that("underlying session matrix is identical (htna vs Nestimate)", {

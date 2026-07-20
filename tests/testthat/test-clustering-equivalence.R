@@ -119,7 +119,8 @@ test_that("build_htna distance-clustering paths equal manual networks across met
     plain_clustering <- clustering
     plain_clustering$htna_partition <- NULL
 
-    for (network_method in c("relative", "frequency", "attention")) {
+    for (network_method in c("relative", "frequency", "co_occurrence",
+                              "attention")) {
       from_clustering <- build_htna(
         clustering,
         node_groups = base$node_groups,
@@ -177,7 +178,8 @@ test_that("Nestimate direct clustering and build_htna conversion are equivalent"
       fixture$data, node_groups = fixture$node_groups
     ))
 
-    for (network_method in c("relative", "frequency", "attention")) {
+    for (network_method in c("relative", "frequency", "co_occurrence",
+                              "attention")) {
       direct <- Nestimate::cluster_network(
         base,
         k = cfg$k,
@@ -299,7 +301,8 @@ test_that("legacy tna::cluster_sequences conversion equals manual assignment bui
       method = legacy_method
     )
 
-    for (network_method in c("relative", "frequency", "attention")) {
+    for (network_method in c("relative", "frequency", "co_occurrence",
+                              "attention")) {
       result <- build_htna(
         legacy,
         node_groups = base$node_groups,

@@ -27,6 +27,7 @@ test_that("every *_htna wrapper exposes `...` so codoc stays stable", {
     reprune_htna               = c("x", "..."),
     pruning_details_htna       = c("x", "..."),
     bayes_compare_htna         = c("x", "y", "..."),
+    compare_htna               = c("x", "y", "..."),
     certainty_htna             = c("x", "...")
   )
 

@@ -61,7 +61,9 @@
 #'   \code{"order_in_session"}.
 #' @param method Character. Transition method passed to
 #'   \code{\link[Nestimate]{build_network}}: \code{"relative"} (default),
-#'   \code{"frequency"}, or \code{"attention"}.
+#'   \code{"frequency"}, \code{"co_occurrence"}, or \code{"attention"}.
+#'   Co-occurrence models are undirected and preserve the same actor partition
+#'   as transition models.
 #' @param group Character. Optional name of a column in \code{data} used to
 #'   split sessions into cohorts (e.g. \code{"cluster"}). When supplied,
 #'   one network is built per group level and the result is a named list of

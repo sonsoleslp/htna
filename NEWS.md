@@ -1,3 +1,23 @@
+# htna 0.3.0
+
+## Actor-aware interoperability and comparison
+
+* Added `compare_htna()`, an actor-aware wrapper over
+  `Nestimate::compare_model()`. It aligns partial node coverage, annotates every
+  edge with source and target actors, reports summaries for each actor-pair
+  block, retains the original HTNA networks, and compares every cohort pair
+  when passed an `htna_group`.
+* Added `as.igraph()` methods for `htna` and `htna_group`. Converted graphs
+  preserve actor types as vertex attributes and canonical actor ordering as
+  graph metadata; grouped inputs convert every cohort.
+* `summary.htna()` and `summary.htna_group()` now include Nestimate's standard
+  network-level descriptive metrics alongside the existing actor-partition and
+  actor-to-actor edge summaries.
+* `build_htna(method = "co_occurrence")` is now documented and covered across
+  all constructor forms, grouped networks, MCML expansion, Nestimate distance
+  clustering, and legacy TNA clustering, with numerical equivalence tests
+  against both Nestimate and `tna::ctna()`.
+
 # htna 0.2.2
 
 ## MCML expansion

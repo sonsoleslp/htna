@@ -24,6 +24,9 @@ Invisibly, a list with components:
 \code{n_nodes}, \code{nodes}).
 \item \code{edges_by_actor} - integer matrix of non-zero edge counts,
 rows are source actor, columns are target actor.
+\item \code{network_metrics} - standard network-level descriptive metrics
+from the Nestimate engine (node/edge counts, density, distance,
+strength, degree centralization, and reciprocity).
 \item \code{n_nodes}, \code{n_edges}, \code{n_sessions}, \code{n_timesteps},
 \code{method}.
 }

@@ -202,8 +202,8 @@ test_that("htna_group: all four input forms produce equivalent cohort networks",
   }
 })
 
-test_that("htna_group: works with method = 'frequency' and 'attention'", {
-  for (m in c("frequency", "attention")) {
+test_that("htna_group supports frequency, co-occurrence, and attention", {
+  for (m in c("frequency", "co_occurrence", "attention")) {
     grp <- build_htna(make_grouped_data(),
                       node_groups = list(Human = c("H1","H2","H3"),
                                          AI    = c("A1","A2","A3")),
@@ -215,6 +215,10 @@ test_that("htna_group: works with method = 'frequency' and 'attention'", {
       expect_identical(g$method, m)
       expect_identical(g$actor_levels, c("Human", "AI"))
       expect_true(all(g$weights >= 0))
+      if (m == "co_occurrence") {
+        expect_false(g$directed)
+        expect_true(isSymmetric(g$weights))
+      }
     }
   }
 })

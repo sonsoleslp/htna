@@ -532,8 +532,8 @@ test_that("summary.htna() returns structured info and prints actor partition", {
   expect_true(any(grepl(paste0("AI.*",    ai_nodes[1L]),    out)))
 
   # Returned structure
-  expect_named(s, c("actors", "edges_by_actor", "n_nodes", "n_edges",
-                    "n_sessions", "n_timesteps", "method"))
+  expect_named(s, c("actors", "edges_by_actor", "network_metrics", "n_nodes",
+                    "n_edges", "n_sessions", "n_timesteps", "method"))
   expect_s3_class(s$actors, "data.frame")
   expect_setequal(s$actors$actor, c("Human", "AI"))
   expect_equal(sum(s$actors$n_nodes), nrow(net$node_groups))
@@ -542,6 +542,8 @@ test_that("summary.htna() returns structured info and prints actor partition", {
   expect_equal(dim(s$edges_by_actor), c(2L, 2L))
   expect_setequal(rownames(s$edges_by_actor), c("Human", "AI"))
   expect_equal(sum(s$edges_by_actor), sum(net$weights != 0))
+  expect_s3_class(s$network_metrics, "data.frame")
+  expect_true(all(c("metric", "value") %in% names(s$network_metrics)))
 })
 
 test_that("summary.htna() truncates long node lists with ellipsis", {

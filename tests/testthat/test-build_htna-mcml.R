@@ -21,7 +21,7 @@
 test_that("build_htna(mcml) equals as_htna(mcml) and rebuilds globally", {
   fixture <- .mcml_htna_fixture()
 
-  for (method in c("relative", "frequency", "attention")) {
+  for (method in c("relative", "frequency", "co_occurrence", "attention")) {
     actual <- suppressWarnings(build_htna(fixture$mcml, method = method))
     expected <- suppressWarnings(Nestimate::as_htna(
       fixture$mcml, method = method

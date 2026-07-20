@@ -16,6 +16,9 @@
 #'       `n_nodes`, `nodes`).
 #'     \item `edges_by_actor` - integer matrix of non-zero edge counts,
 #'       rows are source actor, columns are target actor.
+#'     \item `network_metrics` - standard network-level descriptive metrics
+#'       from the Nestimate engine (node/edge counts, density, distance,
+#'       strength, degree centralization, and reciprocity).
 #'     \item `n_nodes`, `n_edges`, `n_sessions`, `n_timesteps`,
 #'       `method`.
 #'   }
@@ -27,7 +30,11 @@
 #'
 #' @export
 summary.htna <- function(object, max_nodes = 12L, ...) {
-  invisible(.print_htna_summary(object, max_nodes = max_nodes))
+  invisible(.print_htna_summary(
+    object,
+    max_nodes = max_nodes,
+    network_metrics = .htna_network_summary(object)
+  ))
 }
 
 #' @rdname summary.htna
@@ -45,14 +52,19 @@ summary.htna_group <- function(object, max_nodes = 12L, ...) {
   names(out) <- nms
   for (i in seq_along(object)) {
     cat("=== ", nms[i], " ===\n", sep = "")
-    out[[i]] <- .print_htna_summary(object[[i]], max_nodes = max_nodes)
+    out[[i]] <- .print_htna_summary(
+      object[[i]],
+      max_nodes = max_nodes,
+      network_metrics = .htna_network_summary(object[[i]])
+    )
     if (i != length(object)) cat("\n")
   }
   invisible(out)
 }
 
 #' @keywords internal
-.print_htna_summary <- function(net, max_nodes = 12L) {
+.print_htna_summary <- function(net, max_nodes = 12L,
+                                network_metrics = NULL) {
   ng <- net$node_groups
   if (is.null(ng) || nrow(ng) == 0L) {
     cat("<htna network: no actor partition>\n")
@@ -123,15 +135,31 @@ summary.htna_group <- function(object, max_nodes = 12L, ...) {
     .print_actor_matrix(em)
   }
 
+  if (!is.null(network_metrics)) {
+    cat("\nNetwork metrics:\n")
+    print.data.frame(network_metrics, row.names = FALSE)
+  }
+
   invisible(list(
     actors         = actors_df,
     edges_by_actor = if (exists("em")) em else NULL,
+    network_metrics = network_metrics,
     n_nodes        = n_nodes,
     n_edges        = n_edges_nz,
     n_sessions     = n_sessions,
     n_timesteps    = n_steps,
     method         = method
   ))
+}
+
+#' @keywords internal
+.htna_network_summary <- function(net) {
+  # Remove only htna's leading dispatch class so the Nestimate engine's
+  # summary method computes its canonical metric table. The network itself is
+  # not modified.
+  plain <- net
+  class(plain) <- setdiff(class(plain), "htna")
+  summary(plain)
 }
 
 #' @keywords internal
