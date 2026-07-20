@@ -15,6 +15,7 @@ build_htna(
   method = "relative",
   group = NULL,
   disambiguate = FALSE,
+  source_data = NULL,
   ...
 )
 }
@@ -32,6 +33,9 @@ All frames must share the same column schema.
 or a fitted \code{netobject_group}. One HTNA network is returned per
 sequence cluster. Fitted child networks and clustering diagnostics
 are preserved rather than re-estimated.
+\item A fitted \code{Nestimate::build_mcml()} object. Its node clusters
+become the HTNA actor groups and one full node-level network is rebuilt
+from the original source, including transitions between clusters.
 }}
 
 \item{actor_type}{Character. Name of the column tagging each row's
@@ -64,7 +68,9 @@ partition directly. Each code in \code{data[[action]]} must appear in
 exactly one entry. For clustering inputs, the canonical two-column
 \code{data.frame(node, group)} stored on an existing HTNA model is also
 accepted. The argument may be omitted when Nestimate preserved the
-partition from an HTNA input. Mutually exclusive with \code{actor_type}.}
+partition from an HTNA input. Mutually exclusive with \code{actor_type}.
+For an \code{mcml} input, this optionally overrides
+\code{$cluster_members}; otherwise the fitted membership is used.}
 
 \item{action}{Character. Name of the action/code column. Default
 \code{"code"}.}
@@ -89,6 +95,14 @@ when a code label appears in more than one actor-type group. If
 \code{TRUE}, codes are prefixed with the actor-type label
 (\code{"Human:Ask"}, \code{"AI:Ask"}) so they become distinct nodes.}
 
+\item{source_data}{Original node-level data for an \code{mcml} input.
+Usually unnecessary when \code{Nestimate::build_mcml()} retained its
+sequence source. Required when the fitted object has no expandable source,
+such as an \code{mcml} built from a transition matrix or edge list. The
+fitted macro and within-cluster weights are deliberately not stitched
+together: rebuilding from this source is what preserves cross-cluster
+transitions.}
+
 \item{...}{Additional arguments forwarded to
 \code{\link[Nestimate]{build_network}}.}
 }
@@ -103,12 +117,16 @@ groups with no further arguments:
 \code{group} (canonical \code{cograph_network} schema, also
 readable by \code{cograph::get_groups}, \code{cluster_summary}, and
 the \code{print} method for \code{cograph_network}).
+\item \code{$actor_levels} - declared actor ordering, also retained as
+metadata on \code{$node_groups} so the table can be passed back to
+\code{build_htna()} without losing that order.
 }
 All other slots are exactly as returned by
 \code{\link[Nestimate]{build_network}}. Clustering inputs return an
 \code{htna_group}; its children retain the actor partition and its outer
 clustering assignments, posterior probabilities, diagnostics, and other
-attributes are preserved.
+attributes are preserved. An \code{mcml} input instead returns one
+\code{htna}, equivalent to \code{Nestimate::as_htna()}.
 }
 \description{
 Builds a transition network over a combined sequence of two or more actor

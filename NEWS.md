@@ -1,3 +1,17 @@
+# htna 0.2.2
+
+## MCML expansion
+
+* `build_htna()` now accepts a fitted `Nestimate::build_mcml()` object. The
+  MCML node clusters become actor groups, and one full node-level HTNA is
+  rebuilt from the retained or explicitly supplied original source. This is
+  equivalent to `Nestimate::as_htna()`: it intentionally preserves global
+  cross-cluster transitions rather than stitching together fitted macro or
+  within-cluster weights.
+* HTNA partition injection now consistently stores character labels in
+  `$node_groups$group` and a factor with the full actor level set in
+  `$nodes$groups`.
+
 # htna 0.2.1
 
 ## Verification

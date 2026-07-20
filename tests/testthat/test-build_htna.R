@@ -4,6 +4,10 @@ test_that("build_htna() with named-list input builds an htna network", {
   expect_s3_class(net, "htna")
   expect_s3_class(net, "netobject")
   expect_true(!is.null(net$node_groups))
+  expect_type(net$node_groups$group, "character")
+  expect_s3_class(net$nodes$groups, "factor")
+  expect_identical(levels(net$nodes$groups), c("Human", "AI"))
+  expect_identical(attr(net$node_groups, "actor_levels"), c("Human", "AI"))
   expect_setequal(as.character(net$node_groups$group), c("Human", "AI"))
   expect_identical(net$actor_levels, c("Human", "AI"))
   # node_groups order matches nodes order

@@ -102,7 +102,25 @@
 #' @keywords internal
 .htna_resolve_cluster_partition <- function(nets, source, node_groups, action) {
   if (!is.null(node_groups)) {
-    return(.htna_normalize_cluster_partition(node_groups, action = action))
+    result <- .htna_normalize_cluster_partition(node_groups, action = action)
+
+    # Canonical HTNA node_groups deliberately stores character labels; actor
+    # order lives separately in actor_levels. When a preserved partition is
+    # available, retain that order instead of re-deriving it from node row
+    # order (which is commonly alphabetical by node label).
+    preserved_levels <- attr(source, "actor_levels") %||%
+      attr(nets, "actor_levels")
+    if (is.null(preserved_levels) && inherits(source, "netobject")) {
+      preserved_levels <- source$actor_levels
+    }
+    if (is.null(preserved_levels) && length(nets)) {
+      preserved_levels <- nets[[1L]]$actor_levels
+    }
+    if (!is.null(preserved_levels) &&
+        setequal(as.character(preserved_levels), result$actor_levels)) {
+      result$actor_levels <- as.character(preserved_levels)
+    }
+    return(result)
   }
 
   candidates <- list(
@@ -154,6 +172,7 @@
 
 #' @keywords internal
 .htna_normalize_cluster_partition <- function(node_groups, action = "code") {
+  declared_levels <- attr(node_groups, "actor_levels")
   if (is.data.frame(node_groups)) {
     if (all(c("node", "group") %in% names(node_groups))) {
       node_values <- as.character(node_groups$node)
@@ -188,6 +207,10 @@
   if (anyNA(node_values) || anyNA(group_values)) {
     stop("`node_groups` cannot contain missing nodes or actor assignments.",
          call. = FALSE)
+  }
+  if (!is.null(declared_levels) &&
+      setequal(as.character(declared_levels), unique(group_values))) {
+    actor_levels <- as.character(declared_levels)
   }
   duplicated_nodes <- unique(node_values[duplicated(node_values)])
   if (length(duplicated_nodes)) {

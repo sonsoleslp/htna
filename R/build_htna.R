@@ -18,6 +18,9 @@
 #'       or a fitted \code{netobject_group}. One HTNA network is returned per
 #'       sequence cluster. Fitted child networks and clustering diagnostics
 #'       are preserved rather than re-estimated.
+#'     \item A fitted \code{Nestimate::build_mcml()} object. Its node clusters
+#'       become the HTNA actor groups and one full node-level network is rebuilt
+#'       from the original source, including transitions between clusters.
 #'   }
 #' @param actor_type Character. Name of the column tagging each row's
 #'   actor type / group (e.g. \code{"Human"} vs \code{"AI"}) when \code{data}
@@ -48,6 +51,8 @@
 #'   \code{data.frame(node, group)} stored on an existing HTNA model is also
 #'   accepted. The argument may be omitted when Nestimate preserved the
 #'   partition from an HTNA input. Mutually exclusive with \code{actor_type}.
+#'   For an \code{mcml} input, this optionally overrides
+#'   \code{$cluster_members}; otherwise the fitted membership is used.
 #' @param action Character. Name of the action/code column. Default
 #'   \code{"code"}.
 #' @param session Character. Name of the session column. Default
@@ -65,6 +70,13 @@
 #'   when a code label appears in more than one actor-type group. If
 #'   \code{TRUE}, codes are prefixed with the actor-type label
 #'   (\code{"Human:Ask"}, \code{"AI:Ask"}) so they become distinct nodes.
+#' @param source_data Original node-level data for an \code{mcml} input.
+#'   Usually unnecessary when \code{Nestimate::build_mcml()} retained its
+#'   sequence source. Required when the fitted object has no expandable source,
+#'   such as an \code{mcml} built from a transition matrix or edge list. The
+#'   fitted macro and within-cluster weights are deliberately not stitched
+#'   together: rebuilding from this source is what preserves cross-cluster
+#'   transitions.
 #' @param ... Additional arguments forwarded to
 #'   \code{\link[Nestimate]{build_network}}.
 #'
@@ -78,12 +90,16 @@
 #'       \code{group} (canonical \code{cograph_network} schema, also
 #'       readable by \code{cograph::get_groups}, \code{cluster_summary}, and
 #'       the \code{print} method for \code{cograph_network}).
+#'     \item \code{$actor_levels} - declared actor ordering, also retained as
+#'       metadata on \code{$node_groups} so the table can be passed back to
+#'       \code{build_htna()} without losing that order.
 #'   }
 #'   All other slots are exactly as returned by
 #'   \code{\link[Nestimate]{build_network}}. Clustering inputs return an
 #'   \code{htna_group}; its children retain the actor partition and its outer
 #'   clustering assignments, posterior probabilities, diagnostics, and other
-#'   attributes are preserved.
+#'   attributes are preserved. An \code{mcml} input instead returns one
+#'   \code{htna}, equivalent to \code{Nestimate::as_htna()}.
 #'
 #' @seealso \code{\link[Nestimate]{build_network}},
 #'   \code{\link[Nestimate]{build_tna}},
@@ -110,16 +126,51 @@ build_htna <- function(data,
                        method       = "relative",
                        group        = NULL,
                        disambiguate = FALSE,
+                       source_data  = NULL,
                        ...) {
 
-  if (!is.null(actor_type) && !is.null(node_groups)) {
-    stop("Pass either `actor_type` (row-level) or `node_groups` ",
-         "(node-level), not both.", call. = FALSE)
-  }
   dots <- list(...)
   if ("actor_col" %in% names(dots)) {
     stop("`actor_col` was renamed to `actor_type`. Use `actor_type = ",
          deparse(dots$actor_col), "`.", call. = FALSE)
+  }
+
+  # An MCML partition describes node groups, not separate fitted child
+  # networks. Expand it to one global node-level HTNA so between-cluster
+  # transitions are reconstructed from the original source.
+  if (inherits(data, "mcml")) {
+    if (!is.null(actor_type)) {
+      stop("`actor_type` is not used for an `mcml` input; its node clusters ",
+           "are the actor groups.", call. = FALSE)
+    }
+    if (!is.null(group)) {
+      stop("An `mcml` expands to one global HTNA; do not also pass `group`.",
+           call. = FALSE)
+    }
+    if (isTRUE(disambiguate)) {
+      stop("`disambiguate` must be applied before fitting the `mcml`, not ",
+           "while expanding it.", call. = FALSE)
+    }
+    return(.build_htna_from_mcml(
+      data = data,
+      source_data = source_data,
+      node_groups = node_groups,
+      actor = actor,
+      action = action,
+      session = session,
+      order = order,
+      method = method,
+      dots = dots
+    ))
+  }
+
+  if (!is.null(source_data)) {
+    stop("`source_data` is only used when `data` is an `mcml` object.",
+         call. = FALSE)
+  }
+  if (!is.null(actor_type) && !is.null(node_groups)) {
+    stop("Pass either `actor_type` (row-level) or `node_groups` ",
+         "(node-level), not both.", call. = FALSE)
   }
 
   # Nestimate and tna clustering results already encode the outer cohort
@@ -389,15 +440,14 @@ build_htna <- function(data,
 
 #' @keywords internal
 .inject_htna_partition <- function(net, actor_lookup, actor_levels) {
-  net$nodes$groups <- factor(
-    unname(actor_lookup[net$nodes$label]),
-    levels = actor_levels
-  )
+  node_actor <- unname(actor_lookup[net$nodes$label])
+  net$nodes$groups <- factor(node_actor, levels = actor_levels)
   net$node_groups <- data.frame(
     node  = net$nodes$label,
-    group = net$nodes$groups,
+    group = as.character(node_actor),
     stringsAsFactors = FALSE
   )
+  attr(net$node_groups, "actor_levels") <- actor_levels
   net$actor_levels <- actor_levels
   if (!inherits(net, "htna")) class(net) <- c("htna", class(net))
   net
@@ -416,15 +466,14 @@ build_htna <- function(data,
   net$weights <- net$weights[codes_to_keep, codes_to_keep, drop = FALSE]
 
   # Add actor group information for remaining nodes
-  net$nodes$groups <- factor(
-    unname(actor_lookup[net$nodes$label]),
-    levels = actor_levels
-  )
+  node_actor <- unname(actor_lookup[net$nodes$label])
+  net$nodes$groups <- factor(node_actor, levels = actor_levels)
   net$node_groups <- data.frame(
     node  = net$nodes$label,
-    group = net$nodes$groups,
+    group = as.character(node_actor),
     stringsAsFactors = FALSE
   )
+  attr(net$node_groups, "actor_levels") <- actor_levels
   net$actor_levels <- actor_levels
   if (!inherits(net, "htna")) class(net) <- c("htna", class(net))
   net
