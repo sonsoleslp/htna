@@ -1,3 +1,40 @@
+# htna 0.2.1
+
+## Verification
+
+* Added extensive randomized equivalence coverage for constructing HTNA models
+  from Nestimate distance clustering, fitted mixed-Markov clustering, and
+  legacy `tna` clustering results, including actor-partition preservation and
+  no-refit guarantees.
+
+# htna 0.2.0
+
+## New features
+
+* `build_htna()` now consumes Nestimate distance clustering
+  (`net_clustering`), fitted MMM clustering (`cluster_mmm()` /
+  `netobject_group`), and legacy `tna::cluster_sequences()` results. It returns
+  an `htna_group`, restores the actor partition on every child, and preserves
+  clustering assignments, posterior probabilities, diagnostics, and fitted
+  MMM weights. A partition preserved upstream is used automatically; older or
+  independently-created clustering results can supply `node_groups`.
+
+Six htna-named functions are added, extending htna's coverage of the major
+transition-network-analysis (tna) verbs. All are thin `...`-forwarding wrappers
+over the 'Nestimate' engine and follow the same durable design as the existing
+re-exports (stable documented formals; new engine arguments flow through `...`).
+
+* Pruning family — `prune_htna()`, `deprune_htna()`, `reprune_htna()`, and
+  `pruning_details_htna()` (over `Nestimate::net_prune()` and friends). The
+  actor partition and `htna` class are preserved across pruning, so the pruned
+  network stays htna-aware and plots with [plot_htna()].
+* `bayes_compare_htna()` — Bayesian complement of `permutation_htna()` (over
+  `Nestimate::bayes_compare()`). Preserves the actor partition on `$x`/`$y` and
+  carries class `net_permutation`, so it renders with `plot_htna_diff()`.
+* `certainty_htna()` — closed-form counterpart of `bootstrap_htna()` (over
+  `Nestimate::certainty()`), joining the confirmatory-analysis family alongside
+  `reliability_htna()` and `casedrop_reliability_htna()`.
+
 # htna 0.1.2
 
 * The six re-exported Nestimate functions (`permutation_htna()`,

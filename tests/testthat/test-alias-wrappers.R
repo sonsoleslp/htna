@@ -21,7 +21,13 @@ test_that("every *_htna wrapper exposes `...` so codoc stays stable", {
     state_distribution_htna    = c("x", "..."),
     state_frequencies_htna     = c("data", "..."),
     sequence_compare_htna      = c("x", "group", "level", "..."),
-    mosaic_plot_htna           = c("x", "...")
+    mosaic_plot_htna           = c("x", "..."),
+    prune_htna                 = c("x", "..."),
+    deprune_htna               = c("x", "..."),
+    reprune_htna               = c("x", "..."),
+    pruning_details_htna       = c("x", "..."),
+    bayes_compare_htna         = c("x", "y", "..."),
+    certainty_htna             = c("x", "...")
   )
 
   invisible(Map(function(nm, formals_names) {

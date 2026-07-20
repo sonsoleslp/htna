@@ -27,6 +27,11 @@ All frames must share the same column schema.
 \item A single long-format data frame. In that case either
 \code{actor_type} (row-level actor-type IDs) or \code{node_groups}
 (node-level actor-type lookup) must be supplied.
+\item A clustering result from \code{Nestimate::build_clusters()},
+\code{Nestimate::cluster_mmm()}, or \code{tna::cluster_sequences()},
+or a fitted \code{netobject_group}. One HTNA network is returned per
+sequence cluster. Fitted child networks and clustering diagnostics
+are preserved rather than re-estimated.
 }}
 
 \item{actor_type}{Character. Name of the column tagging each row's
@@ -56,7 +61,10 @@ character vectors, the order of first appearance.
 Use \code{node_groups} when \code{data} is a single long-format frame
 with no actor-type column and you want to declare the node-to-type
 partition directly. Each code in \code{data[[action]]} must appear in
-exactly one entry. Mutually exclusive with \code{actor_type}.}
+exactly one entry. For clustering inputs, the canonical two-column
+\code{data.frame(node, group)} stored on an existing HTNA model is also
+accepted. The argument may be omitted when Nestimate preserved the
+partition from an HTNA input. Mutually exclusive with \code{actor_type}.}
 
 \item{action}{Character. Name of the action/code column. Default
 \code{"code"}.}
@@ -97,7 +105,10 @@ readable by \code{cograph::get_groups}, \code{cluster_summary}, and
 the \code{print} method for \code{cograph_network}).
 }
 All other slots are exactly as returned by
-\code{\link[Nestimate]{build_network}}.
+\code{\link[Nestimate]{build_network}}. Clustering inputs return an
+\code{htna_group}; its children retain the actor partition and its outer
+clustering assignments, posterior probabilities, diagnostics, and other
+attributes are preserved.
 }
 \description{
 Builds a transition network over a combined sequence of two or more actor

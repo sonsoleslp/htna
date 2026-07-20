@@ -217,9 +217,13 @@ plot_htna(grp)
 | `df, actor_type = "actor_type"` | One combined frame, actor identity in a row-level column |
 | `df, node_groups = list(Actor1 = ..., Actor2 = ...)` | One combined frame; partition declared as a named list of codes |
 | `df, node_groups = data.frame(code = ..., actor_type = ...)` | One combined frame; partition declared as a tidy codebook |
+| `Nestimate::build_clusters(htna, ...)` | Distance-based sequence clusters; returns one HTNA network per cluster |
+| `Nestimate::cluster_mmm(htna, ...)` | Already-fitted latent Markov clusters; preserves fitted weights and posterior diagnostics |
+| `tna::cluster_sequences(...), node_groups = ...` | Legacy sequence-clustering result; builds one HTNA network per cluster |
 | `+ actor = "user_id"` | Identify the individual actor that performed each event (forwarded to `Nestimate::build_network()`) |
 | `+ disambiguate = TRUE` | Same code label appears in more than one actor type |
 | `+ group = "phase"` | Build one network per cohort/phase |
 
-All three input shapes are interchangeable; pick whichever matches the
-shape your data already has.
+The row/list forms build one network directly. Clustering forms build or
+preserve an outer `htna_group`, while every child keeps the same actor
+partition.

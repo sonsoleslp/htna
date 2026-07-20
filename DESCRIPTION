@@ -1,6 +1,6 @@
 Package: htna
 Title: Heterogeneous Transition Network Analysis
-Version: 0.1.2
+Version: 0.2.1
 Authors@R: c(
     person("Sonsoles", "L\u00f3pez-Pernas", email = "sonsoles.lopez@uef.fi",
            role = c("aut", "cre", "cph")),
