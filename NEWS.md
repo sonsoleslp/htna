@@ -1,3 +1,16 @@
+# htna 0.3.1
+
+## Fitted MMM conversion
+
+* `build_htna()` now explicitly consumes the fitted `net_mmm` object returned
+  by `Nestimate::cluster_mmm()`. It materializes one HTNA network per fitted
+  sequence cluster without rerunning MMM and preserves assignments, posterior
+  probabilities, mixing proportions, information criteria, fitted weights,
+  and the original actor partition.
+* `Nestimate::as_htna()` now supports the same fitted `net_mmm` input and
+  returns an equivalent `htna_group`. `Nestimate::cluster_network()` remains
+  the function that directly returns materialized cluster networks.
+
 # htna 0.3.0
 
 ## Actor-aware interoperability and comparison
@@ -46,8 +59,9 @@
 ## New features
 
 * `build_htna()` now consumes Nestimate distance clustering
-  (`net_clustering`), fitted MMM clustering (`cluster_mmm()` /
-  `netobject_group`), and legacy `tna::cluster_sequences()` results. It returns
+  (`net_clustering`), fitted MMM clustering (`cluster_mmm()` / `net_mmm`),
+  materialized cluster networks (`netobject_group`), and legacy
+  `tna::cluster_sequences()` results. It returns
   an `htna_group`, restores the actor partition on every child, and preserves
   clustering assignments, posterior probabilities, diagnostics, and fitted
   MMM weights. A partition preserved upstream is used automatically; older or

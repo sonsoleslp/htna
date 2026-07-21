@@ -1,6 +1,6 @@
 Package: htna
 Title: Heterogeneous Transition Network Analysis
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: c(
     person("Sonsoles", "L\u00f3pez-Pernas", email = "sonsoles.lopez@uef.fi",
            role = c("aut", "cre", "cph")),
@@ -23,7 +23,7 @@ BugReports: https://github.com/sonsoleslp/htna/issues
 Depends:
     R (>= 4.1.0)
 Imports:
-    Nestimate (>= 0.8.3),
+    Nestimate (>= 0.8.4),
     cograph,
     igraph
 Suggests:

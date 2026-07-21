@@ -230,43 +230,42 @@ test_that("build_htna consumes cluster_mmm losslessly across repeated fits", {
     plain <- .htna_plain_copy(base)
     args <- list(k = 2L, n_starts = 2L, max_iter = 40L, seed = seed)
 
-    plain_group <- do.call(
+    plain_fit <- do.call(
       Nestimate::cluster_mmm, c(list(data = plain), args)
     )
-    direct_group <- do.call(
+    direct_fit <- do.call(
       Nestimate::cluster_mmm, c(list(data = base), args)
     )
-    weights_before <- lapply(plain_group, function(net) net$weights)
-    converted <- build_htna(plain_group, node_groups = base$node_groups)
-    converted_direct <- build_htna(
-      direct_group, node_groups = base$node_groups
-    )
+    expect_s3_class(plain_fit, "net_mmm")
+    expect_s3_class(direct_fit, "net_mmm")
+    weights_before <- lapply(plain_fit$models, function(net) net$weights)
+    converted <- build_htna(plain_fit, node_groups = base$node_groups)
+    converted_direct <- build_htna(direct_fit)
 
-    fit_plain <- attr(plain_group, "clustering")
-    fit_direct <- attr(direct_group, "clustering")
     fit_converted <- attr(converted, "clustering")
 
-    expect_identical(fit_direct$assignments, fit_plain$assignments)
-    expect_equal(fit_direct$posterior, fit_plain$posterior, tolerance = 1e-12)
-    expect_equal(fit_direct$mixing, fit_plain$mixing, tolerance = 1e-12)
-    expect_equal(c(fit_direct$AIC, fit_direct$BIC, fit_direct$ICL),
-                 c(fit_plain$AIC, fit_plain$BIC, fit_plain$ICL),
+    expect_identical(direct_fit$assignments, plain_fit$assignments)
+    expect_equal(direct_fit$posterior, plain_fit$posterior, tolerance = 1e-12)
+    expect_equal(direct_fit$mixing, plain_fit$mixing, tolerance = 1e-12)
+    expect_equal(c(direct_fit$AIC, direct_fit$BIC, direct_fit$ICL),
+                 c(plain_fit$AIC, plain_fit$BIC, plain_fit$ICL),
                  tolerance = 1e-12)
-    expect_identical(fit_converted$assignments, fit_plain$assignments)
-    expect_equal(fit_converted$posterior, fit_plain$posterior,
+    expect_identical(fit_converted$assignments, plain_fit$assignments)
+    expect_equal(fit_converted$posterior, plain_fit$posterior,
                  tolerance = 1e-12)
     expect_equal(lapply(converted, function(net) net$weights), weights_before)
 
-    for (cluster_id in seq_along(plain_group)) {
+    for (cluster_id in seq_along(plain_fit$models)) {
       .expect_htna_cluster_net_equiv(
-        converted[[cluster_id]], plain_group[[cluster_id]],
+        converted[[cluster_id]], plain_fit$models[[cluster_id]],
         base$actor_levels, paste("MMM plain", seed, cluster_id)
       )
       .expect_htna_cluster_net_equiv(
-        converted_direct[[cluster_id]], plain_group[[cluster_id]],
+        converted_direct[[cluster_id]], plain_fit$models[[cluster_id]],
         base$actor_levels, paste("MMM direct", seed, cluster_id)
       )
-      checked_cells <- checked_cells + 2L * length(plain_group[[cluster_id]]$weights)
+      checked_cells <- checked_cells +
+        2L * length(plain_fit$models[[cluster_id]]$weights)
     }
   }
 

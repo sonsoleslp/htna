@@ -12,6 +12,7 @@
 ^pkgdown$
 ^Rplots\.pdf$
 ^AGENT-NOTE-HTNA-REVIEW\.md$
+^AGENT-NOTE-NESTIMATE-ALIASES\.md$
 ^HANDOFF\.md$
 ^LEARNINGS\.md$
 ^CHANGES\.md$

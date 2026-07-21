@@ -37,24 +37,31 @@ test_that("build_htna consumes Nestimate distance-clustering results", {
 
 test_that("build_htna consumes fitted cluster_mmm output without refitting", {
   fixture <- .clustering_htna_fixture()
-  clustered <- Nestimate::cluster_mmm(
+  fit <- Nestimate::cluster_mmm(
     fixture$net,
     k = 2,
     n_starts = 1,
     max_iter = 20,
     seed = 8
   )
-  weights_before <- lapply(clustered, function(net) net$weights)
-  clustering_before <- attr(clustered, "clustering")
+  expect_s3_class(fit, "net_mmm")
+  weights_before <- lapply(fit$models, function(net) net$weights)
 
-  result <- build_htna(clustered, node_groups = fixture$net$node_groups)
+  result <- build_htna(fit)
 
   .expect_htna_clustering_group(result)
   expect_equal(lapply(result, function(net) net$weights), weights_before)
   expect_identical(attr(result, "clustering")$assignments,
-                   clustering_before$assignments)
+                   fit$assignments)
   expect_equal(attr(result, "clustering")$posterior,
-               clustering_before$posterior)
+               fit$posterior)
+  expect_equal(attr(result, "clustering")$mixing, fit$mixing)
+
+  via_generic <- Nestimate::as_htna(fit)
+  .expect_htna_clustering_group(via_generic)
+  expect_equal(lapply(via_generic, function(net) net$weights), weights_before)
+  expect_identical(attr(via_generic, "clustering")$assignments,
+                   fit$assignments)
 })
 
 test_that("build_htna consumes legacy tna::cluster_sequences output", {

@@ -34,7 +34,7 @@ to sit alongside the rest of the htna API.
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 pruned <- prune_htna(net, method = "threshold", threshold = 0.05)
-reprune_htna(pruned)
+reprune_htna(deprune_htna(pruned))
 }
 }
 \seealso{

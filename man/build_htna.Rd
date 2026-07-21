@@ -28,11 +28,13 @@ All frames must share the same column schema.
 \item A single long-format data frame. In that case either
 \code{actor_type} (row-level actor-type IDs) or \code{node_groups}
 (node-level actor-type lookup) must be supplied.
-\item A clustering result from \code{Nestimate::build_clusters()},
-\code{Nestimate::cluster_mmm()}, or \code{tna::cluster_sequences()},
-or a fitted \code{netobject_group}. One HTNA network is returned per
-sequence cluster. Fitted child networks and clustering diagnostics
-are preserved rather than re-estimated.
+\item A fitted clustering result from
+\code{Nestimate::build_clusters()},
+\code{Nestimate::cluster_mmm()} (a \code{net_mmm}), or
+\code{tna::cluster_sequences()}, or an already-materialized
+\code{netobject_group}. One HTNA network is returned per sequence
+cluster. The clustering fit is not rerun; assignments, diagnostics,
+fitted MMM weights, and actor metadata are preserved.
 \item A fitted \code{Nestimate::build_mcml()} object. Its node clusters
 become the HTNA actor groups and one full node-level network is rebuilt
 from the original source, including transitions between clusters.
