@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -128,7 +128,23 @@ schema.</p>
 <span><span class="co">#&gt; Edge counts by actor (rows = source, cols = target):</span></span>
 <span><span class="co">#&gt;           Human    AI</span></span>
 <span><span class="co">#&gt;   Human      35    36</span></span>
-<span><span class="co">#&gt;   AI         36    28</span></span></code></pre></div>
+<span><span class="co">#&gt;   AI         36    28</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Network metrics:</span></span>
+<span><span class="co">#&gt;                       metric        value</span></span>
+<span><span class="co">#&gt;                   Node Count  12.00000000</span></span>
+<span><span class="co">#&gt;                   Edge Count 135.00000000</span></span>
+<span><span class="co">#&gt;              Network Density   1.00000000</span></span>
+<span><span class="co">#&gt;                Mean Distance   0.02743124</span></span>
+<span><span class="co">#&gt;            Mean Out-Strength   1.00000000</span></span>
+<span><span class="co">#&gt;              SD Out-Strength   0.63085045</span></span>
+<span><span class="co">#&gt;             Mean In-Strength   1.00000000</span></span>
+<span><span class="co">#&gt;               SD In-Strength   0.00000000</span></span>
+<span><span class="co">#&gt;              Mean Out-Degree  11.25000000</span></span>
+<span><span class="co">#&gt;                SD Out-Degree   0.96530730</span></span>
+<span><span class="co">#&gt;  Centralization (Out-Degree)   0.05785124</span></span>
+<span><span class="co">#&gt;   Centralization (In-Degree)   0.05785124</span></span>
+<span><span class="co">#&gt;                  Reciprocity   0.96000000</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">net_list</span><span class="op">)</span></span></code></pre></div>
 <p><img src="input-formats_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="900"></p>
@@ -351,22 +367,38 @@ early, rest = late), so the cohort build is a one-liner:</p>
 <td>One combined frame; partition declared as a tidy codebook</td>
 </tr>
 <tr class="odd">
+<td><code>Nestimate::build_clusters(htna, ...)</code></td>
+<td>Distance-based sequence clusters; returns one HTNA network per
+cluster</td>
+</tr>
+<tr class="even">
+<td><code>Nestimate::cluster_mmm(htna, ...)</code></td>
+<td>Already-fitted latent Markov clusters; preserves fitted weights and
+posterior diagnostics</td>
+</tr>
+<tr class="odd">
+<td><code>tna::cluster_sequences(...), node_groups = ...</code></td>
+<td>Legacy sequence-clustering result; builds one HTNA network per
+cluster</td>
+</tr>
+<tr class="even">
 <td><code>+ actor = "user_id"</code></td>
 <td>Identify the individual actor that performed each event (forwarded
 to <code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">Nestimate::build_network()</a></code>)</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>+ disambiguate = TRUE</code></td>
 <td>Same code label appears in more than one actor type</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>+ group = "phase"</code></td>
 <td>Build one network per cohort/phase</td>
 </tr>
 </tbody>
 </table>
-<p>All three input shapes are interchangeable; pick whichever matches
-the shape your data already has.</p>
+<p>The row/list forms build one network directly. Clustering forms build
+or preserve an outer <code>htna_group</code>, while every child keeps
+the same actor partition.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

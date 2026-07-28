@@ -10,49 +10,23 @@ permutation.
 ## Usage
 
 ``` r
-markov_order_test_htna(
-  data,
-  max_order = 3L,
-  n_perm = 500L,
-  alpha = 0.05,
-  parallel = FALSE,
-  n_cores = 2L,
-  seed = NULL
-)
+markov_order_test_htna(data, ...)
 ```
 
 ## Arguments
 
 - data:
 
-  A data.frame (wide format, one sequence per row) or list of character
-  vectors (one per trajectory). NAs are treated as end of sequence.
+  Raw sequence data: a list of character vectors or a wide-format data
+  frame. See
+  [`Nestimate::markov_order_test()`](https://saqr.me/Nestimate/reference/markov_order_test.html).
 
-- max_order:
+- ...:
 
-  Integer. Highest Markov order to test. Default 3.
-
-- n_perm:
-
-  Integer. Number of within-\\w\\ permutations per order. Default 500.
-
-- alpha:
-
-  Numeric. Significance level for order selection. Default 0.05.
-
-- parallel:
-
-  Logical. Use
-  [`parallel::mclapply`](https://rdrr.io/r/parallel/mclapply.html) for
-  permutations. Default `FALSE` (set `TRUE` only on Unix-like systems).
-
-- n_cores:
-
-  Integer. Cores for parallel execution. Default 2.
-
-- seed:
-
-  Optional integer seed for reproducibility.
+  Additional arguments passed to
+  [`Nestimate::markov_order_test()`](https://saqr.me/Nestimate/reference/markov_order_test.html),
+  such as `max_order`, `n_perm`, `alpha`, `parallel`, `n_cores`, and
+  `seed`. See that function for the full, current argument list.
 
 ## Value
 

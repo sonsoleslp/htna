@@ -101,7 +101,7 @@ The actor partition now contains three levels:
 
 table(net3$node_groups$group)
 #> 
-#> Student      AI  System 
+#>      AI Student  System 
 #>       4       4       4
 ```
 

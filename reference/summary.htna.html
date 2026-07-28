@@ -13,7 +13,7 @@ callers can inspect the structured summary programmatically."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,6 +78,9 @@ type before truncating with an ellipsis. Default <code>12</code>.</p></dd>
 <code>n_nodes</code>, <code>nodes</code>).</p></li>
 <li><p><code>edges_by_actor</code> - integer matrix of non-zero edge counts,
 rows are source actor, columns are target actor.</p></li>
+<li><p><code>network_metrics</code> - standard network-level descriptive metrics
+from the Nestimate engine (node/edge counts, density, distance,
+strength, degree centralization, and reciprocity).</p></li>
 <li><p><code>n_nodes</code>, <code>n_edges</code>, <code>n_sessions</code>, <code>n_timesteps</code>,
 <code>method</code>.</p></li>
 </ul></div>
@@ -103,6 +106,22 @@ rows are source actor, columns are target actor.</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span>           Human    AI</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Human      35    36</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   AI         36    28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Network metrics:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                       metric        value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Node Count  12.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Edge Count 135.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Network Density   1.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                Mean Distance   0.02743124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Mean Out-Strength   1.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              SD Out-Strength   0.63085045</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Mean In-Strength   1.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               SD In-Strength   0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Mean Out-Degree  11.25000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                SD Out-Degree   0.96530730</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Centralization (Out-Degree)   0.05785124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Centralization (In-Degree)   0.05785124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  Reciprocity   0.96000000</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

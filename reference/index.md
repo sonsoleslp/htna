@@ -2,13 +2,16 @@
 
 ## Build
 
-Construct and inspect a heterogeneous transition network
+Construct, inspect, and convert a heterogeneous transition network
 
 - [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) :
   Build a Heterogeneous Transition Network (HTNA)
 - [`summary(`*`<htna>`*`)`](https://sonsoles.me/htna/reference/summary.htna.md)
   [`summary(`*`<htna_group>`*`)`](https://sonsoles.me/htna/reference/summary.htna.md)
   : Summarise a Heterogeneous Transition Network
+- [`as.igraph(`*`<htna>`*`)`](https://sonsoles.me/htna/reference/as.igraph.htna.md)
+  [`as.igraph(`*`<htna_group>`*`)`](https://sonsoles.me/htna/reference/as.igraph.htna.md)
+  : Convert an HTNA Network to igraph
 
 ## Frequencies and distributions
 
@@ -109,6 +112,32 @@ Reliability, stability, permutation, and Markov-order adequacy
   : Print Method for htna Stability Groups
 - [`markov_order_test_htna()`](https://sonsoles.me/htna/reference/markov_order_test_htna.md)
   : Markov-Order Adequacy Test
+- [`certainty_htna()`](https://sonsoles.me/htna/reference/certainty_htna.md)
+  : Closed-form Edge Certainty of a Network
+
+## Network comparison
+
+Descriptive and Bayesian comparison of two or more htna networks
+
+- [`compare_htna()`](https://sonsoles.me/htna/reference/compare_htna.md)
+  : Compare Heterogeneous Transition Networks
+- [`bayes_compare_htna()`](https://sonsoles.me/htna/reference/bayes_compare_htna.md)
+  : Bayesian Comparison of Two Networks
+- [`plot(`*`<htna_comparison_group>`*`)`](https://sonsoles.me/htna/reference/plot.htna_comparison_group.md)
+  : Plot All Comparisons in an HTNA Comparison Group
+
+## Pruning
+
+Remove, restore, and re-apply edge-weight pruning rules
+
+- [`prune_htna()`](https://sonsoles.me/htna/reference/prune_htna.md) :
+  Prune Weak Edges from a Transition Network
+- [`deprune_htna()`](https://sonsoles.me/htna/reference/deprune_htna.md)
+  : Restore All Edges of a Pruned Transition Network
+- [`reprune_htna()`](https://sonsoles.me/htna/reference/reprune_htna.md)
+  : Re-apply a Previous Pruning Rule
+- [`pruning_details_htna()`](https://sonsoles.me/htna/reference/pruning_details_htna.md)
+  : Tidy Report of a Network's Pruning
 
 ## Datasets
 

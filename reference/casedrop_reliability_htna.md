@@ -11,62 +11,23 @@ of iterations.
 ## Usage
 
 ``` r
-casedrop_reliability_htna(
-  x,
-  iter = 1000L,
-  drop_prop = seq(0.1, 0.9, by = 0.1),
-  threshold = 0.7,
-  certainty = 0.95,
-  method = c("spearman", "pearson", "kendall"),
-  include_diag = FALSE,
-  seed = NULL
-)
+casedrop_reliability_htna(x, ...)
 ```
 
 ## Arguments
 
 - x:
 
-  A `net_casedrop_reliability_group` object.
+  An htna network or grouped htna network. See
+  [`Nestimate::casedrop_reliability()`](https://saqr.me/Nestimate/reference/casedrop_reliability.html).
 
-- iter:
+- ...:
 
-  Integer. Iterations per drop proportion. Default `1000`.
-
-- drop_prop:
-
-  Drop proportion at which to report the four metrics (mean +/- sd per
-  network). Must be one of the drop proportions the object was built
-  with. Defaults to the object's median grid value (the stored grid is
-  used, not an assumed `0.7`); pass an explicit value not in the grid to
-  get an error listing the available proportions.
-
-- threshold:
-
-  Numeric in `[0, 1]`. Minimum edge-vector correlation for an iteration
-  to count as stable. Default `0.7`.
-
-- certainty:
-
-  Numeric in `[0, 1]`. Required fraction of iterations whose correlation
-  must exceed `threshold` for a drop proportion to qualify. Default
-  `0.95`.
-
-- method:
-
-  Correlation method: `"pearson"` (weight magnitudes), `"spearman"`
-  (ranks, robust to scale), or `"kendall"`. Default `"spearman"` because
-  edge weights often span several orders of magnitude and rank stability
-  is the typical target.
-
-- include_diag:
-
-  Logical. Include diagonal (self-loop) edges in the edge vector.
-  Default `FALSE`.
-
-- seed:
-
-  Optional integer for reproducibility.
+  Additional arguments passed to
+  [`Nestimate::casedrop_reliability()`](https://saqr.me/Nestimate/reference/casedrop_reliability.html),
+  such as `iter`, `drop_prop`, `threshold`, `certainty`, `method`,
+  `include_diag`, and `seed`. See that function for the full, current
+  argument list.
 
 ## Value
 

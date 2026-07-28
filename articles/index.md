@@ -20,6 +20,8 @@
 
 - [Multi-Group HTNA (3+ Actor
   Groups)](https://sonsoles.me/htna/articles/multigroup.md):
+- [Clustering inputs to
+  build_htna()](https://sonsoles.me/htna/articles/clustering.md):
 - [Markov-order adequacy in heterogeneous transition
   networks](https://sonsoles.me/htna/articles/markov-order.md):
 - [Model assessment for htna

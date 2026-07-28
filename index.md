@@ -193,14 +193,14 @@ extract_meta_paths(net, level = "type")
   Dynamics in Student–AI Collaboration: A Heterogeneous Transition
   Network Analysis Approach. Innovations in Analytics of Learning
   Dynamics: Proceedings of the 1st Workshop on Transition Network
-  Analysis (TNA).
-  <https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6082190>
+  Analysis (TNA). <https://dx.doi.org/10.2139/ssrn.6082190>
 - López-Pernas, S., Misiejuk, K., & Saqr, M. (2026). How AI ‐generated
   feedback hinders or helps learning: A heterogeneous TNA study of
   learning dynamics. Journal of Computer Assisted Learning, 42(4),
   e70285. <https://doi.org/10.1002/jcal.70285>
 - Rinja, D., Oliveira, E. A., López-Pernas, S., Saqr, M., Specht, M., &
-  Misiejuk, K. (2026). Unpacking vibe coding: Help-seeking processes in
+  Misiejuk, K. (2027). Unpacking vibe coding: Help-seeking processes in
   student-AI interactions while programming. Proceedings of Artificial
   Intelligence in Education: 27th International Conference, AIED 2026.
-  <https://doi.org/10.48550/arXiv.2604.27134>
+  Springer Nature Switzerland.
+  <https://doi.org/10.1007/978-3-032-29763-1_35>

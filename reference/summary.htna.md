@@ -42,6 +42,10 @@ Invisibly, a list with components:
 - `edges_by_actor` - integer matrix of non-zero edge counts, rows are
   source actor, columns are target actor.
 
+- `network_metrics` - standard network-level descriptive metrics from
+  the Nestimate engine (node/edge counts, density, distance, strength,
+  degree centralization, and reciprocity).
+
 - `n_nodes`, `n_edges`, `n_sessions`, `n_timesteps`, `method`.
 
 ## Examples
@@ -66,4 +70,20 @@ summary(net)
 #>           Human    AI
 #>   Human      35    36
 #>   AI         36    28
+#> 
+#> Network metrics:
+#>                       metric        value
+#>                   Node Count  12.00000000
+#>                   Edge Count 135.00000000
+#>              Network Density   1.00000000
+#>                Mean Distance   0.02743124
+#>            Mean Out-Strength   1.00000000
+#>              SD Out-Strength   0.63085045
+#>             Mean In-Strength   1.00000000
+#>               SD In-Strength   0.00000000
+#>              Mean Out-Degree  11.25000000
+#>                SD Out-Degree   0.96530730
+#>  Centralization (Out-Degree)   0.05785124
+#>   Centralization (In-Degree)   0.05785124
+#>                  Reciprocity   0.96000000
 ```

@@ -193,29 +193,32 @@ extract_meta_paths(net, level = "type")
   Dynamics in Student–AI Collaboration: A Heterogeneous Transition
   Network Analysis Approach. Innovations in Analytics of Learning
   Dynamics: Proceedings of the 1st Workshop on Transition Network
-  Analysis (TNA).
-  <https://papers.ssrn.com/sol3/papers.cfm?abstract_id=6082190>
+  Analysis (TNA). <https://dx.doi.org/10.2139/ssrn.6082190>
 - López-Pernas, S., Misiejuk, K., & Saqr, M. (2026). How AI ‐generated
   feedback hinders or helps learning: A heterogeneous TNA study of
   learning dynamics. Journal of Computer Assisted Learning, 42(4),
   e70285. <https://doi.org/10.1002/jcal.70285>
 - Rinja, D., Oliveira, E. A., López-Pernas, S., Saqr, M., Specht, M., &
-  Misiejuk, K. (2026). Unpacking vibe coding: Help-seeking processes in
+  Misiejuk, K. (2027). Unpacking vibe coding: Help-seeking processes in
   student-AI interactions while programming. Proceedings of Artificial
   Intelligence in Education: 27th International Conference, AIED 2026.
-  <https://doi.org/10.48550/arXiv.2604.27134>
+  Springer Nature Switzerland.
+  <https://doi.org/10.1007/978-3-032-29763-1_35>
 
 # Package index
 
 ## Build
 
-Construct and inspect a heterogeneous transition network
+Construct, inspect, and convert a heterogeneous transition network
 
 - [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) :
   Build a Heterogeneous Transition Network (HTNA)
 - [`summary(`*`<htna>`*`)`](https://sonsoles.me/htna/reference/summary.htna.md)
   [`summary(`*`<htna_group>`*`)`](https://sonsoles.me/htna/reference/summary.htna.md)
   : Summarise a Heterogeneous Transition Network
+- [`as.igraph(`*`<htna>`*`)`](https://sonsoles.me/htna/reference/as.igraph.htna.md)
+  [`as.igraph(`*`<htna_group>`*`)`](https://sonsoles.me/htna/reference/as.igraph.htna.md)
+  : Convert an HTNA Network to igraph
 
 ## Frequencies and distributions
 
@@ -316,6 +319,32 @@ Reliability, stability, permutation, and Markov-order adequacy
   : Print Method for htna Stability Groups
 - [`markov_order_test_htna()`](https://sonsoles.me/htna/reference/markov_order_test_htna.md)
   : Markov-Order Adequacy Test
+- [`certainty_htna()`](https://sonsoles.me/htna/reference/certainty_htna.md)
+  : Closed-form Edge Certainty of a Network
+
+## Network comparison
+
+Descriptive and Bayesian comparison of two or more htna networks
+
+- [`compare_htna()`](https://sonsoles.me/htna/reference/compare_htna.md)
+  : Compare Heterogeneous Transition Networks
+- [`bayes_compare_htna()`](https://sonsoles.me/htna/reference/bayes_compare_htna.md)
+  : Bayesian Comparison of Two Networks
+- [`plot(`*`<htna_comparison_group>`*`)`](https://sonsoles.me/htna/reference/plot.htna_comparison_group.md)
+  : Plot All Comparisons in an HTNA Comparison Group
+
+## Pruning
+
+Remove, restore, and re-apply edge-weight pruning rules
+
+- [`prune_htna()`](https://sonsoles.me/htna/reference/prune_htna.md) :
+  Prune Weak Edges from a Transition Network
+- [`deprune_htna()`](https://sonsoles.me/htna/reference/deprune_htna.md)
+  : Restore All Edges of a Pruned Transition Network
+- [`reprune_htna()`](https://sonsoles.me/htna/reference/reprune_htna.md)
+  : Re-apply a Previous Pruning Rule
+- [`pruning_details_htna()`](https://sonsoles.me/htna/reference/pruning_details_htna.md)
+  : Tidy Report of a Network's Pruning
 
 ## Datasets
 
@@ -357,6 +386,8 @@ Sample datasets
 
 - [Multi-Group HTNA (3+ Actor
   Groups)](https://sonsoles.me/htna/articles/multigroup.md):
+- [Clustering inputs to
+  build_htna()](https://sonsoles.me/htna/articles/clustering.md):
 - [Markov-order adequacy in heterogeneous transition
   networks](https://sonsoles.me/htna/articles/markov-order.md):
 - [Model assessment for htna

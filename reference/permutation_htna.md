@@ -9,76 +9,23 @@ be expected under a null of identical generating processes.
 ## Usage
 
 ``` r
-permutation_htna(
-  x,
-  y = NULL,
-  iter = 1000L,
-  alpha = 0.05,
-  paired = FALSE,
-  adjust = "none",
-  measures = NULL,
-  nlambda = 50L,
-  seed = NULL
-)
+permutation_htna(x, y = NULL, ...)
 ```
 
 ## Arguments
 
-- x:
+- x, y:
 
-  A `netobject` (from
-  [`build_network`](https://saqr.me/Nestimate/reference/build_network.html))
-  or a
-  [`net_edge_betweenness`](https://saqr.me/Nestimate/reference/net_edge_betweenness.html)
-  object.
+  The two networks to compare, or a single `netobject_group` in `x`
+  (with `y = NULL`) for all pairwise comparisons. See
+  [`Nestimate::permutation()`](https://saqr.me/Nestimate/reference/permutation.html).
 
-- y:
+- ...:
 
-  A `netobject` (from
-  [`build_network`](https://saqr.me/Nestimate/reference/build_network.html))
-  or a
-  [`net_edge_betweenness`](https://saqr.me/Nestimate/reference/net_edge_betweenness.html)
-  object. Must use the same method and have the same nodes as `x`.
-
-- iter:
-
-  Integer. Number of permutation iterations (default: 1000).
-
-- alpha:
-
-  Numeric. Significance level (default: 0.05).
-
-- paired:
-
-  Logical. If `TRUE`, permute within pairs (requires equal number of
-  observations in `x` and `y`). Default: FALSE.
-
-- adjust:
-
-  Character. p-value adjustment method passed to
-  [`p.adjust`](https://rdrr.io/r/stats/p.adjust.html) (default:
-  `"none"`). Common choices: `"holm"`, `"BH"`, `"bonferroni"`.
-
-- measures:
-
-  Character vector of centrality measures to permutation-test in
-  addition to the edges, or `"all"` for every built-in measure. Default
-  `NULL` (edges only). When supplied, the result gains a `$centralities`
-  block matching the layout of `tna::permutation_test(measures = )`: per
-  state and measure it reports the observed difference, an effect size
-  (difference / SD of the permutation null), and a permutation p-value,
-  all using the same permuted networks as the edge test. Not supported
-  for `net_edge_betweenness` inputs.
-
-- nlambda:
-
-  Integer. Number of lambda values for the `glassopath` regularisation
-  path (only used when `method = "glasso"`). Higher values give finer
-  lambda resolution at the cost of speed. Default: 50.
-
-- seed:
-
-  Integer or NULL. RNG seed for reproducibility.
+  Additional arguments passed to
+  [`Nestimate::permutation()`](https://saqr.me/Nestimate/reference/permutation.html),
+  such as `iter`, `alpha`, `paired`, `adjust`, `measures`, `nlambda`,
+  and `seed`. See that function for the full, current argument list.
 
 ## Value
 

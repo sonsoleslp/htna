@@ -19,6 +19,7 @@ build_htna(
   method = "relative",
   group = NULL,
   disambiguate = FALSE,
+  source_data = NULL,
   ...
 )
 ```
@@ -36,6 +37,22 @@ build_htna(
   - A single long-format data frame. In that case either `actor_type`
     (row-level actor-type IDs) or `node_groups` (node-level actor-type
     lookup) must be supplied.
+
+  - A fitted clustering result from
+    [`Nestimate::build_clusters()`](https://saqr.me/Nestimate/reference/build_clusters.html),
+    [`Nestimate::cluster_mmm()`](https://saqr.me/Nestimate/reference/cluster_mmm.html)
+    (a `net_mmm`), or
+    [`tna::cluster_sequences()`](http://sonsoles.me/tna/reference/cluster_data.md),
+    or an already-materialized `netobject_group`. One HTNA network is
+    returned per sequence cluster. The clustering fit is not rerun;
+    assignments, diagnostics, fitted MMM weights, and actor metadata are
+    preserved.
+
+  - A fitted
+    [`Nestimate::build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
+    object. Its node clusters become the HTNA actor groups and one full
+    node-level network is rebuilt from the original source, including
+    transitions between clusters.
 
 - actor_type:
 
@@ -69,7 +86,12 @@ build_htna(
   Use `node_groups` when `data` is a single long-format frame with no
   actor-type column and you want to declare the node-to-type partition
   directly. Each code in `data[[action]]` must appear in exactly one
-  entry. Mutually exclusive with `actor_type`.
+  entry. For clustering inputs, the canonical two-column
+  `data.frame(node, group)` stored on an existing HTNA model is also
+  accepted. The argument may be omitted when Nestimate preserved the
+  partition from an HTNA input. Mutually exclusive with `actor_type`.
+  For an `mcml` input, this optionally overrides `$cluster_members`;
+  otherwise the fitted membership is used.
 
 - action:
 
@@ -88,7 +110,9 @@ build_htna(
 
   Character. Transition method passed to
   [`build_network`](https://saqr.me/Nestimate/reference/build_network.html):
-  `"relative"` (default), `"frequency"`, or `"attention"`.
+  `"relative"` (default), `"frequency"`, `"co_occurrence"`, or
+  `"attention"`. Co-occurrence models are undirected and preserve the
+  same actor partition as transition models.
 
 - group:
 
@@ -103,6 +127,16 @@ build_htna(
   appears in more than one actor-type group. If `TRUE`, codes are
   prefixed with the actor-type label (`"Human:Ask"`, `"AI:Ask"`) so they
   become distinct nodes.
+
+- source_data:
+
+  Original node-level data for an `mcml` input. Usually unnecessary when
+  [`Nestimate::build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
+  retained its sequence source. Required when the fitted object has no
+  expandable source, such as an `mcml` built from a transition matrix or
+  edge list. The fitted macro and within-cluster weights are
+  deliberately not stitched together: rebuilding from this source is
+  what preserves cross-cluster transitions.
 
 - ...:
 
@@ -124,8 +158,17 @@ further arguments:
   [`cograph::get_groups`](https://sonsoles.me/cograph/reference/get_groups.html),
   `cluster_summary`, and the `print` method for `cograph_network`).
 
+- `$actor_levels` - declared actor ordering, also retained as metadata
+  on `$node_groups` so the table can be passed back to `build_htna()`
+  without losing that order.
+
 All other slots are exactly as returned by
 [`build_network`](https://saqr.me/Nestimate/reference/build_network.html).
+Clustering inputs return an `htna_group`; its children retain the actor
+partition and its outer clustering assignments, posterior probabilities,
+diagnostics, and other attributes are preserved. An `mcml` input instead
+returns one `htna`, equivalent to
+[`Nestimate::as_htna()`](https://saqr.me/Nestimate/reference/as_htna.html).
 
 ## See also
 

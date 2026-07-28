@@ -17,17 +17,17 @@ mosaic_plot_htna(x, ...)
 
 - x:
 
-  One of the four data-bearing Nestimate classes: `netobject` (single
-  mosaic of `$weights`), `netobject_group` (one panel per group), `mcml`
-  (between-cluster mosaic by default; per-cluster panels with
-  `level = "within"`), or `htna` (single mosaic of `$weights`; htna
-  inherits netobject so the geometry matches). Also accepts a
-  contingency `table` or plain numeric `matrix` for ad-hoc plotting.
+  An htna network built with `method = "frequency"` (or other object
+  accepted by
+  [`Nestimate::mosaic_plot()`](https://saqr.me/Nestimate/reference/mosaic_plot.html));
+  S3 dispatch on `x` is preserved, so `htna` objects use
+  `mosaic_plot.htna`.
 
 - ...:
 
-  Flat styling overrides forwarded to the flat renderer when
-  `style = "flat"` (otherwise ignored).
+  Additional arguments passed to
+  [`Nestimate::mosaic_plot()`](https://saqr.me/Nestimate/reference/mosaic_plot.html),
+  such as `n_perm` and `seed`. See that function for details.
 
 ## Value
 

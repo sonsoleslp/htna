@@ -13,7 +13,7 @@ distinct node group."><meta property="og:image" content="https://sonsoles.me/htn
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,6 +59,7 @@ distinct node group.</p>
 <span>  method <span class="op">=</span> <span class="st">"relative"</span>,</span>
 <span>  group <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  disambiguate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  source_data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -74,6 +75,16 @@ All frames must share the same column schema.</p></li>
 <li><p>A single long-format data frame. In that case either
 <code>actor_type</code> (row-level actor-type IDs) or <code>node_groups</code>
 (node-level actor-type lookup) must be supplied.</p></li>
+<li><p>A fitted clustering result from
+<code><a href="https://saqr.me/Nestimate/reference/build_clusters.html" class="external-link">Nestimate::build_clusters()</a></code>,
+<code><a href="https://saqr.me/Nestimate/reference/cluster_mmm.html" class="external-link">Nestimate::cluster_mmm()</a></code> (a <code>net_mmm</code>), or
+<code><a href="http://sonsoles.me/tna/reference/cluster_data.html" class="external-link">tna::cluster_sequences()</a></code>, or an already-materialized
+<code>netobject_group</code>. One HTNA network is returned per sequence
+cluster. The clustering fit is not rerun; assignments, diagnostics,
+fitted MMM weights, and actor metadata are preserved.</p></li>
+<li><p>A fitted <code><a href="https://saqr.me/Nestimate/reference/build_mcml.html" class="external-link">Nestimate::build_mcml()</a></code> object. Its node clusters
+become the HTNA actor groups and one full node-level network is rebuilt
+from the original source, including transitions between clusters.</p></li>
 </ul></dd>
 
 
@@ -106,7 +117,12 @@ character vectors, the order of first appearance.</p></li>
 </ul><p>Use <code>node_groups</code> when <code>data</code> is a single long-format frame
 with no actor-type column and you want to declare the node-to-type
 partition directly. Each code in <code>data[[action]]</code> must appear in
-exactly one entry. Mutually exclusive with <code>actor_type</code>.</p></dd>
+exactly one entry. For clustering inputs, the canonical two-column
+<code>data.frame(node, group)</code> stored on an existing HTNA model is also
+accepted. The argument may be omitted when Nestimate preserved the
+partition from an HTNA input. Mutually exclusive with <code>actor_type</code>.
+For an <code>mcml</code> input, this optionally overrides
+<code>$cluster_members</code>; otherwise the fitted membership is used.</p></dd>
 
 
 <dt id="arg-action">action<a class="anchor" aria-label="anchor" href="#arg-action"></a></dt>
@@ -127,7 +143,9 @@ exactly one entry. Mutually exclusive with <code>actor_type</code>.</p></dd>
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>Character. Transition method passed to
 <code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network</a></code>: <code>"relative"</code> (default),
-<code>"frequency"</code>, or <code>"attention"</code>.</p></dd>
+<code>"frequency"</code>, <code>"co_occurrence"</code>, or <code>"attention"</code>.
+Co-occurrence models are undirected and preserve the same actor partition
+as transition models.</p></dd>
 
 
 <dt id="arg-group">group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
@@ -142,6 +160,16 @@ htna networks with class <code>c("htna_group", "netobject_group")</code>.</p></d
 when a code label appears in more than one actor-type group. If
 <code>TRUE</code>, codes are prefixed with the actor-type label
 (<code>"Human:Ask"</code>, <code>"AI:Ask"</code>) so they become distinct nodes.</p></dd>
+
+
+<dt id="arg-source-data">source_data<a class="anchor" aria-label="anchor" href="#arg-source-data"></a></dt>
+<dd><p>Original node-level data for an <code>mcml</code> input.
+Usually unnecessary when <code><a href="https://saqr.me/Nestimate/reference/build_mcml.html" class="external-link">Nestimate::build_mcml()</a></code> retained its
+sequence source. Required when the fitted object has no expandable source,
+such as an <code>mcml</code> built from a transition matrix or edge list. The
+fitted macro and within-cluster weights are deliberately not stitched
+together: rebuilding from this source is what preserves cross-cluster
+transitions.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -159,8 +187,15 @@ groups with no further arguments:</p><ul><li><p><code>$nodes$groups</code> - act
 <code>group</code> (canonical <code>cograph_network</code> schema, also
 readable by <code><a href="https://sonsoles.me/cograph/reference/get_groups.html" class="external-link">cograph::get_groups</a></code>, <code>cluster_summary</code>, and
 the <code>print</code> method for <code>cograph_network</code>).</p></li>
+<li><p><code>$actor_levels</code> - declared actor ordering, also retained as
+metadata on <code>$node_groups</code> so the table can be passed back to
+<code>build_htna()</code> without losing that order.</p></li>
 </ul><p>All other slots are exactly as returned by
-<code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network</a></code>.</p>
+<code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network</a></code>. Clustering inputs return an
+<code>htna_group</code>; its children retain the actor partition and its outer
+clustering assignments, posterior probabilities, diagnostics, and other
+attributes are preserved. An <code>mcml</code> input instead returns one
+<code>htna</code>, equivalent to <code><a href="https://saqr.me/Nestimate/reference/as_htna.html" class="external-link">Nestimate::as_htna()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

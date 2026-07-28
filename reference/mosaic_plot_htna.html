@@ -15,7 +15,7 @@ white = at-expected)."><meta property="og:image" content="https://sonsoles.me/ht
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,19 +59,14 @@ white = at-expected).</p>
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>One of the four data-bearing Nestimate classes:
-<code>netobject</code> (single mosaic of <code>$weights</code>),
-<code>netobject_group</code> (one panel per group),
-<code>mcml</code> (between-cluster mosaic by default; per-cluster panels with
-<code>level = "within"</code>), or
-<code>htna</code> (single mosaic of <code>$weights</code>; htna inherits netobject
-so the geometry matches). Also accepts a contingency <code>table</code> or
-plain numeric <code>matrix</code> for ad-hoc plotting.</p></dd>
+<dd><p>An htna network built with <code>method = "frequency"</code> (or other
+object accepted by <code><a href="https://saqr.me/Nestimate/reference/mosaic_plot.html" class="external-link">Nestimate::mosaic_plot()</a></code>); S3 dispatch on <code>x</code>
+is preserved, so <code>htna</code> objects use <code>mosaic_plot.htna</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Flat styling overrides forwarded to the flat renderer when
-<code>style = "flat"</code> (otherwise ignored).</p></dd>
+<dd><p>Additional arguments passed to <code><a href="https://saqr.me/Nestimate/reference/mosaic_plot.html" class="external-link">Nestimate::mosaic_plot()</a></code>,
+such as <code>n_perm</code> and <code>seed</code>. See that function for details.</p></dd>
 
 </dl></div>
     <div class="section level2">

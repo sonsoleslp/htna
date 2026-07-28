@@ -15,11 +15,16 @@ state_distribution_htna(x, ...)
 
 - x:
 
-  A `netobject`, `netobject_group`, `mcml`, or `htna` object.
+  An htna network (or other object accepted by
+  [`Nestimate::state_distribution()`](https://saqr.me/Nestimate/reference/state_distribution.html));
+  S3 dispatch on `x` is preserved, so `htna` objects use
+  `state_distribution.htna`.
 
 - ...:
 
-  Currently unused.
+  Additional arguments passed to
+  [`Nestimate::state_distribution()`](https://saqr.me/Nestimate/reference/state_distribution.html).
+  See that function for details.
 
 ## Value
 

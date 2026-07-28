@@ -8,14 +8,21 @@ columns summarising the within-network state vocabulary.
 ## Usage
 
 ``` r
-state_frequencies_htna(data)
+state_frequencies_htna(data, ...)
 ```
 
 ## Arguments
 
 - data:
 
-  A list of character vectors (trajectories) or a data.frame.
+  Raw sequence data summarised into a state-frequency table. See
+  [`Nestimate::state_frequencies()`](https://saqr.me/Nestimate/reference/state_frequencies.html).
+
+- ...:
+
+  Additional arguments passed to
+  [`Nestimate::state_frequencies()`](https://saqr.me/Nestimate/reference/state_frequencies.html).
+  See that function for details.
 
 ## Value
 

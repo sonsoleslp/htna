@@ -8,29 +8,22 @@ with a `level` argument that lets the comparison run on type-level
 ## Usage
 
 ``` r
-sequence_compare_htna(
-  x,
-  group = NULL,
-  level = c("state", "type"),
-  sub = 3:5,
-  min_freq = 5L,
-  test = c("permutation", "chisq", "none"),
-  iter = 1000L,
-  adjust = "fdr"
-)
+sequence_compare_htna(x, group = NULL, level = c("state", "type"), ...)
 ```
 
 ## Arguments
 
 - x:
 
-  A `netobject_group` (from grouped `build_network`), a `netobject`
-  (requires `group`), or a wide-format `data.frame` (requires `group`).
+  A grouped htna network, a single htna network (paired with `group`),
+  or wide-format sequence data. See
+  [`Nestimate::sequence_compare()`](https://saqr.me/Nestimate/reference/sequence_compare.html).
 
 - group:
 
-  Character or vector. Column name or vector of group labels. Not needed
-  for `netobject_group`.
+  Grouping specification for the cohorts to compare, when not already
+  carried by a grouped htna network. See
+  [`Nestimate::sequence_compare()`](https://saqr.me/Nestimate/reference/sequence_compare.html).
 
 - level:
 
@@ -39,30 +32,12 @@ sequence_compare_htna(
   comparison runs on meta-paths (e.g. `Human->AI->Human`). Only
   meaningful when `x` is an htna network with an actor partition.
 
-- sub:
+- ...:
 
-  Integer vector. Pattern lengths to analyze. Default: `3:5`.
-
-- min_freq:
-
-  Integer. Minimum frequency in each group for a pattern to be included.
-  Default: 5.
-
-- test:
-
-  Character. Inference method: one of `"permutation"` (default),
-  `"chisq"`, or `"none"`. See Details.
-
-- iter:
-
-  Integer. Permutation iterations. Only used when
-  `test = "permutation"`. Default: 1000.
-
-- adjust:
-
-  Character. P-value correction method (see
-  [`p.adjust`](https://rdrr.io/r/stats/p.adjust.html)). Default:
-  `"fdr"`.
+  Additional arguments passed to
+  [`Nestimate::sequence_compare()`](https://saqr.me/Nestimate/reference/sequence_compare.html),
+  such as `sub`, `min_freq`, `test`, `iter`, and `adjust`. See that
+  function for the full, current argument list.
 
 ## Value
 

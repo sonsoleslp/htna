@@ -62,6 +62,22 @@ summary(net_list)
 #>           Human    AI
 #>   Human      35    36
 #>   AI         36    28
+#> 
+#> Network metrics:
+#>                       metric        value
+#>                   Node Count  12.00000000
+#>                   Edge Count 135.00000000
+#>              Network Density   1.00000000
+#>                Mean Distance   0.02743124
+#>            Mean Out-Strength   1.00000000
+#>              SD Out-Strength   0.63085045
+#>             Mean In-Strength   1.00000000
+#>               SD In-Strength   0.00000000
+#>              Mean Out-Degree  11.25000000
+#>                SD Out-Degree   0.96530730
+#>  Centralization (Out-Degree)   0.05785124
+#>   Centralization (In-Degree)   0.05785124
+#>                  Reciprocity   0.96000000
 ```
 
 ``` r
@@ -286,9 +302,13 @@ plot_htna(grp)
 | `df, actor_type = "actor_type"` | One combined frame, actor identity in a row-level column |
 | `df, node_groups = list(Actor1 = ..., Actor2 = ...)` | One combined frame; partition declared as a named list of codes |
 | `df, node_groups = data.frame(code = ..., actor_type = ...)` | One combined frame; partition declared as a tidy codebook |
+| `Nestimate::build_clusters(htna, ...)` | Distance-based sequence clusters; returns one HTNA network per cluster |
+| `Nestimate::cluster_mmm(htna, ...)` | Already-fitted latent Markov clusters; preserves fitted weights and posterior diagnostics |
+| `tna::cluster_sequences(...), node_groups = ...` | Legacy sequence-clustering result; builds one HTNA network per cluster |
 | `+ actor = "user_id"` | Identify the individual actor that performed each event (forwarded to [`Nestimate::build_network()`](https://saqr.me/Nestimate/reference/build_network.html)) |
 | `+ disambiguate = TRUE` | Same code label appears in more than one actor type |
 | `+ group = "phase"` | Build one network per cohort/phase |
 
-All three input shapes are interchangeable; pick whichever matches the
-shape your data already has.
+The row/list forms build one network directly. Clustering forms build or
+preserve an outer `htna_group`, while every child keeps the same actor
+partition.

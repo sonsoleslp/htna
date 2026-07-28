@@ -35,16 +35,16 @@ net <- build_htna(human_ai, actor_type = "actor_type")
 bootstrap(net, iter = 50)
 #>   Edge                   Mean     95% CI          p
 #>   -----------------------------------------------
-#>   Delegate → Plan      0.615  [0.556, 0.675]  *  
-#>   Refine → Specify     0.412  [0.361, 0.463]  *  
-#>   Check → Execute      0.411  [0.385, 0.438]  *  
-#>   Ask → Plan           0.409  [0.387, 0.435]  *  
-#>   Repair → Execute     0.385  [0.298, 0.448]  *  
-#>   ... and 54 more significant edges
+#>   Delegate → Plan      0.615  [0.573, 0.672]  *  
+#>   Refine → Specify     0.415  [0.365, 0.462]  *  
+#>   Ask → Plan           0.411  [0.383, 0.439]  *  
+#>   Check → Execute      0.408  [0.387, 0.436]  *  
+#>   Repair → Execute     0.388  [0.327, 0.463]  *  
+#>   ... and 53 more significant edges
 #> 
 #> Bootstrap Network  [Transition Network (relative) | directed]
 #>   Iterations : 50  |  Nodes : 12
-#>   Edges      : 59 significant / 135 total
+#>   Edges      : 58 significant / 135 total
 #>   CI         : 95%  |  Inference: stability  |  CR [0.75, 1.25]
 # }
 ```

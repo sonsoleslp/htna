@@ -8,54 +8,22 @@ matrix under support / confidence / lift thresholds.
 ## Usage
 
 ``` r
-association_rules_htna(
-  x,
-  min_support = 0.1,
-  min_confidence = 0.5,
-  min_lift = 1,
-  max_length = 5L
-)
+association_rules_htna(x, ...)
 ```
 
 ## Arguments
 
 - x:
 
-  Input data. Accepts:
+  A transition-count matrix or an htna network. See
+  [`Nestimate::association_rules()`](https://saqr.me/Nestimate/reference/association_rules.html).
 
-  netobject
+- ...:
 
-  :   Uses `$data` sequences - each sequence becomes a transaction of
-      its unique states.
-
-  list
-
-  :   Each element is a character vector of items (one transaction).
-
-  data.frame
-
-  :   Wide format: each row is a transaction, character columns are item
-      occurrences. Or a binary matrix (0/1).
-
-  matrix
-
-  :   Binary transaction matrix (rows = transactions, columns = items).
-
-- min_support:
-
-  Numeric. Minimum support threshold. Default: 0.1.
-
-- min_confidence:
-
-  Numeric. Minimum confidence threshold. Default: 0.5.
-
-- min_lift:
-
-  Numeric. Minimum lift threshold. Default: 1.0.
-
-- max_length:
-
-  Integer. Maximum itemset size. Default: 5.
+  Additional arguments passed to
+  [`Nestimate::association_rules()`](https://saqr.me/Nestimate/reference/association_rules.html),
+  such as `min_support`, `min_confidence`, `min_lift`, and `max_length`.
+  See that function for the full, current argument list.
 
 ## Value
 
