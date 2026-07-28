@@ -219,6 +219,22 @@ test_that("Nestimate direct clustering and build_htna conversion are equivalent"
 })
 
 test_that("build_htna consumes cluster_mmm losslessly across repeated fits", {
+  # Probe the return shape once: newer Nestimate returns `net_mmm` from
+  # cluster_mmm(<htna>); older versions materialise clusters immediately
+  # and return `netobject_group`. This test targets the raw `net_mmm`
+  # form so the direct-fit branch can be exercised.
+  probe_fixture <- .htna_cluster_equiv_data(30L, 10L, 3L, 3L, 101L)
+  probe_base <- suppressWarnings(build_htna(
+    probe_fixture$data, node_groups = probe_fixture$node_groups
+  ))
+  probe_fit <- Nestimate::cluster_mmm(
+    probe_base, k = 2L, n_starts = 2L, max_iter = 40L, seed = 101L
+  )
+  if (!inherits(probe_fit, "net_mmm")) {
+    skip("Installed Nestimate materialises clusters directly from ",
+         "cluster_mmm(<htna>); this test targets the raw `net_mmm` form.")
+  }
+
   checked_cells <- 0L
   seeds <- c(101L, 211L, 307L, 401L, 503L, 601L)
 
