@@ -60,6 +60,20 @@ test_that("build_htna(mcml) accepts an explicit source and group override", {
 
   expect_error(build_htna(matrix_mcml), "no expandable node-level source")
 
+  # Newer Nestimate returns an `htna` from as_htna(matrix mcml + source_data);
+  # older versions return a plain `netobject`, which htna's mcml guard rejects.
+  probe <- try(
+    Nestimate::as_htna(matrix_mcml, data = fixture$sequences,
+                       method = "relative"),
+    silent = TRUE
+  )
+  if (inherits(probe, "try-error") || !inherits(probe, "htna")) {
+    skip(paste0(
+      "Installed Nestimate does not return an `htna` from ",
+      "as_htna(matrix mcml + source_data); this test requires that shape."
+    ))
+  }
+
   rebuilt <- build_htna(matrix_mcml, source_data = fixture$sequences)
   expected <- Nestimate::as_htna(
     matrix_mcml, data = fixture$sequences, method = "relative"

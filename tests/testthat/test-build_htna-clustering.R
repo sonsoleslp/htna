@@ -45,8 +45,10 @@ test_that("build_htna consumes fitted cluster_mmm output without refitting", {
     seed = 8
   )
   if (!inherits(fit, "net_mmm")) {
-    skip("Installed Nestimate materialises clusters directly from ",
-         "cluster_mmm(<htna>); this test targets the raw `net_mmm` form.")
+    skip(paste0(
+      "Installed Nestimate materialises clusters directly from ",
+      "cluster_mmm(<htna>); this test targets the raw `net_mmm` form."
+    ))
   }
   expect_s3_class(fit, "net_mmm")
   weights_before <- lapply(fit$models, function(net) net$weights)

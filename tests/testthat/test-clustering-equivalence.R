@@ -231,8 +231,10 @@ test_that("build_htna consumes cluster_mmm losslessly across repeated fits", {
     probe_base, k = 2L, n_starts = 2L, max_iter = 40L, seed = 101L
   )
   if (!inherits(probe_fit, "net_mmm")) {
-    skip("Installed Nestimate materialises clusters directly from ",
-         "cluster_mmm(<htna>); this test targets the raw `net_mmm` form.")
+    skip(paste0(
+      "Installed Nestimate materialises clusters directly from ",
+      "cluster_mmm(<htna>); this test targets the raw `net_mmm` form."
+    ))
   }
 
   checked_cells <- 0L
