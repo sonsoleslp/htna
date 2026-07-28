@@ -10,10 +10,11 @@ navbar:
 
 reference:
   - title: Build
-    desc: Construct and inspect a heterogeneous transition network
+    desc: Construct, inspect, and convert a heterogeneous transition network
     contents:
       - build_htna
       - summary.htna
+      - as.igraph.htna
 
   - title: Frequencies and distributions
     desc: Marginal state-level summaries and chi-square mosaics
@@ -72,6 +73,23 @@ reference:
       - print.htna_stability
       - print.htna_stability_group
       - markov_order_test_htna
+      - certainty_htna
+
+  - title: Network comparison
+    desc: Descriptive and Bayesian comparison of two or more htna networks
+    contents:
+      - compare_htna
+      - bayes_compare_htna
+      - plot.htna_comparison_group
+
+  - title: Pruning
+    desc: Remove, restore, and re-apply edge-weight pruning rules
+    contents:
+      - prune_htna
+      - deprune_htna
+      - reprune_htna
+      - pruning_details_htna
+
   - title: Datasets
     desc: Sample datasets
     contents:
@@ -93,5 +111,6 @@ articles:
   - title: Advanced
     contents:
       - articles/multigroup
+      - articles/clustering
       - articles/markov-order
       - articles/model-assessment

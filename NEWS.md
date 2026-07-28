@@ -11,6 +11,25 @@
   returns an equivalent `htna_group`. `Nestimate::cluster_network()` remains
   the function that directly returns materialized cluster networks.
 
+## Datasets
+
+* New per-actor long frames `human_simplified` and `ai_simplified`, ready
+  for the named-list form of `build_htna()`.
+* New tidy code → actor-type lookup `human_ai_codebook`, ready to pass as
+  `node_groups` to `build_htna()`.
+* `human_ai` gains a `phase` factor column tagging each session as
+  `"Early"` or `"Late"` (chronological split), so grouped examples can call
+  `build_htna(human_ai, group = "phase")` without pre-processing.
+
+## Documentation
+
+* `htna_palette` is now exported (previously an internal constant referenced
+  as a default argument in exported plot functions).
+* New article vignette **Clustering inputs to `build_htna()`** covering
+  `Nestimate::build_clusters()` and `Nestimate::cluster_mmm()`, model
+  selection with `cluster_choice()` / `compare_mmm()` /
+  `cluster_diagnostics()`, and cohort-pair comparison with `compare_htna()`.
+
 # htna 0.3.0
 
 ## Actor-aware interoperability and comparison

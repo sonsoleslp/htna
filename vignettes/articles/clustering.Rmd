@@ -1,0 +1,181 @@
+---
+title: "Clustering inputs to build_htna()"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Clustering inputs to build_htna()}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse  = TRUE,
+  comment   = "#>",
+  message   = FALSE,
+  warning   = FALSE,
+  fig.width  = 10,
+  fig.height = 7,
+  dpi = 90
+)
+```
+
+`build_htna()` accepts clustering results from the `Nestimate`
+ecosystem as first-class inputs. You can hand a
+clustering object straight to `build_htna()` and get back an
+`htna`-aware result with the actor partition already attached.
+
+The clustering constructors covered here all operate at the
+**cohort level**: sessions are grouped into *k* clusters and one htna
+network is built per cluster. The result is an `htna_group`,
+identical in shape to what `build_htna(..., group = ...)` returns, so
+every grouped-htna wrapper (`plot_htna()`, `plot_htna_diff()`,
+`permutation_htna()`, `centrality_stability_htna()`, etc.) works
+unchanged.
+
+## Setup
+
+```{r}
+library(htna)
+data(human_ai)
+
+net <- build_htna(human_ai, actor_type = "actor_type")
+```
+
+## `Nestimate::build_clusters()` (distance-based)
+
+`build_clusters()` computes a pairwise dissimilarity between sessions
+(Hamming by default) and applies a partitioning algorithm (`pam` by
+default) to split them into *k* cohorts. Feed the returned
+`net_clustering` object straight to `build_htna()`:
+
+```{r}
+cc  <- Nestimate::build_clusters(net, k = 2, seed = 1)
+grp <- build_htna(cc)
+
+class(grp)
+names(grp)
+```
+
+The result is an `htna_group`: one htna network per cluster, each
+carrying the same actor partition inherited from `net`. Plot the two
+cohorts side by side:
+
+```{r, fig.height = 5}
+op <- par(mfrow = c(1, 2))
+plot_htna(grp)
+par(op)
+```
+
+Because both networks share the alphabet, they compose with the
+comparison wrappers:
+
+```{r}
+plot_htna_diff(grp[[1]], grp[[2]])
+```
+
+## `Nestimate::cluster_mmm()` (mixture of Markov chains)
+
+`cluster_mmm()` fits a *k*-component mixture of first-order Markov
+chains via EM and assigns each session probabilistically to a
+component. The returned `net_mmm` object is also a legal
+`build_htna()` input:
+
+```{r}
+cm    <- Nestimate::cluster_mmm(net, k = 2, seed = 1)
+grp_m <- build_htna(cm)
+
+names(grp_m)
+```
+
+`grp_m` is again an `htna_group`, ready to feed any of the grouped
+wrappers.
+
+`build_clusters()` and `cluster_mmm()` answer different questions:
+`build_clusters()` groups sessions by *trajectory similarity* under a
+fixed distance metric; `cluster_mmm()` groups sessions by the
+first-order transition process most likely to have generated them.
+The Nestimate documentation covers the trade-offs.
+
+## Choosing the number of clusters
+
+Both constructors take a *k*. Two Nestimate helpers sweep a range of
+candidate values and score them, so the choice does not have to be
+made blind. A third helper reports per-cluster quality once a
+particular fit has been settled on.
+
+### For `build_clusters()`: `cluster_choice()`
+
+`cluster_choice()` fits the same partitioning algorithm at each *k*
+in a grid and reports the average silhouette width, mean
+within-cluster distance, and the cluster-size range. Higher
+silhouette (closer to 1) is better; extreme size ratios flag
+partitions with a single dominant cluster and a tiny satellite. The
+row flagged `<-- best` in the print method is the largest silhouette
+across the grid.
+
+```{r}
+Nestimate::cluster_choice(net, k = 2:4)
+```
+
+### For `cluster_mmm()`: `compare_mmm()`
+
+`compare_mmm()` fits the mixture at each candidate *k* and returns
+the standard information criteria (`AIC`, `BIC`, `ICL`) plus the
+average posterior probability (`AvePP`, higher = more confident
+assignments) and normalised entropy (lower = more separated
+components). The row flagged `<-- BIC` is the best BIC across the
+grid; ICL trades off fit against classification uncertainty and is
+often preferred when the cohorts must be used for downstream
+inference.
+
+```{r}
+Nestimate::compare_mmm(net, k = 2:3, seed = 1)
+```
+
+### Validating a specific fit: `cluster_diagnostics()`
+
+Once you have picked a *k* and fit the clustering, pass the result
+to `cluster_diagnostics()` to see per-cluster sizes, mean within-
+cluster distance, and silhouette. Small satellites or negative
+silhouettes on one cluster indicate that the partition is stretched
+by outliers even if the aggregate score is acceptable.
+
+```{r}
+Nestimate::cluster_diagnostics(cc)
+```
+
+## Comparing the resulting cohorts
+
+Once clustering has produced an `htna_group`, `compare_htna()`
+computes a descriptive summary of every cohort pair in one call —
+you do not need to pull out individual cohorts by hand.
+
+```{r}
+comparisons <- compare_htna(grp)
+
+class(comparisons)
+names(comparisons)
+```
+
+Each element is an `htna_comparison`: the `Nestimate` `net_comparison`
+fields (`summary_metrics`, `edge_metrics`, `network_metrics`,
+`matrices`, `difference_matrix`) plus an `htna`-aware
+`actor_pair_metrics` table that summarises the difference for every
+directed actor-type block:
+
+```{r}
+one <- comparisons[[1]]
+one$summary_metrics
+head(one$actor_pair_metrics)
+```
+
+`plot()` dispatches through `plot.htna_comparison_group()` and draws
+one panel per pair with the actor styling preserved:
+
+```{r, fig.height = 6}
+plot(comparisons)
+```
+
+For a full statistical test of the same pairs, feed the group to
+`permutation_htna()` instead — see the [grouped
+vignette](grouped.html).
