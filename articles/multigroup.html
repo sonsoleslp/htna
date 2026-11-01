@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,7 +81,7 @@ each with four distinct codes:</p>
 <span><span class="va">student_codes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ask"</span>, <span class="st">"Confirm"</span>, <span class="st">"Revise"</span>, <span class="st">"Evaluate"</span><span class="op">)</span></span>
 <span><span class="va">ai_codes</span>      <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Suggest"</span>, <span class="st">"Explain"</span>, <span class="st">"Execute"</span>, <span class="st">"Clarify"</span><span class="op">)</span></span>
 <span><span class="va">system_codes</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Log"</span>, <span class="st">"Notify"</span>, <span class="st">"Compile"</span>, <span class="st">"Sync"</span><span class="op">)</span></span>
-<span><span class="va">sessions</span>      <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"S"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"%03d"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">30</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">sessions</span>      <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"S%03d"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fl">30</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">make_events</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">codes</span>, <span class="va">sessions</span>, <span class="va">offset</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">rows</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">sessions</span>, <span class="kw">function</span><span class="op">(</span><span class="va">sid</span><span class="op">)</span> <span class="op">{</span></span>
@@ -153,22 +153,59 @@ each with four distinct codes:</p>
 <span><span class="co">#&gt;   Notify        0.000  </span></span>
 <span><span class="co">#&gt;   Suggest       0.000  </span></span>
 <span><span class="co">#&gt;   Sync          0.000</span></span></code></pre></div>
-<p>The actor partition now contains three levels:</p>
+<p>The actor partition now contains three levels, each with its four
+codes; <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> lists them and counts the non-zero edges
+within and between every pair of actors:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">net3</span><span class="op">$</span><span class="va">node_groups</span><span class="op">$</span><span class="va">group</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">net3</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;htna network&gt;</span></span>
+<span><span class="co">#&gt;   Method:    relative</span></span>
+<span><span class="co">#&gt;   Sessions:  30   (max 70 timesteps)</span></span>
+<span><span class="co">#&gt;   Nodes:     12</span></span>
+<span><span class="co">#&gt;   Edges:     116 / 144 (non-zero)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;      AI Student  System </span></span>
-<span><span class="co">#&gt;       4       4       4</span></span></code></pre></div>
+<span><span class="co">#&gt; Actor types (3):</span></span>
+<span><span class="co">#&gt;   Student (4 nodes):  Ask, Confirm, Evaluate, Revise</span></span>
+<span><span class="co">#&gt;   AI      (4 nodes):  Clarify, Execute, Explain, Suggest</span></span>
+<span><span class="co">#&gt;   System  (4 nodes):  Compile, Log, Notify, Sync</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Edge counts by actor (rows = source, cols = target):</span></span>
+<span><span class="co">#&gt;             Student      AI  System</span></span>
+<span><span class="co">#&gt;   Student         3      16      14</span></span>
+<span><span class="co">#&gt;   AI             13       9      16</span></span>
+<span><span class="co">#&gt;   System         16      15      14</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Network metrics:</span></span>
+<span><span class="co">#&gt;                       metric        value</span></span>
+<span><span class="co">#&gt;                   Node Count  12.00000000</span></span>
+<span><span class="co">#&gt;                   Edge Count 116.00000000</span></span>
+<span><span class="co">#&gt;              Network Density   0.87878788</span></span>
+<span><span class="co">#&gt;                Mean Distance   0.01880090</span></span>
+<span><span class="co">#&gt;            Mean Out-Strength   1.00000000</span></span>
+<span><span class="co">#&gt;              SD Out-Strength   0.09163372</span></span>
+<span><span class="co">#&gt;             Mean In-Strength   1.00000000</span></span>
+<span><span class="co">#&gt;               SD In-Strength   0.00000000</span></span>
+<span><span class="co">#&gt;              Mean Out-Degree   9.66666667</span></span>
+<span><span class="co">#&gt;                SD Out-Degree   1.55699789</span></span>
+<span><span class="co">#&gt;  Centralization (Out-Degree)   0.18181818</span></span>
+<span><span class="co">#&gt;   Centralization (In-Degree)   0.18181818</span></span>
+<span><span class="co">#&gt;                  Reciprocity   0.87272727</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="plotting">Plotting<a class="anchor" aria-label="anchor" href="#plotting"></a>
 </h2>
-<p>With three or more groups, <code><a href="../reference/plot_htna.html">plot_htna()</a></code> automatically
-switches to a polygon (triangle) layout. The three colours from the
-default HTNA palette are applied in order:</p>
+<p>With the default circular layout, each of the three groups occupies
+its own arc of the circle. The first three colours of the default HTNA
+palette are applied in order:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">net3</span><span class="op">)</span></span></code></pre></div>
 <p><img src="multigroup_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="900"></p>
+<p><code>layout = "polygon"</code> (alias <code>"triangle"</code> for
+three groups) places each group along one side of a regular polygon (one
+side per group) instead:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">net3</span>, layout <span class="op">=</span> <span class="st">"polygon"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="multigroup_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="900"></p>
 </div>
 <div class="section level2">
 <h2 id="per-actor-sequences">Per-actor sequences<a class="anchor" aria-label="anchor" href="#per-actor-sequences"></a>
@@ -177,12 +214,12 @@ default HTNA palette are applied in order:</p>
 actors. With <code>by = "state"</code> each row is one (session, actor)
 and is coloured by the concrete code; with <code>by = "group"</code>
 cells are coloured by actor (here Student / AI / System):</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net3</span>, by <span class="op">=</span> <span class="st">"state"</span>, type <span class="op">=</span> <span class="st">"index"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="multigroup_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="900"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net3</span>, by <span class="op">=</span> <span class="st">"group"</span>, type <span class="op">=</span> <span class="st">"distribution"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net3</span>, by <span class="op">=</span> <span class="st">"state"</span>, type <span class="op">=</span> <span class="st">"index"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="multigroup_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="900"></p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net3</span>, by <span class="op">=</span> <span class="st">"group"</span>, type <span class="op">=</span> <span class="st">"distribution"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="multigroup_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="900"></p>
 <p>The <code>by = "state"</code> legend is split into one block per
 actor with the actor name as a sub-title, so the reader can tell at a
 glance which codes belong to which actor.</p>
@@ -194,7 +231,7 @@ glance which codes belong to which actor.</p>
 session-level dynamics) and use <code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code> for the
 elementwise difference. Positive differences are green, negative
 red:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span></span>
 <span><span class="va">student_data2</span> <span class="op">&lt;-</span> <span class="fu">make_events</span><span class="op">(</span><span class="va">student_codes</span>, <span class="va">sessions</span>, <span class="fl">2L</span><span class="op">)</span></span>
 <span><span class="va">ai_data2</span>      <span class="op">&lt;-</span> <span class="fu">make_events</span><span class="op">(</span><span class="va">ai_codes</span>,      <span class="va">sessions</span>, <span class="fl">1L</span><span class="op">)</span></span>
@@ -205,17 +242,17 @@ red:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">net3</span>, <span class="va">net3b</span><span class="op">)</span></span></code></pre></div>
-<p><img src="multigroup_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="900"></p>
+<p><img src="multigroup_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="900"></p>
 <p><code><a href="../reference/permutation_htna.html">permutation_htna()</a></code> provides the non-parametric
 significance test; pass the result to <code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code> to
 surface only the edges that differ significantly:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">perm3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/permutation_htna.html">permutation_htna</a></span><span class="op">(</span><span class="va">net3</span>, <span class="va">net3b</span>, iter <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">perm3</span><span class="op">)</span></span></code></pre></div>
-<p><img src="multigroup_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="900"></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">perm3</span>, show_nonsig <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="multigroup_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="900"></p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">perm3</span>, show_nonsig <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="multigroup_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="900"></p>
 </div>
 <div class="section level2">
 <h2 id="meta-paths-across-three-actors">Meta-paths across three actors<a class="anchor" aria-label="anchor" href="#meta-paths-across-three-actors"></a>
@@ -223,7 +260,7 @@ surface only the edges that differ significantly:</p>
 <p>Patterns now span all three actor types. The default is state-level,
 with a <code>meta_schema</code> rollup column tagging each row with its
 type-level template:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/extract_meta_paths.html">extract_meta_paths</a></span><span class="op">(</span><span class="va">net3</span>, length <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Patterns (state-level) over 30 sequences</span></span>
 <span><span class="co">#&gt; Rows: 387 | Lengths: 3 | Gaps: 0</span></span>
@@ -252,7 +289,7 @@ type-level template:</p>
 <span><span class="co">#&gt; ... (377 more)</span></span></code></pre></div>
 <p>Pass <code>level = "type"</code> to collapse the rows into the
 type-level meta-path summary:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/extract_meta_paths.html">extract_meta_paths</a></span><span class="op">(</span><span class="va">net3</span>, level <span class="op">=</span> <span class="st">"type"</span>, length <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Meta-paths (type-level) over 30 sequences</span></span>
 <span><span class="co">#&gt; Rows: 17 | Lengths: 3 | Gaps: 0</span></span>
@@ -270,7 +307,7 @@ type-level meta-path summary:</p>
 <span><span class="co">#&gt; ... (7 more)</span></span></code></pre></div>
 <p>A schema filters the search. For example, the concrete state-level
 instances of paths where the System mediates between Student and AI:</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/extract_meta_paths.html">extract_meta_paths</a></span><span class="op">(</span><span class="va">net3</span>, schema <span class="op">=</span> <span class="st">"Student-&gt;System-&gt;AI"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; State-level instances of schema 'Student-&gt;System-&gt;AI' over 30 sequences</span></span>
 <span><span class="co">#&gt; (no rows met the filters)</span></span></code></pre></div>

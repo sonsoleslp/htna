@@ -13,7 +13,7 @@ distinct node group."><meta property="og:image" content="https://sonsoles.me/htn
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,13 +76,13 @@ All frames must share the same column schema.</p></li>
 <code>actor_type</code> (row-level actor-type IDs) or <code>node_groups</code>
 (node-level actor-type lookup) must be supplied.</p></li>
 <li><p>A fitted clustering result from
-<code><a href="https://saqr.me/Nestimate/reference/build_clusters.html" class="external-link">Nestimate::build_clusters()</a></code>,
-<code><a href="https://saqr.me/Nestimate/reference/cluster_mmm.html" class="external-link">Nestimate::cluster_mmm()</a></code> (a <code>net_mmm</code>), or
-<code><a href="http://sonsoles.me/tna/reference/cluster_data.html" class="external-link">tna::cluster_sequences()</a></code>, or an already-materialized
+<code><a href="https://pak.dynasite.org/Nestimate/reference/build_clusters.html" class="external-link">Nestimate::build_clusters()</a></code>,
+<code><a href="https://pak.dynasite.org/Nestimate/reference/cluster_mmm.html" class="external-link">Nestimate::cluster_mmm()</a></code> (a <code>net_mmm</code>), or
+<code><a href="https://sonsoles.me/tna/reference/cluster_data.html" class="external-link">tna::cluster_sequences()</a></code>, or an already-materialized
 <code>netobject_group</code>. One HTNA network is returned per sequence
 cluster. The clustering fit is not rerun; assignments, diagnostics,
 fitted MMM weights, and actor metadata are preserved.</p></li>
-<li><p>A fitted <code><a href="https://saqr.me/Nestimate/reference/build_mcml.html" class="external-link">Nestimate::build_mcml()</a></code> object. Its node clusters
+<li><p>A fitted <code><a href="https://pak.dynasite.org/Nestimate/reference/build_mcml.html" class="external-link">Nestimate::build_mcml()</a></code> object. Its node clusters
 become the HTNA actor groups and one full node-level network is rebuilt
 from the original source, including transitions between clusters.</p></li>
 </ul></dd>
@@ -98,7 +98,7 @@ when <code>node_groups</code> is supplied.</p></dd>
 <dt id="arg-actor">actor<a class="anchor" aria-label="anchor" href="#arg-actor"></a></dt>
 <dd><p>Character. Name of an optional column identifying the
 individual actor that performed each event (e.g. a learner / user id).
-Forwarded to <code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network</a></code> with the same
+Forwarded to <code><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">build_network</a></code> with the same
 semantics; orthogonal to <code>actor_type</code>, which encodes the
 group/type partition over codes.</p></dd>
 
@@ -142,7 +142,7 @@ For an <code>mcml</code> input, this optionally overrides
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>Character. Transition method passed to
-<code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network</a></code>: <code>"relative"</code> (default),
+<code><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">build_network</a></code>: <code>"relative"</code> (default),
 <code>"frequency"</code>, <code>"co_occurrence"</code>, or <code>"attention"</code>.
 Co-occurrence models are undirected and preserve the same actor partition
 as transition models.</p></dd>
@@ -152,7 +152,9 @@ as transition models.</p></dd>
 <dd><p>Character. Optional name of a column in <code>data</code> used to
 split sessions into cohorts (e.g. <code>"cluster"</code>). When supplied,
 one network is built per group level and the result is a named list of
-htna networks with class <code>c("htna_group", "netobject_group")</code>.</p></dd>
+htna networks with class
+<code>c("htna_group", "netobject_group", "list")</code>. Pass that object as
+it is to the downstream verbs; they iterate over the cohorts.</p></dd>
 
 
 <dt id="arg-disambiguate">disambiguate<a class="anchor" aria-label="anchor" href="#arg-disambiguate"></a></dt>
@@ -164,7 +166,7 @@ when a code label appears in more than one actor-type group. If
 
 <dt id="arg-source-data">source_data<a class="anchor" aria-label="anchor" href="#arg-source-data"></a></dt>
 <dd><p>Original node-level data for an <code>mcml</code> input.
-Usually unnecessary when <code><a href="https://saqr.me/Nestimate/reference/build_mcml.html" class="external-link">Nestimate::build_mcml()</a></code> retained its
+Usually unnecessary when <code><a href="https://pak.dynasite.org/Nestimate/reference/build_mcml.html" class="external-link">Nestimate::build_mcml()</a></code> retained its
 sequence source. Required when the fitted object has no expandable source,
 such as an <code>mcml</code> built from a transition matrix or edge list. The
 fitted macro and within-cluster weights are deliberately not stitched
@@ -174,57 +176,164 @@ transitions.</p></dd>
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Additional arguments forwarded to
-<code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network</a></code>.</p></dd>
+<code><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">build_network</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>netobject</code> with the actor partition stored in cograph's
+    <p>An object of class
+<code>c("htna", "netobject", "cograph_network")</code>: a Nestimate
+<code>netobject</code> with the actor partition stored in cograph's
 canonical schema, so <code>cograph::plot_htna(net)</code> auto-detects the
 groups with no further arguments:</p><ul><li><p><code>$nodes$groups</code> - actor label per node (the column name
 <code><a href="https://sonsoles.me/cograph/reference/plot_htna.html" class="external-link">cograph::plot_htna</a></code> auto-detects).</p></li>
 <li><p><code>$node_groups</code> - data frame with columns <code>node</code> and
 <code>group</code> (canonical <code>cograph_network</code> schema, also
-readable by <code><a href="https://sonsoles.me/cograph/reference/get_groups.html" class="external-link">cograph::get_groups</a></code>, <code>cluster_summary</code>, and
-the <code>print</code> method for <code>cograph_network</code>).</p></li>
+readable by <code><a href="https://sonsoles.me/cograph/reference/get_nodes.html" class="external-link">cograph::get_groups()</a></code>,
+<code><a href="https://pak.dynasite.org/Nestimate/reference/cluster_summary.html" class="external-link">Nestimate::cluster_summary()</a></code>, and the <code>print</code> method
+for <code>cograph_network</code>).</p></li>
 <li><p><code>$actor_levels</code> - declared actor ordering, also retained as
 metadata on <code>$node_groups</code> so the table can be passed back to
 <code>build_htna()</code> without losing that order.</p></li>
 </ul><p>All other slots are exactly as returned by
-<code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network</a></code>. Clustering inputs return an
-<code>htna_group</code>; its children retain the actor partition and its outer
+<code><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">build_network</a></code>. A <code>group</code> argument or a
+clustering input returns an <code>htna_group</code> (a named list with one
+<code>htna</code> per cohort or cluster); its children retain the actor
+partition and its outer
 clustering assignments, posterior probabilities, diagnostics, and other
 attributes are preserved. An <code>mcml</code> input instead returns one
-<code>htna</code>, equivalent to <code><a href="https://saqr.me/Nestimate/reference/as_htna.html" class="external-link">Nestimate::as_htna()</a></code>.</p>
+<code>htna</code>, equivalent to <code><a href="https://pak.dynasite.org/Nestimate/reference/as_htna.html" class="external-link">Nestimate::as_htna()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">build_network</a></code>,
-<code><a href="https://saqr.me/Nestimate/reference/build_tna.html" class="external-link">build_tna</a></code>,
-<code><a href="https://sonsoles.me/cograph/reference/plot_htna.html" class="external-link">plot_htna</a></code></p></div>
+    <div class="dont-index"><p><code><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">build_network</a></code>,
+<code><a href="https://pak.dynasite.org/Nestimate/reference/build_tna.html" class="external-link">build_tna</a></code>,
+<code><a href="summary.htna.html">summary.htna</a></code>, <code><a href="plot_htna.html">plot_htna</a></code> (which renders
+through <code><a href="https://sonsoles.me/cograph/reference/plot_htna.html" class="external-link">plot_htna</a></code>)</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span>, <span class="va">human_simplified</span>, <span class="va">ai_simplified</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span>, <span class="va">human_simplified</span>, <span class="va">ai_simplified</span>, <span class="va">human_ai_codebook</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Form 1: named list of per-actor frames</span></span></span>
 <span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu">build_htna</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Human <span class="op">=</span> <span class="va">human_simplified</span>, AI <span class="op">=</span> <span class="va">ai_simplified</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">net</span><span class="op">$</span><span class="va">node_groups</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>        node group</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1       Ask    AI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2     Check Human</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3  Delegate    AI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4   Execute    AI</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5 Frustrate Human</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6   Inquire Human</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;htna network&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Method:    relative</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Sessions:  429   (max 287 timesteps)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes:     12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges:     135 / 144 (non-zero)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Actor types (2):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Human (6 nodes):  Check, Frustrate, Inquire, Refine, Request, Specify</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AI    (6 nodes):  Ask, Delegate, Execute, Plan, Repair, Report</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Edge counts by actor (rows = source, cols = target):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           Human    AI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Human      35    36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AI         36    28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Network metrics:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                       metric        value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Node Count  12.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Edge Count 135.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Network Density   1.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                Mean Distance   0.02743124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Mean Out-Strength   1.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              SD Out-Strength   0.63085045</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Mean In-Strength   1.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               SD In-Strength   0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Mean Out-Degree  11.25000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                SD Out-Degree   0.96530730</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Centralization (Out-Degree)   0.05785124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Centralization (In-Degree)   0.05785124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  Reciprocity   0.96000000</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Form 2: single combined frame with a row-level actor-type tag</span></span></span>
 <span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu">build_htna</span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Form 3: combined frame plus a code-to-actor codebook</span></span></span>
+<span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu">build_htna</span><span class="op">(</span><span class="va">human_ai</span>, node_groups <span class="op">=</span> <span class="va">human_ai_codebook</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># One network per cohort</span></span></span>
+<span class="r-in"><span><span class="va">grp</span> <span class="op">&lt;-</span> <span class="fu">build_htna</span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span>, group <span class="op">=</span> <span class="st">"phase"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;htna_group: 2 cohorts (Late, Early)&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> === Late ===</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;htna network&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Method:    relative</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Sessions:  215   (max 208 timesteps)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes:     12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges:     134 / 144 (non-zero)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Actor types (2):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Human (6 nodes):  Check, Frustrate, Inquire, Refine, Request, Specify</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AI    (6 nodes):  Ask, Delegate, Execute, Plan, Repair, Report</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Edge counts by actor (rows = source, cols = target):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           Human    AI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Human      35    36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AI         36    27</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Network metrics:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                       metric        value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Node Count 1.200000e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Edge Count 1.340000e+02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Network Density 1.000000e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                Mean Distance 2.438201e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Mean Out-Strength 1.000000e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              SD Out-Strength 6.109845e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Mean In-Strength 1.000000e+00</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               SD In-Strength 3.347448e-17</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Mean Out-Degree 1.116667e+01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                SD Out-Degree 9.374369e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Centralization (Out-Degree) 5.785124e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Centralization (In-Degree) 5.785124e-02</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  Reciprocity 9.600000e-01</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> === Early ===</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;htna network&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Method:    relative</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Sessions:  214   (max 287 timesteps)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes:     12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges:     135 / 144 (non-zero)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Actor types (2):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Human (6 nodes):  Check, Frustrate, Inquire, Refine, Request, Specify</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AI    (6 nodes):  Ask, Delegate, Execute, Plan, Repair, Report</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Edge counts by actor (rows = source, cols = target):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           Human    AI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Human      35    36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AI         36    28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Network metrics:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                       metric        value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Node Count  12.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Edge Count 135.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Network Density   1.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                Mean Distance   0.02704448</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Mean Out-Strength   1.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              SD Out-Strength   0.65969479</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Mean In-Strength   1.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               SD In-Strength   0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Mean Out-Degree  11.25000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                SD Out-Degree   0.96530730</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Centralization (Out-Degree)   0.05785124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Centralization (In-Degree)   0.05785124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  Reciprocity   0.96000000</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

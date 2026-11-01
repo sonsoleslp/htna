@@ -35,7 +35,11 @@ centralities_htna(
 
 ## Value
 
-A data frame with one row per node.
+A data frame of class `c("htna_centralities", "data.frame")` with one
+row per node and columns `node`, `actor` (the node's actor type, when
+the partition is set) and one numeric column per requested measure. For
+an `htna_group`, the rows of all cohorts are stacked, one row per
+(cohort, node), with a leading `group` column naming the cohort.
 
 ## Details
 
@@ -49,44 +53,43 @@ raw weights.
 
 Mapping from measure name to cograph implementation:
 
-- `OutStrength` →
+- `OutStrength`:
   [`cograph::centrality_outstrength()`](https://sonsoles.me/cograph/reference/centrality_strength.html)
 
-- `InStrength` →
+- `InStrength`:
   [`cograph::centrality_instrength()`](https://sonsoles.me/cograph/reference/centrality_strength.html)
 
-- `ClosenessIn` →
+- `ClosenessIn`:
   [`cograph::centrality_incloseness()`](https://sonsoles.me/cograph/reference/centrality_closeness.html)
   (inverted)
 
-- `ClosenessOut` →
+- `ClosenessOut`:
   [`cograph::centrality_outcloseness()`](https://sonsoles.me/cograph/reference/centrality_closeness.html)
   (inverted)
 
-- `Closeness` →
+- `Closeness`:
   [`cograph::centrality_closeness()`](https://sonsoles.me/cograph/reference/centrality_closeness.html)
   (inverted)
 
-- `Betweenness` →
+- `Betweenness`:
   [`cograph::centrality_betweenness()`](https://sonsoles.me/cograph/reference/centrality_betweenness.html)
   (inverted)
 
-- `BetweennessRSP` →
+- `BetweennessRSP`:
   [`cograph::centrality_current_flow_betweenness()`](https://sonsoles.me/cograph/reference/centrality_current_flow_betweenness.html)
 
-- `Diffusion` →
+- `Diffusion`:
   [`cograph::centrality_diffusion()`](https://sonsoles.me/cograph/reference/centrality_diffusion.html)
 
-- `Clustering` →
+- `Clustering`:
   [`cograph::centrality_transitivity()`](https://sonsoles.me/cograph/reference/centrality_transitivity.html)
 
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 centralities_htna(net)
 #> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
@@ -119,5 +122,19 @@ centralities_htna(net)
 #> 10           0             17  8.186046  0.1557107
 #> 11          19            110  8.181829  0.1842378
 #> 12          15             88  8.008017  0.2112340
-# }
+centralities_htna(net, measures = c("InStrength", "Betweenness"))
+#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
+#>         node actor InStrength Betweenness
+#> 1        Ask    AI  1.5266008          13
+#> 2      Check Human  0.7522288           0
+#> 3   Delegate    AI  0.1740318           0
+#> 4    Execute    AI  2.0338718          29
+#> 5  Frustrate Human  0.9672100           2
+#> 6    Inquire Human  0.5147284          14
+#> 7       Plan    AI  1.2496499          25
+#> 8     Refine Human  0.4703420           0
+#> 9     Repair    AI  0.1995057           0
+#> 10    Report    AI  0.5246300           0
+#> 11   Request Human  1.6926517          19
+#> 12   Specify Human  1.3525625          15
 ```

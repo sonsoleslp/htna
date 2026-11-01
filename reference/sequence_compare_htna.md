@@ -1,7 +1,7 @@
 # Subsequence Pattern Comparison Across Groups
 
 Extends
-[`Nestimate::sequence_compare()`](https://saqr.me/Nestimate/reference/sequence_compare.html)
+[`Nestimate::sequence_compare()`](https://pak.dynasite.org/Nestimate/reference/sequence_compare.html)
 with a `level` argument that lets the comparison run on type-level
 (meta-path) sequences as well as state-level sequences.
 
@@ -17,13 +17,13 @@ sequence_compare_htna(x, group = NULL, level = c("state", "type"), ...)
 
   A grouped htna network, a single htna network (paired with `group`),
   or wide-format sequence data. See
-  [`Nestimate::sequence_compare()`](https://saqr.me/Nestimate/reference/sequence_compare.html).
+  [`Nestimate::sequence_compare()`](https://pak.dynasite.org/Nestimate/reference/sequence_compare.html).
 
 - group:
 
   Grouping specification for the cohorts to compare, when not already
   carried by a grouped htna network. See
-  [`Nestimate::sequence_compare()`](https://saqr.me/Nestimate/reference/sequence_compare.html).
+  [`Nestimate::sequence_compare()`](https://pak.dynasite.org/Nestimate/reference/sequence_compare.html).
 
 - level:
 
@@ -35,16 +35,23 @@ sequence_compare_htna(x, group = NULL, level = c("state", "type"), ...)
 - ...:
 
   Additional arguments passed to
-  [`Nestimate::sequence_compare()`](https://saqr.me/Nestimate/reference/sequence_compare.html),
+  [`Nestimate::sequence_compare()`](https://pak.dynasite.org/Nestimate/reference/sequence_compare.html),
   such as `sub`, `min_freq`, `test`, `iter`, and `adjust`. See that
   function for the full, current argument list.
 
 ## Value
 
-An object of class `net_sequence_compare`. See
-[`Nestimate::sequence_compare()`](https://saqr.me/Nestimate/reference/sequence_compare.html)
-for full details and the corresponding
-[`plot()`](https://rdrr.io/r/graphics/plot.default.html) method.
+An object of class `net_sequence_comparison` with components `patterns`,
+`groups`, `n_patterns` and `params`.
+[`summary()`](https://rdrr.io/r/base/summary.html) returns the tidy
+pattern table: one row per k-gram, with columns `pattern`, `length`,
+per-cohort frequencies (`freq_<cohort>`), proportions (`prop_<cohort>`)
+and standardised residuals (`resid_<cohort>`), `effect_size` and, when a
+test is run, `p_value`. [`print()`](https://rdrr.io/r/base/print.html)
+and [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
+(`style = "pyramid"` or `"heatmap"`) methods are supplied by Nestimate;
+see
+[`Nestimate::sequence_compare()`](https://pak.dynasite.org/Nestimate/reference/sequence_compare.html).
 
 ## Details
 
@@ -57,7 +64,7 @@ Operates on grouped htna networks (built via
 `build_htna(..., group = ...)`), single htna networks paired with a
 `group` argument, or wide-format sequence data with an explicit `group`
 argument. The actor partition itself is not consumed when
-`level = "state"` — sequence comparison is between cohorts of sessions,
+`level = "state"`: sequence comparison is between cohorts of sessions,
 not between actors. When `level = "type"`, concrete codes are folded
 into their actor type before pattern enumeration, so the comparison runs
 on meta-paths.
@@ -74,15 +81,14 @@ for descriptive meta-path enumeration.
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
 
-# State-level comparison (default)
+# State-level comparison (default); few permutations to keep it fast
 sequence_compare_htna(grp, iter = 50)
 #> Sequence Comparison  [699 patterns | 2 groups: Early, Late]
 #>   Lengths: 3, 4, 5  |  min_freq: 5  |  permutation: 50 iter (fdr)
@@ -139,5 +145,4 @@ sequence_compare_htna(grp, level = "type", iter = 50)
 #>  0.063093378    2.490338  -2.490338    2.556875 0.1659125
 #>  0.033529624    1.922749  -1.922749    2.477371 0.1659125
 #>   ... and 45 more patterns
-# }
 ```

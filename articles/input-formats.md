@@ -1,9 +1,14 @@
 # Input formats for build_htna()
 
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
-accepts data in **three interchangeable shapes**: 1. a named list of
-per-actor-type nodes 2. a single combined frame with an actor-type
-column 3. a single combined frame with a node-to-actor-type dictionary.
+accepts raw event data in **three interchangeable shapes**:
+
+1.  a named list of per-actor-type data frames
+2.  a single combined frame with an actor-type column
+3.  a single combined frame with a node-to-actor-type dictionary.
+
+It also accepts fitted clustering and MCML results; those forms are
+listed in the cheat sheet at the end.
 
 This vignette walks through each form, shows that all three produce the
 same network, and then covers two extra parameters that compose with any
@@ -32,9 +37,12 @@ data(ai_simplified)
 data(human_ai_codebook)
 ```
 
-All three long frames share the canonical schema `htna` expects:
-`actor`/`session_id`, `code`, `order_in_session`. Within each session,
-`order_in_session` is a **shared** time index across both actors.
+All three long frames share the column schema that
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
+expects by default: `session_id` (the `session` argument), `code` (the
+`action` argument) and `order_in_session` (the `order` argument). Within
+each session, `order_in_session` is a **shared** time index across both
+actors.
 
 ## Form 1 — Named list of per-actor frames
 
@@ -212,9 +220,12 @@ when your code/actor mapping already lives in a tidy lookup table.
 
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
 resolves every input shape to the same combined sequence and forwards to
-[`Nestimate::build_network()`](https://saqr.me/Nestimate/reference/build_network.html).
-The four networks below are drawn side by side — the layout, colours,
-and edges are indistinguishable:
+[`Nestimate::build_network()`](https://pak.dynasite.org/Nestimate/reference/build_network.html),
+so the four networks have identical nodes, actor partition and edge
+weights. Passing them to
+[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md) as a
+named list draws one network per element, titled with its name; the
+layout, colours, and edges are indistinguishable:
 
 ``` r
 
@@ -226,7 +237,7 @@ forms <- list(
 )
 
 op <- par(mfrow = c(2, 2), mar = c(1, 1, 3, 1))
-for (nm in names(forms)) plot_htna(forms[[nm]], title = nm)
+plot_htna(forms)
 ```
 
 ![](input-formats_files/figure-html/unnamed-chunk-7-1.png)
@@ -248,10 +259,10 @@ actor-type label so the two `Ask` nodes become `Human:Ask` and `AI:Ask`.
 ``` r
 
 overlap <- data.frame(
-  session_id        = rep(paste0("s", 1:3), each = 6),
+  session_id        = rep(paste0("s", seq_len(3)), each = 6),
   code              = rep(c("Ask", "Reply", "Ask", "Reply", "Ask", "Reply"), 3),
   actor_type        = rep(c("Human", "Human", "AI", "AI", "Human", "AI"), 3),
-  order_in_session  = rep(1:6, 3),
+  order_in_session  = rep(seq_len(6), 3),
   stringsAsFactors  = FALSE
 )
 
@@ -262,8 +273,37 @@ try(build_htna(overlap, actor_type = "actor_type"))
 # With disambiguate=, the two `Ask`s become distinct nodes:
 net_dis <- build_htna(overlap, actor_type = "actor_type",
                       disambiguate = TRUE)
-net_dis$nodes$label
-#> [1] "AI:Ask"      "AI:Reply"    "Human:Ask"   "Human:Reply"
+summary(net_dis)
+#> <htna network>
+#>   Method:    relative
+#>   Sessions:  3   (max 6 timesteps)
+#>   Nodes:     4
+#>   Edges:     5 / 16 (non-zero)
+#> 
+#> Actor types (2):
+#>   Human (2 nodes):  Human:Ask, Human:Reply
+#>   AI    (2 nodes):  AI:Ask, AI:Reply
+#> 
+#> Edge counts by actor (rows = source, cols = target):
+#>           Human    AI
+#>   Human       1     2
+#>   AI          1     1
+#> 
+#> Network metrics:
+#>                       metric     value
+#>                   Node Count 4.0000000
+#>                   Edge Count 5.0000000
+#>              Network Density 0.4166667
+#>                Mean Distance 1.5833333
+#>            Mean Out-Strength 1.0000000
+#>              SD Out-Strength 0.4082483
+#>             Mean In-Strength 1.0000000
+#>               SD In-Strength 0.0000000
+#>              Mean Out-Degree 1.2500000
+#>                SD Out-Degree 0.5000000
+#>  Centralization (Out-Degree) 0.3333333
+#>   Centralization (In-Degree) 0.3333333
+#>                  Reciprocity 0.4000000
 plot(net_dis)
 ```
 
@@ -281,11 +321,20 @@ the cohort build is a one-liner:
 ``` r
 
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-class(grp)
-#> [1] "htna_group"      "netobject_group" "list"
-names(grp)
-#> [1] "Late"  "Early"
+grp
+#> Group Networks (2 groups)
+#> 
+#>   Group  Nodes  Edges  Weights
+#>   Late   12     134    [0.001, 0.508]
+#>   Early  12     135    [0.001, 0.689]
 ```
+
+Pass `grp` as it is to the downstream verbs
+([`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md),
+[`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md),
+[`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md),
+[`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md),
+…); they iterate over the cohorts.
 
 ``` r
 
@@ -305,7 +354,8 @@ plot_htna(grp)
 | `Nestimate::build_clusters(htna, ...)` | Distance-based sequence clusters; returns one HTNA network per cluster |
 | `Nestimate::cluster_mmm(htna, ...)` | Already-fitted latent Markov clusters; preserves fitted weights and posterior diagnostics |
 | `tna::cluster_sequences(...), node_groups = ...` | Legacy sequence-clustering result; builds one HTNA network per cluster |
-| `+ actor = "user_id"` | Identify the individual actor that performed each event (forwarded to [`Nestimate::build_network()`](https://saqr.me/Nestimate/reference/build_network.html)) |
+| `Nestimate::build_mcml(...)` | Node clusters of a fitted MCML model become the actor groups; one full node-level HTNA is rebuilt from the source data |
+| `+ actor = "user_id"` | Identify the individual actor that performed each event (forwarded to [`Nestimate::build_network()`](https://pak.dynasite.org/Nestimate/reference/build_network.html)) |
 | `+ disambiguate = TRUE` | Same code label appears in more than one actor type |
 | `+ group = "phase"` | Build one network per cohort/phase |
 

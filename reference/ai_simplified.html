@@ -13,7 +13,7 @@ see human_ai for the remapping rules."><meta property="og:image" content="https:
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,7 +59,7 @@ in <code>actor_type</code> is <code>"AI"</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="source">Source<a class="anchor" aria-label="anchor" href="#source"></a></h2>
-    <p>Derived from <code><a href="https://saqr.me/Nestimate/reference/long-data.html" class="external-link">Nestimate::ai_long</a></code>; see
+    <p>Derived from <code><a href="https://pak.dynasite.org/Nestimate/reference/long-data.html" class="external-link">Nestimate::ai_long</a></code>; see
 <code>data-raw/human_ai.R</code> for the build script.</p>
     </div>
     <div class="section level2">
@@ -70,17 +70,41 @@ in <code>actor_type</code> is <code>"AI"</code>.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_simplified</span>, <span class="va">ai_simplified</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_simplified</span>, <span class="va">ai_simplified</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>Human <span class="op">=</span> <span class="va">human_simplified</span>, AI <span class="op">=</span> <span class="va">ai_simplified</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
-<span class="r-in"><span><span class="fu"><a href="plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Registered S3 method overwritten by 'cograph':</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   method     from     </span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   print.mcml Nestimate</span>
-<span class="r-plt img"><img src="ai_simplified-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;htna network&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Method:    relative</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Sessions:  429   (max 287 timesteps)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Nodes:     12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Edges:     135 / 144 (non-zero)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Actor types (2):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Human (6 nodes):  Check, Frustrate, Inquire, Refine, Request, Specify</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AI    (6 nodes):  Ask, Delegate, Execute, Plan, Repair, Report</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Edge counts by actor (rows = source, cols = target):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           Human    AI</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Human      35    36</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   AI         36    28</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Network metrics:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                       metric        value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Node Count  12.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                   Edge Count 135.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Network Density   1.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                Mean Distance   0.02743124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            Mean Out-Strength   1.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              SD Out-Strength   0.63085045</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Mean In-Strength   1.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>               SD In-Strength   0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>              Mean Out-Degree  11.25000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                SD Out-Degree   0.96530730</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  Centralization (Out-Degree)   0.05785124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Centralization (In-Degree)   0.05785124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                  Reciprocity   0.96000000</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

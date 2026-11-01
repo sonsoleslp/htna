@@ -13,7 +13,7 @@ callers can inspect the structured summary programmatically."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,18 +78,25 @@ type before truncating with an ellipsis. Default <code>12</code>.</p></dd>
 <code>n_nodes</code>, <code>nodes</code>).</p></li>
 <li><p><code>edges_by_actor</code> - integer matrix of non-zero edge counts,
 rows are source actor, columns are target actor.</p></li>
-<li><p><code>network_metrics</code> - standard network-level descriptive metrics
-from the Nestimate engine (node/edge counts, density, distance,
-strength, degree centralization, and reciprocity).</p></li>
+<li><p><code>network_metrics</code> - data frame (columns <code>metric</code>, <code>value</code>) of
+standard network-level descriptive metrics from the Nestimate
+engine (node/edge counts, density, distance, strength, degree
+centralization, and reciprocity).</p></li>
 <li><p><code>n_nodes</code>, <code>n_edges</code>, <code>n_sessions</code>, <code>n_timesteps</code>,
 <code>method</code>.</p></li>
 </ul></div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>For an <code>htna_group</code>, the summary is printed once per cohort and the
+return value is a named list of the per-cohort lists described under
+Value.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;htna network&gt;</span>

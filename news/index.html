@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,13 +33,23 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.3.1" id="htna-031">htna 0.3.1<a class="anchor" aria-label="anchor" href="#htna-031"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.3.2" id="htna-032">htna 0.3.2<a class="anchor" aria-label="anchor" href="#htna-032"></a></h2>
+<div class="section level3">
+<h3 id="documentation-0-3-2">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-3-2"></a></h3>
+<ul><li>Documentation revision. Help-page examples now run unwrapped (no <code>\donttest{}</code>) and use the package’s verbs instead of reaching into result objects (<code>summary(boot)</code>, <code>summary(rel)</code>, <code>print(cs)</code>, grouped networks passed as they are to <code><a href="../reference/permutation_htna.html">permutation_htna()</a></code>).</li>
+<li>Corrected return-value documentation: <code><a href="../reference/markov_order_test_htna.html">markov_order_test_htna()</a></code> returns a <code>net_markov_order</code> (and accepts an htna network directly); <code><a href="../reference/sequence_compare_htna.html">sequence_compare_htna()</a></code> returns a <code>net_sequence_comparison</code>; <code><a href="../reference/state_distribution_htna.html">state_distribution_htna()</a></code> returns the within-network (group, state) table, not a per-timestep distribution; <code><a href="../reference/pruning_details_htna.html">pruning_details_htna()</a></code> lists the removed edges; <code><a href="../reference/plot_htna.html">plot_htna()</a></code> returns cograph’s value invisibly. <code><a href="../reference/bootstrap_htna.html">bootstrap_htna()</a></code> now documents its <code>htna_group</code> form.</li>
+<li>Vignettes and articles no longer subset grouped networks or results by hand; <code><a href="../articles/htna.html">vignette("htna")</a></code> builds the early and late networks from their own sessions, and the Markov-order articles test networks directly.</li>
+<li>The pkgdown reference index now lists every exported topic.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.1" id="htna-031">htna 0.3.1<a class="anchor" aria-label="anchor" href="#htna-031"></a></h2><p class="text-muted">CRAN release: 2026-07-28</p>
 <div class="section level3">
 <h3 id="fitted-mmm-conversion-0-3-1">Fitted MMM conversion<a class="anchor" aria-label="anchor" href="#fitted-mmm-conversion-0-3-1"></a></h3>
 <ul><li>
-<code><a href="../reference/build_htna.html">build_htna()</a></code> now explicitly consumes the fitted <code>net_mmm</code> object returned by <code><a href="https://saqr.me/Nestimate/reference/cluster_mmm.html" class="external-link">Nestimate::cluster_mmm()</a></code>. It materializes one HTNA network per fitted sequence cluster without rerunning MMM and preserves assignments, posterior probabilities, mixing proportions, information criteria, fitted weights, and the original actor partition.</li>
+<code><a href="../reference/build_htna.html">build_htna()</a></code> now explicitly consumes the fitted <code>net_mmm</code> object returned by <code><a href="https://pak.dynasite.org/Nestimate/reference/cluster_mmm.html" class="external-link">Nestimate::cluster_mmm()</a></code>. It materializes one HTNA network per fitted sequence cluster without rerunning MMM and preserves assignments, posterior probabilities, mixing proportions, information criteria, fitted weights, and the original actor partition.</li>
 <li>
-<code><a href="https://saqr.me/Nestimate/reference/as_htna.html" class="external-link">Nestimate::as_htna()</a></code> now supports the same fitted <code>net_mmm</code> input and returns an equivalent <code>htna_group</code>. <code><a href="https://saqr.me/Nestimate/reference/cluster_network.html" class="external-link">Nestimate::cluster_network()</a></code> remains the function that directly returns materialized cluster networks.</li>
+<code><a href="https://pak.dynasite.org/Nestimate/reference/as_htna.html" class="external-link">Nestimate::as_htna()</a></code> now supports the same fitted <code>net_mmm</code> input and returns an equivalent <code>htna_group</code>. <code><a href="https://pak.dynasite.org/Nestimate/reference/cluster_network.html" class="external-link">Nestimate::cluster_network()</a></code> remains the function that directly returns materialized cluster networks.</li>
 </ul></div>
 <div class="section level3">
 <h3 id="datasets-0-3-1">Datasets<a class="anchor" aria-label="anchor" href="#datasets-0-3-1"></a></h3>
@@ -52,19 +62,19 @@
 <h3 id="documentation-0-3-1">Documentation<a class="anchor" aria-label="anchor" href="#documentation-0-3-1"></a></h3>
 <ul><li>
 <code>htna_palette</code> is now exported (previously an internal constant referenced as a default argument in exported plot functions).</li>
-<li>New article vignette <strong>Clustering inputs to <code><a href="../reference/build_htna.html">build_htna()</a></code></strong> covering <code><a href="https://saqr.me/Nestimate/reference/build_clusters.html" class="external-link">Nestimate::build_clusters()</a></code> and <code><a href="https://saqr.me/Nestimate/reference/cluster_mmm.html" class="external-link">Nestimate::cluster_mmm()</a></code>, model selection with <code>cluster_choice()</code> / <code>compare_mmm()</code> / <code>cluster_diagnostics()</code>, and cohort-pair comparison with <code><a href="../reference/compare_htna.html">compare_htna()</a></code>.</li>
+<li>New article vignette <strong>Clustering inputs to <code><a href="../reference/build_htna.html">build_htna()</a></code></strong> covering <code><a href="https://pak.dynasite.org/Nestimate/reference/build_clusters.html" class="external-link">Nestimate::build_clusters()</a></code> and <code><a href="https://pak.dynasite.org/Nestimate/reference/cluster_mmm.html" class="external-link">Nestimate::cluster_mmm()</a></code>, model selection with <code>cluster_choice()</code> / <code>compare_mmm()</code> / <code>cluster_diagnostics()</code>, and cohort-pair comparison with <code><a href="../reference/compare_htna.html">compare_htna()</a></code>.</li>
 </ul></div>
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.0" id="htna-030">htna 0.3.0<a class="anchor" aria-label="anchor" href="#htna-030"></a></h2>
 <div class="section level3">
 <h3 id="actor-aware-interoperability-and-comparison-0-3-0">Actor-aware interoperability and comparison<a class="anchor" aria-label="anchor" href="#actor-aware-interoperability-and-comparison-0-3-0"></a></h3>
-<ul><li>Added <code><a href="../reference/compare_htna.html">compare_htna()</a></code>, an actor-aware wrapper over <code><a href="https://saqr.me/Nestimate/reference/compare_model.html" class="external-link">Nestimate::compare_model()</a></code>. It aligns partial node coverage, annotates every edge with source and target actors, reports summaries for each actor-pair block, retains the original HTNA networks, and compares every cohort pair when passed an <code>htna_group</code>.</li>
+<ul><li>Added <code><a href="../reference/compare_htna.html">compare_htna()</a></code>, an actor-aware wrapper over <code><a href="https://pak.dynasite.org/Nestimate/reference/compare_model.html" class="external-link">Nestimate::compare_model()</a></code>. It aligns partial node coverage, annotates every edge with source and target actors, reports summaries for each actor-pair block, retains the original HTNA networks, and compares every cohort pair when passed an <code>htna_group</code>.</li>
 <li>Added <code>as.igraph()</code> methods for <code>htna</code> and <code>htna_group</code>. Converted graphs preserve actor types as vertex attributes and canonical actor ordering as graph metadata; grouped inputs convert every cohort.</li>
 <li>
 <code><a href="../reference/summary.htna.html">summary.htna()</a></code> and <code><a href="../reference/summary.htna.html">summary.htna_group()</a></code> now include Nestimate’s standard network-level descriptive metrics alongside the existing actor-partition and actor-to-actor edge summaries.</li>
 <li>
-<code>build_htna(method = "co_occurrence")</code> is now documented and covered across all constructor forms, grouped networks, MCML expansion, Nestimate distance clustering, and legacy TNA clustering, with numerical equivalence tests against both Nestimate and <code><a href="http://sonsoles.me/tna/reference/build_model.html" class="external-link">tna::ctna()</a></code>.</li>
+<code>build_htna(method = "co_occurrence")</code> is now documented and covered across all constructor forms, grouped networks, MCML expansion, Nestimate distance clustering, and legacy TNA clustering, with numerical equivalence tests against both Nestimate and <code><a href="https://sonsoles.me/tna/reference/build_model.html" class="external-link">tna::ctna()</a></code>.</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -72,7 +82,7 @@
 <div class="section level3">
 <h3 id="mcml-expansion-0-2-2">MCML expansion<a class="anchor" aria-label="anchor" href="#mcml-expansion-0-2-2"></a></h3>
 <ul><li>
-<code><a href="../reference/build_htna.html">build_htna()</a></code> now accepts a fitted <code><a href="https://saqr.me/Nestimate/reference/build_mcml.html" class="external-link">Nestimate::build_mcml()</a></code> object. The MCML node clusters become actor groups, and one full node-level HTNA is rebuilt from the retained or explicitly supplied original source. This is equivalent to <code><a href="https://saqr.me/Nestimate/reference/as_htna.html" class="external-link">Nestimate::as_htna()</a></code>: it intentionally preserves global cross-cluster transitions rather than stitching together fitted macro or within-cluster weights.</li>
+<code><a href="../reference/build_htna.html">build_htna()</a></code> now accepts a fitted <code><a href="https://pak.dynasite.org/Nestimate/reference/build_mcml.html" class="external-link">Nestimate::build_mcml()</a></code> object. The MCML node clusters become actor groups, and one full node-level HTNA is rebuilt from the retained or explicitly supplied original source. This is equivalent to <code><a href="https://pak.dynasite.org/Nestimate/reference/as_htna.html" class="external-link">Nestimate::as_htna()</a></code>: it intentionally preserves global cross-cluster transitions rather than stitching together fitted macro or within-cluster weights.</li>
 <li>HTNA partition injection now consistently stores character labels in <code>$node_groups$group</code> and a factor with the full actor level set in <code>$nodes$groups</code>.</li>
 </ul></div>
 </div>
@@ -88,13 +98,13 @@
 <div class="section level3">
 <h3 id="new-features-0-2-0">New features<a class="anchor" aria-label="anchor" href="#new-features-0-2-0"></a></h3>
 <ul><li>
-<code><a href="../reference/build_htna.html">build_htna()</a></code> now consumes Nestimate distance clustering (<code>net_clustering</code>), fitted MMM clustering (<code>cluster_mmm()</code> / <code>net_mmm</code>), materialized cluster networks (<code>netobject_group</code>), and legacy <code><a href="http://sonsoles.me/tna/reference/cluster_data.html" class="external-link">tna::cluster_sequences()</a></code> results. It returns an <code>htna_group</code>, restores the actor partition on every child, and preserves clustering assignments, posterior probabilities, diagnostics, and fitted MMM weights. A partition preserved upstream is used automatically; older or independently-created clustering results can supply <code>node_groups</code>.</li>
+<code><a href="../reference/build_htna.html">build_htna()</a></code> now consumes Nestimate distance clustering (<code>net_clustering</code>), fitted MMM clustering (<code>cluster_mmm()</code> / <code>net_mmm</code>), materialized cluster networks (<code>netobject_group</code>), and legacy <code><a href="https://sonsoles.me/tna/reference/cluster_data.html" class="external-link">tna::cluster_sequences()</a></code> results. It returns an <code>htna_group</code>, restores the actor partition on every child, and preserves clustering assignments, posterior probabilities, diagnostics, and fitted MMM weights. A partition preserved upstream is used automatically; older or independently-created clustering results can supply <code>node_groups</code>.</li>
 </ul><p>Six htna-named functions are added, extending htna’s coverage of the major transition-network-analysis (tna) verbs. All are thin <code>...</code>-forwarding wrappers over the ‘Nestimate’ engine and follow the same durable design as the existing re-exports (stable documented formals; new engine arguments flow through <code>...</code>).</p>
-<ul><li>Pruning family — <code><a href="../reference/prune_htna.html">prune_htna()</a></code>, <code><a href="../reference/deprune_htna.html">deprune_htna()</a></code>, <code><a href="../reference/reprune_htna.html">reprune_htna()</a></code>, and <code><a href="../reference/pruning_details_htna.html">pruning_details_htna()</a></code> (over <code><a href="https://saqr.me/Nestimate/reference/net_prune.html" class="external-link">Nestimate::net_prune()</a></code> and friends). The actor partition and <code>htna</code> class are preserved across pruning, so the pruned network stays htna-aware and plots with [plot_htna()].</li>
+<ul><li>Pruning family — <code><a href="../reference/prune_htna.html">prune_htna()</a></code>, <code><a href="../reference/deprune_htna.html">deprune_htna()</a></code>, <code><a href="../reference/reprune_htna.html">reprune_htna()</a></code>, and <code><a href="../reference/pruning_details_htna.html">pruning_details_htna()</a></code> (over <code><a href="https://pak.dynasite.org/Nestimate/reference/net_prune.html" class="external-link">Nestimate::net_prune()</a></code> and friends). The actor partition and <code>htna</code> class are preserved across pruning, so the pruned network stays htna-aware and plots with [plot_htna()].</li>
 <li>
-<code><a href="../reference/bayes_compare_htna.html">bayes_compare_htna()</a></code> — Bayesian complement of <code><a href="../reference/permutation_htna.html">permutation_htna()</a></code> (over <code><a href="https://saqr.me/Nestimate/reference/bayes_compare.html" class="external-link">Nestimate::bayes_compare()</a></code>). Preserves the actor partition on <code>$x</code>/<code>$y</code> and carries class <code>net_permutation</code>, so it renders with <code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code>.</li>
+<code><a href="../reference/bayes_compare_htna.html">bayes_compare_htna()</a></code> — Bayesian complement of <code><a href="../reference/permutation_htna.html">permutation_htna()</a></code> (over <code><a href="https://pak.dynasite.org/Nestimate/reference/bayes_compare.html" class="external-link">Nestimate::bayes_compare()</a></code>). Preserves the actor partition on <code>$x</code>/<code>$y</code> and carries class <code>net_permutation</code>, so it renders with <code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code>.</li>
 <li>
-<code><a href="../reference/certainty_htna.html">certainty_htna()</a></code> — closed-form counterpart of <code><a href="../reference/bootstrap_htna.html">bootstrap_htna()</a></code> (over <code><a href="https://saqr.me/Nestimate/reference/certainty.html" class="external-link">Nestimate::certainty()</a></code>), joining the confirmatory-analysis family alongside <code><a href="../reference/reliability_htna.html">reliability_htna()</a></code> and <code><a href="../reference/casedrop_reliability_htna.html">casedrop_reliability_htna()</a></code>.</li>
+<code><a href="../reference/certainty_htna.html">certainty_htna()</a></code> — closed-form counterpart of <code><a href="../reference/bootstrap_htna.html">bootstrap_htna()</a></code> (over <code><a href="https://pak.dynasite.org/Nestimate/reference/certainty.html" class="external-link">Nestimate::certainty()</a></code>), joining the confirmatory-analysis family alongside <code><a href="../reference/reliability_htna.html">reliability_htna()</a></code> and <code><a href="../reference/casedrop_reliability_htna.html">casedrop_reliability_htna()</a></code>.</li>
 </ul></div>
 </div>
     <div class="section level2">
@@ -105,7 +115,7 @@
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.1" id="htna-011">htna 0.1.1<a class="anchor" aria-label="anchor" href="#htna-011"></a></h2>
-<ul><li>Compatibility with Nestimate 0.8.0. <code><a href="https://saqr.me/Nestimate/reference/permutation.html" class="external-link">Nestimate::permutation()</a></code> gained a <code>measures</code> argument (for centrality permutation tests); since <code><a href="../reference/permutation_htna.html">permutation_htna()</a></code> re-exports that function, its documentation is regenerated to include the new argument, resolving a code/documentation mismatch flagged by <code>R CMD check</code>. No behavioural change.</li>
+<ul><li>Compatibility with Nestimate 0.8.0. <code><a href="https://pak.dynasite.org/Nestimate/reference/permutation.html" class="external-link">Nestimate::permutation()</a></code> gained a <code>measures</code> argument (for centrality permutation tests); since <code><a href="../reference/permutation_htna.html">permutation_htna()</a></code> re-exports that function, its documentation is regenerated to include the new argument, resolving a code/documentation mismatch flagged by <code>R CMD check</code>. No behavioural change.</li>
 <li>
 <code>Imports: Nestimate (&gt;= 0.8.0)</code>.</li>
 </ul></div>

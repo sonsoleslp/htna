@@ -11,7 +11,7 @@ proportion columns. The data side of plot_frequencies_htna()."><meta property="o
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,8 +58,10 @@ actor. One row per <code>(actor, state)</code> pair, with <code>count</code> and
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data frame with columns <code>group</code> (actor), <code>state</code>,
-<code>count</code>, <code>proportion</code>.</p>
+    <p>A data frame with one row per <code>(actor, state)</code> pair and
+columns <code>group</code> (the actor type), <code>state</code>, <code>count</code> and <code>proportion</code>
+(the state's share of its own actor's events, so proportions sum to
+1 within each actor).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -67,10 +69,10 @@ actor. One row per <code>(actor, state)</code> pair, with <code>count</code> and
 Nestimate (<code>state_distribution.htna</code>); exposed under the
 <code>frequencies_htna()</code> name as the canonical "give me the frequency
 table for this network" entry point.</p>
-<p>Suffixed <code>_htna</code> to avoid clashing with <code><a href="https://saqr.me/Nestimate/reference/frequencies.html" class="external-link">Nestimate::frequencies()</a></code>
+<p>Suffixed <code>_htna</code> to avoid clashing with <code><a href="https://pak.dynasite.org/Nestimate/reference/frequencies.html" class="external-link">Nestimate::frequencies()</a></code>
 (which takes raw long-format data and a column-name spec) when
 both packages are loaded. If you have raw data rather than an htna
-network, call <code><a href="https://saqr.me/Nestimate/reference/frequencies.html" class="external-link">Nestimate::frequencies()</a></code> directly.</p>
+network, call <code><a href="https://pak.dynasite.org/Nestimate/reference/frequencies.html" class="external-link">Nestimate::frequencies()</a></code> directly.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -81,10 +83,9 @@ name), <code><a href="mosaic_plot_htna.html">mosaic_plot_htna()</a></code>.</p><
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
 <span class="r-in"><span><span class="fu">frequencies_htna</span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    group     state count proportion</span>
@@ -100,7 +101,6 @@ name), <code><a href="mosaic_plot_htna.html">mosaic_plot_htna()</a></code>.</p><
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10    AI    Report   705 0.08244650</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 11    AI  Delegate   295 0.03449889</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 12    AI    Repair   257 0.03005496</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

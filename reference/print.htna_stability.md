@@ -18,19 +18,25 @@ print(x, ...)
 
 - ...:
 
-  Additional arguments passed to the print method.
+  Unused; present for consistency with the generic.
 
 ## Value
 
-Invisibly returns the object, prints stability information.
+Invisibly, `x`, unchanged.
+
+## Details
+
+Prints the number of iterations, the threshold, the drop proportions and
+the CS-coefficient of each measure. Use
+[`summary()`](https://rdrr.io/r/base/summary.html) for the tidy
+per-measure, per-drop-proportion correlation table.
 
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 cs  <- centrality_stability_htna(net, iter = 20, seed = 1)
 print(cs)
@@ -43,5 +49,4 @@ print(cs)
 #>     InStrength       0.90
 #>     OutStrength      0.90
 #>     Betweenness      0.90
-# }
 ```

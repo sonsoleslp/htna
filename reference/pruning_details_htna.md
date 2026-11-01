@@ -1,10 +1,10 @@
 # Tidy Report of a Network's Pruning
 
 htna-named wrapper for
-[`Nestimate::net_pruning_details()`](https://saqr.me/Nestimate/reference/net_pruning_details.html).
-Returns a tidy data frame describing which edges were kept or removed by
-a [`prune_htna()`](https://sonsoles.me/htna/reference/prune_htna.md)
-step and why.
+[`Nestimate::net_pruning_details()`](https://pak.dynasite.org/Nestimate/reference/net_pruning_details.html).
+Returns a tidy data frame of the edges removed by a
+[`prune_htna()`](https://sonsoles.me/htna/reference/prune_htna.md) step,
+with the pruning rule that removed them recorded as attributes.
 
 ## Usage
 
@@ -17,20 +17,23 @@ pruning_details_htna(x, ...)
 - x:
 
   A pruned htna network (or other object accepted by
-  [`Nestimate::net_pruning_details()`](https://saqr.me/Nestimate/reference/net_pruning_details.html));
+  [`Nestimate::net_pruning_details()`](https://pak.dynasite.org/Nestimate/reference/net_pruning_details.html));
   S3 dispatch on `x` is preserved.
 
 - ...:
 
   Additional arguments passed to
-  [`Nestimate::net_pruning_details()`](https://saqr.me/Nestimate/reference/net_pruning_details.html).
+  [`Nestimate::net_pruning_details()`](https://pak.dynasite.org/Nestimate/reference/net_pruning_details.html).
   See that function for details.
 
 ## Value
 
-A data frame, one row per edge. See
-[`Nestimate::net_pruning_details()`](https://saqr.me/Nestimate/reference/net_pruning_details.html)
-for details.
+A data frame of class `c("net_pruning_details", "data.frame")` with one
+row per removed edge and columns `from`, `to` and `weight` (the weight
+the edge had before pruning). The rule is stored in the attributes
+`method`, `threshold`, `lowest`, `cut_off`, `num_removed` and
+`num_retained`. See
+[`Nestimate::net_pruning_details()`](https://pak.dynasite.org/Nestimate/reference/net_pruning_details.html).
 
 ## Details
 
@@ -46,10 +49,9 @@ and to sit alongside the rest of the htna API.
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 pruned <- prune_htna(net, method = "threshold", threshold = 0.05)
 pruning_details_htna(pruned)
@@ -121,5 +123,4 @@ pruning_details_htna(pruned)
 #>   Delegate   Specify 0.035335689
 #>    Inquire   Specify 0.029342723
 #>     Repair   Specify 0.019762846
-# }
 ```

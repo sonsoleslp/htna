@@ -1,7 +1,7 @@
 # Re-apply a Previous Pruning Rule
 
 htna-named wrapper for
-[`Nestimate::net_reprune()`](https://saqr.me/Nestimate/reference/net_reprune.html).
+[`Nestimate::net_reprune()`](https://pak.dynasite.org/Nestimate/reference/net_reprune.html).
 Re-applies the pruning rule recorded on a network (e.g. after the
 weights have been re-estimated), without having to restate the rule.
 
@@ -17,19 +17,19 @@ reprune_htna(x, ...)
 
   An htna network carrying a prior pruning rule (or other object
   accepted by
-  [`Nestimate::net_reprune()`](https://saqr.me/Nestimate/reference/net_reprune.html));
+  [`Nestimate::net_reprune()`](https://pak.dynasite.org/Nestimate/reference/net_reprune.html));
   S3 dispatch on `x` is preserved.
 
 - ...:
 
   Additional arguments passed to
-  [`Nestimate::net_reprune()`](https://saqr.me/Nestimate/reference/net_reprune.html).
+  [`Nestimate::net_reprune()`](https://pak.dynasite.org/Nestimate/reference/net_reprune.html).
   See that function for details.
 
 ## Value
 
 The re-pruned htna network. See
-[`Nestimate::net_reprune()`](https://saqr.me/Nestimate/reference/net_reprune.html).
+[`Nestimate::net_reprune()`](https://pak.dynasite.org/Nestimate/reference/net_reprune.html).
 
 ## Details
 
@@ -48,10 +48,9 @@ sit alongside the rest of the htna API.
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 pruned <- prune_htna(net, method = "threshold", threshold = 0.05)
 reprune_htna(deprune_htna(pruned))
@@ -99,5 +98,4 @@ reprune_htna(deprune_htna(pruned))
 #>   Plan          0.000  
 #>   Repair        0.000  
 #>   Report        0.000  
-# }
 ```

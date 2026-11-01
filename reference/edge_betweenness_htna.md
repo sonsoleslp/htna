@@ -38,7 +38,7 @@ transition. Class is `c("htna_edge_betweenness", class(x))`.
 ## Details
 
 Mirrors
-[`tna::betweenness_network()`](http://sonsoles.me/tna/reference/betweenness_network.md):
+[`tna::betweenness_network()`](https://sonsoles.me/tna/reference/betweenness_network.html):
 edge weights are inverted to costs by default (`invert = TRUE`) – in
 transition networks a larger transition probability means the edge is
 "easier" and so the equivalent path cost is smaller.
@@ -47,19 +47,17 @@ transition networks a larger transition probability means the edge is
 
 [`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md)
 for node-level centrality measures,
-[`tna::betweenness_network()`](http://sonsoles.me/tna/reference/betweenness_network.md)
+[`tna::betweenness_network()`](https://sonsoles.me/tna/reference/betweenness_network.html)
 for the tna equivalent.
 
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 eb  <- edge_betweenness_htna(net)
 plot_htna(eb)                 # edge thickness = betweenness score
 
-# }
 ```

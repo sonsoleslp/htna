@@ -37,8 +37,8 @@ The example uses the bundled `human_ai` corpus – Human + AI events in a
 single long frame, tagged by an `actor_type` column (see
 [`?human_ai`](https://sonsoles.me/htna/reference/human_ai.md)). The
 default htna network is constructed under the relative-probability
-scheme (`method = "relative"`); the Markov-order test operates directly
-on the raw sequence data.
+scheme (`method = "relative"`); every assessment below, including the
+Markov-order test, takes this network directly.
 
 ``` r
 
@@ -109,16 +109,16 @@ cd <- casedrop_reliability_htna(net, iter = 200L, seed = 1L)
 cd
 #> Edge-weight Case-dropping Stability
 #>   Cases (rows of $data) : 429
-#>   Edges assessed        : 132 (diagonal excluded)
+#>   Edges assessed        : 125 (diagonal excluded)
 #>   Iterations / prop     : 200
 #>   Correlation method    : spearman
 #>   CS-coefficient (r)    : 0.90  (threshold=0.70, certainty=0.95)
 #> 
 #> Model-level reliability across iterations (mean +/- sd per drop):
 #>   drop_prop      p=0.1        p=0.2        p=0.3        p=0.4        p=0.5        p=0.6        p=0.7        p=0.8        p=0.9      
-#>   mean|diff|      0.002+- 0.000   0.003+- 0.000   0.004+- 0.000   0.005+- 0.001   0.006+- 0.001   0.008+- 0.001   0.010+- 0.001   0.013+- 0.001   0.020+- 0.002
-#>   MAD             0.001+- 0.000   0.002+- 0.000   0.003+- 0.000   0.003+- 0.000   0.004+- 0.000   0.005+- 0.001   0.006+- 0.001   0.008+- 0.001   0.012+- 0.002
-#>   cor             0.999+- 0.000   0.997+- 0.001   0.995+- 0.001   0.993+- 0.002   0.990+- 0.003   0.984+- 0.004   0.976+- 0.006   0.960+- 0.009   0.919+- 0.018
+#>   mean|diff|      0.002+- 0.000   0.003+- 0.000   0.004+- 0.001   0.006+- 0.001   0.007+- 0.001   0.008+- 0.001   0.010+- 0.001   0.014+- 0.001   0.021+- 0.002
+#>   MAD             0.001+- 0.000   0.002+- 0.000   0.003+- 0.000   0.004+- 0.000   0.004+- 0.001   0.005+- 0.001   0.006+- 0.001   0.009+- 0.001   0.013+- 0.002
+#>   cor             0.998+- 0.001   0.997+- 0.001   0.994+- 0.002   0.992+- 0.002   0.988+- 0.003   0.982+- 0.005   0.973+- 0.007   0.956+- 0.010   0.912+- 0.019
 #>   max|diff|       0.016+- 0.006   0.023+- 0.007   0.030+- 0.009   0.038+- 0.010   0.048+- 0.016   0.058+- 0.019   0.071+- 0.021   0.094+- 0.026   0.142+- 0.046
 ```
 
@@ -208,42 +208,34 @@ tests the empirical transition structure against orders 1, 2, …,
 `max_order` via permutation. For each candidate order *k*, the null
 hypothesis is that order-(*k*-1) is sufficient; the alternative is that
 order-*k* captures dependencies beyond what order-(*k*-1) explains. The
-smallest order whose test fails to reject the null is reported as the
-optimal order.
+steps are tested in sequence, and the reported permutation-test order is
+the last order reached before the first non-significant step (or
+`max_order` when every step is significant). The BIC- and AIC-preferred
+orders are reported alongside it.
 
-The test operates on raw sequence data rather than on the htna network
-object, since it requires the empirical sequences directly.
-
-``` r
-
-data("ai_simplified")
-
-seqs    <- split(ai_simplified$code, ai_simplified$session_id)
-seqs    <- seqs[lengths(seqs) >= 3L]
-length(seqs)
-#> [1] 416
-```
-
-Sequences shorter than three events do not inform tests beyond order-1
-and are excluded.
+The test reads the session sequences stored on the htna network, so it
+assesses the combined Human + AI process that the network summarises.
 
 ``` r
 
-mo <- markov_order_test_htna(seqs, max_order = 3L, n_perm = 200L,
+mo <- markov_order_test_htna(net, max_order = 3L, n_perm = 200L,
                              seed = 1L)
-mo$test_table
-#>   order    loglik      AIC      BIC  df        g2 p_permutation p_asymptotic
-#> 1     0 -12507.50 25025.00 25060.26  NA        NA            NA           NA
-#> 2     1 -11561.26 23192.52 23439.32  25 1851.6662   0.004975124 0.000000e+00
-#> 3     2 -11388.43 23150.86 24469.46 150  317.0789   0.004975124 5.088532e-14
-#> 4     3 -10962.98 23315.97 28216.65 675  836.7299   0.004975124 1.976688e-05
-#>   significant
-#> 1          NA
-#> 2        TRUE
-#> 3        TRUE
-#> 4        TRUE
-mo$optimal_order
-#> [1] 3
+mo
+#> Markov Order Test  [within-w permutation, n_perm = 200, alpha = 0.050]
+#>   428 sequences / 19346 observations / 12 states
+#> 
+#>   Selected order  BIC: 1   AIC: 2   permutation-LRT: 3
+#> 
+#>  order    loglik      AIC       BIC   df       g2 p_permutation p_asymptotic
+#>      0 -43741.91 87505.83  87592.40   NA       NA            NA           NA
+#>      1 -37315.96 74899.92  75954.53  121 12815.99   0.004975124 0.000000e+00
+#>      2 -33812.56 70683.12  82716.72 1272  6481.76   0.004975124 0.000000e+00
+#>      3 -29297.81 93261.62 229676.51 7242  8982.77   0.004975124 1.533371e-41
+#>  significant
+#>           NA
+#>         TRUE
+#>         TRUE
+#>         TRUE
 ```
 
 ``` r
@@ -253,13 +245,16 @@ plot(mo)
 
 ![](model-assessment_files/figure-html/markov-plot-1.png)
 
-If `optimal_order > 1`, the first-order network is misspecified for the
-corpus, and a higher-order model is indicated. htna does not implement
-higher-order networks directly; users who require them may construct
-higher-order or memory-augmented models via
-[`Nestimate::build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html)
+If the selected order is greater than 1, the first-order network is
+misspecified for the corpus, and a higher-order model is indicated. The
+[Markov-order
+article](https://sonsoles.me/htna/articles/markov-order.md) compares the
+combined process with each actor’s own sequences. htna does not
+implement higher-order networks directly; users who require them may
+construct higher-order or memory-augmented models via
+[`Nestimate::build_hon()`](https://pak.dynasite.org/Nestimate/reference/build_hon.html)
 or
-[`Nestimate::build_mogen()`](https://saqr.me/Nestimate/reference/build_mogen.html).
+[`Nestimate::build_mogen()`](https://pak.dynasite.org/Nestimate/reference/build_mogen.html).
 
 ## Joint interpretation
 

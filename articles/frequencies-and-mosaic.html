@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,12 +64,16 @@
 
     
     
-<p>In this vignette, we look at additional summary functions and
-visualizations in <code>htna</code>. We will use two networks
-constructed from the bundled <code>human_ai</code> corpus (Human + AI
-events tagged by <code>actor_type</code>; see <code><a href="../reference/human_ai.html">?human_ai</a></code>).
-The frequency family operates on either, but the mosaic family requires
-an integer-weighted network because the chi-square test acts on counts;
+<p>A transition network summarises <em>how</em> actors move between
+states, but not how often each state occurs in the first place. A
+transition out of a rare state can carry a high probability on very
+little evidence, so the marginal frequencies are the context in which
+every edge weight is read. This vignette covers the frequency and mosaic
+summaries in <code>htna</code>. We will use two networks constructed
+from the bundled <code>human_ai</code> corpus (Human + AI events tagged
+by <code>actor_type</code>; see <code><a href="../reference/human_ai.html">?human_ai</a></code>). The frequency
+family operates on either, but the mosaic family requires an
+integer-weighted network because the chi-square test acts on counts;
 this is the network produced under
 <code>method = "frequency"</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -88,7 +92,8 @@ this is the network produced under
 <p><code><a href="../reference/frequencies_htna.html">frequencies_htna()</a></code> returns the per-actor marginal state
 distribution as a data frame with one row per (<code>actor_type</code>,
 <code>state</code>) pair. Columns are: actor type (<code>group</code>),
-state, count, and within-network proportion. The table is the data
+state, count, and the state’s proportion of its own actor’s events
+(proportions sum to 1 within each actor). The table is the data
 underlying every chart in this section.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/frequencies_htna.html">frequencies_htna</a></span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span>
@@ -116,7 +121,7 @@ optimised for a different reading task.</p>
 <h4 id="treemap-view-treemap-default">Treemap (<code>view = "treemap"</code>, default)<a class="anchor" aria-label="anchor" href="#treemap-view-treemap-default"></a>
 </h4>
 <p>Each panel corresponds to one actor; tile area within a panel encodes
-the within-network proportion of the corresponding state. The layout is
+the within-actor proportion of the corresponding state. The layout is
 space-efficient and allows the full state vocabulary to be displayed
 simultaneously.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
@@ -193,9 +198,9 @@ counts are large enough for the asymptotic approximation to hold.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/mosaic_plot_htna.html">mosaic_plot_htna</a></span><span class="op">(</span><span class="va">net_freq</span>, residuals <span class="op">=</span> <span class="st">"asymptotic"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="frequencies-and-mosaic_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="720"></p>
-<p>For htna corpora of typical size (hundreds of sessions, hundreds to
-thousands of transitions per cell), permutation and asymptotic residuals
-agree closely.</p>
+<p>For corpora where most cells hold many transitions, permutation and
+asymptotic residuals are expected to agree closely; compare the two
+mosaics above to check this for the data at hand.</p>
 </div>
 <div class="section level3">
 <h3 id="colour-scale-clipping-range-c-4-4">Colour-scale clipping (<code>range = c(-4, 4)</code>)<a class="anchor" aria-label="anchor" href="#colour-scale-clipping-range-c-4-4"></a>

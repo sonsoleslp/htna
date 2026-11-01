@@ -13,7 +13,7 @@ keeps working on the reliability output."><meta property="og:image" content="htt
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +40,7 @@ keeps working on the reliability output."><meta property="og:image" content="htt
     </div>
 
     <div class="ref-description section level2">
-    <p>Thin wrapper around <code><a href="https://saqr.me/Nestimate/reference/network_reliability.html" class="external-link">Nestimate::network_reliability()</a></code> that preserves
+    <p>Thin wrapper around <code><a href="https://pak.dynasite.org/Nestimate/reference/network_reliability.html" class="external-link">Nestimate::network_reliability()</a></code> that preserves
 the htna actor partition on every model in the returned <code>$models</code>
 slot, so downstream htna-aware code (plotting, centralities, etc.)
 keeps working on the reliability output.</p>
@@ -70,7 +70,7 @@ first half-network. Default <code>0.5</code>.</p></dd>
 
 <dt id="arg-scale">scale<a class="anchor" aria-label="anchor" href="#arg-scale"></a></dt>
 <dd><p>One of <code>"none"</code>, <code>"minmax"</code>, <code>"standardize"</code>,
-<code>"proportion"</code>. Forwarded to <code><a href="https://saqr.me/Nestimate/reference/network_reliability.html" class="external-link">Nestimate::network_reliability()</a></code>.</p></dd>
+<code>"proportion"</code>. Forwarded to <code><a href="https://pak.dynasite.org/Nestimate/reference/network_reliability.html" class="external-link">Nestimate::network_reliability()</a></code>.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
@@ -81,10 +81,14 @@ first half-network. Default <code>0.5</code>.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>c("htna_reliability", "net_reliability")</code>,
-with the same components as <code><a href="https://saqr.me/Nestimate/reference/network_reliability.html" class="external-link">Nestimate::network_reliability()</a></code> —
-<code>iterations</code>, <code>summary</code>, <code>models</code>, <code>iter</code>, <code>split</code>, <code>scale</code> — and
-each entry of <code>$models</code> carrying the htna actor partition
-(<code>$nodes$groups</code>, <code>$node_groups</code>, <code>$actor_levels</code>).</p>
+with the same components as <code><a href="https://pak.dynasite.org/Nestimate/reference/network_reliability.html" class="external-link">Nestimate::network_reliability()</a></code>
+(<code>iterations</code>, <code>summary</code>, <code>models</code>, <code>iter</code>, <code>split</code>, <code>scale</code>), and
+each entry of <code>models</code> carrying the htna actor partition
+(<code>nodes$groups</code>, <code>node_groups</code>, <code>actor_levels</code>). <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>,
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> methods are supplied by Nestimate;
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> returns a data frame with one row per (model, metric) and
+columns <code>model</code>, <code>metric</code> (<code>mean_dev</code>, <code>median_dev</code>, <code>cor</code>,
+<code>max_dev</code>), <code>mean</code> and <code>sd</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -95,24 +99,28 @@ networks built by <code><a href="build_htna.html">build_htna()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="https://saqr.me/Nestimate/reference/network_reliability.html" class="external-link">Nestimate::network_reliability()</a></code>, <code><a href="bootstrap_htna.html">bootstrap_htna()</a></code>.</p></div>
+    <div class="dont-index"><p><code><a href="https://pak.dynasite.org/Nestimate/reference/network_reliability.html" class="external-link">Nestimate::network_reliability()</a></code>, <code><a href="bootstrap_htna.html">bootstrap_htna()</a></code>.</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
 <span class="r-in"><span><span class="va">rel</span> <span class="op">&lt;-</span> <span class="fu">reliability_htna</span><span class="op">(</span><span class="va">net</span>, iter <span class="op">=</span> <span class="fl">30</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">rel</span><span class="op">$</span><span class="va">summary</span></span></span>
+<span class="r-in"><span><span class="va">rel</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Split-Half Reliability (30 iterations, split = 50%)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Mean Abs. Diff.     mean = 0.0123  sd = 0.0010</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Median Abs. Diff.   mean = 0.0074  sd = 0.0009</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Pearson             mean = 0.9824  sd = 0.0041</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Max Abs. Diff.      mean = 0.0980  sd = 0.0289</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">rel</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      model     metric        mean           sd</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1 relative   mean_dev 0.012347097 0.0009948951</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2 relative median_dev 0.007373837 0.0008943957</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3 relative        cor 0.982368095 0.0041061329</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 relative    max_dev 0.097975625 0.0288536573</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

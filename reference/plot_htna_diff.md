@@ -63,35 +63,52 @@ The value of the underlying splot call (invisibly).
   so the significance overlay (significant pos/neg edges, dashed
   non-significant edges, stars) is drawn upstream.
 
-- A `net_permutation_group`: iterates over all pairwise comparisons and
-  plots each (no `par(mfrow=...)` management - user controls layout).
+- A `net_permutation_group` (the result of
+  [`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)
+  on an `htna_group`): iterates over all pairwise comparisons and plots
+  each, titled with the pair name (no `par(mfrow=...)` management - user
+  controls layout).
+
+- A
+  [`bayes_compare_htna()`](https://sonsoles.me/htna/reference/bayes_compare_htna.md)
+  result for two networks, which also inherits `net_permutation`.
 
 In all cases the layout, node colours and donut match
-[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md).
+[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md); the
+drawing itself is done by cograph.
 
 ## See also
 
 [`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md),
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md),
-[`Nestimate::permutation()`](https://saqr.me/Nestimate/reference/permutation.html).
+[`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md),
+[`bayes_compare_htna()`](https://sonsoles.me/htna/reference/bayes_compare_htna.md).
 
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
-grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
-#> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+# Two networks: early vs late sessions
+early <- build_htna(subset(human_ai, phase == "Early"),
+                    actor_type = "actor_type")
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
-plot_htna_diff(grp$Early, grp$Late)
+late  <- build_htna(subset(human_ai, phase == "Late"),
+                    actor_type = "actor_type")
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
+plot_htna_diff(early, late)
 
 
-perm <- permutation_htna(grp$Early, grp$Late, iter = 50)
+# Permutation test on a grouped network: one plot per cohort pair
+grp  <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
+perm <- permutation_htna(grp, iter = 50, seed = 1)
 plot_htna_diff(perm)
 
 plot_htna_diff(perm, show_nonsig = TRUE)
 
-# }
 ```

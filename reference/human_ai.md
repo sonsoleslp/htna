@@ -1,9 +1,9 @@
 # Simplified Human + AI Interaction Sequences
 
 A long-format heterogeneous sequence dataset built from
-[`Nestimate::human_long`](https://saqr.me/Nestimate/reference/long-data.html)
+[`Nestimate::human_long`](https://pak.dynasite.org/Nestimate/reference/long-data.html)
 and
-[`Nestimate::ai_long`](https://saqr.me/Nestimate/reference/long-data.html)
+[`Nestimate::ai_long`](https://pak.dynasite.org/Nestimate/reference/long-data.html)
 by collapsing several near-synonym codes into a smaller, more
 interpretable alphabet. Suitable as a teaching example for
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
@@ -28,7 +28,7 @@ A data frame with 19347 rows and 11 columns:
 
 - session_id:
 
-  Character. Session identifier — pass to
+  Character. Session identifier; pass to
   [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) as
   the session key.
 
@@ -56,12 +56,12 @@ A data frame with 19347 rows and 11 columns:
 
 - order_in_session:
 
-  Integer. Order of the row within the session — pass as the order key
-  to [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
+  Integer. Order of the row within the session; pass as the order key to
+  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
 
 - actor_type:
 
-  Character. `"AI"` or `"Human"` — the actor partition for
+  Character. `"AI"` or `"Human"`: the actor partition for
   [`build_htna`](https://sonsoles.me/htna/reference/build_htna.md)`(actor_type = "actor_type")`.
 
 - phase:
@@ -75,9 +75,9 @@ A data frame with 19347 rows and 11 columns:
 ## Source
 
 Derived from
-[`Nestimate::human_long`](https://saqr.me/Nestimate/reference/long-data.html)
+[`Nestimate::human_long`](https://pak.dynasite.org/Nestimate/reference/long-data.html)
 and
-[`Nestimate::ai_long`](https://saqr.me/Nestimate/reference/long-data.html);
+[`Nestimate::ai_long`](https://pak.dynasite.org/Nestimate/reference/long-data.html);
 see `data-raw/human_ai.R` for the build script.
 
 ## Details
@@ -112,12 +112,9 @@ be treated as informational only.
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 plot_htna(net)
-
-# }
 ```

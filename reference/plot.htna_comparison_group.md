@@ -18,9 +18,22 @@ plot(x, ...)
 
 - ...:
 
-  Passed to the `net_comparison` plot method, including `type` and
-  `combined`.
+  Passed to the `net_comparison` plot method, including `type`
+  (`"scatter"`, `"heatmap"`, `"diff_hist"`, `"weight_dist"` or `"all"`)
+  and `combined`.
 
 ## Value
 
 Invisibly, a named list containing the plot for every comparison.
+
+## Examples
+
+``` r
+data(human_ai)
+grouped <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
+plot(compare_htna(grouped))
+```

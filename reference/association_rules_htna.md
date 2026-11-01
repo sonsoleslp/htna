@@ -1,7 +1,7 @@
 # Association Rule Mining over Transitions
 
-htna-named alias of
-[`Nestimate::association_rules()`](https://saqr.me/Nestimate/reference/association_rules.html).
+htna-named wrapper for
+[`Nestimate::association_rules()`](https://pak.dynasite.org/Nestimate/reference/association_rules.html).
 Mines frequent itemsets and association rules over a transition-count
 matrix under support / confidence / lift thresholds.
 
@@ -16,20 +16,25 @@ association_rules_htna(x, ...)
 - x:
 
   A transition-count matrix or an htna network. See
-  [`Nestimate::association_rules()`](https://saqr.me/Nestimate/reference/association_rules.html).
+  [`Nestimate::association_rules()`](https://pak.dynasite.org/Nestimate/reference/association_rules.html).
 
 - ...:
 
   Additional arguments passed to
-  [`Nestimate::association_rules()`](https://saqr.me/Nestimate/reference/association_rules.html),
+  [`Nestimate::association_rules()`](https://pak.dynasite.org/Nestimate/reference/association_rules.html),
   such as `min_support`, `min_confidence`, `min_lift`, and `max_length`.
   See that function for the full, current argument list.
 
 ## Value
 
-A list with the discovered rules and frequent itemsets. See
-[`Nestimate::association_rules()`](https://saqr.me/Nestimate/reference/association_rules.html)
-for details.
+An object of class `net_association_rules`, holding the discovered rules
+and frequent itemsets, with
+[`print()`](https://rdrr.io/r/base/print.html),
+[`summary()`](https://rdrr.io/r/base/summary.html) and
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) methods
+supplied by Nestimate. See
+[`Nestimate::association_rules()`](https://pak.dynasite.org/Nestimate/reference/association_rules.html)
+for the component list.
 
 ## Details
 
@@ -37,12 +42,12 @@ Foundation function in the htna-aware exploratory family. Works on
 transition-count input produced by
 [`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md)
 or
-[`Nestimate::build_network()`](https://saqr.me/Nestimate/reference/build_network.html);
+[`Nestimate::build_network()`](https://pak.dynasite.org/Nestimate/reference/build_network.html);
 the rules carry over to htna networks since the underlying transition
 counts are the same.
 
 Suffixed `_htna` to avoid clashing with
-[`Nestimate::association_rules()`](https://saqr.me/Nestimate/reference/association_rules.html)
+[`Nestimate::association_rules()`](https://pak.dynasite.org/Nestimate/reference/association_rules.html)
 when both packages are loaded.
 
 ## See also
@@ -53,10 +58,9 @@ when both packages are loaded.
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 association_rules_htna(net, max_length = 3L)
 #> Association Rules  [1054 rules | 12 items | 429 transactions]
@@ -74,5 +78,4 @@ association_rules_htna(net, max_length = 3L)
 #>     9. Check, Repair -> Report  (sup=0.233 conf=0.840 lift=1.52)
 #>     10. Execute, Repair -> Report  (sup=0.245 conf=0.840 lift=1.52)
 #>     ... and 1044 more rules
-# }
 ```

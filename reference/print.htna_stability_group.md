@@ -1,6 +1,8 @@
 # Print Method for htna Stability Groups
 
-S3 method for printing grouped htna stability results.
+S3 method for printing grouped htna stability results: the
+[`print.htna_stability()`](https://sonsoles.me/htna/reference/print.htna_stability.md)
+report once per cohort.
 
 ## Usage
 
@@ -18,21 +20,21 @@ print(x, ...)
 
 - ...:
 
-  Additional arguments passed to the print method.
+  Passed to
+  [`print.htna_stability()`](https://sonsoles.me/htna/reference/print.htna_stability.md).
 
 ## Value
 
-Invisibly returns the object, prints group stability information.
+Invisibly, `x`, unchanged.
 
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
 cs  <- centrality_stability_htna(grp, iter = 20, seed = 1)
 print(cs)
@@ -60,5 +62,4 @@ print(cs)
 #>     InStrength       0.90
 #>     OutStrength      0.90
 #>     Betweenness      0.70
-# }
 ```

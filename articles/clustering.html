@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,7 +96,7 @@ algorithm (<code>pam</code> by default) to split them into <em>k</em>
 cohorts. Feed the returned <code>net_clustering</code> object straight
 to <code><a href="../reference/build_htna.html">build_htna()</a></code>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cc</span>  <span class="op">&lt;-</span> <span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://saqr.me/Nestimate/reference/build_clusters.html" class="external-link">build_clusters</a></span><span class="op">(</span><span class="va">net</span>, k <span class="op">=</span> <span class="fl">2</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">cc</span>  <span class="op">&lt;-</span> <span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_clusters.html" class="external-link">build_clusters</a></span><span class="op">(</span><span class="va">net</span>, k <span class="op">=</span> <span class="fl">2</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">grp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">cc</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span>
@@ -128,7 +128,7 @@ first-order Markov chains via EM and assigns each session
 probabilistically to a component. The returned <code>net_mmm</code>
 object is also a legal <code><a href="../reference/build_htna.html">build_htna()</a></code> input:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cm</span>    <span class="op">&lt;-</span> <span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://saqr.me/Nestimate/reference/cluster_mmm.html" class="external-link">cluster_mmm</a></span><span class="op">(</span><span class="va">net</span>, k <span class="op">=</span> <span class="fl">2</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">cm</span>    <span class="op">&lt;-</span> <span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/cluster_mmm.html" class="external-link">cluster_mmm</a></span><span class="op">(</span><span class="va">net</span>, k <span class="op">=</span> <span class="fl">2</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">grp_m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">cm</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">grp_m</span><span class="op">)</span></span>
@@ -161,7 +161,7 @@ single dominant cluster and a tiny satellite. The row flagged
 <code>&lt;-- best</code> in the print method is the largest silhouette
 across the grid.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://saqr.me/Nestimate/reference/cluster_choice.html" class="external-link">cluster_choice</a></span><span class="op">(</span><span class="va">net</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/cluster_choice.html" class="external-link">cluster_choice</a></span><span class="op">(</span><span class="va">net</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Cluster Choice (sweep: k)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  k silhouette within_dist sizes     ratio  best    </span></span>
@@ -181,7 +181,7 @@ The row flagged <code>&lt;-- BIC</code> is the best BIC across the grid;
 ICL trades off fit against classification uncertainty and is often
 preferred when the cohorts must be used for downstream inference.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://saqr.me/Nestimate/reference/compare_mmm.html" class="external-link">compare_mmm</a></span><span class="op">(</span><span class="va">net</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">3</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/compare_mmm.html" class="external-link">compare_mmm</a></span><span class="op">(</span><span class="va">net</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">3</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="co">#&gt; MMM Model Comparison</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;  k log_likelihood AIC      BIC      ICL      AvePP     Entropy   converged</span></span>
@@ -200,7 +200,7 @@ mean within- cluster distance, and silhouette. Small satellites or
 negative silhouettes on one cluster indicate that the partition is
 stretched by outliers even if the aggregate score is acceptable.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://saqr.me/Nestimate/reference/cluster_diagnostics.html" class="external-link">cluster_diagnostics</a></span><span class="op">(</span><span class="va">cc</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/cluster_diagnostics.html" class="external-link">cluster_diagnostics</a></span><span class="op">(</span><span class="va">cc</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Cluster Diagnostics (distance) [pam / hamming]</span></span>
 <span><span class="co">#&gt;   Sequences: 429  |  Clusters: 2</span></span>
 <span><span class="co">#&gt;   Quality: silhouette = 0.300</span></span>

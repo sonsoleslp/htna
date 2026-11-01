@@ -28,15 +28,16 @@ The bundled `human_ai` corpus already carries an `actor_type` column
 distinguishing Human and AI events (see
 [`?human_ai`](https://sonsoles.me/htna/reference/human_ai.md)). The
 session-level `phase` column marks each session as `"Early"` or `"Late"`
-based on its rank in chronological order.
+based on its rank in chronological order. The count below is the number
+of coded events (rows) in each cohort:
 
 ``` r
 
 library(htna)
 data(human_ai)
 
-table(human_ai$phase)
-#> 
+xtabs(~ phase, data = human_ai)
+#> phase
 #> Early  Late 
 #> 10170  9177
 ```
@@ -114,12 +115,15 @@ res
 #>   ... and 96 more patterns
 ```
 
-The discriminative patterns appear at the top of the patterns table,
+[`summary()`](https://rdrr.io/r/base/summary.html) returns the pattern
+table as a data frame, one row per k-gram, with the per-cohort
+frequencies, proportions and standardised residuals, the effect size and
+the adjusted p-value. The discriminative patterns appear at the top,
 ranked by test statistic.
 
 ``` r
 
-head(res$patterns, 10)
+head(summary(res), 10)
 #>                                        pattern length freq_Early freq_Late
 #> 1                        Request->Specify->Ask      3        147       197
 #> 2  Execute->Request->Execute->Request->Execute      5         35        56

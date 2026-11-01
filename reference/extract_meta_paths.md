@@ -26,7 +26,7 @@ extract_meta_paths(
 
 - x:
 
-  \[`htna_network`\]  
+  \[`htna`\]  
   A network built with
   [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
   Must have `$nodes$groups`, `$node_groups`, and `$data` populated.
@@ -119,10 +119,9 @@ Operates on the actor partition stored on the network by
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 
 # Concrete state-level patterns of length 2..4 (default)
@@ -294,5 +293,4 @@ extract_meta_paths(net, length = 3, min_lift = 1.2)
 #>      0.012 11.71
 #>      0.011  2.93
 #> ... (435 more)
-# }
 ```

@@ -19,7 +19,7 @@ set.seed(42)
 student_codes <- c("Ask", "Confirm", "Revise", "Evaluate")
 ai_codes      <- c("Suggest", "Explain", "Execute", "Clarify")
 system_codes  <- c("Log", "Notify", "Compile", "Sync")
-sessions      <- paste0("S", sprintf("%03d", 1:30))
+sessions      <- sprintf("S%03d", seq_len(30))
 
 make_events <- function(codes, sessions, offset) {
   rows <- lapply(sessions, function(sid) {
@@ -95,22 +95,52 @@ net3
 #>   Sync          0.000
 ```
 
-The actor partition now contains three levels:
+The actor partition now contains three levels, each with its four codes;
+[`summary()`](https://rdrr.io/r/base/summary.html) lists them and counts
+the non-zero edges within and between every pair of actors:
 
 ``` r
 
-table(net3$node_groups$group)
+summary(net3)
+#> <htna network>
+#>   Method:    relative
+#>   Sessions:  30   (max 70 timesteps)
+#>   Nodes:     12
+#>   Edges:     116 / 144 (non-zero)
 #> 
-#>      AI Student  System 
-#>       4       4       4
+#> Actor types (3):
+#>   Student (4 nodes):  Ask, Confirm, Evaluate, Revise
+#>   AI      (4 nodes):  Clarify, Execute, Explain, Suggest
+#>   System  (4 nodes):  Compile, Log, Notify, Sync
+#> 
+#> Edge counts by actor (rows = source, cols = target):
+#>             Student      AI  System
+#>   Student         3      16      14
+#>   AI             13       9      16
+#>   System         16      15      14
+#> 
+#> Network metrics:
+#>                       metric        value
+#>                   Node Count  12.00000000
+#>                   Edge Count 116.00000000
+#>              Network Density   0.87878788
+#>                Mean Distance   0.01880090
+#>            Mean Out-Strength   1.00000000
+#>              SD Out-Strength   0.09163372
+#>             Mean In-Strength   1.00000000
+#>               SD In-Strength   0.00000000
+#>              Mean Out-Degree   9.66666667
+#>                SD Out-Degree   1.55699789
+#>  Centralization (Out-Degree)   0.18181818
+#>   Centralization (In-Degree)   0.18181818
+#>                  Reciprocity   0.87272727
 ```
 
 ## Plotting
 
-With three or more groups,
-[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md)
-automatically switches to a polygon (triangle) layout. The three colours
-from the default HTNA palette are applied in order:
+With the default circular layout, each of the three groups occupies its
+own arc of the circle. The first three colours of the default HTNA
+palette are applied in order:
 
 ``` r
 
@@ -118,6 +148,16 @@ plot_htna(net3)
 ```
 
 ![](multigroup_files/figure-html/unnamed-chunk-4-1.png)
+
+`layout = "polygon"` (alias `"triangle"` for three groups) places each
+group along one side of a regular polygon (one side per group) instead:
+
+``` r
+
+plot_htna(net3, layout = "polygon")
+```
+
+![](multigroup_files/figure-html/unnamed-chunk-5-1.png)
 
 ## Per-actor sequences
 
@@ -131,14 +171,14 @@ one (session, actor) and is coloured by the concrete code; with
 sequence_plot_htna(net3, by = "state", type = "index")
 ```
 
-![](multigroup_files/figure-html/unnamed-chunk-5-1.png)
+![](multigroup_files/figure-html/unnamed-chunk-6-1.png)
 
 ``` r
 
 sequence_plot_htna(net3, by = "group", type = "distribution")
 ```
 
-![](multigroup_files/figure-html/unnamed-chunk-6-1.png)
+![](multigroup_files/figure-html/unnamed-chunk-7-1.png)
 
 The `by = "state"` legend is split into one block per actor with the
 actor name as a sub-title, so the reader can tell at a glance which
@@ -166,7 +206,7 @@ net3b <- build_htna(
 plot_htna_diff(net3, net3b)
 ```
 
-![](multigroup_files/figure-html/unnamed-chunk-7-1.png)
+![](multigroup_files/figure-html/unnamed-chunk-8-1.png)
 
 [`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)
 provides the non-parametric significance test; pass the result to
@@ -179,14 +219,14 @@ perm3 <- permutation_htna(net3, net3b, iter = 200)
 plot_htna_diff(perm3)
 ```
 
-![](multigroup_files/figure-html/unnamed-chunk-8-1.png)
+![](multigroup_files/figure-html/unnamed-chunk-9-1.png)
 
 ``` r
 
 plot_htna_diff(perm3, show_nonsig = TRUE)
 ```
 
-![](multigroup_files/figure-html/unnamed-chunk-9-1.png)
+![](multigroup_files/figure-html/unnamed-chunk-10-1.png)
 
 ## Meta-paths across three actors
 

@@ -13,7 +13,7 @@ callers can dispatch on the htna form."><meta property="og:image" content="https
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -40,7 +40,7 @@ callers can dispatch on the htna form."><meta property="og:image" content="https
     </div>
 
     <div class="ref-description section level2">
-    <p>Thin wrapper around <code><a href="https://saqr.me/Nestimate/reference/centrality_stability.html" class="external-link">Nestimate::centrality_stability()</a></code> that
+    <p>Thin wrapper around <code><a href="https://pak.dynasite.org/Nestimate/reference/centrality_stability.html" class="external-link">Nestimate::centrality_stability()</a></code> that
 validates the input is an htna network (or <code>htna_group</code>), forwards
 the call, and tags the result with an <code>htna_stability</code> class so
 callers can dispatch on the htna form.</p>
@@ -72,7 +72,7 @@ callers can dispatch on the htna form.</p>
 
 <dt id="arg-measures">measures<a class="anchor" aria-label="anchor" href="#arg-measures"></a></dt>
 <dd><p>Character vector of centrality measures to assess.
-Default <code>c("InStrength", "OutStrength", "Betweenness")</code> — the
+Default <code>c("InStrength", "OutStrength", "Betweenness")</code>: the
 three measures whose values are bit-equal between htna's
 <code>cograph</code> engine and Nestimate's default centrality
 implementation. To assess htna's nine measures (including the
@@ -110,7 +110,7 @@ Default <code>0.95</code>.</p></dd>
 <dt id="arg-centrality-fn">centrality_fn<a class="anchor" aria-label="anchor" href="#arg-centrality-fn"></a></dt>
 <dd><p>Optional function to compute centralities.
 Default <code>NULL</code> (use Nestimate's internal implementation). See
-<code><a href="https://saqr.me/Nestimate/reference/centrality_stability.html" class="external-link">Nestimate::centrality_stability()</a></code> for the expected signature.</p></dd>
+<code><a href="https://pak.dynasite.org/Nestimate/reference/centrality_stability.html" class="external-link">Nestimate::centrality_stability()</a></code> for the expected signature.</p></dd>
 
 
 <dt id="arg-loops">loops<a class="anchor" aria-label="anchor" href="#arg-loops"></a></dt>
@@ -126,9 +126,12 @@ Default <code>NULL</code> (use Nestimate's internal implementation). See
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>For a single htna network, an object of class
 <code>c("htna_stability", "net_stability")</code> with the same components
-as <code><a href="https://saqr.me/Nestimate/reference/centrality_stability.html" class="external-link">Nestimate::centrality_stability()</a></code>: <code>cs</code> (the stability
+as <code><a href="https://pak.dynasite.org/Nestimate/reference/centrality_stability.html" class="external-link">Nestimate::centrality_stability()</a></code>: <code>cs</code> (the stability
 coefficients, one per measure), <code>correlations</code> (per-drop-proportion
-correlation traces), and the parameters that were used.
+correlation traces), and the parameters that were used. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
+returns the tidy table: one row per (measure, drop proportion), with
+columns <code>measure</code>, <code>drop_prop</code>, <code>mean_cor</code>, <code>sd_cor</code> and
+<code>prop_above</code>. See <code><a href="print.htna_stability.html">print.htna_stability()</a></code> and <code><a href="plot.htna_stability.html">plot.htna_stability()</a></code>.
 For an <code>htna_group</code>, a named list of such objects with class
 <code>c("htna_stability_group", "list")</code>.</p>
     </div>
@@ -139,23 +142,64 @@ is a named list (one <code>htna_stability</code> per cohort), with class
 <code>c("htna_stability_group", "list")</code>.</p>
     </div>
     <div class="section level2">
+    <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
+    <p>Epskamp, S., Borsboom, D., &amp; Fried, E. I. (2018). Estimating
+psychological networks and their accuracy: A tutorial paper.
+<em>Behavior Research Methods</em>, 50(1), 195-212.
+<a href="https://doi.org/10.3758/s13428-017-0862-1" class="external-link">doi:10.3758/s13428-017-0862-1</a></p>
+    </div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="https://saqr.me/Nestimate/reference/centrality_stability.html" class="external-link">Nestimate::centrality_stability()</a></code>,
+    <div class="dont-index"><p><code><a href="https://pak.dynasite.org/Nestimate/reference/centrality_stability.html" class="external-link">Nestimate::centrality_stability()</a></code>,
 <code><a href="bootstrap_htna.html">bootstrap_htna()</a></code>, <code><a href="reliability_htna.html">reliability_htna()</a></code>.</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
 <span class="r-in"><span><span class="va">cs</span>  <span class="op">&lt;-</span> <span class="fu">centrality_stability_htna</span><span class="op">(</span><span class="va">net</span>, iter <span class="op">=</span> <span class="fl">30</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">cs</span><span class="op">$</span><span class="va">cs</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  InStrength OutStrength Betweenness </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         0.9         0.9         0.8 </span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="va">cs</span>            <span class="co"># CS-coefficient per measure</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> HTNA Centrality Stability Analysis</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ===================================</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Centrality Stability (30 iterations, threshold = 0.7)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Drop proportions: 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   CS-coefficients:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     InStrength       0.90</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     OutStrength      0.90</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Betweenness      0.80</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">cs</span><span class="op">)</span>   <span class="co"># mean correlation per measure and drop proportion</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        measure drop_prop  mean_cor       sd_cor prop_above</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1   InStrength       0.1 0.9997933 9.399327e-05  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2   InStrength       0.2 0.9995121 2.589640e-04  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   InStrength       0.3 0.9989968 5.254436e-04  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   InStrength       0.4 0.9987609 7.592632e-04  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5   InStrength       0.5 0.9979411 1.335385e-03  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6   InStrength       0.6 0.9969654 1.586312e-03  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7   InStrength       0.7 0.9960166 2.181399e-03  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8   InStrength       0.8 0.9916548 5.620265e-03  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9   InStrength       0.9 0.9832595 8.474270e-03  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 OutStrength       0.1 0.9987117 1.133226e-03  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 OutStrength       0.2 0.9974190 2.067790e-03  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 OutStrength       0.3 0.9960323 2.227121e-03  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13 OutStrength       0.4 0.9942741 2.601673e-03  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14 OutStrength       0.5 0.9860923 1.021467e-02  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15 OutStrength       0.6 0.9847606 8.605913e-03  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16 OutStrength       0.7 0.9775272 1.271530e-02  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17 OutStrength       0.8 0.9553243 2.549594e-02  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18 OutStrength       0.9 0.9259479 4.487740e-02  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19 Betweenness       0.1 0.9895928 9.718681e-03  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20 Betweenness       0.2 0.9786379 1.764171e-02  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21 Betweenness       0.3 0.9747873 1.717430e-02  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22 Betweenness       0.4 0.9700564 2.368309e-02  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23 Betweenness       0.5 0.9576797 3.076986e-02  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24 Betweenness       0.6 0.9564011 2.816820e-02  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 25 Betweenness       0.7 0.9406976 3.667811e-02  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26 Betweenness       0.8 0.9328796 4.775810e-02  1.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 27 Betweenness       0.9 0.8714616 7.999922e-02  0.9333333</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

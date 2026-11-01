@@ -14,9 +14,11 @@ quantifies that demand. For a fixed range of candidate orders, it fits a
 separate Markov model at each order to the empirical sequences, computes
 the log-likelihood, and tests whether each successive increase in order
 yields a statistically significant improvement over the lower order via
-a permutation test on the deviance statistic. The reported optimal order
-is the largest order at which the test rejects equivalence to its
-predecessor.
+a permutation test on the deviance statistic. The steps are tested in
+sequence, and the reported `optimal_order` is the last order reached
+before the first non-significant step (or `max_order` when every step is
+significant). The BIC- and AIC-preferred orders are printed alongside
+it.
 
 In a heterogeneous setting (where two or more actors interleave in the
 same session) the question gains an additional dimension. The optimal
@@ -35,47 +37,37 @@ corpus and compares the resulting optimal orders.
 
 The example uses the bundled `human_ai` corpus – Human + AI events in a
 single long frame, tagged by an `actor_type` column (see
-[`?human_ai`](https://sonsoles.me/htna/reference/human_ai.md)). Three
-sequence sets are constructed:
+[`?human_ai`](https://sonsoles.me/htna/reference/human_ai.md)) – and its
+per-actor slices `human_simplified` and `ai_simplified`. Three sequence
+sets are tested:
 
 - **Human-only**: each session restricted to its Human events,
-  preserving order.
+  preserving order (`human_simplified`).
 - **AI-only**: each session restricted to its AI events, preserving
-  order.
+  order (`ai_simplified`).
 - **Combined**: the original interleaved Human + AI sequence per
-  session.
+  session, as stored on the htna network.
 
-Sessions shorter than three events do not inform tests beyond order-1
-and are excluded from each set.
+[`markov_order_test_htna()`](https://sonsoles.me/htna/reference/markov_order_test_htna.md)
+accepts a network directly and tests the session sequences stored on it.
+The per-actor sets are therefore built as ordinary single-actor
+transition networks with
+[`Nestimate::build_network()`](https://pak.dynasite.org/Nestimate/reference/build_network.html),
+and the combined set is the htna network itself. Each network orders
+events by `order_in_session` within `session_id`.
 
 ``` r
 
 library(htna)
-data(human_ai)
+data(human_ai, human_simplified, ai_simplified)
 
-# Within each session, restore chronological order (the bundled
-# dataset is sorted by project + step [order_in_session],
-# which interleaves sessions).
-
-human_ai <- human_ai[order(human_ai$session_id,
-                           human_ai$order_in_session), ]
-
-is_h <- human_ai$actor_type == "Human"
-human_seqs <- split(human_ai$code[is_h], human_ai$session_id[is_h])
-human_seqs <- human_seqs[lengths(human_seqs) >= 3L]
-
-is_a <- human_ai$actor_type == "AI"
-ai_seqs <- split(human_ai$code[is_a], human_ai$session_id[is_a])
-ai_seqs <- ai_seqs[lengths(ai_seqs) >= 3L]
-
-combined_seqs <- split(human_ai$code, human_ai$session_id)
-combined_seqs <- combined_seqs[lengths(combined_seqs) >= 3L]
-
-c(human = length(human_seqs),
-  ai    = length(ai_seqs),
-  combined = length(combined_seqs))
-#>    human       ai combined 
-#>      423      416      427
+human_net <- Nestimate::build_network(human_simplified, method = "relative",
+                                      action = "code", session = "session_id",
+                                      order = "order_in_session")
+ai_net    <- Nestimate::build_network(ai_simplified, method = "relative",
+                                      action = "code", session = "session_id",
+                                      order = "order_in_session")
+net       <- build_htna(human_ai, actor_type = "actor_type")
 ```
 
 ## Human sequences
@@ -88,26 +80,29 @@ captures additional structure.
 ``` r
 
 mo_h <- markov_order_test_htna(
-  human_seqs,
+  human_net,
   max_order = 4L,
   n_perm    = 200L,
   seed      = 1L
 )
-mo_h$test_table
-#>   order    loglik      AIC      BIC   df        g2 p_permutation  p_asymptotic
-#> 1     0 -17907.30 35824.60 35861.03   NA        NA            NA            NA
-#> 2     1 -17262.70 34595.39 34850.41   25 1260.7611   0.004975124 1.978771e-250
-#> 3     2 -16892.01 34214.01 35780.55  150  638.5035   0.004975124  1.782493e-61
-#> 4     3 -16136.73 34557.47 42878.30  900 1461.4352   0.004975124  2.008114e-29
-#> 5     4 -13751.30 34628.60 60589.30 4111 4629.4962   0.009950249  1.884830e-08
-#>   significant
-#> 1          NA
-#> 2        TRUE
-#> 3        TRUE
-#> 4        TRUE
-#> 5        TRUE
-mo_h$optimal_order
-#> [1] 4
+mo_h
+#> Markov Order Test  [within-w permutation, n_perm = 200, alpha = 0.050]
+#>   425 sequences / 10792 observations / 6 states
+#> 
+#>   Selected order  BIC: 1   AIC: 2   permutation-LRT: 4
+#> 
+#>  order    loglik      AIC      BIC   df      g2 p_permutation  p_asymptotic
+#>      0 -17913.16 35836.33 35872.76   NA      NA            NA            NA
+#>      1 -17268.71 34607.42 34862.44   25 1260.53   0.004975124 2.212773e-250
+#>      2 -16897.99 34225.98 35792.59  150  638.50   0.004975124  1.782493e-61
+#>      3 -16142.72 34875.44 44311.53  900 1461.44   0.004975124  2.008114e-29
+#>      4 -13757.29 43064.57 99717.58 4111 4629.50   0.009950249  1.884830e-08
+#>  significant
+#>           NA
+#>         TRUE
+#>         TRUE
+#>         TRUE
+#>         TRUE
 ```
 
 ``` r
@@ -127,26 +122,29 @@ comparable to the Human result.
 ``` r
 
 mo_a <- markov_order_test_htna(
-  ai_seqs,
+  ai_net,
   max_order = 4L,
   n_perm    = 200L,
   seed      = 1L
 )
-mo_a$test_table
-#>   order    loglik      AIC      BIC   df        g2 p_permutation p_asymptotic
-#> 1     0 -12507.50 25025.00 25060.26   NA        NA            NA           NA
-#> 2     1 -11561.26 23192.52 23439.32   25 1851.6662   0.004975124 0.000000e+00
-#> 3     2 -11388.43 23150.86 24469.46  150  317.0789   0.004975124 5.088532e-14
-#> 4     3 -10962.98 23315.97 28216.65  675  836.7299   0.004975124 1.976688e-05
-#> 5     4 -10002.71 23391.42 35329.35 1761 1885.6450   0.194029851 1.951552e-02
-#>   significant
-#> 1          NA
-#> 2        TRUE
-#> 3        TRUE
-#> 4        TRUE
-#> 5       FALSE
-mo_a$optimal_order
-#> [1] 3
+mo_a
+#> Markov Order Test  [within-w permutation, n_perm = 200, alpha = 0.050]
+#>   425 sequences / 8548 observations / 6 states
+#> 
+#>   Selected order  BIC: 1   AIC: 1   permutation-LRT: 3
+#> 
+#>  order    loglik      AIC      BIC   df      g2 p_permutation p_asymptotic
+#>      0 -12541.23 25092.46 25127.73   NA      NA            NA           NA
+#>      1 -11593.79 23257.58 23504.45   25 1851.94   0.004975124 0.000000e+00
+#>      2 -11421.33 23272.65 24789.14  150  317.08   0.004975124 5.088532e-14
+#>      3 -10995.88 24581.76 33715.98  675  836.73   0.004975124 1.976688e-05
+#>      4 -10035.61 35621.21 90461.81 1761 1885.64   0.194029851 1.951552e-02
+#>  significant
+#>           NA
+#>         TRUE
+#>         TRUE
+#>         TRUE
+#>        FALSE
 ```
 
 ``` r
@@ -168,26 +166,29 @@ tests cannot see.
 ``` r
 
 mo_c <- markov_order_test_htna(
-  combined_seqs,
+  net,
   max_order = 4L,
   n_perm    = 200L,
   seed      = 1L
 )
-mo_c$test_table
-#>   order    loglik      AIC       BIC    df        g2 p_permutation p_asymptotic
-#> 1     0 -43738.00 87498.01  87584.58    NA        NA            NA           NA
-#> 2     1 -37312.20 74892.39  75946.99   121 12815.693   0.004975124 0.000000e+00
-#> 3     2 -33808.86 69731.72  78050.45  1272  6481.756   0.004975124 0.000000e+00
-#> 4     3 -29294.11 67098.21 100585.65  7242  8982.768   0.004975124 1.533371e-41
-#> 5     4 -21727.12 61270.24 131377.42 16296 15087.014   0.004975124 1.000000e+00
-#>   significant
-#> 1          NA
-#> 2        TRUE
-#> 3        TRUE
-#> 4        TRUE
-#> 5        TRUE
-mo_c$optimal_order
-#> [1] 4
+mo_c
+#> Markov Order Test  [within-w permutation, n_perm = 200, alpha = 0.050]
+#>   428 sequences / 19346 observations / 12 states
+#> 
+#>   Selected order  BIC: 1   AIC: 2   permutation-LRT: 4
+#> 
+#>  order    loglik       AIC        BIC    df       g2 p_permutation p_asymptotic
+#>      0 -43741.91  87505.83   87592.40    NA       NA            NA           NA
+#>      1 -37315.96  74899.92   75954.53   121 12815.99   0.004975124 0.000000e+00
+#>      2 -33812.56  70683.12   82716.72  1272  6481.76   0.004975124 0.000000e+00
+#>      3 -29297.81  93261.62  229676.51  7242  8982.77   0.004975124 1.533371e-41
+#>      4 -21730.82 436235.65 1981848.66 16296 15087.01   0.004975124 1.000000e+00
+#>  significant
+#>           NA
+#>         TRUE
+#>         TRUE
+#>         TRUE
+#>         TRUE
 ```
 
 ``` r
@@ -210,25 +211,29 @@ Four interpretive cases are worth distinguishing:
 | One per-actor \> the other and ≥ combined | The actor with the higher order is the one with internal long-range dependence. Their behaviour at step *t* depends on multiple prior steps of *their own* history, regardless of what the other actor did. |
 | Per-actor orders ≥ combined | The per-actor processes individually carry more memory than their interleaved joint process. This is unusual and typically indicates that the combined sequence dilutes within-actor structure by alternating actors. |
 
-Empirically, on the example corpus the Human-only optimal order is **4**
-and the AI-only optimal order is **3**. The combined optimal order is
-**4**. All three saturate at the upper bound of the search (see the next
-section), so the test cannot distinguish which process carries the
-deepest internal memory at this `max_order` — only that none of them is
-consistent with a first-order assumption. The default htna network is
-therefore a structural simplification of these data, even if it remains
-analytically useful for descriptive and relational claims.
+Empirically, on the example corpus the permutation test selects order
+**4** for the Human-only sequences, **3** for the AI-only sequences and
+**4** for the combined process. The Human-only and combined searches
+saturate at the upper bound (see the next section), whereas the AI-only
+search stops below it because its order-4 step is not significant. None
+of the three is consistent with a first-order assumption under the
+permutation test, so the default htna network is a structural
+simplification of these data, even if it remains analytically useful for
+descriptive and relational claims. The information criteria are more
+conservative: BIC prefers order 1, 1 and 1 respectively, because it
+penalises the number of parameters, which grows rapidly with the order.
 
 ## A note on `optimal_order` saturating at `max_order`
 
 When all tested orders show significant improvement over their
-predecessor — as in this example — the reported `optimal_order` equals
-the upper bound of the search (`max_order`). This is not the “true”
-optimal order; it is the largest order tested. To probe whether higher
-orders would still improve fit, increase `max_order`. The trade-off is
-computational: the number of parameters at order *k* is approximately
-$`|S|^{k+1}`$, where $`|S|`$ is the size of the state alphabet, so each
-step roughly multiplies fitting cost by the alphabet size.
+predecessor (as for the Human-only and combined sequences in this
+example) the reported `optimal_order` equals the upper bound of the
+search (`max_order`). This is not the “true” optimal order; it is the
+largest order tested. To probe whether higher orders would still improve
+fit, increase `max_order`. The trade-off is computational: the number of
+parameters at order *k* is approximately $`|S|^{k+1}`$, where $`|S|`$ is
+the size of the state alphabet, so each step roughly multiplies fitting
+cost by the alphabet size.
 
 ## Practical recipe
 
@@ -269,14 +274,14 @@ higher-order models under different encodings of the memory:
 
 | Function | Description |
 |----|----|
-| [`Nestimate::build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html) | Higher-order network constructed by introducing explicit memory nodes for sequences whose transition probabilities deviate from the first-order baseline. Appropriate when the optimal order is 2 or 3 and the analysis benefits from an explicit memory representation in the graph. |
-| [`Nestimate::build_honem()`](https://saqr.me/Nestimate/reference/build_honem.html) | Higher-order network with memory encoded on edges rather than as expanded nodes. Yields a graph of the same node cardinality as the first-order network, with the trade-off that memory information is no longer locally readable from individual nodes. |
-| [`Nestimate::build_hypa()`](https://saqr.me/Nestimate/reference/build_hypa.html) | Higher-order network restricted to memory effects that are significant against a hypergeometric null model. Reduces the risk of over-fitting that arises when high-order transitions are estimated from limited data. |
-| [`Nestimate::build_mogen()`](https://saqr.me/Nestimate/reference/build_mogen.html) | Multi-order generative model in which the order is selected per node rather than fixed globally. Appropriate when memory depth is heterogeneous across states. |
+| [`Nestimate::build_hon()`](https://pak.dynasite.org/Nestimate/reference/build_hon.html) | Higher-order network constructed by introducing explicit memory nodes for sequences whose transition probabilities deviate from the first-order baseline. Appropriate when the optimal order is 2 or 3 and the analysis benefits from an explicit memory representation in the graph. |
+| [`Nestimate::build_honem()`](https://pak.dynasite.org/Nestimate/reference/build_honem.html) | Higher-order network with memory encoded on edges rather than as expanded nodes. Yields a graph of the same node cardinality as the first-order network, with the trade-off that memory information is no longer locally readable from individual nodes. |
+| [`Nestimate::build_hypa()`](https://pak.dynasite.org/Nestimate/reference/build_hypa.html) | Higher-order network restricted to memory effects that are significant against a hypergeometric null model. Reduces the risk of over-fitting that arises when high-order transitions are estimated from limited data. |
+| [`Nestimate::build_mogen()`](https://pak.dynasite.org/Nestimate/reference/build_mogen.html) | Multi-order generative model in which the order is selected per node rather than fixed globally. Appropriate when memory depth is heterogeneous across states. |
 
 ``` r
 
-hon <- Nestimate::build_hon(combined_seqs, max_order = 2L)
+hon <- Nestimate::build_hon(net, max_order = 2L)
 ```
 
 The actor partition carried by an htna network is not preserved on
@@ -292,17 +297,17 @@ A second mechanism by which the first-order test may reject the null is
 corpus heterogeneity: the sample comprises several distinct first-order
 processes whose mixture exhibits apparent higher-order structure even
 though no individual process does. The
-[`Nestimate::build_mmm()`](https://saqr.me/Nestimate/reference/build_mmm.html)
+[`Nestimate::build_mmm()`](https://pak.dynasite.org/Nestimate/reference/build_mmm.html)
 constructor estimates a *k*-component mixture of first-order chains and
 assigns each session probabilistically to a component.
 
 | Function | Description |
 |----|----|
-| [`Nestimate::build_mmm()`](https://saqr.me/Nestimate/reference/build_mmm.html) | Mixture of *k* first-order Markov chains with EM-based estimation. Each session receives posterior probabilities of membership in each component. Diagnostic of mixture rather than higher-order structure: the per-session log-likelihood improvement under a higher-order model is concentrated in a subset of sessions rather than uniformly distributed across the corpus. |
+| [`Nestimate::build_mmm()`](https://pak.dynasite.org/Nestimate/reference/build_mmm.html) | Mixture of *k* first-order Markov chains with EM-based estimation. Each session receives posterior probabilities of membership in each component. Diagnostic of mixture rather than higher-order structure: the per-session log-likelihood improvement under a higher-order model is concentrated in a subset of sessions rather than uniformly distributed across the corpus. |
 
 ``` r
 
-mmm <- Nestimate::build_mmm(combined_seqs, k = 3L)
+mmm <- Nestimate::build_mmm(net, k = 3L)
 ```
 
 ### TNA-family alternatives
@@ -317,7 +322,7 @@ aggregation rules without invoking higher-order memory.
 | Method | Description |
 |----|----|
 | `method = "attention"` | Attention-weighted transition network. Each transition is weighted by an attention coefficient that decays with sequential distance, yielding a continuous interpolation between first-order and longer-range coupling. |
-| `method = "frequency"` | Frequency-thresholded transition network. Transitions below a configurable count are removed before estimation, restricting the model to a structurally robust subgraph. Appropriate when the first-order test passes overall but the network is dominated by sparse, low-evidence edges. |
+| `method = "frequency"` | Transition network of raw counts rather than row-normalised probabilities. Combined with [`prune_htna()`](https://sonsoles.me/htna/reference/prune_htna.md), low-count transitions can be removed, restricting the model to a structurally robust subgraph. Appropriate when the first-order test passes overall but the network is dominated by sparse, low-evidence edges. |
 
 These methods address the modelling-specification question (“what
 transition matrix represents this corpus?”) rather than the
@@ -330,10 +335,10 @@ than substitutes for them.
 | Diagnostic from [`markov_order_test_htna()`](https://sonsoles.me/htna/reference/markov_order_test_htna.md) | Indicated next step |
 |----|----|
 | Optimal order = 1 across all slicings | First-order htna network is well-specified; no model change is indicated. |
-| Optimal order \> 1 in the combined process only | Cross-actor coupling carries dependence absent from each actor in isolation. Either retain the first-order network as a descriptive aggregate, or estimate [`Nestimate::build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html) to represent the cross-actor memory explicitly. |
-| Optimal order \> 1 within one or both actors | Within-actor memory. [`Nestimate::build_hon()`](https://saqr.me/Nestimate/reference/build_hon.html) or [`Nestimate::build_honem()`](https://saqr.me/Nestimate/reference/build_honem.html) per actor, or [`Nestimate::build_mogen()`](https://saqr.me/Nestimate/reference/build_mogen.html) when memory depth varies across states. |
-| Optimal order saturates at `max_order` for large `max_order` | Test the corpus-mixture hypothesis with [`Nestimate::build_mmm()`](https://saqr.me/Nestimate/reference/build_mmm.html); high apparent order may reflect heterogeneous components rather than long memory. |
-| First-order assumption holds but edges are sparse and noisy | Aggregation-specification rather than order question: `build_htna(..., method = "frequency")` to restrict to structurally robust transitions. |
+| Optimal order \> 1 in the combined process only | Cross-actor coupling carries dependence absent from each actor in isolation. Either retain the first-order network as a descriptive aggregate, or estimate [`Nestimate::build_hon()`](https://pak.dynasite.org/Nestimate/reference/build_hon.html) to represent the cross-actor memory explicitly. |
+| Optimal order \> 1 within one or both actors | Within-actor memory. [`Nestimate::build_hon()`](https://pak.dynasite.org/Nestimate/reference/build_hon.html) or [`Nestimate::build_honem()`](https://pak.dynasite.org/Nestimate/reference/build_honem.html) per actor, or [`Nestimate::build_mogen()`](https://pak.dynasite.org/Nestimate/reference/build_mogen.html) when memory depth varies across states. |
+| Optimal order saturates at `max_order` for large `max_order` | Test the corpus-mixture hypothesis with [`Nestimate::build_mmm()`](https://pak.dynasite.org/Nestimate/reference/build_mmm.html); high apparent order may reflect heterogeneous components rather than long memory. |
+| First-order assumption holds but edges are sparse and noisy | Aggregation-specification rather than order question: `build_htna(..., method = "frequency")` followed by [`prune_htna()`](https://sonsoles.me/htna/reference/prune_htna.md) to restrict to structurally robust transitions. |
 
 ## References
 

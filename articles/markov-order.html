@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,8 +78,11 @@ fixed range of candidate orders, it fits a separate Markov model at each
 order to the empirical sequences, computes the log-likelihood, and tests
 whether each successive increase in order yields a statistically
 significant improvement over the lower order via a permutation test on
-the deviance statistic. The reported optimal order is the largest order
-at which the test rejects equivalence to its predecessor.</p>
+the deviance statistic. The steps are tested in sequence, and the
+reported <code>optimal_order</code> is the last order reached before the
+first non-significant step (or <code>max_order</code> when every step is
+significant). The BIC- and AIC-preferred orders are printed alongside
+it.</p>
 <p>In a heterogeneous setting (where two or more actors interleave in
 the same session) the question gains an additional dimension. The
 optimal order computed on the <em>combined</em> sequences is a property
@@ -96,48 +99,37 @@ Human-AI corpus and compares the resulting optimal orders.</p>
 </h2>
 <p>The example uses the bundled <code>human_ai</code> corpus – Human +
 AI events in a single long frame, tagged by an <code>actor_type</code>
-column (see <code><a href="../reference/human_ai.html">?human_ai</a></code>). Three sequence sets are
-constructed:</p>
+column (see <code><a href="../reference/human_ai.html">?human_ai</a></code>) – and its per-actor slices
+<code>human_simplified</code> and <code>ai_simplified</code>. Three
+sequence sets are tested:</p>
 <ul>
 <li>
 <strong>Human-only</strong>: each session restricted to its Human
-events, preserving order.</li>
+events, preserving order (<code>human_simplified</code>).</li>
 <li>
 <strong>AI-only</strong>: each session restricted to its AI events,
-preserving order.</li>
+preserving order (<code>ai_simplified</code>).</li>
 <li>
 <strong>Combined</strong>: the original interleaved Human + AI
-sequence per session.</li>
+sequence per session, as stored on the htna network.</li>
 </ul>
-<p>Sessions shorter than three events do not inform tests beyond order-1
-and are excluded from each set.</p>
+<p><code><a href="../reference/markov_order_test_htna.html">markov_order_test_htna()</a></code> accepts a network directly and
+tests the session sequences stored on it. The per-actor sets are
+therefore built as ordinary single-actor transition networks with
+<code><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">Nestimate::build_network()</a></code>, and the combined set is the
+htna network itself. Each network orders events by
+<code>order_in_session</code> within <code>session_id</code>.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sonsoles.me/htna/">htna</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span>, <span class="va">human_simplified</span>, <span class="va">ai_simplified</span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Within each session, restore chronological order (the bundled</span></span>
-<span><span class="co"># dataset is sorted by project + step [order_in_session],</span></span>
-<span><span class="co"># which interleaves sessions).</span></span>
-<span></span>
-<span><span class="va">human_ai</span> <span class="op">&lt;-</span> <span class="va">human_ai</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">session_id</span>,</span>
-<span>                           <span class="va">human_ai</span><span class="op">$</span><span class="va">order_in_session</span><span class="op">)</span>, <span class="op">]</span></span>
-<span></span>
-<span><span class="va">is_h</span> <span class="op">&lt;-</span> <span class="va">human_ai</span><span class="op">$</span><span class="va">actor_type</span> <span class="op">==</span> <span class="st">"Human"</span></span>
-<span><span class="va">human_seqs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">code</span><span class="op">[</span><span class="va">is_h</span><span class="op">]</span>, <span class="va">human_ai</span><span class="op">$</span><span class="va">session_id</span><span class="op">[</span><span class="va">is_h</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">human_seqs</span> <span class="op">&lt;-</span> <span class="va">human_seqs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lengths.html" class="external-link">lengths</a></span><span class="op">(</span><span class="va">human_seqs</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">3L</span><span class="op">]</span></span>
-<span></span>
-<span><span class="va">is_a</span> <span class="op">&lt;-</span> <span class="va">human_ai</span><span class="op">$</span><span class="va">actor_type</span> <span class="op">==</span> <span class="st">"AI"</span></span>
-<span><span class="va">ai_seqs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">code</span><span class="op">[</span><span class="va">is_a</span><span class="op">]</span>, <span class="va">human_ai</span><span class="op">$</span><span class="va">session_id</span><span class="op">[</span><span class="va">is_a</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="va">ai_seqs</span> <span class="op">&lt;-</span> <span class="va">ai_seqs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lengths.html" class="external-link">lengths</a></span><span class="op">(</span><span class="va">ai_seqs</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">3L</span><span class="op">]</span></span>
-<span></span>
-<span><span class="va">combined_seqs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">code</span>, <span class="va">human_ai</span><span class="op">$</span><span class="va">session_id</span><span class="op">)</span></span>
-<span><span class="va">combined_seqs</span> <span class="op">&lt;-</span> <span class="va">combined_seqs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lengths.html" class="external-link">lengths</a></span><span class="op">(</span><span class="va">combined_seqs</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">3L</span><span class="op">]</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>human <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">human_seqs</span><span class="op">)</span>,</span>
-<span>  ai    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">ai_seqs</span><span class="op">)</span>,</span>
-<span>  combined <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">combined_seqs</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    human       ai combined </span></span>
-<span><span class="co">#&gt;      423      416      427</span></span></code></pre></div>
+<span><span class="va">human_net</span> <span class="op">&lt;-</span> <span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">human_simplified</span>, method <span class="op">=</span> <span class="st">"relative"</span>,</span>
+<span>                                      action <span class="op">=</span> <span class="st">"code"</span>, session <span class="op">=</span> <span class="st">"session_id"</span>,</span>
+<span>                                      order <span class="op">=</span> <span class="st">"order_in_session"</span><span class="op">)</span></span>
+<span><span class="va">ai_net</span>    <span class="op">&lt;-</span> <span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">build_network</a></span><span class="op">(</span><span class="va">ai_simplified</span>, method <span class="op">=</span> <span class="st">"relative"</span>,</span>
+<span>                                      action <span class="op">=</span> <span class="st">"code"</span>, session <span class="op">=</span> <span class="st">"session_id"</span>,</span>
+<span>                                      order <span class="op">=</span> <span class="st">"order_in_session"</span><span class="op">)</span></span>
+<span><span class="va">net</span>       <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="human-sequences">Human sequences<a class="anchor" aria-label="anchor" href="#human-sequences"></a>
@@ -148,26 +140,29 @@ that order-(<em>k</em>-1) is sufficient against the alternative that
 order-<em>k</em> captures additional structure.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mo_h</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/markov_order_test_htna.html">markov_order_test_htna</a></span><span class="op">(</span></span>
-<span>  <span class="va">human_seqs</span>,</span>
+<span>  <span class="va">human_net</span>,</span>
 <span>  max_order <span class="op">=</span> <span class="fl">4L</span>,</span>
 <span>  n_perm    <span class="op">=</span> <span class="fl">200L</span>,</span>
 <span>  seed      <span class="op">=</span> <span class="fl">1L</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">mo_h</span><span class="op">$</span><span class="va">test_table</span></span>
-<span><span class="co">#&gt;   order    loglik      AIC      BIC   df        g2 p_permutation  p_asymptotic</span></span>
-<span><span class="co">#&gt; 1     0 -17907.30 35824.60 35861.03   NA        NA            NA            NA</span></span>
-<span><span class="co">#&gt; 2     1 -17262.70 34595.39 34850.41   25 1260.7611   0.004975124 1.978771e-250</span></span>
-<span><span class="co">#&gt; 3     2 -16892.01 34214.01 35780.55  150  638.5035   0.004975124  1.782493e-61</span></span>
-<span><span class="co">#&gt; 4     3 -16136.73 34557.47 42878.30  900 1461.4352   0.004975124  2.008114e-29</span></span>
-<span><span class="co">#&gt; 5     4 -13751.30 34628.60 60589.30 4111 4629.4962   0.009950249  1.884830e-08</span></span>
-<span><span class="co">#&gt;   significant</span></span>
-<span><span class="co">#&gt; 1          NA</span></span>
-<span><span class="co">#&gt; 2        TRUE</span></span>
-<span><span class="co">#&gt; 3        TRUE</span></span>
-<span><span class="co">#&gt; 4        TRUE</span></span>
-<span><span class="co">#&gt; 5        TRUE</span></span>
-<span><span class="va">mo_h</span><span class="op">$</span><span class="va">optimal_order</span></span>
-<span><span class="co">#&gt; [1] 4</span></span></code></pre></div>
+<span><span class="va">mo_h</span></span>
+<span><span class="co">#&gt; Markov Order Test  [within-w permutation, n_perm = 200, alpha = 0.050]</span></span>
+<span><span class="co">#&gt;   425 sequences / 10792 observations / 6 states</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Selected order  BIC: 1   AIC: 2   permutation-LRT: 4</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  order    loglik      AIC      BIC   df      g2 p_permutation  p_asymptotic</span></span>
+<span><span class="co">#&gt;      0 -17913.16 35836.33 35872.76   NA      NA            NA            NA</span></span>
+<span><span class="co">#&gt;      1 -17268.71 34607.42 34862.44   25 1260.53   0.004975124 2.212773e-250</span></span>
+<span><span class="co">#&gt;      2 -16897.99 34225.98 35792.59  150  638.50   0.004975124  1.782493e-61</span></span>
+<span><span class="co">#&gt;      3 -16142.72 34875.44 44311.53  900 1461.44   0.004975124  2.008114e-29</span></span>
+<span><span class="co">#&gt;      4 -13757.29 43064.57 99717.58 4111 4629.50   0.009950249  1.884830e-08</span></span>
+<span><span class="co">#&gt;  significant</span></span>
+<span><span class="co">#&gt;           NA</span></span>
+<span><span class="co">#&gt;         TRUE</span></span>
+<span><span class="co">#&gt;         TRUE</span></span>
+<span><span class="co">#&gt;         TRUE</span></span>
+<span><span class="co">#&gt;         TRUE</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mo_h</span><span class="op">)</span></span></code></pre></div>
 <p><img src="markov-order_files/figure-html/human-plot-1.png" class="r-plt" alt="" width="720"></p>
@@ -181,26 +176,29 @@ permutations. The result does not depend on the Human sequences and is
 therefore directly comparable to the Human result.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mo_a</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/markov_order_test_htna.html">markov_order_test_htna</a></span><span class="op">(</span></span>
-<span>  <span class="va">ai_seqs</span>,</span>
+<span>  <span class="va">ai_net</span>,</span>
 <span>  max_order <span class="op">=</span> <span class="fl">4L</span>,</span>
 <span>  n_perm    <span class="op">=</span> <span class="fl">200L</span>,</span>
 <span>  seed      <span class="op">=</span> <span class="fl">1L</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">mo_a</span><span class="op">$</span><span class="va">test_table</span></span>
-<span><span class="co">#&gt;   order    loglik      AIC      BIC   df        g2 p_permutation p_asymptotic</span></span>
-<span><span class="co">#&gt; 1     0 -12507.50 25025.00 25060.26   NA        NA            NA           NA</span></span>
-<span><span class="co">#&gt; 2     1 -11561.26 23192.52 23439.32   25 1851.6662   0.004975124 0.000000e+00</span></span>
-<span><span class="co">#&gt; 3     2 -11388.43 23150.86 24469.46  150  317.0789   0.004975124 5.088532e-14</span></span>
-<span><span class="co">#&gt; 4     3 -10962.98 23315.97 28216.65  675  836.7299   0.004975124 1.976688e-05</span></span>
-<span><span class="co">#&gt; 5     4 -10002.71 23391.42 35329.35 1761 1885.6450   0.194029851 1.951552e-02</span></span>
-<span><span class="co">#&gt;   significant</span></span>
-<span><span class="co">#&gt; 1          NA</span></span>
-<span><span class="co">#&gt; 2        TRUE</span></span>
-<span><span class="co">#&gt; 3        TRUE</span></span>
-<span><span class="co">#&gt; 4        TRUE</span></span>
-<span><span class="co">#&gt; 5       FALSE</span></span>
-<span><span class="va">mo_a</span><span class="op">$</span><span class="va">optimal_order</span></span>
-<span><span class="co">#&gt; [1] 3</span></span></code></pre></div>
+<span><span class="va">mo_a</span></span>
+<span><span class="co">#&gt; Markov Order Test  [within-w permutation, n_perm = 200, alpha = 0.050]</span></span>
+<span><span class="co">#&gt;   425 sequences / 8548 observations / 6 states</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Selected order  BIC: 1   AIC: 1   permutation-LRT: 3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  order    loglik      AIC      BIC   df      g2 p_permutation p_asymptotic</span></span>
+<span><span class="co">#&gt;      0 -12541.23 25092.46 25127.73   NA      NA            NA           NA</span></span>
+<span><span class="co">#&gt;      1 -11593.79 23257.58 23504.45   25 1851.94   0.004975124 0.000000e+00</span></span>
+<span><span class="co">#&gt;      2 -11421.33 23272.65 24789.14  150  317.08   0.004975124 5.088532e-14</span></span>
+<span><span class="co">#&gt;      3 -10995.88 24581.76 33715.98  675  836.73   0.004975124 1.976688e-05</span></span>
+<span><span class="co">#&gt;      4 -10035.61 35621.21 90461.81 1761 1885.64   0.194029851 1.951552e-02</span></span>
+<span><span class="co">#&gt;  significant</span></span>
+<span><span class="co">#&gt;           NA</span></span>
+<span><span class="co">#&gt;         TRUE</span></span>
+<span><span class="co">#&gt;         TRUE</span></span>
+<span><span class="co">#&gt;         TRUE</span></span>
+<span><span class="co">#&gt;        FALSE</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mo_a</span><span class="op">)</span></span></code></pre></div>
 <p><img src="markov-order_files/figure-html/ai-plot-1.png" class="r-plt" alt="" width="720"></p>
@@ -216,26 +214,29 @@ reliably following a particular Human code or vice versa) that the
 per-actor tests cannot see.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mo_c</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/markov_order_test_htna.html">markov_order_test_htna</a></span><span class="op">(</span></span>
-<span>  <span class="va">combined_seqs</span>,</span>
+<span>  <span class="va">net</span>,</span>
 <span>  max_order <span class="op">=</span> <span class="fl">4L</span>,</span>
 <span>  n_perm    <span class="op">=</span> <span class="fl">200L</span>,</span>
 <span>  seed      <span class="op">=</span> <span class="fl">1L</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">mo_c</span><span class="op">$</span><span class="va">test_table</span></span>
-<span><span class="co">#&gt;   order    loglik      AIC       BIC    df        g2 p_permutation p_asymptotic</span></span>
-<span><span class="co">#&gt; 1     0 -43738.00 87498.01  87584.58    NA        NA            NA           NA</span></span>
-<span><span class="co">#&gt; 2     1 -37312.20 74892.39  75946.99   121 12815.693   0.004975124 0.000000e+00</span></span>
-<span><span class="co">#&gt; 3     2 -33808.86 69731.72  78050.45  1272  6481.756   0.004975124 0.000000e+00</span></span>
-<span><span class="co">#&gt; 4     3 -29294.11 67098.21 100585.65  7242  8982.768   0.004975124 1.533371e-41</span></span>
-<span><span class="co">#&gt; 5     4 -21727.12 61270.24 131377.42 16296 15087.014   0.004975124 1.000000e+00</span></span>
-<span><span class="co">#&gt;   significant</span></span>
-<span><span class="co">#&gt; 1          NA</span></span>
-<span><span class="co">#&gt; 2        TRUE</span></span>
-<span><span class="co">#&gt; 3        TRUE</span></span>
-<span><span class="co">#&gt; 4        TRUE</span></span>
-<span><span class="co">#&gt; 5        TRUE</span></span>
-<span><span class="va">mo_c</span><span class="op">$</span><span class="va">optimal_order</span></span>
-<span><span class="co">#&gt; [1] 4</span></span></code></pre></div>
+<span><span class="va">mo_c</span></span>
+<span><span class="co">#&gt; Markov Order Test  [within-w permutation, n_perm = 200, alpha = 0.050]</span></span>
+<span><span class="co">#&gt;   428 sequences / 19346 observations / 12 states</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Selected order  BIC: 1   AIC: 2   permutation-LRT: 4</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  order    loglik       AIC        BIC    df       g2 p_permutation p_asymptotic</span></span>
+<span><span class="co">#&gt;      0 -43741.91  87505.83   87592.40    NA       NA            NA           NA</span></span>
+<span><span class="co">#&gt;      1 -37315.96  74899.92   75954.53   121 12815.99   0.004975124 0.000000e+00</span></span>
+<span><span class="co">#&gt;      2 -33812.56  70683.12   82716.72  1272  6481.76   0.004975124 0.000000e+00</span></span>
+<span><span class="co">#&gt;      3 -29297.81  93261.62  229676.51  7242  8982.77   0.004975124 1.533371e-41</span></span>
+<span><span class="co">#&gt;      4 -21730.82 436235.65 1981848.66 16296 15087.01   0.004975124 1.000000e+00</span></span>
+<span><span class="co">#&gt;  significant</span></span>
+<span><span class="co">#&gt;           NA</span></span>
+<span><span class="co">#&gt;         TRUE</span></span>
+<span><span class="co">#&gt;         TRUE</span></span>
+<span><span class="co">#&gt;         TRUE</span></span>
+<span><span class="co">#&gt;         TRUE</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mo_c</span><span class="op">)</span></span></code></pre></div>
 <p><img src="markov-order_files/figure-html/combined-plot-1.png" class="r-plt" alt="" width="720"></p>
@@ -284,27 +285,30 @@ actors.</td>
 </tr>
 </tbody>
 </table>
-<p>Empirically, on the example corpus the Human-only optimal order is
-<strong>4</strong> and the AI-only optimal order is <strong>3</strong>.
-The combined optimal order is <strong>4</strong>. All three saturate at
-the upper bound of the search (see the next section), so the test cannot
-distinguish which process carries the deepest internal memory at this
-<code>max_order</code> — only that none of them is consistent with a
-first-order assumption. The default htna network is therefore a
-structural simplification of these data, even if it remains analytically
-useful for descriptive and relational claims.</p>
+<p>Empirically, on the example corpus the permutation test selects order
+<strong>4</strong> for the Human-only sequences, <strong>3</strong> for
+the AI-only sequences and <strong>4</strong> for the combined process.
+The Human-only and combined searches saturate at the upper bound (see
+the next section), whereas the AI-only search stops below it because its
+order-4 step is not significant. None of the three is consistent with a
+first-order assumption under the permutation test, so the default htna
+network is a structural simplification of these data, even if it remains
+analytically useful for descriptive and relational claims. The
+information criteria are more conservative: BIC prefers order 1, 1 and 1
+respectively, because it penalises the number of parameters, which grows
+rapidly with the order.</p>
 </div>
 <div class="section level2">
 <h2 id="a-note-on-optimal_order-saturating-at-max_order">A note on <code>optimal_order</code> saturating at
 <code>max_order</code><a class="anchor" aria-label="anchor" href="#a-note-on-optimal_order-saturating-at-max_order"></a>
 </h2>
 <p>When all tested orders show significant improvement over their
-predecessor — as in this example — the reported
-<code>optimal_order</code> equals the upper bound of the search
-(<code>max_order</code>). This is not the “true” optimal order; it is
-the largest order tested. To probe whether higher orders would still
-improve fit, increase <code>max_order</code>. The trade-off is
-computational: the number of parameters at order <em>k</em> is
+predecessor (as for the Human-only and combined sequences in this
+example) the reported <code>optimal_order</code> equals the upper bound
+of the search (<code>max_order</code>). This is not the “true” optimal
+order; it is the largest order tested. To probe whether higher orders
+would still improve fit, increase <code>max_order</code>. The trade-off
+is computational: the number of parameters at order <em>k</em> is
 approximately
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">|</mo><mi>S</mi><msup><mo stretchy="false" form="prefix">|</mo><mrow><mi>k</mi><mo>+</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">|S|^{k+1}</annotation></semantics></math>,
 where
@@ -364,7 +368,7 @@ higher-order models under different encodings of the memory:</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code><a href="https://saqr.me/Nestimate/reference/build_hon.html" class="external-link">Nestimate::build_hon()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/build_hon.html" class="external-link">Nestimate::build_hon()</a></code></td>
 <td>Higher-order network constructed by introducing explicit memory
 nodes for sequences whose transition probabilities deviate from the
 first-order baseline. Appropriate when the optimal order is 2 or 3 and
@@ -372,21 +376,21 @@ the analysis benefits from an explicit memory representation in the
 graph.</td>
 </tr>
 <tr class="even">
-<td><code><a href="https://saqr.me/Nestimate/reference/build_honem.html" class="external-link">Nestimate::build_honem()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/build_honem.html" class="external-link">Nestimate::build_honem()</a></code></td>
 <td>Higher-order network with memory encoded on edges rather than as
 expanded nodes. Yields a graph of the same node cardinality as the
 first-order network, with the trade-off that memory information is no
 longer locally readable from individual nodes.</td>
 </tr>
 <tr class="odd">
-<td><code><a href="https://saqr.me/Nestimate/reference/build_hypa.html" class="external-link">Nestimate::build_hypa()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/build_hypa.html" class="external-link">Nestimate::build_hypa()</a></code></td>
 <td>Higher-order network restricted to memory effects that are
 significant against a hypergeometric null model. Reduces the risk of
 over-fitting that arises when high-order transitions are estimated from
 limited data.</td>
 </tr>
 <tr class="even">
-<td><code><a href="https://saqr.me/Nestimate/reference/build_mogen.html" class="external-link">Nestimate::build_mogen()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/build_mogen.html" class="external-link">Nestimate::build_mogen()</a></code></td>
 <td>Multi-order generative model in which the order is selected per node
 rather than fixed globally. Appropriate when memory depth is
 heterogeneous across states.</td>
@@ -394,7 +398,7 @@ heterogeneous across states.</td>
 </tbody>
 </table>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">hon</span> <span class="op">&lt;-</span> <span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://saqr.me/Nestimate/reference/build_hon.html" class="external-link">build_hon</a></span><span class="op">(</span><span class="va">combined_seqs</span>, max_order <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">hon</span> <span class="op">&lt;-</span> <span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_hon.html" class="external-link">build_hon</a></span><span class="op">(</span><span class="va">net</span>, max_order <span class="op">=</span> <span class="fl">2L</span><span class="op">)</span></span></code></pre></div>
 <p>The actor partition carried by an htna network is not preserved on
 higher-order objects, because the partition is defined on single-state
 nodes whereas higher-order models extend the node set with memory
@@ -409,7 +413,7 @@ visualisation.</p>
 is corpus heterogeneity: the sample comprises several distinct
 first-order processes whose mixture exhibits apparent higher-order
 structure even though no individual process does. The
-<code><a href="https://saqr.me/Nestimate/reference/build_mmm.html" class="external-link">Nestimate::build_mmm()</a></code> constructor estimates a
+<code><a href="https://pak.dynasite.org/Nestimate/reference/build_mmm.html" class="external-link">Nestimate::build_mmm()</a></code> constructor estimates a
 <em>k</em>-component mixture of first-order chains and assigns each
 session probabilistically to a component.</p>
 <table class="table">
@@ -422,7 +426,7 @@ session probabilistically to a component.</p>
 <th>Description</th>
 </tr></thead>
 <tbody><tr class="odd">
-<td><code><a href="https://saqr.me/Nestimate/reference/build_mmm.html" class="external-link">Nestimate::build_mmm()</a></code></td>
+<td><code><a href="https://pak.dynasite.org/Nestimate/reference/build_mmm.html" class="external-link">Nestimate::build_mmm()</a></code></td>
 <td>Mixture of <em>k</em> first-order Markov chains with EM-based
 estimation. Each session receives posterior probabilities of membership
 in each component. Diagnostic of mixture rather than higher-order
@@ -432,7 +436,7 @@ uniformly distributed across the corpus.</td>
 </tr></tbody>
 </table>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mmm</span> <span class="op">&lt;-</span> <span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://saqr.me/Nestimate/reference/build_mmm.html" class="external-link">build_mmm</a></span><span class="op">(</span><span class="va">combined_seqs</span>, k <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">mmm</span> <span class="op">&lt;-</span> <span class="fu">Nestimate</span><span class="fu">::</span><span class="fu"><a href="https://pak.dynasite.org/Nestimate/reference/build_mmm.html" class="external-link">build_mmm</a></span><span class="op">(</span><span class="va">net</span>, k <span class="op">=</span> <span class="fl">3L</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="tna-family-alternatives">TNA-family alternatives<a class="anchor" aria-label="anchor" href="#tna-family-alternatives"></a>
@@ -462,11 +466,11 @@ coupling.</td>
 </tr>
 <tr class="even">
 <td><code>method = "frequency"</code></td>
-<td>Frequency-thresholded transition network. Transitions below a
-configurable count are removed before estimation, restricting the model
-to a structurally robust subgraph. Appropriate when the first-order test
-passes overall but the network is dominated by sparse, low-evidence
-edges.</td>
+<td>Transition network of raw counts rather than row-normalised
+probabilities. Combined with <code><a href="../reference/prune_htna.html">prune_htna()</a></code>, low-count
+transitions can be removed, restricting the model to a structurally
+robust subgraph. Appropriate when the first-order test passes overall
+but the network is dominated by sparse, low-evidence edges.</td>
 </tr>
 </tbody>
 </table>
@@ -499,14 +503,14 @@ indicated.</td>
 <td>Optimal order &gt; 1 in the combined process only</td>
 <td>Cross-actor coupling carries dependence absent from each actor in
 isolation. Either retain the first-order network as a descriptive
-aggregate, or estimate <code><a href="https://saqr.me/Nestimate/reference/build_hon.html" class="external-link">Nestimate::build_hon()</a></code> to represent
+aggregate, or estimate <code><a href="https://pak.dynasite.org/Nestimate/reference/build_hon.html" class="external-link">Nestimate::build_hon()</a></code> to represent
 the cross-actor memory explicitly.</td>
 </tr>
 <tr class="odd">
 <td>Optimal order &gt; 1 within one or both actors</td>
-<td>Within-actor memory. <code><a href="https://saqr.me/Nestimate/reference/build_hon.html" class="external-link">Nestimate::build_hon()</a></code> or
-<code><a href="https://saqr.me/Nestimate/reference/build_honem.html" class="external-link">Nestimate::build_honem()</a></code> per actor, or
-<code><a href="https://saqr.me/Nestimate/reference/build_mogen.html" class="external-link">Nestimate::build_mogen()</a></code> when memory depth varies across
+<td>Within-actor memory. <code><a href="https://pak.dynasite.org/Nestimate/reference/build_hon.html" class="external-link">Nestimate::build_hon()</a></code> or
+<code><a href="https://pak.dynasite.org/Nestimate/reference/build_honem.html" class="external-link">Nestimate::build_honem()</a></code> per actor, or
+<code><a href="https://pak.dynasite.org/Nestimate/reference/build_mogen.html" class="external-link">Nestimate::build_mogen()</a></code> when memory depth varies across
 states.</td>
 </tr>
 <tr class="even">
@@ -514,14 +518,15 @@ states.</td>
 <code>max_order</code>
 </td>
 <td>Test the corpus-mixture hypothesis with
-<code><a href="https://saqr.me/Nestimate/reference/build_mmm.html" class="external-link">Nestimate::build_mmm()</a></code>; high apparent order may reflect
+<code><a href="https://pak.dynasite.org/Nestimate/reference/build_mmm.html" class="external-link">Nestimate::build_mmm()</a></code>; high apparent order may reflect
 heterogeneous components rather than long memory.</td>
 </tr>
 <tr class="odd">
 <td>First-order assumption holds but edges are sparse and noisy</td>
 <td>Aggregation-specification rather than order question:
-<code>build_htna(..., method = "frequency")</code> to restrict to
-structurally robust transitions.</td>
+<code>build_htna(..., method = "frequency")</code> followed by
+<code><a href="../reference/prune_htna.html">prune_htna()</a></code> to restrict to structurally robust
+transitions.</td>
 </tr>
 </tbody>
 </table>

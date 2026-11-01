@@ -13,7 +13,7 @@ set, and a group column when the input is an htna_group)."><meta property="og:im
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,7 +74,12 @@ set, and a <code>group</code> column when the input is an <code>htna_group</code
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A data frame with one row per node.</p>
+    <p>A data frame of class <code>c("htna_centralities", "data.frame")</code>
+with one row per node and columns <code>node</code>, <code>actor</code> (the node's actor
+type, when the partition is set) and one numeric column per requested
+measure. For an <code>htna_group</code>, the rows of all cohorts are stacked, one
+row per (cohort, node), with a leading <code>group</code> column naming the
+cohort.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -85,23 +90,22 @@ betweenness variants) are computed with <code>invert_weights = TRUE</code>,
 since in transition networks larger weight = stronger link =
 shorter distance. Strength and the closed-form measures
 (<code>Diffusion</code>, <code>Clustering</code>) use raw weights.</p>
-<p>Mapping from measure name to cograph implementation:</p><ul><li><p><code>OutStrength</code>     → <code><a href="https://sonsoles.me/cograph/reference/centrality_strength.html" class="external-link">cograph::centrality_outstrength()</a></code></p></li>
-<li><p><code>InStrength</code>      → <code><a href="https://sonsoles.me/cograph/reference/centrality_strength.html" class="external-link">cograph::centrality_instrength()</a></code></p></li>
-<li><p><code>ClosenessIn</code>     → <code><a href="https://sonsoles.me/cograph/reference/centrality_closeness.html" class="external-link">cograph::centrality_incloseness()</a></code>   (inverted)</p></li>
-<li><p><code>ClosenessOut</code>    → <code><a href="https://sonsoles.me/cograph/reference/centrality_closeness.html" class="external-link">cograph::centrality_outcloseness()</a></code>  (inverted)</p></li>
-<li><p><code>Closeness</code>       → <code><a href="https://sonsoles.me/cograph/reference/centrality_closeness.html" class="external-link">cograph::centrality_closeness()</a></code>     (inverted)</p></li>
-<li><p><code>Betweenness</code>     → <code><a href="https://sonsoles.me/cograph/reference/centrality_betweenness.html" class="external-link">cograph::centrality_betweenness()</a></code>   (inverted)</p></li>
-<li><p><code>BetweennessRSP</code>  → <code><a href="https://sonsoles.me/cograph/reference/centrality_current_flow_betweenness.html" class="external-link">cograph::centrality_current_flow_betweenness()</a></code></p></li>
-<li><p><code>Diffusion</code>       → <code><a href="https://sonsoles.me/cograph/reference/centrality_diffusion.html" class="external-link">cograph::centrality_diffusion()</a></code></p></li>
-<li><p><code>Clustering</code>      → <code><a href="https://sonsoles.me/cograph/reference/centrality_transitivity.html" class="external-link">cograph::centrality_transitivity()</a></code></p></li>
+<p>Mapping from measure name to cograph implementation:</p><ul><li><p><code>OutStrength</code>: <code><a href="https://sonsoles.me/cograph/reference/centrality_strength.html" class="external-link">cograph::centrality_outstrength()</a></code></p></li>
+<li><p><code>InStrength</code>: <code><a href="https://sonsoles.me/cograph/reference/centrality_strength.html" class="external-link">cograph::centrality_instrength()</a></code></p></li>
+<li><p><code>ClosenessIn</code>: <code><a href="https://sonsoles.me/cograph/reference/centrality_closeness.html" class="external-link">cograph::centrality_incloseness()</a></code> (inverted)</p></li>
+<li><p><code>ClosenessOut</code>: <code><a href="https://sonsoles.me/cograph/reference/centrality_closeness.html" class="external-link">cograph::centrality_outcloseness()</a></code> (inverted)</p></li>
+<li><p><code>Closeness</code>: <code><a href="https://sonsoles.me/cograph/reference/centrality_closeness.html" class="external-link">cograph::centrality_closeness()</a></code> (inverted)</p></li>
+<li><p><code>Betweenness</code>: <code><a href="https://sonsoles.me/cograph/reference/centrality_betweenness.html" class="external-link">cograph::centrality_betweenness()</a></code> (inverted)</p></li>
+<li><p><code>BetweennessRSP</code>: <code><a href="https://sonsoles.me/cograph/reference/centrality_current_flow_betweenness.html" class="external-link">cograph::centrality_current_flow_betweenness()</a></code></p></li>
+<li><p><code>Diffusion</code>: <code><a href="https://sonsoles.me/cograph/reference/centrality_diffusion.html" class="external-link">cograph::centrality_diffusion()</a></code></p></li>
+<li><p><code>Clustering</code>: <code><a href="https://sonsoles.me/cograph/reference/centrality_transitivity.html" class="external-link">cograph::centrality_transitivity()</a></code></p></li>
 </ul></div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
 <span class="r-in"><span><span class="fu">centralities_htna</span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.</span>
@@ -134,7 +138,21 @@ shorter distance. Strength and the closed-form measures
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10           0             17  8.186046  0.1557107</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 11          19            110  8.181829  0.1842378</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 12          15             88  8.008017  0.2112340</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="fu">centralities_htna</span><span class="op">(</span><span class="va">net</span>, measures <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"InStrength"</span>, <span class="st">"Betweenness"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         node actor InStrength Betweenness</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        Ask    AI  1.5266008          13</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2      Check Human  0.7522288           0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3   Delegate    AI  0.1740318           0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4    Execute    AI  2.0338718          29</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  Frustrate Human  0.9672100           2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6    Inquire Human  0.5147284          14</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7       Plan    AI  1.2496499          25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8     Refine Human  0.4703420           0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9     Repair    AI  0.1995057           0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10    Report    AI  0.5246300           0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11   Request Human  1.6926517          19</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12   Specify Human  1.3525625          15</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

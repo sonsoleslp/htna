@@ -1,7 +1,7 @@
 # Chi-square Mosaic Plot of a Transition Network
 
-htna-named alias of
-[`Nestimate::mosaic_plot()`](https://saqr.me/Nestimate/reference/mosaic_plot.html).
+htna-named wrapper for
+[`Nestimate::mosaic_plot()`](https://pak.dynasite.org/Nestimate/reference/mosaic_plot.html).
 Renders a chi-square mosaic where row x column area equals the joint
 share of `(from, to)` transitions and fill encodes the standardized
 residual (blue = over-represented, red = under-represented, white =
@@ -19,20 +19,20 @@ mosaic_plot_htna(x, ...)
 
   An htna network built with `method = "frequency"` (or other object
   accepted by
-  [`Nestimate::mosaic_plot()`](https://saqr.me/Nestimate/reference/mosaic_plot.html));
+  [`Nestimate::mosaic_plot()`](https://pak.dynasite.org/Nestimate/reference/mosaic_plot.html));
   S3 dispatch on `x` is preserved, so `htna` objects use
   `mosaic_plot.htna`.
 
 - ...:
 
   Additional arguments passed to
-  [`Nestimate::mosaic_plot()`](https://saqr.me/Nestimate/reference/mosaic_plot.html),
+  [`Nestimate::mosaic_plot()`](https://pak.dynasite.org/Nestimate/reference/mosaic_plot.html),
   such as `n_perm` and `seed`. See that function for details.
 
 ## Value
 
 A ggplot or gtable, depending on input shape. See
-[`Nestimate::mosaic_plot()`](https://saqr.me/Nestimate/reference/mosaic_plot.html)
+[`Nestimate::mosaic_plot()`](https://pak.dynasite.org/Nestimate/reference/mosaic_plot.html)
 for full details and the per-class S3 methods.
 
 ## Details
@@ -51,7 +51,7 @@ matching the colours used elsewhere in htna (e.g.
 [`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md)).
 
 Suffixed `_htna` to avoid clashing with
-[`Nestimate::mosaic_plot()`](https://saqr.me/Nestimate/reference/mosaic_plot.html)
+[`Nestimate::mosaic_plot()`](https://pak.dynasite.org/Nestimate/reference/mosaic_plot.html)
 when both packages are loaded.
 
 ## See also
@@ -62,17 +62,14 @@ for the marginal-frequency companion view.
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type",
                   method = "frequency")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 mosaic_plot_htna(net, n_perm = 50, seed = 1)
 #> Warning: Vectorized input to `element_text()` is not officially supported.
 #> ℹ Results may be unexpected or may change in future versions of ggplot2.
 #> Warning: Vectorized input to `element_text()` is not officially supported.
 #> ℹ Results may be unexpected or may change in future versions of ggplot2.
-
-# }
 ```

@@ -1,7 +1,7 @@
 # Prune Weak Edges from a Transition Network
 
 htna-named wrapper for
-[`Nestimate::net_prune()`](https://saqr.me/Nestimate/reference/net_prune.html).
+[`Nestimate::net_prune()`](https://pak.dynasite.org/Nestimate/reference/net_prune.html).
 Removes edges that fall below a weight/threshold rule, returning a
 pruned network of the same shape.
 
@@ -18,21 +18,29 @@ prune_htna(x, ...)
   An htna network from
   [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) (or
   other object accepted by
-  [`Nestimate::net_prune()`](https://saqr.me/Nestimate/reference/net_prune.html));
+  [`Nestimate::net_prune()`](https://pak.dynasite.org/Nestimate/reference/net_prune.html));
   S3 dispatch on `x` is preserved.
 
 - ...:
 
   Additional arguments passed to
-  [`Nestimate::net_prune()`](https://saqr.me/Nestimate/reference/net_prune.html),
+  [`Nestimate::net_prune()`](https://pak.dynasite.org/Nestimate/reference/net_prune.html),
   such as `method`, `threshold`, `lowest`, `level`, and `boot`. See that
   function for the full, current argument list.
 
 ## Value
 
-A pruned htna network. See
-[`Nestimate::net_prune()`](https://saqr.me/Nestimate/reference/net_prune.html)
-for details.
+A pruned htna network: class
+`c("htna", "netobject", "cograph_network")`, the same structure as
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
+returns, with the removed edges set to zero in `weights` and the pruning
+rule recorded for
+[`deprune_htna()`](https://sonsoles.me/htna/reference/deprune_htna.md),
+[`reprune_htna()`](https://sonsoles.me/htna/reference/reprune_htna.md)
+and
+[`pruning_details_htna()`](https://sonsoles.me/htna/reference/pruning_details_htna.md).
+See
+[`Nestimate::net_prune()`](https://pak.dynasite.org/Nestimate/reference/net_prune.html).
 
 ## Details
 
@@ -54,10 +62,9 @@ sit alongside the rest of the htna API.
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 prune_htna(net, method = "threshold", threshold = 0.05)
 #> Transition Network (relative probabilities) [directed]
@@ -104,5 +111,4 @@ prune_htna(net, method = "threshold", threshold = 0.05)
 #>   Plan          0.000  
 #>   Repair        0.000  
 #>   Report        0.000  
-# }
 ```

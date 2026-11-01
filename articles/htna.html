@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,7 +69,11 @@ which two or more actors interleave – a learner and a tutor, a human and
 an AI, a clinician and a patient – and treats each actor’s codes as a
 distinct node group. The <code>htna</code> package builds the network,
 computes the usual analytical quantities, and renders the result with
-the actor partition baked into colour, layout, and the legend.</p>
+the actor partition baked into colour, layout, and the legend.
+Estimation is done by the ‘Nestimate’ engine and every network plot is
+rendered by ‘cograph’; <code>htna</code> keeps the actor partition
+attached at each step so that the two engines treat each actor’s codes
+as a distinct node group.</p>
 <div class="section level2">
 <h2 id="building-a-heterogeneous-network">1. Building a heterogeneous network<a class="anchor" aria-label="anchor" href="#building-a-heterogeneous-network"></a>
 </h2>
@@ -98,14 +102,15 @@ the plot:</p>
 <div class="section level2">
 <h2 id="per-actor-sequence-plots">3. Per-actor sequence plots<a class="anchor" aria-label="anchor" href="#per-actor-sequence-plots"></a>
 </h2>
-<p><code><a href="../reference/sequence_plot_htna.html">sequence_plot_htna()</a></code> shows the temporal structure of the
-sessions. With <code>by = "state"</code> (the default) each cell is
-coloured by its code; with <code>by = "group"</code> cells are coloured
-by actor type. <code>type</code> selects the layout:
-<code>"index"</code> renders one row per session, <code>"heatmap"</code>
-collapses across sessions into a single carpet, and
-<code>"distribution"</code> shows the state composition per timepoint as
-a stacked area.</p>
+<p>The network aggregates transitions over all sessions and so discards
+<em>when</em> each code occurs. <code><a href="../reference/sequence_plot_htna.html">sequence_plot_htna()</a></code>
+restores that view. With <code>by = "state"</code> (the default) each
+cell is coloured by its code; with <code>by = "group"</code> cells are
+coloured by actor type. <code>type</code> selects the layout:
+<code>"index"</code> draws one panel per actor with one row per session,
+<code>"heatmap"</code> joins the actors into a single carpet with a
+separator at the actor boundary, and <code>"distribution"</code> shows
+the state composition per timepoint as a stacked area.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/sequence_plot_htna.html">sequence_plot_htna</a></span><span class="op">(</span><span class="va">net</span>, by <span class="op">=</span> <span class="st">"state"</span>, type <span class="op">=</span> <span class="st">"index"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="htna_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="900"></p>
@@ -197,13 +202,23 @@ threshold</strong> (default <code>0.7</code>) for at least
 above ~0.5 are typically considered stable.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/centrality_stability_htna.html">centrality_stability_htna</a></span><span class="op">(</span><span class="va">net</span>, iter <span class="op">=</span> <span class="fl">100</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">cs</span><span class="op">$</span><span class="va">cs</span></span>
-<span><span class="co">#&gt;  InStrength OutStrength Betweenness </span></span>
-<span><span class="co">#&gt;         0.9         0.9         0.9</span></span></code></pre></div>
+<span><span class="va">cs</span></span>
+<span><span class="co">#&gt; HTNA Centrality Stability Analysis</span></span>
+<span><span class="co">#&gt; ===================================</span></span>
+<span><span class="co">#&gt; Centrality Stability (100 iterations, threshold = 0.7)</span></span>
+<span><span class="co">#&gt;   Drop proportions: 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   CS-coefficients:</span></span>
+<span><span class="co">#&gt;     InStrength       0.90</span></span>
+<span><span class="co">#&gt;     OutStrength      0.90</span></span>
+<span><span class="co">#&gt;     Betweenness      0.90</span></span></code></pre></div>
 <p>By default the check covers <code>InStrength</code>,
-<code>OutStrength</code>, and <code>Betweenness</code> — the three
+<code>OutStrength</code>, and <code>Betweenness</code>, the three
 measures whose values are bit-equal between htna’s <code>cograph</code>
-engine and the reference implementation.</p>
+engine and Nestimate’s default implementation. A centrality ranking
+should only be interpreted for measures whose CS-coefficient clears the
+0.5 mark; <code>summary(cs)</code> gives the mean correlation at every
+drop proportion behind each coefficient.</p>
 </div>
 <div class="section level2">
 <h2 id="split-half-reliability">7. Split-half reliability<a class="anchor" aria-label="anchor" href="#split-half-reliability"></a>
@@ -215,40 +230,51 @@ each half, and summarises the agreement (mean / median / max absolute
 deviation, plus correlation) between paired half-networks.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rel</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/reliability_htna.html">reliability_htna</a></span><span class="op">(</span><span class="va">net</span>, iter <span class="op">=</span> <span class="fl">100</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">rel</span><span class="op">$</span><span class="va">summary</span></span>
-<span><span class="co">#&gt;      model     metric        mean           sd</span></span>
-<span><span class="co">#&gt; 1 relative   mean_dev 0.012458419 0.0011464861</span></span>
-<span><span class="co">#&gt; 2 relative median_dev 0.007500373 0.0008826226</span></span>
-<span><span class="co">#&gt; 3 relative        cor 0.982010309 0.0049162608</span></span>
-<span><span class="co">#&gt; 4 relative    max_dev 0.098166765 0.0312836964</span></span></code></pre></div>
+<span><span class="va">rel</span></span>
+<span><span class="co">#&gt; Split-Half Reliability (100 iterations, split = 50%)</span></span>
+<span><span class="co">#&gt;   Mean Abs. Diff.     mean = 0.0125  sd = 0.0011</span></span>
+<span><span class="co">#&gt;   Median Abs. Diff.   mean = 0.0075  sd = 0.0009</span></span>
+<span><span class="co">#&gt;   Pearson             mean = 0.9820  sd = 0.0049</span></span>
+<span><span class="co">#&gt;   Max Abs. Diff.      mean = 0.0982  sd = 0.0313</span></span></code></pre></div>
+<p>A Pearson correlation close to 1 between half-networks means the edge
+weights do not hinge on which sessions happen to be sampled, so the
+network as a whole can be interpreted. <code>summary(rel)</code> returns
+the same numbers as a tidy table.</p>
 </div>
 <div class="section level2">
 <h2 id="comparing-two-networks">8. Comparing two networks<a class="anchor" aria-label="anchor" href="#comparing-two-networks"></a>
 </h2>
-<p>Given two HTNA networks built over the same node set,
-<code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code> draws the edge-level pairwise difference.
-Positive differences are green, negative red.</p>
+<p>Given two HTNA networks over the same actor partition,
+<code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code> draws the edge-level difference
+<code>x - y</code>. Positive differences are green, negative red;
+networks with partially different node sets are aligned to the union of
+their nodes.</p>
 <p>For example, we compare early vs. late sessions using the
-<code>phase</code> column in the dataset:</p>
+<code>phase</code> column in the dataset, building one network from each
+set of sessions:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">grouped</span> <span class="op">&lt;-</span>  <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span>, group <span class="op">=</span> <span class="st">"phase"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">early</span> <span class="op">&lt;-</span> <span class="va">grouped</span><span class="op">[[</span><span class="st">"Early"</span><span class="op">]</span><span class="op">]</span></span>
-<span><span class="va">late</span>  <span class="op">&lt;-</span> <span class="va">grouped</span><span class="op">[[</span><span class="st">"Late"</span><span class="op">]</span><span class="op">]</span></span>
+<code class="sourceCode R"><span><span class="va">early</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">human_ai</span>, <span class="va">phase</span> <span class="op">==</span> <span class="st">"Early"</span><span class="op">)</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span>
+<span><span class="va">late</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/subset.html" class="external-link">subset</a></span><span class="op">(</span><span class="va">human_ai</span>, <span class="va">phase</span> <span class="op">==</span> <span class="st">"Late"</span><span class="op">)</span>,  actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">early</span>, <span class="va">late</span><span class="op">)</span></span></code></pre></div>
 <p><img src="htna_files/figure-html/unnamed-chunk-13-1.png" class="r-plt" alt="" width="900"></p>
+<p>The same two networks are the cohorts of
+<code>build_htna(human_ai, actor_type = "actor_type", group = "phase")</code>;
+see the grouped-HTNA article for comparing every cohort of a grouped
+network in one call.</p>
 </div>
 <div class="section level2">
 <h2 id="permutation-test">9. Permutation test<a class="anchor" aria-label="anchor" href="#permutation-test"></a>
 </h2>
-<p>The function <code><a href="../reference/permutation_htna.html">permutation_htna()</a></code> provides a
-non-parametric significance test on each edge weight difference. Pass
-the result to <code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code> to render significant
-differences with the pos/neg colouring above; non-significant edges are
-dashed grey when <code>show_nonsig = TRUE</code>.</p>
+<p>A raw difference does not say which edges differ by more than
+sampling noise. The function <code><a href="../reference/permutation_htna.html">permutation_htna()</a></code> provides a
+non-parametric significance test on each edge weight difference by
+shuffling sessions between the two networks. Pass the result to
+<code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code> to render significant differences with the
+pos/neg colouring above; non-significant edges are dashed grey when
+<code>show_nonsig = TRUE</code>.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">perm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/permutation_htna.html">permutation_htna</a></span><span class="op">(</span><span class="va">early</span>, <span class="va">late</span>, iter <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">perm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/permutation_htna.html">permutation_htna</a></span><span class="op">(</span><span class="va">early</span>, <span class="va">late</span>, iter <span class="op">=</span> <span class="fl">200</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">perm</span><span class="op">)</span></span></code></pre></div>
 <p><img src="htna_files/figure-html/unnamed-chunk-14-1.png" class="r-plt" alt="" width="900"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">

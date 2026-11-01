@@ -4,7 +4,7 @@ Extracts each actor's events from the combined wide sequence in
 `net$data` (using `net$node_groups` as the node-to-actor lookup),
 compresses each session into the actor's own ordered events, pads to a
 common width, and renders with
-[`Nestimate::sequence_plot()`](https://saqr.me/Nestimate/reference/sequence_plot.html)
+[`Nestimate::sequence_plot()`](https://pak.dynasite.org/Nestimate/reference/sequence_plot.html)
 grouped by actor. Each session contributes one row per actor that had at
 least one event in it.
 
@@ -53,7 +53,7 @@ plot_sequences(x, ...)
 - ...:
 
   Forwarded to
-  [`Nestimate::sequence_plot()`](https://saqr.me/Nestimate/reference/sequence_plot.html).
+  [`Nestimate::sequence_plot()`](https://pak.dynasite.org/Nestimate/reference/sequence_plot.html).
 
 - x:
 
@@ -64,20 +64,19 @@ plot_sequences(x, ...)
 ## Value
 
 Invisibly, the list returned by
-[`Nestimate::sequence_plot()`](https://saqr.me/Nestimate/reference/sequence_plot.html).
+[`Nestimate::sequence_plot()`](https://pak.dynasite.org/Nestimate/reference/sequence_plot.html).
 
 ## See also
 
-[`Nestimate::sequence_plot()`](https://saqr.me/Nestimate/reference/sequence_plot.html),
+[`Nestimate::sequence_plot()`](https://pak.dynasite.org/Nestimate/reference/sequence_plot.html),
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
 
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 
 sequence_plot_htna(net)                       # index, faceted
@@ -86,5 +85,6 @@ sequence_plot_htna(net, type = "heatmap")     # single carpet, white gulf
 
 sequence_plot_htna(net, type = "distribution")
 
-# }
+sequence_plot_htna(net, by = "group")         # cells coloured by actor
+
 ```

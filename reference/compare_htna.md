@@ -1,7 +1,7 @@
 # Compare Heterogeneous Transition Networks
 
 Computes the descriptive network comparison implemented by
-[`Nestimate::compare_model()`](https://saqr.me/Nestimate/reference/compare_model.html)
+[`Nestimate::compare_model()`](https://pak.dynasite.org/Nestimate/reference/compare_model.html)
 while retaining the HTNA actor partition. Comparing two individual
 networks returns one `htna_comparison`. Passing an `htna_group` as `x`
 with `y = NULL` compares every cohort pair and returns an
@@ -28,7 +28,7 @@ compare_htna(x, y = NULL, ...)
 - ...:
 
   Additional arguments passed to
-  [`Nestimate::compare_model()`](https://saqr.me/Nestimate/reference/compare_model.html),
+  [`Nestimate::compare_model()`](https://pak.dynasite.org/Nestimate/reference/compare_model.html),
   including `scaling`, `measures`, and `network`.
 
 ## Value
@@ -58,7 +58,7 @@ Shared nodes must have the same actor assignment in both networks.
 
 ## See also
 
-[`Nestimate::compare_model()`](https://saqr.me/Nestimate/reference/compare_model.html),
+[`Nestimate::compare_model()`](https://pak.dynasite.org/Nestimate/reference/compare_model.html),
 [`plot_htna_diff()`](https://sonsoles.me/htna/reference/plot_htna_diff.md)
 
 ## Examples
@@ -66,9 +66,9 @@ Shared nodes must have the same actor assignment in both networks.
 ``` r
 data(human_ai)
 grouped <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
 comparisons <- compare_htna(grouped)
 names(comparisons)

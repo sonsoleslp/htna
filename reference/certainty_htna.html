@@ -15,7 +15,7 @@ costly."><meta property="og:image" content="https://sonsoles.me/htna/logo.png"><
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,7 +42,7 @@ costly."><meta property="og:image" content="https://sonsoles.me/htna/logo.png"><
     </div>
 
     <div class="ref-description section level2">
-    <p>htna-named wrapper for <code><a href="https://saqr.me/Nestimate/reference/certainty.html" class="external-link">Nestimate::certainty()</a></code>. The closed-form
+    <p>htna-named wrapper for <code><a href="https://pak.dynasite.org/Nestimate/reference/certainty.html" class="external-link">Nestimate::certainty()</a></code>. The closed-form
 counterpart of <code><a href="bootstrap_htna.html">bootstrap_htna()</a></code>: rather than resampling, it derives
 analytic confidence intervals and an inference verdict for each edge
 weight, which is fast enough to run where a full bootstrap would be
@@ -60,11 +60,11 @@ costly.</p>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>An htna network from <code><a href="build_htna.html">build_htna()</a></code> (or other object
-accepted by <code><a href="https://saqr.me/Nestimate/reference/certainty.html" class="external-link">Nestimate::certainty()</a></code>).</p></dd>
+accepted by <code><a href="https://pak.dynasite.org/Nestimate/reference/certainty.html" class="external-link">Nestimate::certainty()</a></code>).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="https://saqr.me/Nestimate/reference/certainty.html" class="external-link">Nestimate::certainty()</a></code>,
+<dd><p>Additional arguments passed to <code><a href="https://pak.dynasite.org/Nestimate/reference/certainty.html" class="external-link">Nestimate::certainty()</a></code>,
 such as <code>prior</code>, <code>ci_level</code>, <code>inference</code>, <code>consistency_range</code>, and
 <code>edge_threshold</code>. See that function for the full, current argument
 list.</p></dd>
@@ -73,7 +73,7 @@ list.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>net_certainty</code> (also inheriting
-<code>net_bootstrap</code>). See <code><a href="https://saqr.me/Nestimate/reference/certainty.html" class="external-link">Nestimate::certainty()</a></code> for the full
+<code>net_bootstrap</code>). See <code><a href="https://pak.dynasite.org/Nestimate/reference/certainty.html" class="external-link">Nestimate::certainty()</a></code> for the full
 component list and the corresponding <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> method.</p>
     </div>
     <div class="section level2">
@@ -90,10 +90,9 @@ component list and the corresponding <code><a href="https://rdrr.io/r/graphics/p
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
 <span class="r-in"><span><span class="fu">certainty_htna</span><span class="op">(</span><span class="va">net</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Edge                   Mean     95% CI          p</span>
@@ -109,7 +108,6 @@ component list and the corresponding <code><a href="https://rdrr.io/r/graphics/p
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Prior      : Dirichlet(0.50)  |  Nodes : 12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Edges      : 68 certain / 135 total</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   CI         : 95%  |  Inference: stability  |  CR [0.75, 1.25]</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

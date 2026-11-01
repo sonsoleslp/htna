@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,8 +105,8 @@ results remain compatible with downstream htna-aware analysis.</p>
 AI events in a single long frame, tagged by an <code>actor_type</code>
 column (see <code><a href="../reference/human_ai.html">?human_ai</a></code>). The default htna network is
 constructed under the relative-probability scheme
-(<code>method = "relative"</code>); the Markov-order test operates
-directly on the raw sequence data.</p>
+(<code>method = "relative"</code>); every assessment below, including
+the Markov-order test, takes this network directly.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sonsoles.me/htna/">htna</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span>
@@ -167,16 +167,16 @@ cut-offs (Epskamp et al., 2018) treat CS &gt; 0.25 as acceptable and CS
 <span><span class="va">cd</span></span>
 <span><span class="co">#&gt; Edge-weight Case-dropping Stability</span></span>
 <span><span class="co">#&gt;   Cases (rows of $data) : 429</span></span>
-<span><span class="co">#&gt;   Edges assessed        : 132 (diagonal excluded)</span></span>
+<span><span class="co">#&gt;   Edges assessed        : 125 (diagonal excluded)</span></span>
 <span><span class="co">#&gt;   Iterations / prop     : 200</span></span>
 <span><span class="co">#&gt;   Correlation method    : spearman</span></span>
 <span><span class="co">#&gt;   CS-coefficient (r)    : 0.90  (threshold=0.70, certainty=0.95)</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Model-level reliability across iterations (mean +/- sd per drop):</span></span>
 <span><span class="co">#&gt;   drop_prop      p=0.1        p=0.2        p=0.3        p=0.4        p=0.5        p=0.6        p=0.7        p=0.8        p=0.9      </span></span>
-<span><span class="co">#&gt;   mean|diff|      0.002+- 0.000   0.003+- 0.000   0.004+- 0.000   0.005+- 0.001   0.006+- 0.001   0.008+- 0.001   0.010+- 0.001   0.013+- 0.001   0.020+- 0.002</span></span>
-<span><span class="co">#&gt;   MAD             0.001+- 0.000   0.002+- 0.000   0.003+- 0.000   0.003+- 0.000   0.004+- 0.000   0.005+- 0.001   0.006+- 0.001   0.008+- 0.001   0.012+- 0.002</span></span>
-<span><span class="co">#&gt;   cor             0.999+- 0.000   0.997+- 0.001   0.995+- 0.001   0.993+- 0.002   0.990+- 0.003   0.984+- 0.004   0.976+- 0.006   0.960+- 0.009   0.919+- 0.018</span></span>
+<span><span class="co">#&gt;   mean|diff|      0.002+- 0.000   0.003+- 0.000   0.004+- 0.001   0.006+- 0.001   0.007+- 0.001   0.008+- 0.001   0.010+- 0.001   0.014+- 0.001   0.021+- 0.002</span></span>
+<span><span class="co">#&gt;   MAD             0.001+- 0.000   0.002+- 0.000   0.003+- 0.000   0.004+- 0.000   0.004+- 0.001   0.005+- 0.001   0.006+- 0.001   0.009+- 0.001   0.013+- 0.002</span></span>
+<span><span class="co">#&gt;   cor             0.998+- 0.001   0.997+- 0.001   0.994+- 0.002   0.992+- 0.002   0.988+- 0.003   0.982+- 0.005   0.973+- 0.007   0.956+- 0.010   0.912+- 0.019</span></span>
 <span><span class="co">#&gt;   max|diff|       0.016+- 0.006   0.023+- 0.007   0.030+- 0.009   0.038+- 0.010   0.048+- 0.016   0.058+- 0.019   0.071+- 0.021   0.094+- 0.026   0.142+- 0.046</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">cd</span><span class="op">)</span></span></code></pre></div>
@@ -251,44 +251,44 @@ structure against orders 1, 2, …, <code>max_order</code> via
 permutation. For each candidate order <em>k</em>, the null hypothesis is
 that order-(<em>k</em>-1) is sufficient; the alternative is that
 order-<em>k</em> captures dependencies beyond what order-(<em>k</em>-1)
-explains. The smallest order whose test fails to reject the null is
-reported as the optimal order.</p>
-<p>The test operates on raw sequence data rather than on the htna
-network object, since it requires the empirical sequences directly.</p>
+explains. The steps are tested in sequence, and the reported
+permutation-test order is the last order reached before the first
+non-significant step (or <code>max_order</code> when every step is
+significant). The BIC- and AIC-preferred orders are reported alongside
+it.</p>
+<p>The test reads the session sequences stored on the htna network, so
+it assesses the combined Human + AI process that the network
+summarises.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"ai_simplified"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">seqs</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/split.html" class="external-link">split</a></span><span class="op">(</span><span class="va">ai_simplified</span><span class="op">$</span><span class="va">code</span>, <span class="va">ai_simplified</span><span class="op">$</span><span class="va">session_id</span><span class="op">)</span></span>
-<span><span class="va">seqs</span>    <span class="op">&lt;-</span> <span class="va">seqs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/lengths.html" class="external-link">lengths</a></span><span class="op">(</span><span class="va">seqs</span><span class="op">)</span> <span class="op">&gt;=</span> <span class="fl">3L</span><span class="op">]</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">seqs</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 416</span></span></code></pre></div>
-<p>Sequences shorter than three events do not inform tests beyond
-order-1 and are excluded.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/markov_order_test_htna.html">markov_order_test_htna</a></span><span class="op">(</span><span class="va">seqs</span>, max_order <span class="op">=</span> <span class="fl">3L</span>, n_perm <span class="op">=</span> <span class="fl">200L</span>,</span>
+<code class="sourceCode R"><span><span class="va">mo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/markov_order_test_htna.html">markov_order_test_htna</a></span><span class="op">(</span><span class="va">net</span>, max_order <span class="op">=</span> <span class="fl">3L</span>, n_perm <span class="op">=</span> <span class="fl">200L</span>,</span>
 <span>                             seed <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
-<span><span class="va">mo</span><span class="op">$</span><span class="va">test_table</span></span>
-<span><span class="co">#&gt;   order    loglik      AIC      BIC  df        g2 p_permutation p_asymptotic</span></span>
-<span><span class="co">#&gt; 1     0 -12507.50 25025.00 25060.26  NA        NA            NA           NA</span></span>
-<span><span class="co">#&gt; 2     1 -11561.26 23192.52 23439.32  25 1851.6662   0.004975124 0.000000e+00</span></span>
-<span><span class="co">#&gt; 3     2 -11388.43 23150.86 24469.46 150  317.0789   0.004975124 5.088532e-14</span></span>
-<span><span class="co">#&gt; 4     3 -10962.98 23315.97 28216.65 675  836.7299   0.004975124 1.976688e-05</span></span>
-<span><span class="co">#&gt;   significant</span></span>
-<span><span class="co">#&gt; 1          NA</span></span>
-<span><span class="co">#&gt; 2        TRUE</span></span>
-<span><span class="co">#&gt; 3        TRUE</span></span>
-<span><span class="co">#&gt; 4        TRUE</span></span>
-<span><span class="va">mo</span><span class="op">$</span><span class="va">optimal_order</span></span>
-<span><span class="co">#&gt; [1] 3</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<span><span class="va">mo</span></span>
+<span><span class="co">#&gt; Markov Order Test  [within-w permutation, n_perm = 200, alpha = 0.050]</span></span>
+<span><span class="co">#&gt;   428 sequences / 19346 observations / 12 states</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Selected order  BIC: 1   AIC: 2   permutation-LRT: 3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;  order    loglik      AIC       BIC   df       g2 p_permutation p_asymptotic</span></span>
+<span><span class="co">#&gt;      0 -43741.91 87505.83  87592.40   NA       NA            NA           NA</span></span>
+<span><span class="co">#&gt;      1 -37315.96 74899.92  75954.53  121 12815.99   0.004975124 0.000000e+00</span></span>
+<span><span class="co">#&gt;      2 -33812.56 70683.12  82716.72 1272  6481.76   0.004975124 0.000000e+00</span></span>
+<span><span class="co">#&gt;      3 -29297.81 93261.62 229676.51 7242  8982.77   0.004975124 1.533371e-41</span></span>
+<span><span class="co">#&gt;  significant</span></span>
+<span><span class="co">#&gt;           NA</span></span>
+<span><span class="co">#&gt;         TRUE</span></span>
+<span><span class="co">#&gt;         TRUE</span></span>
+<span><span class="co">#&gt;         TRUE</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">mo</span><span class="op">)</span></span></code></pre></div>
 <p><img src="model-assessment_files/figure-html/markov-plot-1.png" class="r-plt" alt="" width="720"></p>
-<p>If <code>optimal_order &gt; 1</code>, the first-order network is
-misspecified for the corpus, and a higher-order model is indicated. htna
-does not implement higher-order networks directly; users who require
-them may construct higher-order or memory-augmented models via
-<code><a href="https://saqr.me/Nestimate/reference/build_hon.html" class="external-link">Nestimate::build_hon()</a></code> or
-<code><a href="https://saqr.me/Nestimate/reference/build_mogen.html" class="external-link">Nestimate::build_mogen()</a></code>.</p>
+<p>If the selected order is greater than 1, the first-order network is
+misspecified for the corpus, and a higher-order model is indicated. The
+<a href="markov-order.html">Markov-order article</a> compares the
+combined process with each actor’s own sequences. htna does not
+implement higher-order networks directly; users who require them may
+construct higher-order or memory-augmented models via
+<code><a href="https://pak.dynasite.org/Nestimate/reference/build_hon.html" class="external-link">Nestimate::build_hon()</a></code> or
+<code><a href="https://pak.dynasite.org/Nestimate/reference/build_mogen.html" class="external-link">Nestimate::build_mogen()</a></code>.</p>
 </div>
 <div class="section level2">
 <h2 id="joint-interpretation">Joint interpretation<a class="anchor" aria-label="anchor" href="#joint-interpretation"></a>

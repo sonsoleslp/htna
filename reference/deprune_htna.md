@@ -1,7 +1,7 @@
 # Restore All Edges of a Pruned Transition Network
 
 htna-named wrapper for
-[`Nestimate::net_deprune()`](https://saqr.me/Nestimate/reference/net_deprune.html).
+[`Nestimate::net_deprune()`](https://pak.dynasite.org/Nestimate/reference/net_deprune.html).
 Reverses a
 [`prune_htna()`](https://sonsoles.me/htna/reference/prune_htna.md) step,
 restoring the original (unpruned) edge set.
@@ -17,19 +17,19 @@ deprune_htna(x, ...)
 - x:
 
   A pruned htna network (or other object accepted by
-  [`Nestimate::net_deprune()`](https://saqr.me/Nestimate/reference/net_deprune.html));
+  [`Nestimate::net_deprune()`](https://pak.dynasite.org/Nestimate/reference/net_deprune.html));
   S3 dispatch on `x` is preserved.
 
 - ...:
 
   Additional arguments passed to
-  [`Nestimate::net_deprune()`](https://saqr.me/Nestimate/reference/net_deprune.html).
+  [`Nestimate::net_deprune()`](https://pak.dynasite.org/Nestimate/reference/net_deprune.html).
   See that function for details.
 
 ## Value
 
 The depruned htna network. See
-[`Nestimate::net_deprune()`](https://saqr.me/Nestimate/reference/net_deprune.html).
+[`Nestimate::net_deprune()`](https://pak.dynasite.org/Nestimate/reference/net_deprune.html).
 
 ## Details
 
@@ -48,10 +48,9 @@ sit alongside the rest of the htna API.
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 pruned <- prune_htna(net, method = "threshold", threshold = 0.05)
 deprune_htna(pruned)
@@ -99,5 +98,4 @@ deprune_htna(pruned)
 #>   Plan          0.000  
 #>   Repair        0.000  
 #>   Report        0.000  
-# }
 ```

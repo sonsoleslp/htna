@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,10 +64,15 @@
 
     
     
-<p><code><a href="../reference/build_htna.html">build_htna()</a></code> accepts data in <strong>three
-interchangeable shapes</strong>: 1. a named list of per-actor-type nodes
-2. a single combined frame with an actor-type column 3. a single
-combined frame with a node-to-actor-type dictionary.</p>
+<p><code><a href="../reference/build_htna.html">build_htna()</a></code> accepts raw event data in <strong>three
+interchangeable shapes</strong>:</p>
+<ol style="list-style-type: decimal">
+<li>a named list of per-actor-type data frames</li>
+<li>a single combined frame with an actor-type column</li>
+<li>a single combined frame with a node-to-actor-type dictionary.</li>
+</ol>
+<p>It also accepts fitted clustering and MCML results; those forms are
+listed in the cheat sheet at the end.</p>
 <p>This vignette walks through each form, shows that all three produce
 the same network, and then covers two extra parameters that compose with
 any input form: <code>disambiguate</code> (for code-label collisions)
@@ -97,9 +102,11 @@ lookup, ready to pass to <strong>Form 3</strong>.</li>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_simplified</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">ai_simplified</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai_codebook</span><span class="op">)</span></span></code></pre></div>
-<p>All three long frames share the canonical schema <code>htna</code>
-expects: <code>actor</code>/<code>session_id</code>, <code>code</code>,
-<code>order_in_session</code>. Within each session,
+<p>All three long frames share the column schema that
+<code><a href="../reference/build_htna.html">build_htna()</a></code> expects by default: <code>session_id</code>
+(the <code>session</code> argument), <code>code</code> (the
+<code>action</code> argument) and <code>order_in_session</code> (the
+<code>order</code> argument). Within each session,
 <code>order_in_session</code> is a <strong>shared</strong> time index
 across both actors.</p>
 </div>
@@ -269,8 +276,10 @@ table.</p>
 </h2>
 <p><code><a href="../reference/build_htna.html">build_htna()</a></code> resolves every input shape to the same
 combined sequence and forwards to
-<code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">Nestimate::build_network()</a></code>. The four networks below are
-drawn side by side — the layout, colours, and edges are
+<code><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">Nestimate::build_network()</a></code>, so the four networks have
+identical nodes, actor partition and edge weights. Passing them to
+<code><a href="../reference/plot_htna.html">plot_htna()</a></code> as a named list draws one network per element,
+titled with its name; the layout, colours, and edges are
 indistinguishable:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">forms</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -281,7 +290,7 @@ indistinguishable:</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">3</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="kw">for</span> <span class="op">(</span><span class="va">nm</span> <span class="kw">in</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">forms</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="../reference/plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">forms</span><span class="op">[[</span><span class="va">nm</span><span class="op">]</span><span class="op">]</span>, title <span class="op">=</span> <span class="va">nm</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">forms</span><span class="op">)</span></span></code></pre></div>
 <p><img src="input-formats_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="900"></p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></code></pre></div>
@@ -298,10 +307,10 @@ actor-type label so the two <code>Ask</code> nodes become
 <code>Human:Ask</code> and <code>AI:Ask</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">overlap</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  session_id        <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"s"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">3</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">6</span><span class="op">)</span>,</span>
+<span>  session_id        <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="st">"s"</span>, <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span><span class="op">)</span>, each <span class="op">=</span> <span class="fl">6</span><span class="op">)</span>,</span>
 <span>  code              <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Ask"</span>, <span class="st">"Reply"</span>, <span class="st">"Ask"</span>, <span class="st">"Reply"</span>, <span class="st">"Ask"</span>, <span class="st">"Reply"</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  actor_type        <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Human"</span>, <span class="st">"Human"</span>, <span class="st">"AI"</span>, <span class="st">"AI"</span>, <span class="st">"Human"</span>, <span class="st">"AI"</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span>
-<span>  order_in_session  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>  order_in_session  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_len</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span>,</span>
 <span>  stringsAsFactors  <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -312,8 +321,37 @@ actor-type label so the two <code>Ask</code> nodes become
 <span><span class="co"># With disambiguate=, the two `Ask`s become distinct nodes:</span></span>
 <span><span class="va">net_dis</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">overlap</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span>,</span>
 <span>                      disambiguate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">net_dis</span><span class="op">$</span><span class="va">nodes</span><span class="op">$</span><span class="va">label</span></span>
-<span><span class="co">#&gt; [1] "AI:Ask"      "AI:Reply"    "Human:Ask"   "Human:Reply"</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">net_dis</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;htna network&gt;</span></span>
+<span><span class="co">#&gt;   Method:    relative</span></span>
+<span><span class="co">#&gt;   Sessions:  3   (max 6 timesteps)</span></span>
+<span><span class="co">#&gt;   Nodes:     4</span></span>
+<span><span class="co">#&gt;   Edges:     5 / 16 (non-zero)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Actor types (2):</span></span>
+<span><span class="co">#&gt;   Human (2 nodes):  Human:Ask, Human:Reply</span></span>
+<span><span class="co">#&gt;   AI    (2 nodes):  AI:Ask, AI:Reply</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Edge counts by actor (rows = source, cols = target):</span></span>
+<span><span class="co">#&gt;           Human    AI</span></span>
+<span><span class="co">#&gt;   Human       1     2</span></span>
+<span><span class="co">#&gt;   AI          1     1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Network metrics:</span></span>
+<span><span class="co">#&gt;                       metric     value</span></span>
+<span><span class="co">#&gt;                   Node Count 4.0000000</span></span>
+<span><span class="co">#&gt;                   Edge Count 5.0000000</span></span>
+<span><span class="co">#&gt;              Network Density 0.4166667</span></span>
+<span><span class="co">#&gt;                Mean Distance 1.5833333</span></span>
+<span><span class="co">#&gt;            Mean Out-Strength 1.0000000</span></span>
+<span><span class="co">#&gt;              SD Out-Strength 0.4082483</span></span>
+<span><span class="co">#&gt;             Mean In-Strength 1.0000000</span></span>
+<span><span class="co">#&gt;               SD In-Strength 0.0000000</span></span>
+<span><span class="co">#&gt;              Mean Out-Degree 1.2500000</span></span>
+<span><span class="co">#&gt;                SD Out-Degree 0.5000000</span></span>
+<span><span class="co">#&gt;  Centralization (Out-Degree) 0.3333333</span></span>
+<span><span class="co">#&gt;   Centralization (In-Degree) 0.3333333</span></span>
+<span><span class="co">#&gt;                  Reciprocity 0.4000000</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">net_dis</span><span class="op">)</span></span></code></pre></div>
 <p><img src="input-formats_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="900"></p>
 </div>
@@ -329,10 +367,16 @@ grouping column. <code>human_ai</code> already ships with a
 early, rest = late), so the cohort build is a one-liner:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">grp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span>, group <span class="op">=</span> <span class="st">"phase"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "htna_group"      "netobject_group" "list"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Late"  "Early"</span></span></code></pre></div>
+<span><span class="va">grp</span></span>
+<span><span class="co">#&gt; Group Networks (2 groups)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   Group  Nodes  Edges  Weights</span></span>
+<span><span class="co">#&gt;   Late   12     134    [0.001, 0.508]</span></span>
+<span><span class="co">#&gt;   Early  12     135    [0.001, 0.689]</span></span></code></pre></div>
+<p>Pass <code>grp</code> as it is to the downstream verbs
+(<code><a href="../reference/plot_htna.html">plot_htna()</a></code>, <code><a href="../reference/bootstrap_htna.html">bootstrap_htna()</a></code>,
+<code><a href="../reference/permutation_htna.html">permutation_htna()</a></code>, <code><a href="../reference/centralities_htna.html">centralities_htna()</a></code>, …);
+they iterate over the cohorts.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna.html">plot_htna</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span></code></pre></div>
 <p><img src="input-formats_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="900"><img src="input-formats_files/figure-html/unnamed-chunk-10-2.png" class="r-plt" alt="" width="900"></p>
@@ -382,15 +426,20 @@ posterior diagnostics</td>
 cluster</td>
 </tr>
 <tr class="even">
-<td><code>+ actor = "user_id"</code></td>
-<td>Identify the individual actor that performed each event (forwarded
-to <code><a href="https://saqr.me/Nestimate/reference/build_network.html" class="external-link">Nestimate::build_network()</a></code>)</td>
+<td><code>Nestimate::build_mcml(...)</code></td>
+<td>Node clusters of a fitted MCML model become the actor groups; one
+full node-level HTNA is rebuilt from the source data</td>
 </tr>
 <tr class="odd">
+<td><code>+ actor = "user_id"</code></td>
+<td>Identify the individual actor that performed each event (forwarded
+to <code><a href="https://pak.dynasite.org/Nestimate/reference/build_network.html" class="external-link">Nestimate::build_network()</a></code>)</td>
+</tr>
+<tr class="even">
 <td><code>+ disambiguate = TRUE</code></td>
 <td>Same code label appears in more than one actor type</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>+ group = "phase"</code></td>
 <td>Build one network per cohort/phase</td>
 </tr>

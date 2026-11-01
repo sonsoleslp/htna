@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,6 +61,43 @@
 
         </dt>
         <dd>Convert an HTNA Network to igraph</dd>
+      </dl></div><div class="section level2">
+      <h2 id="pruning">Pruning<a class="anchor" aria-label="anchor" href="#pruning"></a></h2>
+
+      <div class="section-desc"><p>Remove weak edges, restore them, and report what was removed</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="prune_htna.html">prune_htna()</a></code>
+
+        </dt>
+        <dd>Prune Weak Edges from a Transition Network</dd>
+
+        <dt>
+
+          <code><a href="deprune_htna.html">deprune_htna()</a></code>
+
+        </dt>
+        <dd>Restore All Edges of a Pruned Transition Network</dd>
+
+        <dt>
+
+          <code><a href="reprune_htna.html">reprune_htna()</a></code>
+
+        </dt>
+        <dd>Re-apply a Previous Pruning Rule</dd>
+
+        <dt>
+
+          <code><a href="pruning_details_htna.html">pruning_details_htna()</a></code>
+
+        </dt>
+        <dd>Tidy Report of a Network's Pruning</dd>
       </dl></div><div class="section level2">
       <h2 id="frequencies-and-distributions">Frequencies and distributions<a class="anchor" aria-label="anchor" href="#frequencies-and-distributions"></a></h2>
 
@@ -249,9 +286,46 @@
         </dt>
         <dd>Association Rule Mining over Transitions</dd>
       </dl></div><div class="section level2">
+      <h2 id="comparing-networks">Comparing networks<a class="anchor" aria-label="anchor" href="#comparing-networks"></a></h2>
+
+      <div class="section-desc"><p>Descriptive, permutation, and Bayesian comparison of htna networks</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="compare_htna.html">compare_htna()</a></code>
+
+        </dt>
+        <dd>Compare Heterogeneous Transition Networks</dd>
+
+        <dt>
+
+          <code><a href="plot.htna_comparison_group.html">plot(<i>&lt;htna_comparison_group&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Plot All Comparisons in an HTNA Comparison Group</dd>
+
+        <dt>
+
+          <code><a href="permutation_htna.html">permutation_htna()</a></code>
+
+        </dt>
+        <dd>Permutation Test for Network Differences</dd>
+
+        <dt>
+
+          <code><a href="bayes_compare_htna.html">bayes_compare_htna()</a></code>
+
+        </dt>
+        <dd>Bayesian Comparison of Two Networks</dd>
+      </dl></div><div class="section level2">
       <h2 id="model-assessment">Model assessment<a class="anchor" aria-label="anchor" href="#model-assessment"></a></h2>
 
-      <div class="section-desc"><p>Reliability, stability, permutation, and Markov-order adequacy</p></div>
+      <div class="section-desc"><p>Bootstrap, certainty, reliability, stability, and Markov-order adequacy</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -274,10 +348,10 @@
 
         <dt>
 
-          <code><a href="permutation_htna.html">permutation_htna()</a></code>
+          <code><a href="certainty_htna.html">certainty_htna()</a></code>
 
         </dt>
-        <dd>Permutation Test for Network Differences</dd>
+        <dd>Closed-form Edge Certainty of a Network</dd>
 
         <dt>
 
@@ -334,80 +408,6 @@
 
         </dt>
         <dd>Markov-Order Adequacy Test</dd>
-
-        <dt>
-
-          <code><a href="certainty_htna.html">certainty_htna()</a></code>
-
-        </dt>
-        <dd>Closed-form Edge Certainty of a Network</dd>
-      </dl></div><div class="section level2">
-      <h2 id="network-comparison">Network comparison<a class="anchor" aria-label="anchor" href="#network-comparison"></a></h2>
-
-      <div class="section-desc"><p>Descriptive and Bayesian comparison of two or more htna networks</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="compare_htna.html">compare_htna()</a></code>
-
-        </dt>
-        <dd>Compare Heterogeneous Transition Networks</dd>
-
-        <dt>
-
-          <code><a href="bayes_compare_htna.html">bayes_compare_htna()</a></code>
-
-        </dt>
-        <dd>Bayesian Comparison of Two Networks</dd>
-
-        <dt>
-
-          <code><a href="plot.htna_comparison_group.html">plot(<i>&lt;htna_comparison_group&gt;</i>)</a></code>
-
-        </dt>
-        <dd>Plot All Comparisons in an HTNA Comparison Group</dd>
-      </dl></div><div class="section level2">
-      <h2 id="pruning">Pruning<a class="anchor" aria-label="anchor" href="#pruning"></a></h2>
-
-      <div class="section-desc"><p>Remove, restore, and re-apply edge-weight pruning rules</p></div>
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="prune_htna.html">prune_htna()</a></code>
-
-        </dt>
-        <dd>Prune Weak Edges from a Transition Network</dd>
-
-        <dt>
-
-          <code><a href="deprune_htna.html">deprune_htna()</a></code>
-
-        </dt>
-        <dd>Restore All Edges of a Pruned Transition Network</dd>
-
-        <dt>
-
-          <code><a href="reprune_htna.html">reprune_htna()</a></code>
-
-        </dt>
-        <dd>Re-apply a Previous Pruning Rule</dd>
-
-        <dt>
-
-          <code><a href="pruning_details_htna.html">pruning_details_htna()</a></code>
-
-        </dt>
-        <dd>Tidy Report of a Network's Pruning</dd>
       </dl></div><div class="section level2">
       <h2 id="datasets">Datasets<a class="anchor" aria-label="anchor" href="#datasets"></a></h2>
 
@@ -444,7 +444,7 @@
           <code><a href="human_ai_codebook.html">human_ai_codebook</a></code>
 
         </dt>
-        <dd>Code → Actor-Type Codebook for <code>human_ai</code></dd>
+        <dd>Code-to-Actor-Type Codebook for <code>human_ai</code></dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

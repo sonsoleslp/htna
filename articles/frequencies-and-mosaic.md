@@ -1,8 +1,12 @@
 # State frequencies and chi-square mosaics
 
-In this vignette, we look at additional summary functions and
-visualizations in `htna`. We will use two networks constructed from the
-bundled `human_ai` corpus (Human + AI events tagged by `actor_type`; see
+A transition network summarises *how* actors move between states, but
+not how often each state occurs in the first place. A transition out of
+a rare state can carry a high probability on very little evidence, so
+the marginal frequencies are the context in which every edge weight is
+read. This vignette covers the frequency and mosaic summaries in `htna`.
+We will use two networks constructed from the bundled `human_ai` corpus
+(Human + AI events tagged by `actor_type`; see
 [`?human_ai`](https://sonsoles.me/htna/reference/human_ai.md)). The
 frequency family operates on either, but the mosaic family requires an
 integer-weighted network because the chi-square test acts on counts;
@@ -25,8 +29,9 @@ net_freq <- build_htna(human_ai, actor_type = "actor_type",
 [`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md)
 returns the per-actor marginal state distribution as a data frame with
 one row per (`actor_type`, `state`) pair. Columns are: actor type
-(`group`), state, count, and within-network proportion. The table is the
-data underlying every chart in this section.
+(`group`), state, count, and the state’s proportion of its own actor’s
+events (proportions sum to 1 within each actor). The table is the data
+underlying every chart in this section.
 
 ``` r
 
@@ -55,7 +60,7 @@ encodes the same data but is optimised for a different reading task.
 #### Treemap (`view = "treemap"`, default)
 
 Each panel corresponds to one actor; tile area within a panel encodes
-the within-network proportion of the corresponding state. The layout is
+the within-actor proportion of the corresponding state. The layout is
 space-efficient and allows the full state vocabulary to be displayed
 simultaneously.
 
@@ -153,9 +158,9 @@ mosaic_plot_htna(net_freq, residuals = "asymptotic")
 
 ![](frequencies-and-mosaic_files/figure-html/unnamed-chunk-7-1.png)
 
-For htna corpora of typical size (hundreds of sessions, hundreds to
-thousands of transitions per cell), permutation and asymptotic residuals
-agree closely.
+For corpora where most cells hold many transitions, permutation and
+asymptotic residuals are expected to agree closely; compare the two
+mosaics above to check this for the data at hand.
 
 ### Colour-scale clipping (`range = c(-4, 4)`)
 

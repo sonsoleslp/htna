@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@
 <p>A common HTNA question is whether the same actor partition behaves
 <em>differently</em> across cohorts – e.g. early-phase versus late-phase
 sessions of an interaction corpus; control vs. experimental groups;
-female vs. male, etc.. <code><a href="../reference/build_htna.html">build_htna()</a></code> supports this directly
+female vs. male, etc. <code><a href="../reference/build_htna.html">build_htna()</a></code> supports this directly
 by passing the session-level grouping column to the function. The result
 is <strong>one network per cohort</strong>, each preserving the actor
 partition. Every other function in <code>htna</code> recognises the
@@ -76,18 +76,18 @@ grouped result and iterates over cohorts.</p>
 <h2 id="an-early-late-example">An early / late example<a class="anchor" aria-label="anchor" href="#an-early-late-example"></a>
 </h2>
 <p>We use the bundled <code>human_ai</code> corpus (Human + AI codes
-from <code><a href="https://saqr.me/Nestimate/reference/long-data.html" class="external-link">Nestimate::human_long</a></code> / <code>ai_long</code>, with a
+from <code><a href="https://pak.dynasite.org/Nestimate/reference/long-data.html" class="external-link">Nestimate::human_long</a></code> / <code>ai_long</code>, with a
 slightly simplified alphabet – see <code><a href="../reference/human_ai.html">?human_ai</a></code>). Sessions are
 split chronologically: ordered by their first <code>session_date</code>
 (with <code>session_id</code> as a deterministic tiebreak), the first
 half of the sessions form the <em>Early</em> cohort and the rest form
-the <em>Late</em> cohort, reflected in the <code>phase</code>
-column.</p>
+the <em>Late</em> cohort, reflected in the <code>phase</code> column.
+The count below is the number of coded events (rows) in each cohort:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://sonsoles.me/htna/">htna</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">$</span><span class="va">phase</span><span class="op">)</span></span>
-<span><span class="co">#&gt; </span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/xtabs.html" class="external-link">xtabs</a></span><span class="op">(</span><span class="op">~</span> <span class="va">phase</span>, data <span class="op">=</span> <span class="va">human_ai</span><span class="op">)</span></span>
+<span><span class="co">#&gt; phase</span></span>
 <span><span class="co">#&gt; Early  Late </span></span>
 <span><span class="co">#&gt; 10170  9177</span></span></code></pre></div>
 </div>
@@ -103,107 +103,84 @@ cohort column:</p>
 <span>  actor_type <span class="op">=</span> <span class="st">"actor_type"</span>,</span>
 <span>  group      <span class="op">=</span> <span class="st">"phase"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 2</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "Late"  "Early"</span></span></code></pre></div>
-<p>The result is a named list of HTNA networks. Indexing one element
-gives a regular HTNA network you can use exactly like any other:</p>
+<p>The result is a named list of HTNA networks of class
+<code>htna_group</code>, one per cohort. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
+describes every cohort in turn: its actor partition, how the non-zero
+edges distribute across the actor blocks, and the network-level
+metrics.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">grp</span><span class="op">$</span><span class="va">Early</span></span>
-<span><span class="co">#&gt; Transition Network (relative probabilities) [directed]</span></span>
-<span><span class="co">#&gt;   Weights: [0.001, 0.689]  |  mean: 0.089</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span>
+<span><span class="co">#&gt; &lt;htna_group: 2 cohorts (Late, Early)&gt;</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Weight matrix:</span></span>
-<span><span class="co">#&gt;               Ask Check Delegate Execute Frustrate Inquire  Plan Refine Repair</span></span>
-<span><span class="co">#&gt;   Ask       0.018 0.069    0.000   0.033     0.099   0.054 0.433  0.044  0.005</span></span>
-<span><span class="co">#&gt;   Check     0.128 0.059    0.013   0.430     0.052   0.001 0.003  0.039  0.028</span></span>
-<span><span class="co">#&gt;   Delegate  0.000 0.031    0.000   0.012     0.087   0.012 0.689  0.012  0.000</span></span>
-<span><span class="co">#&gt;   Execute   0.050 0.089    0.000   0.086     0.127   0.090 0.119  0.078  0.003</span></span>
-<span><span class="co">#&gt;   Frustrate 0.184 0.129    0.054   0.126     0.089   0.056 0.002  0.096  0.032</span></span>
-<span><span class="co">#&gt;   Inquire   0.239 0.094    0.027   0.289     0.036   0.051 0.010  0.024  0.046</span></span>
-<span><span class="co">#&gt;   Plan      0.000 0.165    0.000   0.018     0.193   0.068 0.004  0.079  0.006</span></span>
-<span><span class="co">#&gt;   Refine    0.118 0.059    0.009   0.236     0.005   0.017 0.005  0.000  0.038</span></span>
-<span><span class="co">#&gt;   Repair    0.282 0.014    0.035   0.408     0.028   0.028 0.021  0.021  0.007</span></span>
-<span><span class="co">#&gt;   Report    0.097 0.148    0.000   0.011     0.112   0.101 0.043  0.058  0.036</span></span>
-<span><span class="co">#&gt;   Request   0.147 0.057    0.019   0.295     0.015   0.009 0.007  0.013  0.007</span></span>
-<span><span class="co">#&gt;   Specify   0.242 0.018    0.040   0.291     0.114   0.006 0.014  0.001  0.016</span></span>
-<span><span class="co">#&gt;             Report Request Specify</span></span>
-<span><span class="co">#&gt;   Ask        0.023   0.166   0.054</span></span>
-<span><span class="co">#&gt;   Check      0.052   0.038   0.156</span></span>
-<span><span class="co">#&gt;   Delegate   0.006   0.124   0.025</span></span>
-<span><span class="co">#&gt;   Execute    0.007   0.283   0.067</span></span>
-<span><span class="co">#&gt;   Frustrate  0.014   0.131   0.087</span></span>
-<span><span class="co">#&gt;   Inquire    0.123   0.039   0.024</span></span>
-<span><span class="co">#&gt;   Plan       0.016   0.346   0.105</span></span>
-<span><span class="co">#&gt;   Refine     0.019   0.075   0.420</span></span>
-<span><span class="co">#&gt;   Repair     0.049   0.077   0.028</span></span>
-<span><span class="co">#&gt;   Report     0.058   0.267   0.069</span></span>
-<span><span class="co">#&gt;   Request    0.026   0.072   0.332</span></span>
-<span><span class="co">#&gt;   Specify    0.039   0.114   0.106 </span></span>
+<span><span class="co">#&gt; === Late ===</span></span>
+<span><span class="co">#&gt; &lt;htna network&gt;</span></span>
+<span><span class="co">#&gt;   Method:    relative</span></span>
+<span><span class="co">#&gt;   Sessions:  215   (max 208 timesteps)</span></span>
+<span><span class="co">#&gt;   Nodes:     12</span></span>
+<span><span class="co">#&gt;   Edges:     134 / 144 (non-zero)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Initial probabilities:</span></span>
-<span><span class="co">#&gt;   Specify       0.813  ████████████████████████████████████████</span></span>
-<span><span class="co">#&gt;   Request       0.159  ████████</span></span>
-<span><span class="co">#&gt;   Frustrate     0.023  █</span></span>
-<span><span class="co">#&gt;   Refine        0.005  </span></span>
-<span><span class="co">#&gt;   Ask           0.000  </span></span>
-<span><span class="co">#&gt;   Check         0.000  </span></span>
-<span><span class="co">#&gt;   Delegate      0.000  </span></span>
-<span><span class="co">#&gt;   Execute       0.000  </span></span>
-<span><span class="co">#&gt;   Inquire       0.000  </span></span>
-<span><span class="co">#&gt;   Plan          0.000  </span></span>
-<span><span class="co">#&gt;   Repair        0.000  </span></span>
-<span><span class="co">#&gt;   Report        0.000</span></span>
-<span><span class="va">grp</span><span class="op">$</span><span class="va">Late</span></span>
-<span><span class="co">#&gt; Transition Network (relative probabilities) [directed]</span></span>
-<span><span class="co">#&gt;   Weights: [0.001, 0.508]  |  mean: 0.090</span></span>
+<span><span class="co">#&gt; Actor types (2):</span></span>
+<span><span class="co">#&gt;   Human (6 nodes):  Check, Frustrate, Inquire, Refine, Request, Specify</span></span>
+<span><span class="co">#&gt;   AI    (6 nodes):  Ask, Delegate, Execute, Plan, Repair, Report</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Weight matrix:</span></span>
-<span><span class="co">#&gt;               Ask Check Delegate Execute Frustrate Inquire  Plan Refine Repair</span></span>
-<span><span class="co">#&gt;   Ask       0.018 0.058    0.000   0.012     0.132   0.072 0.385  0.058  0.002</span></span>
-<span><span class="co">#&gt;   Check     0.101 0.037    0.019   0.385     0.065   0.009 0.017  0.045  0.041</span></span>
-<span><span class="co">#&gt;   Delegate  0.000 0.049    0.000   0.008     0.139   0.057 0.508  0.016  0.000</span></span>
-<span><span class="co">#&gt;   Execute   0.076 0.085    0.000   0.059     0.165   0.085 0.091  0.057  0.001</span></span>
-<span><span class="co">#&gt;   Frustrate 0.204 0.078    0.024   0.110     0.139   0.064 0.005  0.100  0.026</span></span>
-<span><span class="co">#&gt;   Inquire   0.263 0.046    0.027   0.281     0.041   0.016 0.009  0.009  0.039</span></span>
-<span><span class="co">#&gt;   Plan      0.000 0.124    0.000   0.013     0.241   0.101 0.003  0.094  0.004</span></span>
-<span><span class="co">#&gt;   Refine    0.171 0.030    0.003   0.171     0.011   0.011 0.022  0.000  0.011</span></span>
-<span><span class="co">#&gt;   Repair    0.189 0.009    0.018   0.369     0.063   0.072 0.009  0.027  0.000</span></span>
-<span><span class="co">#&gt;   Report    0.106 0.091    0.000   0.007     0.133   0.103 0.054  0.059  0.042</span></span>
-<span><span class="co">#&gt;   Request   0.149 0.054    0.018   0.288     0.017   0.010 0.009  0.005  0.007</span></span>
-<span><span class="co">#&gt;   Specify   0.300 0.015    0.040   0.253     0.076   0.016 0.016  0.004  0.009</span></span>
-<span><span class="co">#&gt;             Report Request Specify</span></span>
-<span><span class="co">#&gt;   Ask        0.032   0.180   0.050</span></span>
-<span><span class="co">#&gt;   Check      0.058   0.065   0.157</span></span>
-<span><span class="co">#&gt;   Delegate   0.033   0.139   0.049</span></span>
-<span><span class="co">#&gt;   Execute    0.013   0.305   0.063</span></span>
-<span><span class="co">#&gt;   Frustrate  0.029   0.138   0.083</span></span>
-<span><span class="co">#&gt;   Inquire    0.215   0.018   0.034</span></span>
-<span><span class="co">#&gt;   Plan       0.039   0.299   0.083</span></span>
-<span><span class="co">#&gt;   Refine     0.027   0.139   0.405</span></span>
-<span><span class="co">#&gt;   Repair     0.171   0.063   0.009</span></span>
-<span><span class="co">#&gt;   Report     0.091   0.251   0.064</span></span>
-<span><span class="co">#&gt;   Request    0.042   0.062   0.340</span></span>
-<span><span class="co">#&gt;   Specify    0.036   0.139   0.096 </span></span>
+<span><span class="co">#&gt; Edge counts by actor (rows = source, cols = target):</span></span>
+<span><span class="co">#&gt;           Human    AI</span></span>
+<span><span class="co">#&gt;   Human      35    36</span></span>
+<span><span class="co">#&gt;   AI         36    27</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;   Initial probabilities:</span></span>
-<span><span class="co">#&gt;   Specify       0.823  ████████████████████████████████████████</span></span>
-<span><span class="co">#&gt;   Request       0.153  ███████</span></span>
-<span><span class="co">#&gt;   Frustrate     0.023  █</span></span>
-<span><span class="co">#&gt;   Ask           0.000  </span></span>
-<span><span class="co">#&gt;   Check         0.000  </span></span>
-<span><span class="co">#&gt;   Delegate      0.000  </span></span>
-<span><span class="co">#&gt;   Execute       0.000  </span></span>
-<span><span class="co">#&gt;   Inquire       0.000  </span></span>
-<span><span class="co">#&gt;   Plan          0.000  </span></span>
-<span><span class="co">#&gt;   Refine        0.000  </span></span>
-<span><span class="co">#&gt;   Repair        0.000  </span></span>
-<span><span class="co">#&gt;   Report        0.000</span></span></code></pre></div>
+<span><span class="co">#&gt; Network metrics:</span></span>
+<span><span class="co">#&gt;                       metric        value</span></span>
+<span><span class="co">#&gt;                   Node Count 1.200000e+01</span></span>
+<span><span class="co">#&gt;                   Edge Count 1.340000e+02</span></span>
+<span><span class="co">#&gt;              Network Density 1.000000e+00</span></span>
+<span><span class="co">#&gt;                Mean Distance 2.438201e-02</span></span>
+<span><span class="co">#&gt;            Mean Out-Strength 1.000000e+00</span></span>
+<span><span class="co">#&gt;              SD Out-Strength 6.109845e-01</span></span>
+<span><span class="co">#&gt;             Mean In-Strength 1.000000e+00</span></span>
+<span><span class="co">#&gt;               SD In-Strength 3.347448e-17</span></span>
+<span><span class="co">#&gt;              Mean Out-Degree 1.116667e+01</span></span>
+<span><span class="co">#&gt;                SD Out-Degree 9.374369e-01</span></span>
+<span><span class="co">#&gt;  Centralization (Out-Degree) 5.785124e-02</span></span>
+<span><span class="co">#&gt;   Centralization (In-Degree) 5.785124e-02</span></span>
+<span><span class="co">#&gt;                  Reciprocity 9.600000e-01</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; === Early ===</span></span>
+<span><span class="co">#&gt; &lt;htna network&gt;</span></span>
+<span><span class="co">#&gt;   Method:    relative</span></span>
+<span><span class="co">#&gt;   Sessions:  214   (max 287 timesteps)</span></span>
+<span><span class="co">#&gt;   Nodes:     12</span></span>
+<span><span class="co">#&gt;   Edges:     135 / 144 (non-zero)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Actor types (2):</span></span>
+<span><span class="co">#&gt;   Human (6 nodes):  Check, Frustrate, Inquire, Refine, Request, Specify</span></span>
+<span><span class="co">#&gt;   AI    (6 nodes):  Ask, Delegate, Execute, Plan, Repair, Report</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Edge counts by actor (rows = source, cols = target):</span></span>
+<span><span class="co">#&gt;           Human    AI</span></span>
+<span><span class="co">#&gt;   Human      35    36</span></span>
+<span><span class="co">#&gt;   AI         36    28</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Network metrics:</span></span>
+<span><span class="co">#&gt;                       metric        value</span></span>
+<span><span class="co">#&gt;                   Node Count  12.00000000</span></span>
+<span><span class="co">#&gt;                   Edge Count 135.00000000</span></span>
+<span><span class="co">#&gt;              Network Density   1.00000000</span></span>
+<span><span class="co">#&gt;                Mean Distance   0.02704448</span></span>
+<span><span class="co">#&gt;            Mean Out-Strength   1.00000000</span></span>
+<span><span class="co">#&gt;              SD Out-Strength   0.65969479</span></span>
+<span><span class="co">#&gt;             Mean In-Strength   1.00000000</span></span>
+<span><span class="co">#&gt;               SD In-Strength   0.00000000</span></span>
+<span><span class="co">#&gt;              Mean Out-Degree  11.25000000</span></span>
+<span><span class="co">#&gt;                SD Out-Degree   0.96530730</span></span>
+<span><span class="co">#&gt;  Centralization (Out-Degree)   0.05785124</span></span>
+<span><span class="co">#&gt;   Centralization (In-Degree)   0.05785124</span></span>
+<span><span class="co">#&gt;                  Reciprocity   0.96000000</span></span></code></pre></div>
 <p>Because both cohorts were built from the same alphabet, both networks
-have the <strong>same nodes</strong> – which is exactly what
-<code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code> and <code><a href="../reference/permutation_htna.html">permutation_htna()</a></code>
-need.</p>
+have the <strong>same nodes</strong> – which is what
+<code><a href="../reference/permutation_htna.html">permutation_htna()</a></code> and <code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code>
+compare edge by edge.</p>
 </div>
 <div class="section level2">
 <h2 id="plotting-per-cohort">Plotting per cohort<a class="anchor" aria-label="anchor" href="#plotting-per-cohort"></a>
@@ -256,9 +233,9 @@ a leading <code>group</code> column identifying the cohort:</p>
 <span><span class="co">#&gt; 8  0.01188981           0             22  8.889109  0.2437973</span></span>
 <span><span class="co">#&gt; 9  0.01368159           0              1  8.960075  0.2019068</span></span>
 <span><span class="co">#&gt; 10 0.01241482           0             24  8.166331  0.1499067</span></span></code></pre></div>
-<p><code><a href="../reference/plot_centralities.html">plot_centralities()</a></code> faces a grid: rows are cohorts,
-columns are measures, so cohort-level differences are easy to read at a
-glance:</p>
+<p><code><a href="../reference/plot_centralities.html">plot_centralities()</a></code> draws one panel per measure and
+overlays one line-and-point profile per cohort, so cohort-level
+differences on each measure read along the same node axis:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_centralities.html">plot_centralities</a></span><span class="op">(</span><span class="va">grp</span>, by <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="grouped_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" alt="" width="900"></p>
@@ -289,34 +266,60 @@ reports the largest session-drop proportion at which
 default 0.7 / 0.95 threshold:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">stab</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/centrality_stability_htna.html">centrality_stability_htna</a></span><span class="op">(</span><span class="va">grp</span>, iter <span class="op">=</span> <span class="fl">100</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">sapply</a></span><span class="op">(</span><span class="va">stab</span>, <span class="kw">function</span><span class="op">(</span><span class="va">s</span><span class="op">)</span> <span class="va">s</span><span class="op">$</span><span class="va">cs</span><span class="op">)</span></span>
-<span><span class="co">#&gt;             Late Early</span></span>
-<span><span class="co">#&gt; InStrength   0.9   0.9</span></span>
-<span><span class="co">#&gt; OutStrength  0.9   0.8</span></span>
-<span><span class="co">#&gt; Betweenness  0.8   0.8</span></span></code></pre></div>
-<p>The columns are cohorts, the rows are centrality measures. By the
-Epskamp et al. (2018) convention, CS &gt; 0.25 is acceptable and CS &gt;
-0.5 is preferred for inferential use; the maximum reportable value is
-the upper bound of the drop-proportion grid.</p>
+<span><span class="va">stab</span></span>
+<span><span class="co">#&gt; HTNA Centrality Stability Analysis (Grouped)</span></span>
+<span><span class="co">#&gt; ============================================</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; --- Group: Late ---</span></span>
+<span><span class="co">#&gt; HTNA Centrality Stability Analysis</span></span>
+<span><span class="co">#&gt; ===================================</span></span>
+<span><span class="co">#&gt; Centrality Stability (100 iterations, threshold = 0.7)</span></span>
+<span><span class="co">#&gt;   Drop proportions: 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   CS-coefficients:</span></span>
+<span><span class="co">#&gt;     InStrength       0.90</span></span>
+<span><span class="co">#&gt;     OutStrength      0.90</span></span>
+<span><span class="co">#&gt;     Betweenness      0.80</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; --- Group: Early ---</span></span>
+<span><span class="co">#&gt; HTNA Centrality Stability Analysis</span></span>
+<span><span class="co">#&gt; ===================================</span></span>
+<span><span class="co">#&gt; Centrality Stability (100 iterations, threshold = 0.7)</span></span>
+<span><span class="co">#&gt;   Drop proportions: 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;   CS-coefficients:</span></span>
+<span><span class="co">#&gt;     InStrength       0.90</span></span>
+<span><span class="co">#&gt;     OutStrength      0.80</span></span>
+<span><span class="co">#&gt;     Betweenness      0.80</span></span></code></pre></div>
+<p>The report lists the CS-coefficient of each measure within each
+cohort. By the Epskamp et al. (2018) convention, CS &gt; 0.25 is
+acceptable and CS &gt; 0.5 is preferred for inferential use; the maximum
+reportable value is the upper bound of the drop-proportion grid. A
+cohort comparison of centralities is only meaningful for measures that
+are stable in <em>both</em> cohorts.</p>
 </div>
 <div class="section level2">
 <h2 id="comparing-the-two-cohorts">Comparing the two cohorts<a class="anchor" aria-label="anchor" href="#comparing-the-two-cohorts"></a>
 </h2>
-<p>Both networks share an alphabet, so you can compute the elementwise
-difference directly with <code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code>. Positive (Late
-&gt; Early) is green, negative (Early &gt; Late) is red:</p>
+<p>Both networks share an alphabet, so their edges can be compared one
+by one. Pass the grouped network as it is to
+<code><a href="../reference/permutation_htna.html">permutation_htna()</a></code>: it tests every cohort pair and returns
+one result per pair, named
+<code>"&lt;first&gt; vs &lt;second&gt;"</code>.
+<code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code> draws each pair as the difference network
+<em>first minus second</em>, titled with the pair name; positive
+differences are green, negative red, and only the edges that differ
+significantly are drawn:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">grp</span><span class="op">$</span><span class="va">Late</span>, <span class="va">grp</span><span class="op">$</span><span class="va">Early</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grouped_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="900"></p>
-<p><code><a href="../reference/permutation_htna.html">permutation_htna()</a></code> quantifies which differences are
-statistically significant:</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">perm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/permutation_htna.html">permutation_htna</a></span><span class="op">(</span><span class="va">grp</span><span class="op">$</span><span class="va">Late</span>, <span class="va">grp</span><span class="op">$</span><span class="va">Early</span>, iter <span class="op">=</span> <span class="fl">500</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">perm</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/permutation_htna.html">permutation_htna</a></span><span class="op">(</span><span class="va">grp</span>, iter <span class="op">=</span> <span class="fl">500</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">perm</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grouped_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="900"></p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<p><img src="grouped_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="900"></p>
+<p>With <code>show_nonsig = TRUE</code> the non-significant differences
+are added as dashed grey edges, so the full difference network is
+visible together with the significance verdict:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_htna_diff.html">plot_htna_diff</a></span><span class="op">(</span><span class="va">perm</span>, show_nonsig <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
-<p><img src="grouped_files/figure-html/unnamed-chunk-12-1.png" class="r-plt" alt="" width="900"></p>
+<p><img src="grouped_files/figure-html/unnamed-chunk-11-1.png" class="r-plt" alt="" width="900"></p>
 </div>
 <div class="section level2">
 <h2 id="cohort-level-pattern-comparison">Cohort-level pattern comparison<a class="anchor" aria-label="anchor" href="#cohort-level-pattern-comparison"></a>
@@ -331,13 +334,18 @@ meta-paths (e.g. <code>Human -&gt; AI -&gt; Human</code>) rather than
 concrete state codes.</p>
 </div>
 <div class="section level2">
-<h2 id="indexing">Indexing<a class="anchor" aria-label="anchor" href="#indexing"></a>
+<h2 id="working-with-the-grouped-object">Working with the grouped object<a class="anchor" aria-label="anchor" href="#working-with-the-grouped-object"></a>
 </h2>
-<p>Because the result of <code>build_htna(..., group = ...)</code> is a
-named list, all standard list operations work:
-<code>grp[["Early"]]</code>, <code>grp[c("Early", "Late")]</code>,
-<code>length(grp)</code>, <code>names(grp)</code>. Subsets keep the
-grouped class so they pass straight back to the wrappers above.</p>
+<p>Pass the result of <code>build_htna(..., group = ...)</code> as it is
+to the functions above; each one iterates over the cohorts (or, for
+<code><a href="../reference/permutation_htna.html">permutation_htna()</a></code>, <code><a href="../reference/bayes_compare_htna.html">bayes_compare_htna()</a></code> and
+<code><a href="../reference/compare_htna.html">compare_htna()</a></code>, over the cohort pairs) and labels its
+output with the cohort names. There is no need to extract cohorts by
+hand. To analyse a single cohort on its own, build it directly from that
+cohort’s sessions, e.g.
+<code>build_htna(subset(human_ai, phase == "Early"), actor_type = "actor_type")</code>,
+which yields the same network as the <code>Early</code> element of
+<code>grp</code>.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

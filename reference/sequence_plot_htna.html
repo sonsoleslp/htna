@@ -17,7 +17,7 @@ event in it."><meta property="og:image" content="https://sonsoles.me/htna/logo.p
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,7 +47,7 @@ event in it."><meta property="og:image" content="https://sonsoles.me/htna/logo.p
     <p>Extracts each actor's events from the combined wide sequence in
 <code>net$data</code> (using <code>net$node_groups</code> as the node-to-actor lookup),
 compresses each session into the actor's own ordered events, pads to a
-common width, and renders with <code><a href="https://saqr.me/Nestimate/reference/sequence_plot.html" class="external-link">Nestimate::sequence_plot()</a></code> grouped by
+common width, and renders with <code><a href="https://pak.dynasite.org/Nestimate/reference/sequence_plot.html" class="external-link">Nestimate::sequence_plot()</a></code> grouped by
 actor. Each session contributes one row per actor that had at least one
 event in it.</p>
     </div>
@@ -96,7 +96,7 @@ name as a sub-title.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Forwarded to <code><a href="https://saqr.me/Nestimate/reference/sequence_plot.html" class="external-link">Nestimate::sequence_plot()</a></code>.</p></dd>
+<dd><p>Forwarded to <code><a href="https://pak.dynasite.org/Nestimate/reference/sequence_plot.html" class="external-link">Nestimate::sequence_plot()</a></code>.</p></dd>
 
 
 <dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
@@ -106,19 +106,18 @@ generic.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Invisibly, the list returned by <code><a href="https://saqr.me/Nestimate/reference/sequence_plot.html" class="external-link">Nestimate::sequence_plot()</a></code>.</p>
+    <p>Invisibly, the list returned by <code><a href="https://pak.dynasite.org/Nestimate/reference/sequence_plot.html" class="external-link">Nestimate::sequence_plot()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
-    <div class="dont-index"><p><code><a href="https://saqr.me/Nestimate/reference/sequence_plot.html" class="external-link">Nestimate::sequence_plot()</a></code>, <code><a href="build_htna.html">build_htna()</a></code>.</p></div>
+    <div class="dont-index"><p><code><a href="https://pak.dynasite.org/Nestimate/reference/sequence_plot.html" class="external-link">Nestimate::sequence_plot()</a></code>, <code><a href="build_htna.html">build_htna()</a></code>.</p></div>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">sequence_plot_htna</span><span class="op">(</span><span class="va">net</span><span class="op">)</span>                       <span class="co"># index, faceted</span></span></span>
@@ -127,7 +126,8 @@ generic.</p></dd>
 <span class="r-plt img"><img src="sequence_plot_htna-2.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span><span class="fu">sequence_plot_htna</span><span class="op">(</span><span class="va">net</span>, type <span class="op">=</span> <span class="st">"distribution"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="sequence_plot_htna-3.png" alt="" width="700" height="433"></span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="fu">sequence_plot_htna</span><span class="op">(</span><span class="va">net</span>, by <span class="op">=</span> <span class="st">"group"</span><span class="op">)</span>         <span class="co"># cells coloured by actor</span></span></span>
+<span class="r-plt img"><img src="sequence_plot_htna-4.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -9,7 +9,7 @@ two or more actor groups (e.g. Human and AI) within the same interaction."><meta
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,11 +45,15 @@ two or more actor groups (e.g. Human and AI) within the same interaction.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The package is a thin layer on top of two foundations:</p><ul><li><p><span class="pkg">Nestimate</span> - estimation, bootstrap, permutation, reliability,
 centrality, and Markov machinery.</p></li>
-<li><p><span class="pkg">cograph</span> - rendering (<code>splot</code>, <code>plot_htna</code>,
-transitions, communities, chord, heatmap).</p></li>
-</ul><p><span class="pkg">htna</span> adds the heterogeneous-actor wrapper <code><a href="build_htna.html">build_htna</a></code>
-and re-exports the most commonly used downstream functions so users do
-not need to attach <span class="pkg">Nestimate</span> or <span class="pkg">cograph</span> explicitly.</p>
+<li><p><span class="pkg">cograph</span> - rendering. Every network plot drawn by htna is
+rendered by <code><a href="https://sonsoles.me/cograph/reference/plot_htna.html" class="external-link">cograph::plot_htna()</a></code> or <code><a href="https://sonsoles.me/cograph/reference/splot.html" class="external-link">cograph::splot()</a></code>;
+the htna plotting functions only supply the actor-aware layout,
+colours and legend.</p></li>
+</ul><p><span class="pkg">htna</span> adds the heterogeneous-actor constructor
+<code><a href="build_htna.html">build_htna</a></code> and <code>_htna</code>-named wrappers around the most
+commonly used downstream functions, so users do not need to attach
+<span class="pkg">Nestimate</span> or <span class="pkg">cograph</span> explicitly. Analysis wrappers restore
+the actor partition on their results, so the output stays htna-aware.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -1,9 +1,10 @@
 # Tidy State Frequency Table
 
-htna-named alias of
-[`Nestimate::state_frequencies()`](https://saqr.me/Nestimate/reference/state_frequencies.html).
+htna-named wrapper for
+[`Nestimate::state_frequencies()`](https://pak.dynasite.org/Nestimate/reference/state_frequencies.html).
 Returns a tidy data frame with `state`, `count`, and `proportion`
-columns summarising the within-network state vocabulary.
+columns summarising the within-network state vocabulary, pooled across
+actors.
 
 ## Usage
 
@@ -15,31 +16,35 @@ state_frequencies_htna(data, ...)
 
 - data:
 
-  Raw sequence data summarised into a state-frequency table. See
-  [`Nestimate::state_frequencies()`](https://saqr.me/Nestimate/reference/state_frequencies.html).
+  An htna network from
+  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
+  (its session sequences are counted), or raw sequence data. See
+  [`Nestimate::state_frequencies()`](https://pak.dynasite.org/Nestimate/reference/state_frequencies.html).
 
 - ...:
 
   Additional arguments passed to
-  [`Nestimate::state_frequencies()`](https://saqr.me/Nestimate/reference/state_frequencies.html).
+  [`Nestimate::state_frequencies()`](https://pak.dynasite.org/Nestimate/reference/state_frequencies.html).
   See that function for details.
 
 ## Value
 
-A data frame. See
-[`Nestimate::state_frequencies()`](https://saqr.me/Nestimate/reference/state_frequencies.html)
-for details.
+A data frame with one row per state, sorted by decreasing count, and
+columns `state`, `count` and `proportion`. See
+[`Nestimate::state_frequencies()`](https://pak.dynasite.org/Nestimate/reference/state_frequencies.html).
 
 ## Details
 
 Companion to
-[`plot_frequencies_htna()`](https://sonsoles.me/htna/reference/plot_frequencies_htna.md)
-(which is htna-aware via an explicit S3 method).
-`state_frequencies_htna()` itself operates on the raw sequence data and
-is the data side of the same family used by the htna tutorials.
+[`plot_frequencies_htna()`](https://sonsoles.me/htna/reference/plot_frequencies_htna.md).
+Unlike
+[`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md),
+the table carries no actor column; use
+[`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md)
+when each state should be reported under its actor type.
 
 Suffixed `_htna` to avoid clashing with
-[`Nestimate::state_frequencies()`](https://saqr.me/Nestimate/reference/state_frequencies.html)
+[`Nestimate::state_frequencies()`](https://pak.dynasite.org/Nestimate/reference/state_frequencies.html)
 when both packages are loaded.
 
 ## See also
@@ -50,12 +55,11 @@ when both packages are loaded.
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
-state_frequencies_htna(net$data)
+state_frequencies_htna(net)
 #>        state count proportion
 #> 1    Execute  3258     0.1684
 #> 2    Request  3104     0.1604
@@ -69,5 +73,4 @@ state_frequencies_htna(net$data)
 #> 10    Report   705     0.0364
 #> 11  Delegate   295     0.0152
 #> 12    Repair   257     0.0133
-# }
 ```

@@ -1,7 +1,7 @@
 # Closed-form Edge Certainty of a Network
 
 htna-named wrapper for
-[`Nestimate::certainty()`](https://saqr.me/Nestimate/reference/certainty.html).
+[`Nestimate::certainty()`](https://pak.dynasite.org/Nestimate/reference/certainty.html).
 The closed-form counterpart of
 [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md):
 rather than resampling, it derives analytic confidence intervals and an
@@ -21,12 +21,12 @@ certainty_htna(x, ...)
   An htna network from
   [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) (or
   other object accepted by
-  [`Nestimate::certainty()`](https://saqr.me/Nestimate/reference/certainty.html)).
+  [`Nestimate::certainty()`](https://pak.dynasite.org/Nestimate/reference/certainty.html)).
 
 - ...:
 
   Additional arguments passed to
-  [`Nestimate::certainty()`](https://saqr.me/Nestimate/reference/certainty.html),
+  [`Nestimate::certainty()`](https://pak.dynasite.org/Nestimate/reference/certainty.html),
   such as `prior`, `ci_level`, `inference`, `consistency_range`, and
   `edge_threshold`. See that function for the full, current argument
   list.
@@ -35,7 +35,7 @@ certainty_htna(x, ...)
 
 An object of class `net_certainty` (also inheriting `net_bootstrap`).
 See
-[`Nestimate::certainty()`](https://saqr.me/Nestimate/reference/certainty.html)
+[`Nestimate::certainty()`](https://pak.dynasite.org/Nestimate/reference/certainty.html)
 for the full component list and the corresponding
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method.
 
@@ -59,10 +59,9 @@ for the resampling analogue,
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 certainty_htna(net)
 #>   Edge                   Mean     95% CI          p
@@ -78,5 +77,4 @@ certainty_htna(net)
 #>   Prior      : Dirichlet(0.50)  |  Nodes : 12
 #>   Edges      : 68 certain / 135 total
 #>   CI         : 95%  |  Inference: stability  |  CR [0.75, 1.25]
-# }
 ```

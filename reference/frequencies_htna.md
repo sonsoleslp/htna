@@ -20,8 +20,9 @@ frequencies_htna(x)
 
 ## Value
 
-A data frame with columns `group` (actor), `state`, `count`,
-`proportion`.
+A data frame with one row per `(actor, state)` pair and columns `group`
+(the actor type), `state`, `count` and `proportion` (the state's share
+of its own actor's events, so proportions sum to 1 within each actor).
 
 ## Details
 
@@ -31,11 +32,11 @@ as the canonical "give me the frequency table for this network" entry
 point.
 
 Suffixed `_htna` to avoid clashing with
-[`Nestimate::frequencies()`](https://saqr.me/Nestimate/reference/frequencies.html)
+[`Nestimate::frequencies()`](https://pak.dynasite.org/Nestimate/reference/frequencies.html)
 (which takes raw long-format data and a column-name spec) when both
 packages are loaded. If you have raw data rather than an htna network,
 call
-[`Nestimate::frequencies()`](https://saqr.me/Nestimate/reference/frequencies.html)
+[`Nestimate::frequencies()`](https://pak.dynasite.org/Nestimate/reference/frequencies.html)
 directly.
 
 ## See also
@@ -49,10 +50,9 @@ for the rendered version,
 ## Examples
 
 ``` r
-# \donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 frequencies_htna(net)
 #>    group     state count proportion
@@ -68,5 +68,4 @@ frequencies_htna(net)
 #> 10    AI    Report   705 0.08244650
 #> 11    AI  Delegate   295 0.03449889
 #> 12    AI    Repair   257 0.03005496
-# }
 ```

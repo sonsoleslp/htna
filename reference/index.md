@@ -13,6 +13,19 @@ Construct, inspect, and convert a heterogeneous transition network
   [`as.igraph(`*`<htna_group>`*`)`](https://sonsoles.me/htna/reference/as.igraph.htna.md)
   : Convert an HTNA Network to igraph
 
+## Pruning
+
+Remove weak edges, restore them, and report what was removed
+
+- [`prune_htna()`](https://sonsoles.me/htna/reference/prune_htna.md) :
+  Prune Weak Edges from a Transition Network
+- [`deprune_htna()`](https://sonsoles.me/htna/reference/deprune_htna.md)
+  : Restore All Edges of a Pruned Transition Network
+- [`reprune_htna()`](https://sonsoles.me/htna/reference/reprune_htna.md)
+  : Re-apply a Previous Pruning Rule
+- [`pruning_details_htna()`](https://sonsoles.me/htna/reference/pruning_details_htna.md)
+  : Tidy Report of a Network's Pruning
+
 ## Frequencies and distributions
 
 Marginal state-level summaries and chi-square mosaics
@@ -85,17 +98,30 @@ Discover meta-paths, state-level patterns, and association rules
 - [`association_rules_htna()`](https://sonsoles.me/htna/reference/association_rules_htna.md)
   : Association Rule Mining over Transitions
 
+## Comparing networks
+
+Descriptive, permutation, and Bayesian comparison of htna networks
+
+- [`compare_htna()`](https://sonsoles.me/htna/reference/compare_htna.md)
+  : Compare Heterogeneous Transition Networks
+- [`plot(`*`<htna_comparison_group>`*`)`](https://sonsoles.me/htna/reference/plot.htna_comparison_group.md)
+  : Plot All Comparisons in an HTNA Comparison Group
+- [`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)
+  : Permutation Test for Network Differences
+- [`bayes_compare_htna()`](https://sonsoles.me/htna/reference/bayes_compare_htna.md)
+  : Bayesian Comparison of Two Networks
+
 ## Model assessment
 
-Reliability, stability, permutation, and Markov-order adequacy
+Bootstrap, certainty, reliability, stability, and Markov-order adequacy
 
 - [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
   [`bootstrap(`*`<htna>`*`)`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
   : Bootstrap an HTNA Network
 - [`bootstrap()`](https://sonsoles.me/htna/reference/bootstrap.md) :
   Bootstrap generic
-- [`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)
-  : Permutation Test for Network Differences
+- [`certainty_htna()`](https://sonsoles.me/htna/reference/certainty_htna.md)
+  : Closed-form Edge Certainty of a Network
 - [`reliability_htna()`](https://sonsoles.me/htna/reference/reliability_htna.md)
   : Network Reliability for an htna Network
 - [`casedrop_reliability_htna()`](https://sonsoles.me/htna/reference/casedrop_reliability_htna.md)
@@ -112,32 +138,6 @@ Reliability, stability, permutation, and Markov-order adequacy
   : Print Method for htna Stability Groups
 - [`markov_order_test_htna()`](https://sonsoles.me/htna/reference/markov_order_test_htna.md)
   : Markov-Order Adequacy Test
-- [`certainty_htna()`](https://sonsoles.me/htna/reference/certainty_htna.md)
-  : Closed-form Edge Certainty of a Network
-
-## Network comparison
-
-Descriptive and Bayesian comparison of two or more htna networks
-
-- [`compare_htna()`](https://sonsoles.me/htna/reference/compare_htna.md)
-  : Compare Heterogeneous Transition Networks
-- [`bayes_compare_htna()`](https://sonsoles.me/htna/reference/bayes_compare_htna.md)
-  : Bayesian Comparison of Two Networks
-- [`plot(`*`<htna_comparison_group>`*`)`](https://sonsoles.me/htna/reference/plot.htna_comparison_group.md)
-  : Plot All Comparisons in an HTNA Comparison Group
-
-## Pruning
-
-Remove, restore, and re-apply edge-weight pruning rules
-
-- [`prune_htna()`](https://sonsoles.me/htna/reference/prune_htna.md) :
-  Prune Weak Edges from a Transition Network
-- [`deprune_htna()`](https://sonsoles.me/htna/reference/deprune_htna.md)
-  : Restore All Edges of a Pruned Transition Network
-- [`reprune_htna()`](https://sonsoles.me/htna/reference/reprune_htna.md)
-  : Re-apply a Previous Pruning Rule
-- [`pruning_details_htna()`](https://sonsoles.me/htna/reference/pruning_details_htna.md)
-  : Tidy Report of a Network's Pruning
 
 ## Datasets
 
@@ -155,4 +155,4 @@ Sample datasets
 - [`human_ai_codebook`](https://sonsoles.me/htna/reference/human_ai_codebook.md)
   :
 
-  Code → Actor-Type Codebook for `human_ai`
+  Code-to-Actor-Type Codebook for `human_ai`

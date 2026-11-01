@@ -11,7 +11,7 @@ re-estimated), without having to restate the rule."><meta property="og:image" co
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -38,7 +38,7 @@ re-estimated), without having to restate the rule."><meta property="og:image" co
     </div>
 
     <div class="ref-description section level2">
-    <p>htna-named wrapper for <code><a href="https://saqr.me/Nestimate/reference/net_reprune.html" class="external-link">Nestimate::net_reprune()</a></code>. Re-applies the
+    <p>htna-named wrapper for <code><a href="https://pak.dynasite.org/Nestimate/reference/net_reprune.html" class="external-link">Nestimate::net_reprune()</a></code>. Re-applies the
 pruning rule recorded on a network (e.g. after the weights have been
 re-estimated), without having to restate the rule.</p>
     </div>
@@ -54,18 +54,18 @@ re-estimated), without having to restate the rule.</p>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>An htna network carrying a prior pruning rule (or other
-object accepted by <code><a href="https://saqr.me/Nestimate/reference/net_reprune.html" class="external-link">Nestimate::net_reprune()</a></code>); S3 dispatch on <code>x</code>
+object accepted by <code><a href="https://pak.dynasite.org/Nestimate/reference/net_reprune.html" class="external-link">Nestimate::net_reprune()</a></code>); S3 dispatch on <code>x</code>
 is preserved.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Additional arguments passed to <code><a href="https://saqr.me/Nestimate/reference/net_reprune.html" class="external-link">Nestimate::net_reprune()</a></code>.
+<dd><p>Additional arguments passed to <code><a href="https://pak.dynasite.org/Nestimate/reference/net_reprune.html" class="external-link">Nestimate::net_reprune()</a></code>.
 See that function for details.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>The re-pruned htna network. See <code><a href="https://saqr.me/Nestimate/reference/net_reprune.html" class="external-link">Nestimate::net_reprune()</a></code>.</p>
+    <p>The re-pruned htna network. See <code><a href="https://pak.dynasite.org/Nestimate/reference/net_reprune.html" class="external-link">Nestimate::net_reprune()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -81,10 +81,9 @@ to sit alongside the rest of the htna API.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">human_ai</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">net</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)</span>
 <span class="r-in"><span><span class="va">pruned</span> <span class="op">&lt;-</span> <span class="fu"><a href="prune_htna.html">prune_htna</a></span><span class="op">(</span><span class="va">net</span>, method <span class="op">=</span> <span class="st">"threshold"</span>, threshold <span class="op">=</span> <span class="fl">0.05</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">reprune_htna</span><span class="op">(</span><span class="fu"><a href="deprune_htna.html">deprune_htna</a></span><span class="op">(</span><span class="va">pruned</span><span class="op">)</span><span class="op">)</span></span></span>
@@ -132,7 +131,6 @@ to sit alongside the rest of the htna API.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Plan          0.000  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Repair        0.000  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Report        0.000  </span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

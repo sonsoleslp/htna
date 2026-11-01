@@ -1,8 +1,8 @@
 # Plot Centrality Measures
 
-Faceted bar plot of node-level centralities, one panel per measure.
-Mirrors the look of
-[`tna::plot.tna_centralities()`](http://sonsoles.me/tna/reference/plot.tna_centralities.md).
+Faceted bar plot of node-level centralities, one panel per measure,
+drawn with 'ggplot2' (Suggests). Mirrors the look of
+[`tna::plot.tna_centralities()`](https://sonsoles.me/tna/reference/plot.tna_centralities.html).
 
 ## Usage
 
@@ -35,7 +35,7 @@ plot_centralities(
 - by:
 
   `"state"` (default) gives each node its own colour; `"group"` colours
-  by actor group (Human, AI, …) using
+  by actor group (Human, AI, ...) using
   [htna_palette](https://sonsoles.me/htna/reference/htna_palette.md).
 
 - reorder:
@@ -66,13 +66,15 @@ plot_centralities(
 
 ## Value
 
-A ggplot object.
+A `ggplot` object (printed when returned at top level).
 
 ## Details
 
 Accepts an htna network, an `htna_group`, or a data frame produced by
 [`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md).
-For groups, bars are coloured by group within each panel.
+For an `htna_group` the bars are replaced by one line-and-point profile
+per cohort in each panel (colour = cohort), so cohort differences on a
+measure read along the same node axis; `by` is then not used.
 
 ## See also
 
@@ -81,24 +83,29 @@ For groups, bars are coloured by group within each panel.
 ## Examples
 
 ``` r
-# \donttest{
-data(human_ai)
-net <- build_htna(human_ai, actor_type = "actor_type")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  data(human_ai)
+  net <- build_htna(human_ai, actor_type = "actor_type")
+  plot_centralities(net)
+  plot_centralities(net, by = "group")
+
+  grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+  plot_centralities(grp)
+}
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
-plot_centralities(net)
 #> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
 #> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
 #> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
 #> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
-
-
-grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
+#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
+#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
+#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
-#> Warning: A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
+#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
-plot_centralities(grp)
 #> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
 #> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
 #> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
@@ -107,6 +114,4 @@ plot_centralities(grp)
 #> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
 #> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
 #> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
-
-# }
 ```

@@ -1,20 +1,51 @@
 # Changelog
 
+## htna 0.3.2
+
+### Documentation
+
+- Documentation revision. Help-page examples now run unwrapped (no
+  `\donttest{}`) and use the package’s verbs instead of reaching into
+  result objects (`summary(boot)`, `summary(rel)`, `print(cs)`, grouped
+  networks passed as they are to
+  [`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)).
+- Corrected return-value documentation:
+  [`markov_order_test_htna()`](https://sonsoles.me/htna/reference/markov_order_test_htna.md)
+  returns a `net_markov_order` (and accepts an htna network directly);
+  [`sequence_compare_htna()`](https://sonsoles.me/htna/reference/sequence_compare_htna.md)
+  returns a `net_sequence_comparison`;
+  [`state_distribution_htna()`](https://sonsoles.me/htna/reference/state_distribution_htna.md)
+  returns the within-network (group, state) table, not a per-timestep
+  distribution;
+  [`pruning_details_htna()`](https://sonsoles.me/htna/reference/pruning_details_htna.md)
+  lists the removed edges;
+  [`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md)
+  returns cograph’s value invisibly.
+  [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
+  now documents its `htna_group` form.
+- Vignettes and articles no longer subset grouped networks or results by
+  hand; [`vignette("htna")`](https://sonsoles.me/htna/articles/htna.md)
+  builds the early and late networks from their own sessions, and the
+  Markov-order articles test networks directly.
+- The pkgdown reference index now lists every exported topic.
+
 ## htna 0.3.1
+
+CRAN release: 2026-07-28
 
 ### Fitted MMM conversion
 
 - [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) now
   explicitly consumes the fitted `net_mmm` object returned by
-  [`Nestimate::cluster_mmm()`](https://saqr.me/Nestimate/reference/cluster_mmm.html).
+  [`Nestimate::cluster_mmm()`](https://pak.dynasite.org/Nestimate/reference/cluster_mmm.html).
   It materializes one HTNA network per fitted sequence cluster without
   rerunning MMM and preserves assignments, posterior probabilities,
   mixing proportions, information criteria, fitted weights, and the
   original actor partition.
-- [`Nestimate::as_htna()`](https://saqr.me/Nestimate/reference/as_htna.html)
+- [`Nestimate::as_htna()`](https://pak.dynasite.org/Nestimate/reference/as_htna.html)
   now supports the same fitted `net_mmm` input and returns an equivalent
   `htna_group`.
-  [`Nestimate::cluster_network()`](https://saqr.me/Nestimate/reference/cluster_network.html)
+  [`Nestimate::cluster_network()`](https://pak.dynasite.org/Nestimate/reference/cluster_network.html)
   remains the function that directly returns materialized cluster
   networks.
 
@@ -37,9 +68,9 @@
 - New article vignette **Clustering inputs to
   [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)**
   covering
-  [`Nestimate::build_clusters()`](https://saqr.me/Nestimate/reference/build_clusters.html)
+  [`Nestimate::build_clusters()`](https://pak.dynasite.org/Nestimate/reference/build_clusters.html)
   and
-  [`Nestimate::cluster_mmm()`](https://saqr.me/Nestimate/reference/cluster_mmm.html),
+  [`Nestimate::cluster_mmm()`](https://pak.dynasite.org/Nestimate/reference/cluster_mmm.html),
   model selection with `cluster_choice()` / `compare_mmm()` /
   `cluster_diagnostics()`, and cohort-pair comparison with
   [`compare_htna()`](https://sonsoles.me/htna/reference/compare_htna.md).
@@ -51,7 +82,7 @@
 - Added
   [`compare_htna()`](https://sonsoles.me/htna/reference/compare_htna.md),
   an actor-aware wrapper over
-  [`Nestimate::compare_model()`](https://saqr.me/Nestimate/reference/compare_model.html).
+  [`Nestimate::compare_model()`](https://pak.dynasite.org/Nestimate/reference/compare_model.html).
   It aligns partial node coverage, annotates every edge with source and
   target actors, reports summaries for each actor-pair block, retains
   the original HTNA networks, and compares every cohort pair when passed
@@ -69,7 +100,7 @@
   across all constructor forms, grouped networks, MCML expansion,
   Nestimate distance clustering, and legacy TNA clustering, with
   numerical equivalence tests against both Nestimate and
-  [`tna::ctna()`](http://sonsoles.me/tna/reference/build_model.md).
+  [`tna::ctna()`](https://sonsoles.me/tna/reference/build_model.html).
 
 ## htna 0.2.2
 
@@ -77,11 +108,11 @@
 
 - [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) now
   accepts a fitted
-  [`Nestimate::build_mcml()`](https://saqr.me/Nestimate/reference/build_mcml.html)
+  [`Nestimate::build_mcml()`](https://pak.dynasite.org/Nestimate/reference/build_mcml.html)
   object. The MCML node clusters become actor groups, and one full
   node-level HTNA is rebuilt from the retained or explicitly supplied
   original source. This is equivalent to
-  [`Nestimate::as_htna()`](https://saqr.me/Nestimate/reference/as_htna.html):
+  [`Nestimate::as_htna()`](https://pak.dynasite.org/Nestimate/reference/as_htna.html):
   it intentionally preserves global cross-cluster transitions rather
   than stitching together fitted macro or within-cluster weights.
 - HTNA partition injection now consistently stores character labels in
@@ -105,7 +136,7 @@
   consumes Nestimate distance clustering (`net_clustering`), fitted MMM
   clustering (`cluster_mmm()` / `net_mmm`), materialized cluster
   networks (`netobject_group`), and legacy
-  [`tna::cluster_sequences()`](http://sonsoles.me/tna/reference/cluster_data.md)
+  [`tna::cluster_sequences()`](https://sonsoles.me/tna/reference/cluster_data.html)
   results. It returns an `htna_group`, restores the actor partition on
   every child, and preserves clustering assignments, posterior
   probabilities, diagnostics, and fitted MMM weights. A partition
@@ -125,7 +156,7 @@ formals; new engine arguments flow through `...`).
   and
   [`pruning_details_htna()`](https://sonsoles.me/htna/reference/pruning_details_htna.md)
   (over
-  [`Nestimate::net_prune()`](https://saqr.me/Nestimate/reference/net_prune.html)
+  [`Nestimate::net_prune()`](https://pak.dynasite.org/Nestimate/reference/net_prune.html)
   and friends). The actor partition and `htna` class are preserved
   across pruning, so the pruned network stays htna-aware and plots with
   \[plot_htna()\].
@@ -133,7 +164,7 @@ formals; new engine arguments flow through `...`).
   — Bayesian complement of
   [`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)
   (over
-  [`Nestimate::bayes_compare()`](https://saqr.me/Nestimate/reference/bayes_compare.html)).
+  [`Nestimate::bayes_compare()`](https://pak.dynasite.org/Nestimate/reference/bayes_compare.html)).
   Preserves the actor partition on `$x`/`$y` and carries class
   `net_permutation`, so it renders with
   [`plot_htna_diff()`](https://sonsoles.me/htna/reference/plot_htna_diff.md).
@@ -141,7 +172,7 @@ formals; new engine arguments flow through `...`).
   — closed-form counterpart of
   [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
   (over
-  [`Nestimate::certainty()`](https://saqr.me/Nestimate/reference/certainty.html)),
+  [`Nestimate::certainty()`](https://pak.dynasite.org/Nestimate/reference/certainty.html)),
   joining the confirmatory-analysis family alongside
   [`reliability_htna()`](https://sonsoles.me/htna/reference/reliability_htna.md)
   and
@@ -178,7 +209,7 @@ formals; new engine arguments flow through `...`).
 ## htna 0.1.1
 
 - Compatibility with Nestimate 0.8.0.
-  [`Nestimate::permutation()`](https://saqr.me/Nestimate/reference/permutation.html)
+  [`Nestimate::permutation()`](https://pak.dynasite.org/Nestimate/reference/permutation.html)
   gained a `measures` argument (for centrality permutation tests); since
   [`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)
   re-exports that function, its documentation is regenerated to include
