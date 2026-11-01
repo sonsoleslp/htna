@@ -9,19 +9,18 @@
 \arguments{
 \item{x}{An object of class \code{htna_stability_group} from \code{\link[=centrality_stability_htna]{centrality_stability_htna()}}.}
 
-\item{...}{Additional arguments passed to the print method.}
+\item{...}{Passed to \code{\link[=print.htna_stability]{print.htna_stability()}}.}
 }
 \value{
-Invisibly returns the object, prints group stability information.
+Invisibly, \code{x}, unchanged.
 }
 \description{
-S3 method for printing grouped htna stability results.
+S3 method for printing grouped htna stability results: the
+\code{\link[=print.htna_stability]{print.htna_stability()}} report once per cohort.
 }
 \examples{
-\donttest{
 data(human_ai)
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 cs  <- centrality_stability_htna(grp, iter = 20, seed = 1)
 print(cs)
-}
 }

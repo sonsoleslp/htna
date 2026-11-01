@@ -18,17 +18,18 @@
 #'   such as `method`, `threshold`, `lowest`, `level`, and `boot`. See
 #'   that function for the full, current argument list.
 #'
-#' @return A pruned htna network. See [Nestimate::net_prune()] for
-#'   details.
+#' @return A pruned htna network: class `c("htna", "netobject",
+#'   "cograph_network")`, the same structure as [build_htna()] returns, with
+#'   the removed edges set to zero in `weights` and the pruning rule
+#'   recorded for [deprune_htna()], [reprune_htna()] and
+#'   [pruning_details_htna()]. See [Nestimate::net_prune()].
 #'
 #' @seealso [deprune_htna()], [reprune_htna()], [pruning_details_htna()],
 #'   [build_htna()].
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' prune_htna(net, method = "threshold", threshold = 0.05)
-#' }
 #' @export
 prune_htna <- function(x, ...) {
   Nestimate::net_prune(x, ...)

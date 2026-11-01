@@ -18,28 +18,35 @@
 #'   so the chain is `c("htna", "netobject", "cograph_network")` - identical
 #'   to what [build_htna()] returns.
 #'
-#' @param x \[`htna`\]\cr A network built with [build_htna()].
+#' @param x \[`htna`\]\cr A network built with [build_htna()], or an
+#'   `htna_group` (from `build_htna(..., group = ...)`), in which case every
+#'   cohort is bootstrapped.
 #' @param ... Arguments forwarded to [Nestimate::bootstrap_network()] (e.g.
 #'   `iter`, `ci_level`, `consistency_range`, `seed`).
 #'
-#' @return An object of class `c("htna_bootstrap", "net_bootstrap")`. All
-#'   slots produced by [Nestimate::bootstrap_network()] are preserved
-#'   verbatim (`$summary`, `$mean`, `$sd`, `$p_values`, `$significant`,
-#'   `$ci_lower`/`$ci_upper`, `$cr_lower`/`$cr_upper`, `$model`, `$original`,
-#'   etc.).
+#' @return For a single network, an object of class
+#'   `c("htna_bootstrap", "net_bootstrap")`. All slots produced by
+#'   [Nestimate::bootstrap_network()] are preserved verbatim (`summary`,
+#'   `mean`, `sd`, `p_values`, `significant`, `ci_lower`/`ci_upper`,
+#'   `cr_lower`/`cr_upper`, `model`, `original`, etc.). `summary()` returns
+#'   the tidy edge table: one row per edge, with columns `from`, `to`,
+#'   `weight`, `mean`, `sd`, `p_value`, `sig`, `ci_lower`, `ci_upper`,
+#'   `cr_lower`, `cr_upper`. Plot it with [plot_htna_bootstrap()].
+#'
+#'   For an `htna_group`, a named list of such objects, one per cohort, with
+#'   class `c("htna_bootstrap_group", "list")`.
 #'
 #' @seealso [Nestimate::bootstrap_network()] for the underlying algorithm
 #'   and slot documentation. [build_htna()] for constructing the input.
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net  <- build_htna(human_ai, actor_type = "actor_type")
-#' boot <- bootstrap_htna(net, iter = 50)
-#' inherits(boot, "htna_bootstrap")            # TRUE
-#' inherits(boot$model, "htna")                # TRUE
-#' head(boot$summary)                          # state-level edge stability
-#' }
+#' boot <- bootstrap_htna(net, iter = 50, seed = 1)
+#' boot
+#' summary(boot)                               # state-level edge stability
+#'
+#' # A real analysis would use the default `iter = 1000`.
 #'
 #' @export
 #' @rdname bootstrap_htna
@@ -89,11 +96,9 @@ bootstrap_htna <- function(x, ...) {
 #'
 #' @return An object whose structure is method-defined.
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
-#' bootstrap(net, iter = 50)
-#' }
+#' bootstrap(net, iter = 50, seed = 1)
 #' @export
 bootstrap <- function(x, ...) UseMethod("bootstrap")
 

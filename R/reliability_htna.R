@@ -20,20 +20,23 @@
 #'   (no seed reset).
 #'
 #' @return An object of class `c("htna_reliability", "net_reliability")`,
-#'   with the same components as [Nestimate::network_reliability()] —
-#'   `iterations`, `summary`, `models`, `iter`, `split`, `scale` — and
-#'   each entry of `$models` carrying the htna actor partition
-#'   (`$nodes$groups`, `$node_groups`, `$actor_levels`).
+#'   with the same components as [Nestimate::network_reliability()]
+#'   (`iterations`, `summary`, `models`, `iter`, `split`, `scale`), and
+#'   each entry of `models` carrying the htna actor partition
+#'   (`nodes$groups`, `node_groups`, `actor_levels`). `print()`,
+#'   `summary()` and `plot()` methods are supplied by Nestimate;
+#'   `summary()` returns a data frame with one row per (model, metric) and
+#'   columns `model`, `metric` (`mean_dev`, `median_dev`, `cor`,
+#'   `max_dev`), `mean` and `sd`.
 #'
 #' @seealso [Nestimate::network_reliability()], [bootstrap_htna()].
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' rel <- reliability_htna(net, iter = 30, seed = 1)
-#' rel$summary
-#' }
+#' rel
+#' summary(rel)
 #'
 #' @export
 reliability_htna <- function(..., iter = 1000L, split = 0.5,

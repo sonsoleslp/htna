@@ -19,7 +19,7 @@
 #'     `scales = "free_y"` so each panel only shows its own actor's
 #'     states. Returns the ggplot.
 #' @param ... Forwarded to [Nestimate::plot_state_frequencies()] when
-#'   `view = "treemap"`. Ignored for `"bars"` and `"facet"` — those
+#'   `view = "treemap"`. Ignored for `"bars"` and `"facet"`; those
 #'   return ggplot objects, so customisation works through standard
 #'   ggplot composition (`+ theme(...)`, `+ labs(...)`,
 #'   `+ scale_fill_*()`, etc.).
@@ -32,13 +32,11 @@
 #'   [state_frequencies_htna()], [state_distribution_htna()],
 #'   [mosaic_plot_htna()].
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' plot_frequencies_htna(net, view = "treemap")
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
 #'   plot_frequencies_htna(net, view = "bars")
-#' }
 #' }
 #' @export
 plot_frequencies_htna <- function(x,

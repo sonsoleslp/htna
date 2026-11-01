@@ -58,8 +58,8 @@ htna-aware analysis.
 The example uses the bundled `human_ai` corpus -- Human + AI events
 in a single long frame, tagged by an `actor_type` column (see
 `?human_ai`). The default htna network is constructed under the
-relative-probability scheme (`method = "relative"`); the
-Markov-order test operates directly on the raw sequence data.
+relative-probability scheme (`method = "relative"`); every assessment
+below, including the Markov-order test, takes this network directly.
 
 ```{r load}
 library(htna)
@@ -190,36 +190,30 @@ appropriate for the observed sequences.
 against orders 1, 2, ..., `max_order` via permutation. For each
 candidate order *k*, the null hypothesis is that order-(*k*-1) is
 sufficient; the alternative is that order-*k* captures dependencies
-beyond what order-(*k*-1) explains. The smallest order whose test
-fails to reject the null is reported as the optimal order.
+beyond what order-(*k*-1) explains. The steps are tested in sequence,
+and the reported permutation-test order is the last order reached
+before the first non-significant step (or `max_order` when every step
+is significant). The BIC- and AIC-preferred orders are reported
+alongside it.
 
-The test operates on raw sequence data rather than on the htna
-network object, since it requires the empirical sequences directly.
-
-```{r markov-data}
-data("ai_simplified")
-
-seqs    <- split(ai_simplified$code, ai_simplified$session_id)
-seqs    <- seqs[lengths(seqs) >= 3L]
-length(seqs)
-```
-
-Sequences shorter than three events do not inform tests beyond
-order-1 and are excluded.
+The test reads the session sequences stored on the htna network, so
+it assesses the combined Human + AI process that the network
+summarises.
 
 ```{r markov-test}
-mo <- markov_order_test_htna(seqs, max_order = 3L, n_perm = 200L,
+mo <- markov_order_test_htna(net, max_order = 3L, n_perm = 200L,
                              seed = 1L)
-mo$test_table
-mo$optimal_order
+mo
 ```
 
 ```{r markov-plot}
 plot(mo)
 ```
 
-If `optimal_order > 1`, the first-order network is misspecified for
-the corpus, and a higher-order model is indicated. htna does not
+If the selected order is greater than 1, the first-order network is
+misspecified for the corpus, and a higher-order model is indicated. The
+[Markov-order article](markov-order.html) compares the combined process
+with each actor's own sequences. htna does not
 implement higher-order networks directly; users who require them may
 construct higher-order or memory-augmented models via
 `Nestimate::build_hon()` or `Nestimate::build_mogen()`.

@@ -27,12 +27,10 @@
 #'   [tna::betweenness_network()] for the tna equivalent.
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' eb  <- edge_betweenness_htna(net)
 #' plot_htna(eb)                 # edge thickness = betweenness score
-#' }
 #'
 #' @export
 edge_betweenness_htna <- function(x, directed = TRUE, invert = TRUE) {
@@ -75,12 +73,10 @@ edge_betweenness_htna <- function(x, directed = TRUE, invert = TRUE) {
 #' @seealso [edge_betweenness_htna()], [plot_htna()].
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' plot_edge_betweenness_htna(net)
 #' plot_edge_betweenness_htna(net, minimum = 5)
-#' }
 #'
 #' @export
 plot_edge_betweenness_htna <- function(x,

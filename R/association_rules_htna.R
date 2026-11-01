@@ -1,6 +1,6 @@
 #' Association Rule Mining over Transitions
 #'
-#' htna-named alias of [Nestimate::association_rules()]. Mines
+#' htna-named wrapper for [Nestimate::association_rules()]. Mines
 #' frequent itemsets and association rules over a transition-count
 #' matrix under support / confidence / lift thresholds.
 #'
@@ -19,16 +19,16 @@
 #'   `min_confidence`, `min_lift`, and `max_length`. See that function
 #'   for the full, current argument list.
 #'
-#' @return A list with the discovered rules and frequent itemsets. See
-#'   [Nestimate::association_rules()] for details.
+#' @return An object of class `net_association_rules`, holding the
+#'   discovered rules and frequent itemsets, with `print()`, `summary()`
+#'   and `plot()` methods supplied by Nestimate. See
+#'   [Nestimate::association_rules()] for the component list.
 #'
 #' @seealso [frequencies_htna()], [mosaic_plot_htna()].
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' association_rules_htna(net, max_length = 3L)
-#' }
 #' @export
 association_rules_htna <- function(x, ...) {
   Nestimate::association_rules(x, ...)

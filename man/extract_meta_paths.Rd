@@ -20,7 +20,7 @@ extract_meta_paths(
 )
 }
 \arguments{
-\item{x}{[\code{htna_network}]\cr
+\item{x}{[\code{htna}]\cr
 A network built with \code{\link[=build_htna]{build_htna()}}. Must have \verb{$nodes$groups},
 \verb{$node_groups}, and \verb{$data} populated.}
 
@@ -89,7 +89,6 @@ same schema becomes \code{Human->AI->Human}.
 Operates on the actor partition stored on the network by \code{\link[=build_htna]{build_htna()}}.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 
@@ -109,7 +108,6 @@ extract_meta_paths(net, schema = "Human->*->Human")
 # Gapped patterns; lift threshold
 extract_meta_paths(net, length = 3, type = "gapped", gap = 1:2)
 extract_meta_paths(net, length = 3, min_lift = 1.2)
-}
 
 }
 \seealso{

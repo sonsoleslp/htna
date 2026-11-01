@@ -1,19 +1,25 @@
 #' Plot Method for htna Centrality Stability Objects
 #'
-#' S3 method for plotting htna centrality stability results.
-#' Dispatches to cograph's plotting method with htna-specific styling.
+#' S3 method for plotting htna centrality stability results. Draws, with
+#' 'ggplot2', the mean correlation between the original and the
+#' case-dropped centralities against the proportion of sessions dropped:
+#' one line per measure, a +/- 1 SD ribbon, and a dashed line at the
+#' stability `threshold`. A measure is stable up to the drop proportion
+#' at which its line falls below that threshold. Requires the 'ggplot2'
+#' package (Suggests).
 #'
 #' @param x An object of class `htna_stability` from [centrality_stability_htna()].
-#' @param ... Additional arguments passed to the plotting method.
+#' @param ... Unused; present for consistency with the generic.
 #'
-#' @return A ggplot object or plot output, depending on the underlying method.
+#' @return Invisibly, the `ggplot` object; the plot is printed as a side
+#'   effect.
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' cs  <- centrality_stability_htna(net, iter = 20, seed = 1)
-#' plot(cs)
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   plot(cs)
 #' }
 #' @export
 plot.htna_stability <- function(x, ...) {
@@ -42,18 +48,20 @@ plot.htna_stability <- function(x, ...) {
 #'
 #' S3 method for printing htna centrality stability results.
 #'
-#' @param x An object of class `htna_stability` from [centrality_stability_htna()].
-#' @param ... Additional arguments passed to the print method.
+#' Prints the number of iterations, the threshold, the drop proportions and
+#' the CS-coefficient of each measure. Use `summary()` for the tidy
+#' per-measure, per-drop-proportion correlation table.
 #'
-#' @return Invisibly returns the object, prints stability information.
+#' @param x An object of class `htna_stability` from [centrality_stability_htna()].
+#' @param ... Unused; present for consistency with the generic.
+#'
+#' @return Invisibly, `x`, unchanged.
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' cs  <- centrality_stability_htna(net, iter = 20, seed = 1)
 #' print(cs)
-#' }
 #' @export
 print.htna_stability <- function(x, ...) {
   cat("HTNA Centrality Stability Analysis\n")
@@ -73,19 +81,23 @@ print.htna_stability <- function(x, ...) {
 
 #' Plot Method for htna Stability Groups
 #'
-#' S3 method for plotting grouped htna stability results.
+#' S3 method for plotting grouped htna stability results. Draws the
+#' [plot.htna_stability()] chart once per cohort, titled with the cohort
+#' name. Requires the 'ggplot2' package (Suggests).
 #'
 #' @param x An object of class `htna_stability_group` from [centrality_stability_htna()].
-#' @param ... Additional arguments passed to the plotting method.
+#' @param ... Passed to [plot.htna_stability()] (currently unused there).
 #'
-#' @return A combined plot or list of plots for each group.
+#' @return For a single cohort, that cohort's `ggplot` object. Otherwise a
+#'   named list of `ggplot` objects, one per cohort. Each cohort's chart is
+#'   printed as a side effect.
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 #' cs  <- centrality_stability_htna(grp, iter = 20, seed = 1)
-#' plot(cs)
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   plot(cs)
 #' }
 #' @export
 plot.htna_stability_group <- function(x, ...) {
@@ -108,20 +120,19 @@ plot.htna_stability_group <- function(x, ...) {
 
 #' Print Method for htna Stability Groups
 #'
-#' S3 method for printing grouped htna stability results.
+#' S3 method for printing grouped htna stability results: the
+#' [print.htna_stability()] report once per cohort.
 #'
 #' @param x An object of class `htna_stability_group` from [centrality_stability_htna()].
-#' @param ... Additional arguments passed to the print method.
+#' @param ... Passed to [print.htna_stability()].
 #'
-#' @return Invisibly returns the object, prints group stability information.
+#' @return Invisibly, `x`, unchanged.
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 #' cs  <- centrality_stability_htna(grp, iter = 20, seed = 1)
 #' print(cs)
-#' }
 #' @export
 print.htna_stability_group <- function(x, ...) {
   cat("HTNA Centrality Stability Analysis (Grouped)\n")

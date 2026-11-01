@@ -10,8 +10,10 @@ frequencies_htna(x)
 \item{x}{An htna network from \code{\link[=build_htna]{build_htna()}}.}
 }
 \value{
-A data frame with columns \code{group} (actor), \code{state},
-\code{count}, \code{proportion}.
+A data frame with one row per \verb{(actor, state)} pair and
+columns \code{group} (the actor type), \code{state}, \code{count} and \code{proportion}
+(the state's share of its own actor's events, so proportions sum to
+1 within each actor).
 }
 \description{
 Returns the within-network state frequency table, partitioned by
@@ -30,11 +32,9 @@ both packages are loaded. If you have raw data rather than an htna
 network, call \code{Nestimate::frequencies()} directly.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 frequencies_htna(net)
-}
 }
 \seealso{
 \code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}} for the rendered version,

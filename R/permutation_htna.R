@@ -1,6 +1,6 @@
 #' Permutation Test for Network Differences
 #'
-#' htna-named alias of [Nestimate::permutation()]. Tests whether
+#' htna-named wrapper for [Nestimate::permutation()]. Tests whether
 #' observed edge-weight differences between two networks (or all
 #' pairwise differences within a `netobject_group`) exceed what would
 #' be expected under a null of identical generating processes.
@@ -13,24 +13,27 @@
 #' Suffixed `_htna` to avoid clashing with `Nestimate::permutation()`
 #' when both packages are loaded.
 #'
-#' @param x,y The two networks to compare, or a single
-#'   `netobject_group` in `x` (with `y = NULL`) for all pairwise
-#'   comparisons. See [Nestimate::permutation()].
+#' @param x,y The two networks to compare, or a grouped network
+#'   (`htna_group`, which is also a `netobject_group`) in `x` with
+#'   `y = NULL` for all pairwise cohort comparisons. See
+#'   [Nestimate::permutation()].
 #' @param ... Additional arguments passed to [Nestimate::permutation()],
 #'   such as `iter`, `alpha`, `paired`, `adjust`, `measures`, `nlambda`,
-#'   and `seed`. See that function for the full, current argument list.
+#'   `seed`, and `actor`. See that function for the full, current argument
+#'   list.
 #'
-#' @return An object of class `net_permutation` (single pair) or
-#'   `net_permutation_group` (multiple pairs). See
-#'   [Nestimate::permutation()] for the full slot list.
+#' @return An object of class `net_permutation` (single pair) or a named
+#'   list of class `c("net_permutation_group", "list")` with one
+#'   `net_permutation` per cohort pair. Both render with
+#'   [plot_htna_diff()]. See [Nestimate::permutation()] for the full slot
+#'   list.
 #'
 #' @seealso [plot_htna_diff()] to plot the result.
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-#' permutation_htna(grp$Early, grp$Late, iter = 50)
-#' }
+#' # Pass the grouped network as it is; every cohort pair is tested.
+#' permutation_htna(grp, iter = 50, seed = 1)
 #' @export
 permutation_htna <- function(x, y = NULL, ...) {
   Nestimate::permutation(x, y = y, ...)

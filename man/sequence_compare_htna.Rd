@@ -27,9 +27,14 @@ network with an actor partition.}
 current argument list.}
 }
 \value{
-An object of class \code{net_sequence_compare}. See
-\code{\link[Nestimate:sequence_compare]{Nestimate::sequence_compare()}} for full details and the
-corresponding \code{plot()} method.
+An object of class \code{net_sequence_comparison} with components
+\code{patterns}, \code{groups}, \code{n_patterns} and \code{params}. \code{summary()} returns
+the tidy pattern table: one row per k-gram, with columns \code{pattern},
+\code{length}, per-cohort frequencies (\verb{freq_<cohort>}), proportions
+(\verb{prop_<cohort>}) and standardised residuals (\verb{resid_<cohort>}),
+\code{effect_size} and, when a test is run, \code{p_value}. \code{print()} and
+\code{plot()} (\code{style = "pyramid"} or \code{"heatmap"}) methods are supplied by
+Nestimate; see \code{\link[Nestimate:sequence_compare]{Nestimate::sequence_compare()}}.
 }
 \description{
 Extends \code{\link[Nestimate:sequence_compare]{Nestimate::sequence_compare()}} with a \code{level} argument that
@@ -46,22 +51,20 @@ Operates on grouped htna networks (built via
 \code{build_htna(..., group = ...)}), single htna networks paired with a
 \code{group} argument, or wide-format sequence data with an explicit
 \code{group} argument. The actor partition itself is not consumed when
-\code{level = "state"} — sequence comparison is between cohorts of
+\code{level = "state"}: sequence comparison is between cohorts of
 sessions, not between actors. When \code{level = "type"}, concrete codes
 are folded into their actor type before pattern enumeration, so the
 comparison runs on meta-paths.
 }
 \examples{
-\donttest{
 data(human_ai)
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 
-# State-level comparison (default)
+# State-level comparison (default); few permutations to keep it fast
 sequence_compare_htna(grp, iter = 50)
 
 # Meta-path comparison
 sequence_compare_htna(grp, level = "type", iter = 50)
-}
 }
 \seealso{
 \code{\link[=permutation_htna]{permutation_htna()}} for whole-network differences,

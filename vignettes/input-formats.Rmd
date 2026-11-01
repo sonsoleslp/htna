@@ -19,11 +19,15 @@ knitr::opts_chunk$set(
 )
 ```
 
-`build_htna()` accepts data in **three
-interchangeable shapes**: 
-1. a named list of per-actor-type nodes
+`build_htna()` accepts raw event data in **three
+interchangeable shapes**:
+
+1. a named list of per-actor-type data frames
 2. a single combined frame with an actor-type column
-3. a single combined frame with a node-to-actor-type dictionary. 
+3. a single combined frame with a node-to-actor-type dictionary.
+
+It also accepts fitted clustering and MCML results; those forms are
+listed in the cheat sheet at the end.
 
 This vignette walks through each form, shows that all three produce 
 the same network, and then covers two extra parameters that compose 
@@ -51,9 +55,11 @@ data(ai_simplified)
 data(human_ai_codebook)
 ```
 
-All three long frames share the canonical schema `htna` expects:
-`actor`/`session_id`, `code`, `order_in_session`. Within each session,
-`order_in_session` is a **shared** time index across both actors.
+All three long frames share the column schema that `build_htna()`
+expects by default: `session_id` (the `session` argument), `code` (the
+`action` argument) and `order_in_session` (the `order` argument). Within
+each session, `order_in_session` is a **shared** time index across both
+actors.
 
 ## Form 1 — Named list of per-actor frames
 
@@ -143,9 +149,10 @@ table.
 ## All forms produce the same network
 
 `build_htna()` resolves every input shape to the same combined sequence
-and forwards to `Nestimate::build_network()`. The four networks below
-are drawn side by side — the layout, colours, and edges are
-indistinguishable:
+and forwards to `Nestimate::build_network()`, so the four networks have
+identical nodes, actor partition and edge weights. Passing them to
+`plot_htna()` as a named list draws one network per element, titled with
+its name; the layout, colours, and edges are indistinguishable:
 
 ```{r, fig.height = 9}
 forms <- list(
@@ -156,7 +163,7 @@ forms <- list(
 )
 
 op <- par(mfrow = c(2, 2), mar = c(1, 1, 3, 1))
-for (nm in names(forms)) plot_htna(forms[[nm]], title = nm)
+plot_htna(forms)
 par(op)
 ```
 
@@ -173,10 +180,10 @@ become `Human:Ask` and `AI:Ask`.
 
 ```{r}
 overlap <- data.frame(
-  session_id        = rep(paste0("s", 1:3), each = 6),
+  session_id        = rep(paste0("s", seq_len(3)), each = 6),
   code              = rep(c("Ask", "Reply", "Ask", "Reply", "Ask", "Reply"), 3),
   actor_type        = rep(c("Human", "Human", "AI", "AI", "Human", "AI"), 3),
-  order_in_session  = rep(1:6, 3),
+  order_in_session  = rep(seq_len(6), 3),
   stringsAsFactors  = FALSE
 )
 
@@ -186,7 +193,7 @@ try(build_htna(overlap, actor_type = "actor_type"))
 # With disambiguate=, the two `Ask`s become distinct nodes:
 net_dis <- build_htna(overlap, actor_type = "actor_type",
                       disambiguate = TRUE)
-net_dis$nodes$label
+summary(net_dis)
 plot(net_dis)
 ```
 
@@ -201,9 +208,12 @@ so the cohort build is a one-liner:
 
 ```{r}
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-class(grp)
-names(grp)
+grp
 ```
+
+Pass `grp` as it is to the downstream verbs (`plot_htna()`,
+`bootstrap_htna()`, `permutation_htna()`, `centralities_htna()`, ...);
+they iterate over the cohorts.
 
 ```{r, fig.height = 7}
 plot_htna(grp)
@@ -220,6 +230,7 @@ plot_htna(grp)
 | `Nestimate::build_clusters(htna, ...)` | Distance-based sequence clusters; returns one HTNA network per cluster |
 | `Nestimate::cluster_mmm(htna, ...)` | Already-fitted latent Markov clusters; preserves fitted weights and posterior diagnostics |
 | `tna::cluster_sequences(...), node_groups = ...` | Legacy sequence-clustering result; builds one HTNA network per cluster |
+| `Nestimate::build_mcml(...)` | Node clusters of a fitted MCML model become the actor groups; one full node-level HTNA is rebuilt from the source data |
 | `+ actor = "user_id"` | Identify the individual actor that performed each event (forwarded to `Nestimate::build_network()`) |
 | `+ disambiguate = TRUE` | Same code label appears in more than one actor type |
 | `+ group = "phase"` | Build one network per cohort/phase |

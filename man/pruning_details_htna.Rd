@@ -15,25 +15,26 @@ preserved.}
 \code{\link[Nestimate:net_pruning_details]{Nestimate::net_pruning_details()}}. See that function for details.}
 }
 \value{
-A data frame, one row per edge. See
-\code{\link[Nestimate:net_pruning_details]{Nestimate::net_pruning_details()}} for details.
+A data frame of class \code{c("net_pruning_details", "data.frame")}
+with one row per removed edge and columns \code{from}, \code{to} and \code{weight}
+(the weight the edge had before pruning). The rule is stored in the
+attributes \code{method}, \code{threshold}, \code{lowest}, \code{cut_off}, \code{num_removed}
+and \code{num_retained}. See \code{\link[Nestimate:net_pruning_details]{Nestimate::net_pruning_details()}}.
 }
 \description{
 htna-named wrapper for \code{\link[Nestimate:net_pruning_details]{Nestimate::net_pruning_details()}}. Returns a
-tidy data frame describing which edges were kept or removed by a
-\code{\link[=prune_htna]{prune_htna()}} step and why.
+tidy data frame of the edges removed by a \code{\link[=prune_htna]{prune_htna()}} step, with the
+pruning rule that removed them recorded as attributes.
 }
 \details{
 Suffixed \verb{_htna} to avoid clashing with the tna verb
 \code{pruning_details()} and to sit alongside the rest of the htna API.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 pruned <- prune_htna(net, method = "threshold", threshold = 0.05)
 pruning_details_htna(pruned)
-}
 }
 \seealso{
 \code{\link[=prune_htna]{prune_htna()}}, \code{\link[=deprune_htna]{deprune_htna()}}, \code{\link[=reprune_htna]{reprune_htna()}}.

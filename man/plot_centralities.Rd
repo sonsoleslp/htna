@@ -24,7 +24,7 @@ frame from \code{\link[=centralities_htna]{centralities_htna()}}.}
 \item{measures}{Centralities to plot. Default: all nine.}
 
 \item{by}{\code{"state"} (default) gives each node its own colour;
-\code{"group"} colours by actor group (Human, AI, …) using
+\code{"group"} colours by actor group (Human, AI, ...) using
 \link{htna_palette}.}
 
 \item{reorder}{If \code{TRUE}, sort nodes by value within each measure.}
@@ -40,25 +40,29 @@ frame from \code{\link[=centralities_htna]{centralities_htna()}}.}
 \item{...}{Forwarded to \code{\link[=centralities_htna]{centralities_htna()}} when computing on the fly.}
 }
 \value{
-A ggplot object.
+A \code{ggplot} object (printed when returned at top level).
 }
 \description{
-Faceted bar plot of node-level centralities, one panel per measure.
-Mirrors the look of \code{\link[tna:plot.tna_centralities]{tna::plot.tna_centralities()}}.
+Faceted bar plot of node-level centralities, one panel per measure,
+drawn with 'ggplot2' (Suggests). Mirrors the look of
+\code{\link[tna:plot.tna_centralities]{tna::plot.tna_centralities()}}.
 }
 \details{
 Accepts an htna network, an \code{htna_group}, or a data frame produced by
-\code{\link[=centralities_htna]{centralities_htna()}}. For groups, bars are coloured by group within each
-panel.
+\code{\link[=centralities_htna]{centralities_htna()}}. For an \code{htna_group} the bars are replaced by one
+line-and-point profile per cohort in each panel (colour = cohort), so
+cohort differences on a measure read along the same node axis; \code{by} is
+then not used.
 }
 \examples{
-\donttest{
-data(human_ai)
-net <- build_htna(human_ai, actor_type = "actor_type")
-plot_centralities(net)
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  data(human_ai)
+  net <- build_htna(human_ai, actor_type = "actor_type")
+  plot_centralities(net)
+  plot_centralities(net, by = "group")
 
-grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-plot_centralities(grp)
+  grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+  plot_centralities(grp)
 }
 }
 \seealso{

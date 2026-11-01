@@ -7,36 +7,35 @@
 state_frequencies_htna(data, ...)
 }
 \arguments{
-\item{data}{Raw sequence data summarised into a state-frequency
-table. See \code{\link[Nestimate:state_frequencies]{Nestimate::state_frequencies()}}.}
+\item{data}{An htna network from \code{\link[=build_htna]{build_htna()}} (its session sequences
+are counted), or raw sequence data. See
+\code{\link[Nestimate:state_frequencies]{Nestimate::state_frequencies()}}.}
 
 \item{...}{Additional arguments passed to
 \code{\link[Nestimate:state_frequencies]{Nestimate::state_frequencies()}}. See that function for details.}
 }
 \value{
-A data frame. See \code{\link[Nestimate:state_frequencies]{Nestimate::state_frequencies()}} for
-details.
+A data frame with one row per state, sorted by decreasing
+count, and columns \code{state}, \code{count} and \code{proportion}. See
+\code{\link[Nestimate:state_frequencies]{Nestimate::state_frequencies()}}.
 }
 \description{
-htna-named alias of \code{\link[Nestimate:state_frequencies]{Nestimate::state_frequencies()}}. Returns a
+htna-named wrapper for \code{\link[Nestimate:state_frequencies]{Nestimate::state_frequencies()}}. Returns a
 tidy data frame with \code{state}, \code{count}, and \code{proportion} columns
-summarising the within-network state vocabulary.
+summarising the within-network state vocabulary, pooled across actors.
 }
 \details{
-Companion to \code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}} (which is htna-aware
-via an explicit S3 method). \code{state_frequencies_htna()} itself
-operates on the raw sequence data and is the data side of the same
-family used by the htna tutorials.
+Companion to \code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}}. Unlike \code{\link[=frequencies_htna]{frequencies_htna()}},
+the table carries no actor column; use \code{\link[=frequencies_htna]{frequencies_htna()}} when each
+state should be reported under its actor type.
 
 Suffixed \verb{_htna} to avoid clashing with
 \code{Nestimate::state_frequencies()} when both packages are loaded.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-state_frequencies_htna(net$data)
-}
+state_frequencies_htna(net)
 }
 \seealso{
 \code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}}, \code{\link[=state_distribution_htna]{state_distribution_htna()}}.

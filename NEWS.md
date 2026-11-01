@@ -1,3 +1,23 @@
+# htna 0.3.2
+
+## Documentation
+
+* Documentation revision. Help-page examples now run unwrapped (no
+  `\donttest{}`) and use the package's verbs instead of reaching into
+  result objects (`summary(boot)`, `summary(rel)`, `print(cs)`, grouped
+  networks passed as they are to `permutation_htna()`).
+* Corrected return-value documentation: `markov_order_test_htna()` returns a
+  `net_markov_order` (and accepts an htna network directly);
+  `sequence_compare_htna()` returns a `net_sequence_comparison`;
+  `state_distribution_htna()` returns the within-network (group, state)
+  table, not a per-timestep distribution; `pruning_details_htna()` lists
+  the removed edges; `plot_htna()` returns cograph's value invisibly.
+  `bootstrap_htna()` now documents its `htna_group` form.
+* Vignettes and articles no longer subset grouped networks or results by
+  hand; `vignette("htna")` builds the early and late networks from their
+  own sessions, and the Markov-order articles test networks directly.
+* The pkgdown reference index now lists every exported topic.
+
 # htna 0.3.1
 
 ## Fitted MMM conversion

@@ -27,12 +27,10 @@ colours, actor legend). Edges are scaled by their betweenness
 score, so the most-traveled shortest-path edges stand out.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 plot_edge_betweenness_htna(net)
 plot_edge_betweenness_htna(net, minimum = 5)
-}
 
 }
 \seealso{

@@ -22,7 +22,7 @@ network) or \code{net_casedrop_reliability_group} (grouped htna). See
 and the corresponding \code{plot()} method.
 }
 \description{
-htna-named alias of \code{\link[Nestimate:casedrop_reliability]{Nestimate::casedrop_reliability()}}. Computes
+htna-named wrapper for \code{\link[Nestimate:casedrop_reliability]{Nestimate::casedrop_reliability()}}. Computes
 the CS-coefficient for the edge-weight vector of a network: the
 maximum proportion of cases (rows of \code{x$data}) that can be dropped
 while the flattened edge-weight vector of the re-estimated network
@@ -36,11 +36,9 @@ Suffixed \verb{_htna} to avoid clashing with
 \code{Nestimate::casedrop_reliability()} when both packages are loaded.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 casedrop_reliability_htna(net, iter = 20, seed = 1)
-}
 }
 \seealso{
 \code{\link[=reliability_htna]{reliability_htna()}}, \code{\link[=centrality_stability_htna]{centrality_stability_htna()}},

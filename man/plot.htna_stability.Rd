@@ -9,20 +9,26 @@
 \arguments{
 \item{x}{An object of class \code{htna_stability} from \code{\link[=centrality_stability_htna]{centrality_stability_htna()}}.}
 
-\item{...}{Additional arguments passed to the plotting method.}
+\item{...}{Unused; present for consistency with the generic.}
 }
 \value{
-A ggplot object or plot output, depending on the underlying method.
+Invisibly, the \code{ggplot} object; the plot is printed as a side
+effect.
 }
 \description{
-S3 method for plotting htna centrality stability results.
-Dispatches to cograph's plotting method with htna-specific styling.
+S3 method for plotting htna centrality stability results. Draws, with
+'ggplot2', the mean correlation between the original and the
+case-dropped centralities against the proportion of sessions dropped:
+one line per measure, a +/- 1 SD ribbon, and a dashed line at the
+stability \code{threshold}. A measure is stable up to the drop proportion
+at which its line falls below that threshold. Requires the 'ggplot2'
+package (Suggests).
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 cs  <- centrality_stability_htna(net, iter = 20, seed = 1)
-plot(cs)
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  plot(cs)
 }
 }

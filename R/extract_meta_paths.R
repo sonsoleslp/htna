@@ -18,7 +18,7 @@
 #'
 #' Operates on the actor partition stored on the network by [build_htna()].
 #'
-#' @param x \[`htna_network`\]\cr
+#' @param x \[`htna`\]\cr
 #'   A network built with [build_htna()]. Must have `$nodes$groups`,
 #'   `$node_groups`, and `$data` populated.
 #' @param level \[`character(1)`: `"state"`\]\cr
@@ -58,7 +58,6 @@
 #' @seealso [build_htna()].
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #'
@@ -78,7 +77,6 @@
 #' # Gapped patterns; lift threshold
 #' extract_meta_paths(net, length = 3, type = "gapped", gap = 1:2)
 #' extract_meta_paths(net, length = 3, min_lift = 1.2)
-#' }
 #'
 #' @export
 extract_meta_paths <- function(x,

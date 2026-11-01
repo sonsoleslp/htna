@@ -16,18 +16,18 @@
 #'
 #' @param x An htna network from [build_htna()].
 #'
-#' @return A data frame with columns `group` (actor), `state`,
-#'   `count`, `proportion`.
+#' @return A data frame with one row per `(actor, state)` pair and
+#'   columns `group` (the actor type), `state`, `count` and `proportion`
+#'   (the state's share of its own actor's events, so proportions sum to
+#'   1 within each actor).
 #'
 #' @seealso [plot_frequencies_htna()] for the rendered version,
 #'   [state_distribution_htna()] (same function under the upstream
 #'   name), [mosaic_plot_htna()].
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' frequencies_htna(net)
-#' }
 #' @export
 frequencies_htna <- function(x) {
   if (!inherits(x, "htna")) {

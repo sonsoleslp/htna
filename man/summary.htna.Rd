@@ -24,9 +24,10 @@ Invisibly, a list with components:
 \code{n_nodes}, \code{nodes}).
 \item \code{edges_by_actor} - integer matrix of non-zero edge counts,
 rows are source actor, columns are target actor.
-\item \code{network_metrics} - standard network-level descriptive metrics
-from the Nestimate engine (node/edge counts, density, distance,
-strength, degree centralization, and reciprocity).
+\item \code{network_metrics} - data frame (columns \code{metric}, \code{value}) of
+standard network-level descriptive metrics from the Nestimate
+engine (node/edge counts, density, distance, strength, degree
+centralization, and reciprocity).
 \item \code{n_nodes}, \code{n_edges}, \code{n_sessions}, \code{n_timesteps},
 \code{method}.
 }
@@ -36,6 +37,11 @@ Prints a per-actor summary of an htna network: which nodes belong to
 which actor type and how the non-zero edges distribute across the
 actor partition. The result is also returned invisibly as a list so
 callers can inspect the structured summary programmatically.
+}
+\details{
+For an \code{htna_group}, the summary is printed once per cohort and the
+return value is a named list of the per-cohort lists described under
+Value.
 }
 \examples{
 data(human_ai)

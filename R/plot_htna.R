@@ -19,10 +19,17 @@ htna_palette <- c(
 #' Plot a Heterogeneous Transition Network
 #'
 #' Wrapper around [cograph::plot_htna()] with defaults suited for HTNA
-#' networks built by [build_htna()]. When `layout = "circular"`, a custom
-#' layout is computed so that the first actor group appears on the left.
+#' networks built by [build_htna()]. The drawing itself is done by cograph;
+#' this function supplies the actor-aware styling: one colour and shape per
+#' actor group, darkened donut borders, and an actor legend. For the
+#' circular layout (and `"auto"` with two or more groups) the group order
+#' is arranged so that the first actor group appears on the left.
 #'
-#' @param x A network object produced by [build_htna()].
+#' For an `htna_group` (or any plain list of htna networks) one plot is
+#' drawn per cohort, titled with the cohort name. The function does not
+#' manage the panel grid; wrap the call in `par(mfrow = ...)` for a panel.
+#'
+#' @param x A network produced by [build_htna()], or an `htna_group`.
 #' @param layout Character. Layout algorithm. Default `"circular"`.
 #' @param group_colors Character vector of colours, one per actor group.
 #'   Defaults to the built-in [htna_palette].
@@ -30,19 +37,21 @@ htna_palette <- c(
 #'   Defaults to the built-in `htna_shape_palette`.
 #' @param minimum Numeric. Minimum absolute edge weight to display.
 #'   Edges below this threshold are hidden. Default `0.05`.
-#' @param ... Additional arguments passed to [cograph::plot_htna()].
+#' @param ... Additional arguments passed to [cograph::plot_htna()] (and
+#'   from there to [cograph::splot()]), e.g. `title`.
 #'
-#' @return Called for its side effect (a plot). Returns `x` invisibly.
+#' @return Called for its side effect (a plot). For a single network,
+#'   invisibly, the value returned by [cograph::plot_htna()]; for an
+#'   `htna_group`, `x` invisibly.
 #'
 #' @seealso [cograph::plot_htna()], [build_htna()]
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' plot_htna(net)
 #' plot_htna(net, layout = "auto", minimum = 0.1)
-#' }
+#' plot(net)                     # the plot() method calls plot_htna()
 #'
 #' @export
 #' @rdname plot_htna

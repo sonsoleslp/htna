@@ -9,10 +9,15 @@
 #'   [cograph::splot.net_permutation()] so the significance overlay
 #'   (significant pos/neg edges, dashed non-significant edges, stars) is
 #'   drawn upstream.
-#' * A `net_permutation_group`: iterates over all pairwise comparisons and
-#'   plots each (no `par(mfrow=...)` management - user controls layout).
+#' * A `net_permutation_group` (the result of [permutation_htna()] on an
+#'   `htna_group`): iterates over all pairwise comparisons and plots each,
+#'   titled with the pair name (no `par(mfrow=...)` management - user
+#'   controls layout).
+#' * A [bayes_compare_htna()] result for two networks, which also inherits
+#'   `net_permutation`.
 #'
-#' In all cases the layout, node colours and donut match [plot_htna()].
+#' In all cases the layout, node colours and donut match [plot_htna()];
+#' the drawing itself is done by cograph.
 #'
 #' @param x One of: an htna network, a `net_permutation` result, or a
 #'   `net_permutation_group`.
@@ -27,18 +32,23 @@
 #'   ([cograph::splot()] or [cograph::splot.net_permutation()]).
 #'
 #' @return The value of the underlying splot call (invisibly).
-#' @seealso [plot_htna()], [build_htna()], [permutation()].
+#' @seealso [plot_htna()], [build_htna()], [permutation_htna()],
+#'   [bayes_compare_htna()].
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
-#' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-#' plot_htna_diff(grp$Early, grp$Late)
+#' # Two networks: early vs late sessions
+#' early <- build_htna(subset(human_ai, phase == "Early"),
+#'                     actor_type = "actor_type")
+#' late  <- build_htna(subset(human_ai, phase == "Late"),
+#'                     actor_type = "actor_type")
+#' plot_htna_diff(early, late)
 #'
-#' perm <- permutation_htna(grp$Early, grp$Late, iter = 50)
+#' # Permutation test on a grouped network: one plot per cohort pair
+#' grp  <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#' perm <- permutation_htna(grp, iter = 50, seed = 1)
 #' plot_htna_diff(perm)
 #' plot_htna_diff(perm, show_nonsig = TRUE)
-#' }
 #'
 #' @export
 plot_htna_diff <- function(x, y = NULL,

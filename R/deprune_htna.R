@@ -18,12 +18,10 @@
 #'
 #' @seealso [prune_htna()], [reprune_htna()], [pruning_details_htna()].
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' pruned <- prune_htna(net, method = "threshold", threshold = 0.05)
 #' deprune_htna(pruned)
-#' }
 #' @export
 deprune_htna <- function(x, ...) {
   Nestimate::net_deprune(x, ...)

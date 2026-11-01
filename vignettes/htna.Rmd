@@ -24,7 +24,10 @@ which two or more actors interleave -- a learner and a tutor, a human
 and an AI, a clinician and a patient -- and treats each actor's codes as
 a distinct node group. The `htna` package builds the network, computes
 the usual analytical quantities, and renders the result with the actor
-partition baked into colour, layout, and the legend.
+partition baked into colour, layout, and the legend. Estimation is done by
+the 'Nestimate' engine and every network plot is rendered by 'cograph';
+`htna` keeps the actor partition attached at each step so that the two
+engines treat each actor's codes as a distinct node group.
 
 ## 1. Building a heterogeneous network
 
@@ -52,13 +55,14 @@ plot_htna(net)
 
 ## 3. Per-actor sequence plots
 
-`sequence_plot_htna()` shows the temporal structure of the sessions.
+The network aggregates transitions over all sessions and so discards
+*when* each code occurs. `sequence_plot_htna()` restores that view.
 With `by = "state"` (the default) each cell is coloured by its
 code; with `by = "group"` cells are coloured by actor type. `type`
-selects the layout: `"index"` renders one row per session,
-`"heatmap"` collapses across sessions into a single carpet, and
-`"distribution"` shows the state composition per timepoint as a
-stacked area.
+selects the layout: `"index"` draws one panel per actor with one row per
+session, `"heatmap"` joins the actors into a single carpet with a
+separator at the actor boundary, and `"distribution"` shows the state
+composition per timepoint as a stacked area.
 
 ```{r, fig.height = 5}
 sequence_plot_htna(net, by = "state", type = "index")
@@ -132,12 +136,15 @@ of resamples — values above ~0.5 are typically considered stable.
 
 ```{r}
 cs <- centrality_stability_htna(net, iter = 100, seed = 1)
-cs$cs
+cs
 ```
 
 By default the check covers `InStrength`, `OutStrength`, and
-`Betweenness` — the three measures whose values are bit-equal between
-htna's `cograph` engine and the reference implementation. 
+`Betweenness`, the three measures whose values are bit-equal between
+htna's `cograph` engine and Nestimate's default implementation. A
+centrality ranking should only be interpreted for measures whose
+CS-coefficient clears the 0.5 mark; `summary(cs)` gives the mean
+correlation at every drop proportion behind each coefficient.
  
 
 ## 7. Split-half reliability
@@ -150,37 +157,48 @@ between paired half-networks.
 
 ```{r}
 rel <- reliability_htna(net, iter = 100, seed = 1)
-rel$summary
+rel
 ```
+
+A Pearson correlation close to 1 between half-networks means the edge
+weights do not hinge on which sessions happen to be sampled, so the
+network as a whole can be interpreted. `summary(rel)` returns the same
+numbers as a tidy table.
 
 
 ## 8. Comparing two networks
 
-Given two HTNA networks built over the same node set, `plot_htna_diff()`
-draws the edge-level pairwise difference. Positive differences are green,
-negative red.
+Given two HTNA networks over the same actor partition, `plot_htna_diff()`
+draws the edge-level difference `x - y`. Positive differences are green,
+negative red; networks with partially different node sets are aligned to
+the union of their nodes.
 
 For example, we compare early vs. late sessions using the `phase` column
-in the dataset:
+in the dataset, building one network from each set of sessions:
 
 ```{r}
-grouped <-  build_htna(human_ai, actor_type = "actor_type", group = "phase")
-
-early <- grouped[["Early"]]
-late  <- grouped[["Late"]]
+early <- build_htna(subset(human_ai, phase == "Early"), actor_type = "actor_type")
+late  <- build_htna(subset(human_ai, phase == "Late"),  actor_type = "actor_type")
 
 plot_htna_diff(early, late)
 ```
 
+The same two networks are the cohorts of
+`build_htna(human_ai, actor_type = "actor_type", group = "phase")`; see the
+grouped-HTNA article for comparing every cohort of a grouped network in
+one call.
+
 ## 9. Permutation test
 
-The function `permutation_htna()` provides a non-parametric significance test on each
-edge weight difference. Pass the result to `plot_htna_diff()` to render
+A raw difference does not say which edges differ by more than sampling
+noise. The function `permutation_htna()` provides a non-parametric
+significance test on each edge weight difference by shuffling sessions
+between the two networks. Pass the result to `plot_htna_diff()` to render
 significant differences with the pos/neg colouring above; non-significant
 edges are dashed grey when `show_nonsig = TRUE`.
 
 ```{r}
-perm <- permutation_htna(early, late, iter = 200)
+perm <- permutation_htna(early, late, iter = 200, seed = 1)
 plot_htna_diff(perm)
 ```
 

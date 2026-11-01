@@ -23,7 +23,7 @@ states. Returns the ggplot.
 }}
 
 \item{...}{Forwarded to \code{\link[Nestimate:plot_state_frequencies]{Nestimate::plot_state_frequencies()}} when
-\code{view = "treemap"}. Ignored for \code{"bars"} and \code{"facet"} — those
+\code{view = "treemap"}. Ignored for \code{"bars"} and \code{"facet"}; those
 return ggplot objects, so customisation works through standard
 ggplot composition (\code{+ theme(...)}, \code{+ labs(...)},
 \verb{+ scale_fill_*()}, etc.).}
@@ -43,13 +43,11 @@ Suffixed \verb{_htna} to avoid clashing with
 \code{Nestimate::plot_state_frequencies()} when both packages are loaded.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 plot_frequencies_htna(net, view = "treemap")
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   plot_frequencies_htna(net, view = "bars")
-}
 }
 }
 \seealso{

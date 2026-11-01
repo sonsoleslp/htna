@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 A common HTNA question is whether the same actor partition behaves
 *differently* across cohorts -- e.g. early-phase versus late-phase
 sessions of an interaction corpus; control vs. experimental groups; 
-female vs. male, etc.. `build_htna()` supports this
+female vs. male, etc. `build_htna()` supports this
 directly by passing the session-level grouping column to the function. 
 The result is  **one network per cohort**, each preserving the actor partition.
 Every other function in `htna` recognises the grouped result and
@@ -36,12 +36,13 @@ alphabet -- see `?human_ai`). Sessions are split chronologically:
 ordered by their first `session_date` (with `session_id` as a
 deterministic tiebreak), the first half of the sessions form the
 *Early* cohort and the rest form the *Late* cohort, reflected 
-in the `phase` column.
+in the `phase` column. The count below is the number of coded events
+(rows) in each cohort:
 
 ```{r}
 library(htna)
 data(human_ai)
-table(human_ai$phase)
+xtabs(~ phase, data = human_ai)
 ```
 
 ## Building one network per cohort
@@ -55,21 +56,21 @@ grp <- build_htna(
   actor_type = "actor_type",
   group      = "phase"
 )
-length(grp)
 names(grp)
 ```
 
-The result is a named list of HTNA networks. Indexing one element gives
-a regular HTNA network you can use exactly like any other:
+The result is a named list of HTNA networks of class `htna_group`, one
+per cohort. `summary()` describes every cohort in turn: its actor
+partition, how the non-zero edges distribute across the actor blocks,
+and the network-level metrics.
 
 ```{r}
-grp$Early
-grp$Late
+summary(grp)
 ```
 
 Because both cohorts were built from the same alphabet, both networks
-have the **same nodes** -- which is exactly what `plot_htna_diff()`
-and `permutation_htna()` need.
+have the **same nodes** -- which is what `permutation_htna()` and
+`plot_htna_diff()` compare edge by edge.
 
 ## Plotting per cohort
 
@@ -101,8 +102,9 @@ ct <- centralities_htna(grp)
 head(ct, 10)
 ```
 
-`plot_centralities()` faces a grid: rows are cohorts, columns are
-measures, so cohort-level differences are easy to read at a glance:
+`plot_centralities()` draws one panel per measure and overlays one
+line-and-point profile per cohort, so cohort-level differences on each
+measure read along the same node axis:
 
 ```{r, fig.height = 9}
 plot_centralities(grp, by = "group")
@@ -131,31 +133,34 @@ session-drop proportion at which `InStrength`, `OutStrength`, and
 
 ```{r}
 stab <- centrality_stability_htna(grp, iter = 100, seed = 1)
-sapply(stab, function(s) s$cs)
+stab
 ```
 
-The columns are cohorts, the rows are centrality measures. By the
-Epskamp et al. (2018) convention, CS > 0.25 is acceptable and
+The report lists the CS-coefficient of each measure within each cohort.
+By the Epskamp et al. (2018) convention, CS > 0.25 is acceptable and
 CS > 0.5 is preferred for inferential use; the maximum reportable
-value is the upper bound of the drop-proportion grid.
+value is the upper bound of the drop-proportion grid. A cohort
+comparison of centralities is only meaningful for measures that are
+stable in *both* cohorts.
 
 ## Comparing the two cohorts
 
-Both networks share an alphabet, so you can compute the elementwise
-difference directly with `plot_htna_diff()`. Positive (Late > Early)
-is green, negative (Early > Late) is red:
+Both networks share an alphabet, so their edges can be compared one by
+one. Pass the grouped network as it is to `permutation_htna()`: it tests
+every cohort pair and returns one result per pair, named
+`"<first> vs <second>"`. `plot_htna_diff()` draws each pair as the
+difference network *first minus second*, titled with the pair name;
+positive differences are green, negative red, and only the edges that
+differ significantly are drawn:
 
 ```{r}
-plot_htna_diff(grp$Late, grp$Early)
-```
-
-`permutation_htna()` quantifies which differences are statistically
-significant:
-
-```{r}
-perm <- permutation_htna(grp$Late, grp$Early, iter = 500)
+perm <- permutation_htna(grp, iter = 500, seed = 1)
 plot_htna_diff(perm)
 ```
+
+With `show_nonsig = TRUE` the non-significant differences are added as
+dashed grey edges, so the full difference network is visible together
+with the significance verdict:
 
 ```{r}
 plot_htna_diff(perm, show_nonsig = TRUE)
@@ -172,9 +177,13 @@ supports a `level = "type"` option that runs the comparison on
 meta-paths (e.g. `Human -> AI -> Human`) rather than concrete
 state codes.
 
-## Indexing
+## Working with the grouped object
 
-Because the result of `build_htna(..., group = ...)` is a named list,
-all standard list operations work: `grp[["Early"]]`,
-`grp[c("Early", "Late")]`, `length(grp)`, `names(grp)`. Subsets keep
-the grouped class so they pass straight back to the wrappers above.
+Pass the result of `build_htna(..., group = ...)` as it is to the
+functions above; each one iterates over the cohorts (or, for
+`permutation_htna()`, `bayes_compare_htna()` and `compare_htna()`, over
+the cohort pairs) and labels its output with the cohort names. There is
+no need to extract cohorts by hand. To analyse a single cohort on its
+own, build it directly from that cohort's sessions, e.g.
+`build_htna(subset(human_ai, phase == "Early"), actor_type = "actor_type")`,
+which yields the same network as the `Early` element of `grp`.

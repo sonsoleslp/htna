@@ -5,6 +5,10 @@
 #' actor partition. The result is also returned invisibly as a list so
 #' callers can inspect the structured summary programmatically.
 #'
+#' For an `htna_group`, the summary is printed once per cohort and the
+#' return value is a named list of the per-cohort lists described under
+#' Value.
+#'
 #' @param object An htna network from [build_htna()] or an `htna_group`.
 #' @param max_nodes Integer. Maximum number of nodes to list per actor
 #'   type before truncating with an ellipsis. Default `12`.
@@ -16,9 +20,10 @@
 #'       `n_nodes`, `nodes`).
 #'     \item `edges_by_actor` - integer matrix of non-zero edge counts,
 #'       rows are source actor, columns are target actor.
-#'     \item `network_metrics` - standard network-level descriptive metrics
-#'       from the Nestimate engine (node/edge counts, density, distance,
-#'       strength, degree centralization, and reciprocity).
+#'     \item `network_metrics` - data frame (columns `metric`, `value`) of
+#'       standard network-level descriptive metrics from the Nestimate
+#'       engine (node/edge counts, density, distance, strength, degree
+#'       centralization, and reciprocity).
 #'     \item `n_nodes`, `n_edges`, `n_sessions`, `n_timesteps`,
 #'       `method`.
 #'   }

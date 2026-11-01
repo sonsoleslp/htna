@@ -15,29 +15,32 @@ preserved, so \code{htna} objects use \code{state_distribution.htna}.}
 \code{\link[Nestimate:state_distribution]{Nestimate::state_distribution()}}. See that function for details.}
 }
 \value{
-A data frame with one row per (timestep, state). See
-\code{\link[Nestimate:state_distribution]{Nestimate::state_distribution()}} for full details.
+A data frame with one row per \verb{(group, state)} pair and
+columns \code{group}, \code{state}, \code{count} and \code{proportion} (proportions sum
+to 1 within each group). For an htna network \code{group} is the actor
+type; for a network without an actor partition it is \code{"all"}. See \code{\link[Nestimate:state_distribution]{Nestimate::state_distribution()}}.
 }
 \description{
-htna-named alias of \code{\link[Nestimate:state_distribution]{Nestimate::state_distribution()}}. Returns the
-per-timestep distribution of states across sequences, suitable for
-driving stacked-area or bar plots.
+htna-named wrapper for \code{\link[Nestimate:state_distribution]{Nestimate::state_distribution()}}. Returns the
+within-network distribution of states: how often each state occurs and
+its share of the events in its group.
 }
 \details{
 Designed with htna in mind: Nestimate ships an explicit
 \code{state_distribution.htna} S3 method that uses the actor partition
-carried by \code{\link[=build_htna]{build_htna()}} networks.
+carried by \code{\link[=build_htna]{build_htna()}} networks, so each state is reported under its
+actor type. For an htna network the result is the same table as
+\code{\link[=frequencies_htna]{frequencies_htna()}}.
 
 Suffixed \verb{_htna} to avoid clashing with
 \code{Nestimate::state_distribution()} when both packages are loaded.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 state_distribution_htna(net)
 }
-}
 \seealso{
-\code{\link[=state_frequencies_htna]{state_frequencies_htna()}} for the within-network summary.
+\code{\link[=frequencies_htna]{frequencies_htna()}}, \code{\link[=state_frequencies_htna]{state_frequencies_htna()}} for the
+pooled (actor-blind) frequency table.
 }

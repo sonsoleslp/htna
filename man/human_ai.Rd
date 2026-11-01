@@ -9,7 +9,7 @@ A data frame with 19347 rows and 11 columns:
 \describe{
 \item{message_id}{Integer. Source message identifier.}
 \item{project}{Character. Project label (e.g. \code{"Project_1"}).}
-\item{session_id}{Character. Session identifier — pass to
+\item{session_id}{Character. Session identifier; pass to
 \code{\link{build_htna}()} as the session key.}
 \item{timestamp}{Integer. Unix timestamp of the message.}
 \item{session_date}{Character. Date of the session
@@ -20,8 +20,8 @@ A data frame with 19347 rows and 11 columns:
 data, retained for reference (see Details).}
 \item{code_order}{Integer. Order of the code within the message.}
 \item{order_in_session}{Integer. Order of the row within the
-session — pass as the order key to \code{\link{build_htna}()}.}
-\item{actor_type}{Character. \code{"AI"} or \code{"Human"} — the
+session; pass as the order key to \code{\link{build_htna}()}.}
+\item{actor_type}{Character. \code{"AI"} or \code{"Human"}: the
 actor partition for \code{\link{build_htna}(actor_type = "actor_type")}.}
 \item{phase}{Factor with levels \code{"Early"} and \code{"Late"}.
 Session-level cohort tag from a chronological split: sessions
@@ -70,11 +70,9 @@ label across rows. The \code{cluster} column is preserved verbatim
 from the source data and should be treated as informational only.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 plot_htna(net)
-}
 }
 \seealso{
 \code{\link{human_simplified}}, \code{\link{ai_simplified}},

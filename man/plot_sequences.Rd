@@ -19,9 +19,7 @@ S3 generic dispatched on \code{x}. Calling \code{plot_sequences(net)} on an htna
 network forwards to \code{\link[=sequence_plot_htna]{sequence_plot_htna()}}.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 plot_sequences(net)
-}
 }

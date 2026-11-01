@@ -69,7 +69,9 @@
 #' @param group Character. Optional name of a column in \code{data} used to
 #'   split sessions into cohorts (e.g. \code{"cluster"}). When supplied,
 #'   one network is built per group level and the result is a named list of
-#'   htna networks with class \code{c("htna_group", "netobject_group")}.
+#'   htna networks with class
+#'   \code{c("htna_group", "netobject_group", "list")}. Pass that object as
+#'   it is to the downstream verbs; they iterate over the cohorts.
 #' @param disambiguate Logical. If \code{FALSE} (default), the function errors
 #'   when a code label appears in more than one actor-type group. If
 #'   \code{TRUE}, codes are prefixed with the actor-type label
@@ -84,7 +86,9 @@
 #' @param ... Additional arguments forwarded to
 #'   \code{\link[Nestimate]{build_network}}.
 #'
-#' @return A \code{netobject} with the actor partition stored in cograph's
+#' @return An object of class
+#'   \code{c("htna", "netobject", "cograph_network")}: a Nestimate
+#'   \code{netobject} with the actor partition stored in cograph's
 #'   canonical schema, so \code{cograph::plot_htna(net)} auto-detects the
 #'   groups with no further arguments:
 #'   \itemize{
@@ -92,32 +96,43 @@
 #'       \code{cograph::plot_htna} auto-detects).
 #'     \item \code{$node_groups} - data frame with columns \code{node} and
 #'       \code{group} (canonical \code{cograph_network} schema, also
-#'       readable by \code{cograph::get_groups}, \code{cluster_summary}, and
-#'       the \code{print} method for \code{cograph_network}).
+#'       readable by \code{cograph::get_groups()},
+#'       \code{Nestimate::cluster_summary()}, and the \code{print} method
+#'       for \code{cograph_network}).
 #'     \item \code{$actor_levels} - declared actor ordering, also retained as
 #'       metadata on \code{$node_groups} so the table can be passed back to
 #'       \code{build_htna()} without losing that order.
 #'   }
 #'   All other slots are exactly as returned by
-#'   \code{\link[Nestimate]{build_network}}. Clustering inputs return an
-#'   \code{htna_group}; its children retain the actor partition and its outer
+#'   \code{\link[Nestimate]{build_network}}. A \code{group} argument or a
+#'   clustering input returns an \code{htna_group} (a named list with one
+#'   \code{htna} per cohort or cluster); its children retain the actor
+#'   partition and its outer
 #'   clustering assignments, posterior probabilities, diagnostics, and other
 #'   attributes are preserved. An \code{mcml} input instead returns one
 #'   \code{htna}, equivalent to \code{Nestimate::as_htna()}.
 #'
 #' @seealso \code{\link[Nestimate]{build_network}},
 #'   \code{\link[Nestimate]{build_tna}},
-#'   \code{\link[cograph]{plot_htna}}
+#'   \code{\link{summary.htna}}, \code{\link{plot_htna}} (which renders
+#'   through \code{\link[cograph]{plot_htna}})
 #'
 #' @examples
-#' data(human_ai, human_simplified, ai_simplified)
+#' data(human_ai, human_simplified, ai_simplified, human_ai_codebook)
 #'
 #' # Form 1: named list of per-actor frames
 #' net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
-#' head(net$node_groups)
+#' summary(net)
 #'
 #' # Form 2: single combined frame with a row-level actor-type tag
 #' net <- build_htna(human_ai, actor_type = "actor_type")
+#'
+#' # Form 3: combined frame plus a code-to-actor codebook
+#' net <- build_htna(human_ai, node_groups = human_ai_codebook)
+#'
+#' # One network per cohort
+#' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#' summary(grp)
 #'
 #' @export
 build_htna <- function(data,

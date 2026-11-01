@@ -27,28 +27,32 @@ htna_state_palette <- c(
 #'
 #' @details
 #' Mapping from measure name to cograph implementation:
-#' * `OutStrength`     → [cograph::centrality_outstrength()]
-#' * `InStrength`      → [cograph::centrality_instrength()]
-#' * `ClosenessIn`     → [cograph::centrality_incloseness()]   (inverted)
-#' * `ClosenessOut`    → [cograph::centrality_outcloseness()]  (inverted)
-#' * `Closeness`       → [cograph::centrality_closeness()]     (inverted)
-#' * `Betweenness`     → [cograph::centrality_betweenness()]   (inverted)
-#' * `BetweennessRSP`  → [cograph::centrality_current_flow_betweenness()]
-#' * `Diffusion`       → [cograph::centrality_diffusion()]
-#' * `Clustering`      → [cograph::centrality_transitivity()]
+#' * `OutStrength`: [cograph::centrality_outstrength()]
+#' * `InStrength`: [cograph::centrality_instrength()]
+#' * `ClosenessIn`: [cograph::centrality_incloseness()] (inverted)
+#' * `ClosenessOut`: [cograph::centrality_outcloseness()] (inverted)
+#' * `Closeness`: [cograph::centrality_closeness()] (inverted)
+#' * `Betweenness`: [cograph::centrality_betweenness()] (inverted)
+#' * `BetweennessRSP`: [cograph::centrality_current_flow_betweenness()]
+#' * `Diffusion`: [cograph::centrality_diffusion()]
+#' * `Clustering`: [cograph::centrality_transitivity()]
 #'
 #' @param x An htna network from [build_htna()] or an `htna_group`.
 #' @param measures Character vector of measure names. Defaults to all nine.
 #' @param ... Forwarded to the underlying cograph centrality functions.
 #'
-#' @return A data frame with one row per node.
+#' @return A data frame of class `c("htna_centralities", "data.frame")`
+#'   with one row per node and columns `node`, `actor` (the node's actor
+#'   type, when the partition is set) and one numeric column per requested
+#'   measure. For an `htna_group`, the rows of all cohorts are stacked, one
+#'   row per (cohort, node), with a leading `group` column naming the
+#'   cohort.
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' centralities_htna(net)
-#' }
+#' centralities_htna(net, measures = c("InStrength", "Betweenness"))
 #'
 #' @export
 centralities_htna <- function(x,
@@ -83,6 +87,22 @@ centralities_htna <- function(x,
   W <- .weights_of(x)
   diag(W) <- 0   # match tna's loops = FALSE default for matrix-fed measures
 
+  # cograph's get_labels() requires a `label`/`labels` column and errors without
+  # one, so a network whose labels were dropped has to be repaired BEFORE any
+  # measure is delegated -- not just when the result is assembled. Under
+  # cograph >= 2.5 the unrepaired network makes centrality() build its result
+  # from a zero-length node vector, which then dies inside data.frame() with
+  # "arguments imply differing number of rows: 0, n".
+  nodes <- x$nodes$label %||% rownames(W)
+  if (length(nodes) != nrow(W)) {
+    stop(errorCondition(
+      sprintf(paste("cannot name the %d nodes of this htna network:",
+                    "`nodes$label` is absent and the weight matrix has",
+                    "no rownames"), nrow(W)),
+      class = "htna_unnamed_nodes", call = NULL))
+  }
+  x$nodes$label <- nodes
+
   vals <- lapply(measures, function(m) {
     spec <- .htna_centrality_specs[[m]]
     if (isTRUE(spec$matrix)) {
@@ -96,7 +116,6 @@ centralities_htna <- function(x,
   })
   names(vals) <- measures
 
-  nodes <- x$nodes$label %||% rownames(.weights_of(x))
   out   <- data.frame(node = nodes, stringsAsFactors = FALSE)
   if (!is.null(x$node_groups)) {
     actor_lookup <- setNames(as.character(x$node_groups$group),
@@ -163,18 +182,21 @@ centralities_htna <- function(x,
 
 #' Plot Centrality Measures
 #'
-#' Faceted bar plot of node-level centralities, one panel per measure.
-#' Mirrors the look of [tna::plot.tna_centralities()].
+#' Faceted bar plot of node-level centralities, one panel per measure,
+#' drawn with 'ggplot2' (Suggests). Mirrors the look of
+#' [tna::plot.tna_centralities()].
 #'
 #' Accepts an htna network, an `htna_group`, or a data frame produced by
-#' [centralities_htna()]. For groups, bars are coloured by group within each
-#' panel.
+#' [centralities_htna()]. For an `htna_group` the bars are replaced by one
+#' line-and-point profile per cohort in each panel (colour = cohort), so
+#' cohort differences on a measure read along the same node axis; `by` is
+#' then not used.
 #'
 #' @param x An htna network, `htna_group`, or `htna_centralities` data
 #'   frame from [centralities_htna()].
 #' @param measures Centralities to plot. Default: all nine.
 #' @param by `"state"` (default) gives each node its own colour;
-#'   `"group"` colours by actor group (Human, AI, …) using
+#'   `"group"` colours by actor group (Human, AI, ...) using
 #'   [htna_palette].
 #' @param reorder If `TRUE`, sort nodes by value within each measure.
 #' @param ncol Number of facet columns. Default `3`.
@@ -183,16 +205,17 @@ centralities_htna <- function(x,
 #' @param labels If `TRUE` (default), draw the value next to each bar.
 #' @param ... Forwarded to [centralities_htna()] when computing on the fly.
 #'
-#' @return A ggplot object.
+#' @return A `ggplot` object (printed when returned at top level).
 #' @seealso [centralities_htna()].
 #' @examples
-#' \donttest{
-#' data(human_ai)
-#' net <- build_htna(human_ai, actor_type = "actor_type")
-#' plot_centralities(net)
+#' if (requireNamespace("ggplot2", quietly = TRUE)) {
+#'   data(human_ai)
+#'   net <- build_htna(human_ai, actor_type = "actor_type")
+#'   plot_centralities(net)
+#'   plot_centralities(net, by = "group")
 #'
-#' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-#' plot_centralities(grp)
+#'   grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#'   plot_centralities(grp)
 #' }
 #' @export
 plot_centralities <- function(x,

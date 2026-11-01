@@ -16,8 +16,10 @@ such as \code{method}, \code{threshold}, \code{lowest}, \code{level}, and \code{
 that function for the full, current argument list.}
 }
 \value{
-A pruned htna network. See \code{\link[Nestimate:net_prune]{Nestimate::net_prune()}} for
-details.
+A pruned htna network: class \code{c("htna", "netobject", "cograph_network")}, the same structure as \code{\link[=build_htna]{build_htna()}} returns, with
+the removed edges set to zero in \code{weights} and the pruning rule
+recorded for \code{\link[=deprune_htna]{deprune_htna()}}, \code{\link[=reprune_htna]{reprune_htna()}} and
+\code{\link[=pruning_details_htna]{pruning_details_htna()}}. See \code{\link[Nestimate:net_prune]{Nestimate::net_prune()}}.
 }
 \description{
 htna-named wrapper for \code{\link[Nestimate:net_prune]{Nestimate::net_prune()}}. Removes edges that
@@ -33,11 +35,9 @@ Suffixed \verb{_htna} to avoid clashing with the tna verb \code{prune()} and to
 sit alongside the rest of the htna API.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 prune_htna(net, method = "threshold", threshold = 0.05)
-}
 }
 \seealso{
 \code{\link[=deprune_htna]{deprune_htna()}}, \code{\link[=reprune_htna]{reprune_htna()}}, \code{\link[=pruning_details_htna]{pruning_details_htna()}},

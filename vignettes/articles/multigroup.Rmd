@@ -36,7 +36,7 @@ set.seed(42)
 student_codes <- c("Ask", "Confirm", "Revise", "Evaluate")
 ai_codes      <- c("Suggest", "Explain", "Execute", "Clarify")
 system_codes  <- c("Log", "Notify", "Compile", "Sync")
-sessions      <- paste0("S", sprintf("%03d", 1:30))
+sessions      <- sprintf("S%03d", seq_len(30))
 
 make_events <- function(codes, sessions, offset) {
   rows <- lapply(sessions, function(sid) {
@@ -67,20 +67,29 @@ net3 <- build_htna(
 net3
 ```
 
-The actor partition now contains three levels:
+The actor partition now contains three levels, each with its four
+codes; `summary()` lists them and counts the non-zero edges within and
+between every pair of actors:
 
 ```{r}
-table(net3$node_groups$group)
+summary(net3)
 ```
 
 ## Plotting
 
-With three or more groups, `plot_htna()` automatically switches to a polygon
-(triangle) layout. The three colours from the default HTNA palette are applied
-in order:
+With the default circular layout, each of the three groups occupies its
+own arc of the circle. The first three colours of the default HTNA palette
+are applied in order:
 
 ```{r}
 plot_htna(net3)
+```
+
+`layout = "polygon"` (alias `"triangle"` for three groups) places each
+group along one side of a regular polygon (one side per group) instead:
+
+```{r}
+plot_htna(net3, layout = "polygon")
 ```
 
 ## Per-actor sequences

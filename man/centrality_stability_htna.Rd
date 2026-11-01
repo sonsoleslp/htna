@@ -21,7 +21,7 @@ centrality_stability_htna(
 \item{x}{An htna network from \code{\link[=build_htna]{build_htna()}} or an \code{htna_group}.}
 
 \item{measures}{Character vector of centrality measures to assess.
-Default \code{c("InStrength", "OutStrength", "Betweenness")} — the
+Default \code{c("InStrength", "OutStrength", "Betweenness")}: the
 three measures whose values are bit-equal between htna's
 \code{cograph} engine and Nestimate's default centrality
 implementation. To assess htna's nine measures (including the
@@ -59,7 +59,10 @@ For a single htna network, an object of class
 \code{c("htna_stability", "net_stability")} with the same components
 as \code{\link[Nestimate:centrality_stability]{Nestimate::centrality_stability()}}: \code{cs} (the stability
 coefficients, one per measure), \code{correlations} (per-drop-proportion
-correlation traces), and the parameters that were used.
+correlation traces), and the parameters that were used. \code{summary()}
+returns the tidy table: one row per (measure, drop proportion), with
+columns \code{measure}, \code{drop_prop}, \code{mean_cor}, \code{sd_cor} and
+\code{prop_above}. See \code{\link[=print.htna_stability]{print.htna_stability()}} and \code{\link[=plot.htna_stability]{plot.htna_stability()}}.
 For an \code{htna_group}, a named list of such objects with class
 \code{c("htna_stability_group", "list")}.
 }
@@ -75,13 +78,18 @@ is a named list (one \code{htna_stability} per cohort), with class
 \code{c("htna_stability_group", "list")}.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 cs  <- centrality_stability_htna(net, iter = 30, seed = 1)
-cs$cs
-}
+cs            # CS-coefficient per measure
+summary(cs)   # mean correlation per measure and drop proportion
 
+}
+\references{
+Epskamp, S., Borsboom, D., & Fried, E. I. (2018). Estimating
+psychological networks and their accuracy: A tutorial paper.
+\emph{Behavior Research Methods}, 50(1), 195-212.
+\doi{10.3758/s13428-017-0862-1}
 }
 \seealso{
 \code{\link[Nestimate:centrality_stability]{Nestimate::centrality_stability()}},

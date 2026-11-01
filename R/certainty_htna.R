@@ -25,11 +25,9 @@
 #' @seealso [bootstrap_htna()] for the resampling analogue,
 #'   [reliability_htna()], [casedrop_reliability_htna()].
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' certainty_htna(net)
-#' }
 #' @export
 certainty_htna <- function(x, ...) {
   Nestimate::certainty(x, ...)

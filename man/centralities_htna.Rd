@@ -19,7 +19,12 @@ centralities_htna(
 \item{...}{Forwarded to the underlying cograph centrality functions.}
 }
 \value{
-A data frame with one row per node.
+A data frame of class \code{c("htna_centralities", "data.frame")}
+with one row per node and columns \code{node}, \code{actor} (the node's actor
+type, when the partition is set) and one numeric column per requested
+measure. For an \code{htna_group}, the rows of all cohorts are stacked, one
+row per (cohort, node), with a leading \code{group} column naming the
+cohort.
 }
 \description{
 Computes a fixed panel of centrality measures via \link[cograph:cograph]{cograph::cograph} and
@@ -38,22 +43,21 @@ shorter distance. Strength and the closed-form measures
 
 Mapping from measure name to cograph implementation:
 \itemize{
-\item \code{OutStrength}     → \code{\link[cograph:centrality_strength]{cograph::centrality_outstrength()}}
-\item \code{InStrength}      → \code{\link[cograph:centrality_strength]{cograph::centrality_instrength()}}
-\item \code{ClosenessIn}     → \code{\link[cograph:centrality_closeness]{cograph::centrality_incloseness()}}   (inverted)
-\item \code{ClosenessOut}    → \code{\link[cograph:centrality_closeness]{cograph::centrality_outcloseness()}}  (inverted)
-\item \code{Closeness}       → \code{\link[cograph:centrality_closeness]{cograph::centrality_closeness()}}     (inverted)
-\item \code{Betweenness}     → \code{\link[cograph:centrality_betweenness]{cograph::centrality_betweenness()}}   (inverted)
-\item \code{BetweennessRSP}  → \code{\link[cograph:centrality_current_flow_betweenness]{cograph::centrality_current_flow_betweenness()}}
-\item \code{Diffusion}       → \code{\link[cograph:centrality_diffusion]{cograph::centrality_diffusion()}}
-\item \code{Clustering}      → \code{\link[cograph:centrality_transitivity]{cograph::centrality_transitivity()}}
+\item \code{OutStrength}: \code{\link[cograph:centrality_strength]{cograph::centrality_outstrength()}}
+\item \code{InStrength}: \code{\link[cograph:centrality_strength]{cograph::centrality_instrength()}}
+\item \code{ClosenessIn}: \code{\link[cograph:centrality_closeness]{cograph::centrality_incloseness()}} (inverted)
+\item \code{ClosenessOut}: \code{\link[cograph:centrality_closeness]{cograph::centrality_outcloseness()}} (inverted)
+\item \code{Closeness}: \code{\link[cograph:centrality_closeness]{cograph::centrality_closeness()}} (inverted)
+\item \code{Betweenness}: \code{\link[cograph:centrality_betweenness]{cograph::centrality_betweenness()}} (inverted)
+\item \code{BetweennessRSP}: \code{\link[cograph:centrality_current_flow_betweenness]{cograph::centrality_current_flow_betweenness()}}
+\item \code{Diffusion}: \code{\link[cograph:centrality_diffusion]{cograph::centrality_diffusion()}}
+\item \code{Clustering}: \code{\link[cograph:centrality_transitivity]{cograph::centrality_transitivity()}}
 }
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 centralities_htna(net)
-}
+centralities_htna(net, measures = c("InStrength", "Betweenness"))
 
 }

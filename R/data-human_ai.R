@@ -33,7 +33,7 @@
 #' \describe{
 #'   \item{message_id}{Integer. Source message identifier.}
 #'   \item{project}{Character. Project label (e.g. \code{"Project_1"}).}
-#'   \item{session_id}{Character. Session identifier — pass to
+#'   \item{session_id}{Character. Session identifier; pass to
 #'     \code{\link{build_htna}()} as the session key.}
 #'   \item{timestamp}{Integer. Unix timestamp of the message.}
 #'   \item{session_date}{Character. Date of the session
@@ -44,8 +44,8 @@
 #'     data, retained for reference (see Details).}
 #'   \item{code_order}{Integer. Order of the code within the message.}
 #'   \item{order_in_session}{Integer. Order of the row within the
-#'     session — pass as the order key to \code{\link{build_htna}()}.}
-#'   \item{actor_type}{Character. \code{"AI"} or \code{"Human"} — the
+#'     session; pass as the order key to \code{\link{build_htna}()}.}
+#'   \item{actor_type}{Character. \code{"AI"} or \code{"Human"}: the
 #'     actor partition for \code{\link{build_htna}(actor_type = "actor_type")}.}
 #'   \item{phase}{Factor with levels \code{"Early"} and \code{"Late"}.
 #'     Session-level cohort tag from a chronological split: sessions
@@ -62,11 +62,9 @@
 #'   \code{\link{human_ai_codebook}}.
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' plot_htna(net)
-#' }
 "human_ai"
 
 #' Simplified Human Interaction Sequences (per-actor frame)
@@ -88,11 +86,9 @@
 #'   \code{\link{human_ai_codebook}}.
 #'
 #' @examples
-#' \donttest{
 #' data(human_simplified, ai_simplified)
 #' net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
 #' plot_htna(net)
-#' }
 "human_simplified"
 
 #' Simplified AI Interaction Sequences (per-actor frame)
@@ -113,14 +109,12 @@
 #'   \code{\link{human_ai_codebook}}.
 #'
 #' @examples
-#' \donttest{
 #' data(human_simplified, ai_simplified)
 #' net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
-#' plot_htna(net)
-#' }
+#' summary(net)
 "ai_simplified"
 
-#' Code → Actor-Type Codebook for \code{human_ai}
+#' Code-to-Actor-Type Codebook for \code{human_ai}
 #'
 #' A tidy two-column lookup tagging every simplified code in
 #' \code{\link{human_ai}} with its actor type. Ready to pass as
@@ -142,9 +136,8 @@
 #'   \code{\link{ai_simplified}}.
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai, human_ai_codebook)
+#' human_ai_codebook
 #' net <- build_htna(human_ai, node_groups = human_ai_codebook)
-#' plot_htna(net)
-#' }
+#' summary(net)
 "human_ai_codebook"

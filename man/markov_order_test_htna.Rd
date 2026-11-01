@@ -7,8 +7,9 @@
 markov_order_test_htna(data, ...)
 }
 \arguments{
-\item{data}{Raw sequence data: a list of character vectors or a
-wide-format data frame. See \code{\link[Nestimate:markov_order_test]{Nestimate::markov_order_test()}}.}
+\item{data}{An htna network from \code{\link[=build_htna]{build_htna()}}, or raw sequence data:
+a list of character vectors or a wide-format data frame. See
+\code{\link[Nestimate:markov_order_test]{Nestimate::markov_order_test()}}.}
 
 \item{...}{Additional arguments passed to
 \code{\link[Nestimate:markov_order_test]{Nestimate::markov_order_test()}}, such as \code{max_order}, \code{n_perm},
@@ -16,34 +17,45 @@ wide-format data frame. See \code{\link[Nestimate:markov_order_test]{Nestimate::
 the full, current argument list.}
 }
 \value{
-An object of class \code{markov_order_test} with components
-\code{test_table}, \code{optimal_order}, and the inputs. See
-\code{\link[Nestimate:markov_order_test]{Nestimate::markov_order_test()}} for full details and the
-corresponding \code{plot()} method.
+An object of class \code{net_markov_order} with components
+\code{optimal_order} (sequential permutation-test order), \code{bic_order},
+\code{aic_order}, \code{test_table} (a data frame with one row per tested order
+and columns \code{order}, \code{loglik}, \code{AIC}, \code{BIC}, \code{df}, \code{g2},
+\code{p_permutation}, \code{p_asymptotic}, \code{significant}), the permutation null
+distributions, fitted transition matrices, and the inputs. \code{print()},
+\code{summary()} and \code{plot()} methods are supplied by Nestimate; see
+\code{\link[Nestimate:markov_order_test]{Nestimate::markov_order_test()}}.
 }
 \description{
-htna-named alias of \code{\link[Nestimate:markov_order_test]{Nestimate::markov_order_test()}}. Tests
+htna-named wrapper for \code{\link[Nestimate:markov_order_test]{Nestimate::markov_order_test()}}. Tests
 whether a first-order Markov model is adequate for the observed
 sequences, or whether a higher order is required, by comparing the
 empirical transition structure against orders \verb{1..max_order} via
 permutation.
 }
 \details{
-Operates on raw sequence data (a list of character vectors or a
-wide-format data frame), not on an htna network object. Use
-alongside \code{\link[=reliability_htna]{reliability_htna()}} and \code{\link[=casedrop_reliability_htna]{casedrop_reliability_htna()}}
-when assessing whether a Markov-1 transition network is
-appropriate before trusting downstream htna analyses.
+Accepts an htna network directly (its session sequences are tested),
+or raw sequence data (a list of character vectors or a wide-format data
+frame). Use alongside \code{\link[=reliability_htna]{reliability_htna()}} and
+\code{\link[=casedrop_reliability_htna]{casedrop_reliability_htna()}} when assessing whether a Markov-1
+transition network is appropriate before trusting downstream htna
+analyses.
+
+The orders are tested sequentially: \code{optimal_order} is the highest order
+\code{k} for which every step from order \code{j - 1} to \code{j}, \verb{j = 1, ..., k}, is
+significant at \code{alpha}. It is therefore one less than the first order
+whose step is not significant, and equals \code{max_order} when every step is
+significant (in which case the search should be widened). The BIC- and
+AIC-preferred orders are reported alongside.
 
 Suffixed \verb{_htna} to avoid clashing with
 \code{Nestimate::markov_order_test()} when both packages are loaded.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-markov_order_test_htna(net$data, max_order = 2, n_perm = 50, seed = 1)
-}
+# Few permutations to keep the example fast; use the default 500 in practice.
+markov_order_test_htna(net, max_order = 2, n_perm = 20, seed = 1)
 }
 \seealso{
 \code{\link[=reliability_htna]{reliability_htna()}}, \code{\link[=casedrop_reliability_htna]{casedrop_reliability_htna()}},

@@ -19,9 +19,7 @@ S3 generic dispatched on the class of \code{x}. Provided so \code{bootstrap(net)
 works directly on an htna network (see \code{\link[=bootstrap_htna]{bootstrap_htna()}}).
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-bootstrap(net, iter = 50)
-}
+bootstrap(net, iter = 50, seed = 1)
 }

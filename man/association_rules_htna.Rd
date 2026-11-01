@@ -16,11 +16,13 @@ association_rules_htna(x, ...)
 for the full, current argument list.}
 }
 \value{
-A list with the discovered rules and frequent itemsets. See
-\code{\link[Nestimate:association_rules]{Nestimate::association_rules()}} for details.
+An object of class \code{net_association_rules}, holding the
+discovered rules and frequent itemsets, with \code{print()}, \code{summary()}
+and \code{plot()} methods supplied by Nestimate. See
+\code{\link[Nestimate:association_rules]{Nestimate::association_rules()}} for the component list.
 }
 \description{
-htna-named alias of \code{\link[Nestimate:association_rules]{Nestimate::association_rules()}}. Mines
+htna-named wrapper for \code{\link[Nestimate:association_rules]{Nestimate::association_rules()}}. Mines
 frequent itemsets and association rules over a transition-count
 matrix under support / confidence / lift thresholds.
 }
@@ -34,11 +36,9 @@ Suffixed \verb{_htna} to avoid clashing with
 \code{Nestimate::association_rules()} when both packages are loaded.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 association_rules_htna(net, max_length = 3L)
-}
 }
 \seealso{
 \code{\link[=frequencies_htna]{frequencies_htna()}}, \code{\link[=mosaic_plot_htna]{mosaic_plot_htna()}}.

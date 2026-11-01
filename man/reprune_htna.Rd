@@ -30,12 +30,10 @@ Suffixed \verb{_htna} to avoid clashing with the tna verb \code{reprune()} and
 to sit alongside the rest of the htna API.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 pruned <- prune_htna(net, method = "threshold", threshold = 0.05)
 reprune_htna(deprune_htna(pruned))
-}
 }
 \seealso{
 \code{\link[=prune_htna]{prune_htna()}}, \code{\link[=deprune_htna]{deprune_htna()}}, \code{\link[=pruning_details_htna]{pruning_details_htna()}}.

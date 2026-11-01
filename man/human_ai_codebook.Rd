@@ -3,7 +3,7 @@
 \docType{data}
 \name{human_ai_codebook}
 \alias{human_ai_codebook}
-\title{Code → Actor-Type Codebook for \code{human_ai}}
+\title{Code-to-Actor-Type Codebook for \code{human_ai}}
 \format{
 A data frame with 12 rows and 2 columns:
 \describe{
@@ -27,11 +27,10 @@ A tidy two-column lookup tagging every simplified code in
 \code{vignette("input-formats", package = "htna")}).
 }
 \examples{
-\donttest{
 data(human_ai, human_ai_codebook)
+human_ai_codebook
 net <- build_htna(human_ai, node_groups = human_ai_codebook)
-plot_htna(net)
-}
+summary(net)
 }
 \seealso{
 \code{\link{human_ai}}, \code{\link{human_simplified}},

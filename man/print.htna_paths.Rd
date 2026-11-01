@@ -21,11 +21,9 @@ Shared print method for objects returned by \code{\link[=extract_meta_paths]{ext
 (class \code{htna_meta_paths}). Dispatches on the \code{htna_paths} parent class.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 p <- extract_meta_paths(net, length = 3)
 print(p, n = 5)
-}
 }
 \keyword{internal}

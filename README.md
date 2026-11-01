@@ -11,7 +11,7 @@ MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.or
 <!-- badges: end -->
 
 `htna` is an R package for Heterogeneous Transition Network Analysis
-(HTNA) that models processes or interactions between a mix two or more
+(HTNA) that models processes or interactions between a mix of two or more
 actor groups (e.g.  Human and AI) as a single network. HTNA builds on
 the traditions of Transition Network Analysis (TNA) and Co-occurrence
 Network Analysis (CNA) and maintains the rigor of either method.
@@ -64,8 +64,8 @@ net <- build_htna(human_ai, actor_type = "actor_type")
 
 ### Plot the network
 
-`plot_htna()` auto-detects the actor groups and renders them with
-distinct colours:
+`plot_htna()` auto-detects the actor groups and renders them, through
+cograph’s `plot_htna()`, with one colour and shape per actor group:
 
 ``` r
 plot_htna(net, threshold = 0.05, layout = "circular")
@@ -192,7 +192,7 @@ extract_meta_paths(net, level = "type")
   Network Analysis Approach. Innovations in Analytics of Learning
   Dynamics: Proceedings of the 1st Workshop on Transition Network
   Analysis (TNA). <https://dx.doi.org/10.2139/ssrn.6082190>
-- López-Pernas, S., Misiejuk, K., & Saqr, M. (2026). How AI ‐generated
+- López-Pernas, S., Misiejuk, K., & Saqr, M. (2026). How AI-generated
   feedback hinders or helps learning: A heterogeneous TNA study of
   learning dynamics. Journal of Computer Assisted Learning, 42(4),
   e70285. <https://doi.org/10.1002/jcal.70285>

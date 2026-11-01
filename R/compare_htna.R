@@ -61,10 +61,15 @@ compare_htna <- function(x, y = NULL, ...) {
 #' Applies Nestimate's `net_comparison` plot method to every cohort pair.
 #'
 #' @param x An `htna_comparison_group` from [compare_htna()].
-#' @param ... Passed to the `net_comparison` plot method, including `type` and
-#'   `combined`.
+#' @param ... Passed to the `net_comparison` plot method, including `type`
+#'   (`"scatter"`, `"heatmap"`, `"diff_hist"`, `"weight_dist"` or `"all"`)
+#'   and `combined`.
 #'
 #' @return Invisibly, a named list containing the plot for every comparison.
+#' @examples
+#' data(human_ai)
+#' grouped <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#' plot(compare_htna(grouped))
 #' @export
 plot.htna_comparison_group <- function(x, ...) {
   if (!length(x)) {

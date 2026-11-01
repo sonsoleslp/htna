@@ -22,10 +22,14 @@ first half-network. Default \code{0.5}.}
 }
 \value{
 An object of class \code{c("htna_reliability", "net_reliability")},
-with the same components as \code{\link[Nestimate:network_reliability]{Nestimate::network_reliability()}} —
-\code{iterations}, \code{summary}, \code{models}, \code{iter}, \code{split}, \code{scale} — and
-each entry of \verb{$models} carrying the htna actor partition
-(\verb{$nodes$groups}, \verb{$node_groups}, \verb{$actor_levels}).
+with the same components as \code{\link[Nestimate:network_reliability]{Nestimate::network_reliability()}}
+(\code{iterations}, \code{summary}, \code{models}, \code{iter}, \code{split}, \code{scale}), and
+each entry of \code{models} carrying the htna actor partition
+(\code{nodes$groups}, \code{node_groups}, \code{actor_levels}). \code{print()},
+\code{summary()} and \code{plot()} methods are supplied by Nestimate;
+\code{summary()} returns a data frame with one row per (model, metric) and
+columns \code{model}, \code{metric} (\code{mean_dev}, \code{median_dev}, \code{cor},
+\code{max_dev}), \code{mean} and \code{sd}.
 }
 \description{
 Thin wrapper around \code{\link[Nestimate:network_reliability]{Nestimate::network_reliability()}} that preserves
@@ -40,12 +44,11 @@ networks via \code{...} plus the optional \code{iter}, \code{split}, \code{scale
 networks built by \code{\link[=build_htna]{build_htna()}}.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 rel <- reliability_htna(net, iter = 30, seed = 1)
-rel$summary
-}
+rel
+summary(rel)
 
 }
 \seealso{

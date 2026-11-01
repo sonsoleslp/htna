@@ -11,7 +11,7 @@
 #'
 #' @param x An htna network from [build_htna()] or an `htna_group`.
 #' @param measures Character vector of centrality measures to assess.
-#'   Default `c("InStrength", "OutStrength", "Betweenness")` — the
+#'   Default `c("InStrength", "OutStrength", "Betweenness")`: the
 #'   three measures whose values are bit-equal between htna's
 #'   `cograph` engine and Nestimate's default centrality
 #'   implementation. To assess htna's nine measures (including the
@@ -40,20 +40,28 @@
 #'   `c("htna_stability", "net_stability")` with the same components
 #'   as [Nestimate::centrality_stability()]: `cs` (the stability
 #'   coefficients, one per measure), `correlations` (per-drop-proportion
-#'   correlation traces), and the parameters that were used.
+#'   correlation traces), and the parameters that were used. `summary()`
+#'   returns the tidy table: one row per (measure, drop proportion), with
+#'   columns `measure`, `drop_prop`, `mean_cor`, `sd_cor` and
+#'   `prop_above`. See [print.htna_stability()] and [plot.htna_stability()].
 #'   For an `htna_group`, a named list of such objects with class
 #'   `c("htna_stability_group", "list")`.
 #'
 #' @seealso [Nestimate::centrality_stability()],
 #'   [bootstrap_htna()], [reliability_htna()].
 #'
+#' @references
+#' Epskamp, S., Borsboom, D., & Fried, E. I. (2018). Estimating
+#' psychological networks and their accuracy: A tutorial paper.
+#' *Behavior Research Methods*, 50(1), 195-212.
+#' \doi{10.3758/s13428-017-0862-1}
+#'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' cs  <- centrality_stability_htna(net, iter = 30, seed = 1)
-#' cs$cs
-#' }
+#' cs            # CS-coefficient per measure
+#' summary(cs)   # mean correlation per measure and drop proportion
 #'
 #' @export
 centrality_stability_htna <- function(

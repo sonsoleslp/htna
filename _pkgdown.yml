@@ -16,6 +16,14 @@ reference:
       - summary.htna
       - as.igraph.htna
 
+  - title: Pruning
+    desc: Remove weak edges, restore them, and report what was removed
+    contents:
+      - prune_htna
+      - deprune_htna
+      - reprune_htna
+      - pruning_details_htna
+
   - title: Frequencies and distributions
     desc: Marginal state-level summaries and chi-square mosaics
     contents:
@@ -59,12 +67,20 @@ reference:
       - print.htna_paths
       - association_rules_htna
 
+  - title: Comparing networks
+    desc: Descriptive, permutation, and Bayesian comparison of htna networks
+    contents:
+      - compare_htna
+      - plot.htna_comparison_group
+      - permutation_htna
+      - bayes_compare_htna
+
   - title: Model assessment
-    desc: Reliability, stability, permutation, and Markov-order adequacy
+    desc: Bootstrap, certainty, reliability, stability, and Markov-order adequacy
     contents:
       - bootstrap_htna
       - bootstrap
-      - permutation_htna
+      - certainty_htna
       - reliability_htna
       - casedrop_reliability_htna
       - centrality_stability_htna
@@ -73,22 +89,6 @@ reference:
       - print.htna_stability
       - print.htna_stability_group
       - markov_order_test_htna
-      - certainty_htna
-
-  - title: Network comparison
-    desc: Descriptive and Bayesian comparison of two or more htna networks
-    contents:
-      - compare_htna
-      - bayes_compare_htna
-      - plot.htna_comparison_group
-
-  - title: Pruning
-    desc: Remove, restore, and re-apply edge-weight pruning rules
-    contents:
-      - prune_htna
-      - deprune_htna
-      - reprune_htna
-      - pruning_details_htna
 
   - title: Datasets
     desc: Sample datasets

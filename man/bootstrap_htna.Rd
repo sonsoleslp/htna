@@ -10,17 +10,25 @@ bootstrap_htna(x, ...)
 \method{bootstrap}{htna}(x, ...)
 }
 \arguments{
-\item{x}{[\code{htna}]\cr A network built with \code{\link[=build_htna]{build_htna()}}.}
+\item{x}{[\code{htna}]\cr A network built with \code{\link[=build_htna]{build_htna()}}, or an
+\code{htna_group} (from \code{build_htna(..., group = ...)}), in which case every
+cohort is bootstrapped.}
 
 \item{...}{Arguments forwarded to \code{\link[Nestimate:bootstrap_network]{Nestimate::bootstrap_network()}} (e.g.
 \code{iter}, \code{ci_level}, \code{consistency_range}, \code{seed}).}
 }
 \value{
-An object of class \code{c("htna_bootstrap", "net_bootstrap")}. All
-slots produced by \code{\link[Nestimate:bootstrap_network]{Nestimate::bootstrap_network()}} are preserved
-verbatim (\verb{$summary}, \verb{$mean}, \verb{$sd}, \verb{$p_values}, \verb{$significant},
-\verb{$ci_lower}/\verb{$ci_upper}, \verb{$cr_lower}/\verb{$cr_upper}, \verb{$model}, \verb{$original},
-etc.).
+For a single network, an object of class
+\code{c("htna_bootstrap", "net_bootstrap")}. All slots produced by
+\code{\link[Nestimate:bootstrap_network]{Nestimate::bootstrap_network()}} are preserved verbatim (\code{summary},
+\code{mean}, \code{sd}, \code{p_values}, \code{significant}, \code{ci_lower}/\code{ci_upper},
+\code{cr_lower}/\code{cr_upper}, \code{model}, \code{original}, etc.). \code{summary()} returns
+the tidy edge table: one row per edge, with columns \code{from}, \code{to},
+\code{weight}, \code{mean}, \code{sd}, \code{p_value}, \code{sig}, \code{ci_lower}, \code{ci_upper},
+\code{cr_lower}, \code{cr_upper}. Plot it with \code{\link[=plot_htna_bootstrap]{plot_htna_bootstrap()}}.
+
+For an \code{htna_group}, a named list of such objects, one per cohort, with
+class \code{c("htna_bootstrap_group", "list")}.
 }
 \description{
 Thin wrapper around \code{\link[Nestimate:bootstrap_network]{Nestimate::bootstrap_network()}} that runs the standard
@@ -45,14 +53,13 @@ to what \code{\link[=build_htna]{build_htna()}} returns.
 }
 }
 \examples{
-\donttest{
 data(human_ai)
 net  <- build_htna(human_ai, actor_type = "actor_type")
-boot <- bootstrap_htna(net, iter = 50)
-inherits(boot, "htna_bootstrap")            # TRUE
-inherits(boot$model, "htna")                # TRUE
-head(boot$summary)                          # state-level edge stability
-}
+boot <- bootstrap_htna(net, iter = 50, seed = 1)
+boot
+summary(boot)                               # state-level edge stability
+
+# A real analysis would use the default `iter = 1000`.
 
 }
 \seealso{

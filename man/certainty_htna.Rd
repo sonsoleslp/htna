@@ -34,11 +34,9 @@ Suffixed \verb{_htna} to sit alongside \code{\link[=bootstrap_htna]{bootstrap_ht
 \code{\link[=reliability_htna]{reliability_htna()}} in the htna confirmatory-analysis family.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 certainty_htna(net)
-}
 }
 \seealso{
 \code{\link[=bootstrap_htna]{bootstrap_htna()}} for the resampling analogue,

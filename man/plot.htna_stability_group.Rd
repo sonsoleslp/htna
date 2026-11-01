@@ -9,19 +9,23 @@
 \arguments{
 \item{x}{An object of class \code{htna_stability_group} from \code{\link[=centrality_stability_htna]{centrality_stability_htna()}}.}
 
-\item{...}{Additional arguments passed to the plotting method.}
+\item{...}{Passed to \code{\link[=plot.htna_stability]{plot.htna_stability()}} (currently unused there).}
 }
 \value{
-A combined plot or list of plots for each group.
+For a single cohort, that cohort's \code{ggplot} object. Otherwise a
+named list of \code{ggplot} objects, one per cohort. Each cohort's chart is
+printed as a side effect.
 }
 \description{
-S3 method for plotting grouped htna stability results.
+S3 method for plotting grouped htna stability results. Draws the
+\code{\link[=plot.htna_stability]{plot.htna_stability()}} chart once per cohort, titled with the cohort
+name. Requires the 'ggplot2' package (Suggests).
 }
 \examples{
-\donttest{
 data(human_ai)
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 cs  <- centrality_stability_htna(grp, iter = 20, seed = 1)
-plot(cs)
+if (requireNamespace("ggplot2", quietly = TRUE)) {
+  plot(cs)
 }
 }

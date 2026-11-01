@@ -13,7 +13,7 @@
 #' `build_htna(..., group = ...)`), single htna networks paired with a
 #' `group` argument, or wide-format sequence data with an explicit
 #' `group` argument. The actor partition itself is not consumed when
-#' `level = "state"` — sequence comparison is between cohorts of
+#' `level = "state"`: sequence comparison is between cohorts of
 #' sessions, not between actors. When `level = "type"`, concrete codes
 #' are folded into their actor type before pattern enumeration, so the
 #' comparison runs on meta-paths.
@@ -34,24 +34,27 @@
 #'   `test`, `iter`, and `adjust`. See that function for the full,
 #'   current argument list.
 #'
-#' @return An object of class `net_sequence_compare`. See
-#'   [Nestimate::sequence_compare()] for full details and the
-#'   corresponding `plot()` method.
+#' @return An object of class `net_sequence_comparison` with components
+#'   `patterns`, `groups`, `n_patterns` and `params`. `summary()` returns
+#'   the tidy pattern table: one row per k-gram, with columns `pattern`,
+#'   `length`, per-cohort frequencies (`freq_<cohort>`), proportions
+#'   (`prop_<cohort>`) and standardised residuals (`resid_<cohort>`),
+#'   `effect_size` and, when a test is run, `p_value`. `print()` and
+#'   `plot()` (`style = "pyramid"` or `"heatmap"`) methods are supplied by
+#'   Nestimate; see [Nestimate::sequence_compare()].
 #'
 #' @seealso [permutation_htna()] for whole-network differences,
 #'   [mosaic_plot_htna()] for single-step transition residuals,
 #'   [extract_meta_paths()] for descriptive meta-path enumeration.
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 #'
-#' # State-level comparison (default)
+#' # State-level comparison (default); few permutations to keep it fast
 #' sequence_compare_htna(grp, iter = 50)
 #'
 #' # Meta-path comparison
 #' sequence_compare_htna(grp, level = "type", iter = 50)
-#' }
 #' @export
 sequence_compare_htna <- function(x,
                                   group = NULL,

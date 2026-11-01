@@ -7,12 +7,16 @@
 #' \itemize{
 #'   \item \pkg{Nestimate} - estimation, bootstrap, permutation, reliability,
 #'     centrality, and Markov machinery.
-#'   \item \pkg{cograph} - rendering (\code{splot}, \code{plot_htna},
-#'     transitions, communities, chord, heatmap).
+#'   \item \pkg{cograph} - rendering. Every network plot drawn by htna is
+#'     rendered by \code{cograph::plot_htna()} or \code{cograph::splot()};
+#'     the htna plotting functions only supply the actor-aware layout,
+#'     colours and legend.
 #' }
-#' \pkg{htna} adds the heterogeneous-actor wrapper \code{\link{build_htna}}
-#' and re-exports the most commonly used downstream functions so users do
-#' not need to attach \pkg{Nestimate} or \pkg{cograph} explicitly.
+#' \pkg{htna} adds the heterogeneous-actor constructor
+#' \code{\link{build_htna}} and \code{_htna}-named wrappers around the most
+#' commonly used downstream functions, so users do not need to attach
+#' \pkg{Nestimate} or \pkg{cograph} explicitly. Analysis wrappers restore
+#' the actor partition on their results, so the output stays htna-aware.
 #'
 #' @keywords internal
 #' @importFrom stats setNames

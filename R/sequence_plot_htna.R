@@ -29,14 +29,13 @@
 #' @seealso [Nestimate::sequence_plot()], [build_htna()].
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #'
 #' sequence_plot_htna(net)                       # index, faceted
 #' sequence_plot_htna(net, type = "heatmap")     # single carpet, white gulf
 #' sequence_plot_htna(net, type = "distribution")
-#' }
+#' sequence_plot_htna(net, by = "group")         # cells coloured by actor
 #'
 #' @export
 sequence_plot_htna <- function(net,
@@ -273,11 +272,9 @@ sequence_plot_htna <- function(net,
 #' @param ... Forwarded to the method.
 #' @return Method-defined.
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' plot_sequences(net)
-#' }
 #' @export
 plot_sequences <- function(x, ...) UseMethod("plot_sequences")
 

@@ -1,6 +1,6 @@
 #' Chi-square Mosaic Plot of a Transition Network
 #'
-#' htna-named alias of [Nestimate::mosaic_plot()]. Renders a
+#' htna-named wrapper for [Nestimate::mosaic_plot()]. Renders a
 #' chi-square mosaic where row x column area equals the joint share
 #' of `(from, to)` transitions and fill encodes the standardized
 #' residual (blue = over-represented, red = under-represented,
@@ -33,12 +33,10 @@
 #' @seealso [plot_frequencies_htna()] for the marginal-frequency
 #'   companion view.
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type",
 #'                   method = "frequency")
 #' mosaic_plot_htna(net, n_perm = 50, seed = 1)
-#' }
 #' @export
 mosaic_plot_htna <- function(x, ...) {
   p <- Nestimate::mosaic_plot(x, ...)

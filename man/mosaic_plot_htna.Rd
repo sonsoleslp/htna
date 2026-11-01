@@ -20,7 +20,7 @@ A ggplot or gtable, depending on input shape. See
 methods.
 }
 \description{
-htna-named alias of \code{\link[Nestimate:mosaic_plot]{Nestimate::mosaic_plot()}}. Renders a
+htna-named wrapper for \code{\link[Nestimate:mosaic_plot]{Nestimate::mosaic_plot()}}. Renders a
 chi-square mosaic where row x column area equals the joint share
 of \verb{(from, to)} transitions and fill encodes the standardized
 residual (blue = over-represented, red = under-represented,
@@ -42,12 +42,10 @@ Suffixed \verb{_htna} to avoid clashing with \code{Nestimate::mosaic_plot()}
 when both packages are loaded.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type",
                   method = "frequency")
 mosaic_plot_htna(net, n_perm = 50, seed = 1)
-}
 }
 \seealso{
 \code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}} for the marginal-frequency

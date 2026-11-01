@@ -24,13 +24,11 @@
 #'   [cograph::splot.net_bootstrap()].
 #'
 #' @examples
-#' \donttest{
 #' data(human_ai)
 #' net  <- build_htna(human_ai, actor_type = "actor_type")
-#' boot <- bootstrap_htna(net, iter = 50)
+#' boot <- bootstrap_htna(net, iter = 50, seed = 1)
 #' plot_htna_bootstrap(boot)
 #' plot_htna_bootstrap(boot, display = "significant")
-#' }
 #'
 #' @export
 #' @rdname plot_htna_bootstrap

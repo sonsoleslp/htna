@@ -20,7 +20,7 @@ plot_htna(
 \method{plot}{htna_group}(x, ...)
 }
 \arguments{
-\item{x}{A network object produced by \code{\link[=build_htna]{build_htna()}}.}
+\item{x}{A network produced by \code{\link[=build_htna]{build_htna()}}, or an \code{htna_group}.}
 
 \item{layout}{Character. Layout algorithm. Default \code{"circular"}.}
 
@@ -33,23 +33,33 @@ Defaults to the built-in \code{htna_shape_palette}.}
 \item{minimum}{Numeric. Minimum absolute edge weight to display.
 Edges below this threshold are hidden. Default \code{0.05}.}
 
-\item{...}{Additional arguments passed to \code{\link[cograph:plot_htna]{cograph::plot_htna()}}.}
+\item{...}{Additional arguments passed to \code{\link[cograph:plot_htna]{cograph::plot_htna()}} (and
+from there to \code{\link[cograph:splot]{cograph::splot()}}), e.g. \code{title}.}
 }
 \value{
-Called for its side effect (a plot). Returns \code{x} invisibly.
+Called for its side effect (a plot). For a single network,
+invisibly, the value returned by \code{\link[cograph:plot_htna]{cograph::plot_htna()}}; for an
+\code{htna_group}, \code{x} invisibly.
 }
 \description{
 Wrapper around \code{\link[cograph:plot_htna]{cograph::plot_htna()}} with defaults suited for HTNA
-networks built by \code{\link[=build_htna]{build_htna()}}. When \code{layout = "circular"}, a custom
-layout is computed so that the first actor group appears on the left.
+networks built by \code{\link[=build_htna]{build_htna()}}. The drawing itself is done by cograph;
+this function supplies the actor-aware styling: one colour and shape per
+actor group, darkened donut borders, and an actor legend. For the
+circular layout (and \code{"auto"} with two or more groups) the group order
+is arranged so that the first actor group appears on the left.
+}
+\details{
+For an \code{htna_group} (or any plain list of htna networks) one plot is
+drawn per cohort, titled with the cohort name. The function does not
+manage the panel grid; wrap the call in \code{par(mfrow = ...)} for a panel.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 plot_htna(net)
 plot_htna(net, layout = "auto", minimum = 0.1)
-}
+plot(net)                     # the plot() method calls plot_htna()
 
 }
 \seealso{

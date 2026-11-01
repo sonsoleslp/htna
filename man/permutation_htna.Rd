@@ -7,21 +7,25 @@
 permutation_htna(x, y = NULL, ...)
 }
 \arguments{
-\item{x, y}{The two networks to compare, or a single
-\code{netobject_group} in \code{x} (with \code{y = NULL}) for all pairwise
-comparisons. See \code{\link[Nestimate:permutation]{Nestimate::permutation()}}.}
+\item{x, y}{The two networks to compare, or a grouped network
+(\code{htna_group}, which is also a \code{netobject_group}) in \code{x} with
+\code{y = NULL} for all pairwise cohort comparisons. See
+\code{\link[Nestimate:permutation]{Nestimate::permutation()}}.}
 
 \item{...}{Additional arguments passed to \code{\link[Nestimate:permutation]{Nestimate::permutation()}},
 such as \code{iter}, \code{alpha}, \code{paired}, \code{adjust}, \code{measures}, \code{nlambda},
-and \code{seed}. See that function for the full, current argument list.}
+\code{seed}, and \code{actor}. See that function for the full, current argument
+list.}
 }
 \value{
-An object of class \code{net_permutation} (single pair) or
-\code{net_permutation_group} (multiple pairs). See
-\code{\link[Nestimate:permutation]{Nestimate::permutation()}} for the full slot list.
+An object of class \code{net_permutation} (single pair) or a named
+list of class \code{c("net_permutation_group", "list")} with one
+\code{net_permutation} per cohort pair. Both render with
+\code{\link[=plot_htna_diff]{plot_htna_diff()}}. See \code{\link[Nestimate:permutation]{Nestimate::permutation()}} for the full slot
+list.
 }
 \description{
-htna-named alias of \code{\link[Nestimate:permutation]{Nestimate::permutation()}}. Tests whether
+htna-named wrapper for \code{\link[Nestimate:permutation]{Nestimate::permutation()}}. Tests whether
 observed edge-weight differences between two networks (or all
 pairwise differences within a \code{netobject_group}) exceed what would
 be expected under a null of identical generating processes.
@@ -36,11 +40,10 @@ Suffixed \verb{_htna} to avoid clashing with \code{Nestimate::permutation()}
 when both packages are loaded.
 }
 \examples{
-\donttest{
 data(human_ai)
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-permutation_htna(grp$Early, grp$Late, iter = 50)
-}
+# Pass the grouped network as it is; every cohort pair is tested.
+permutation_htna(grp, iter = 50, seed = 1)
 }
 \seealso{
 \code{\link[=plot_htna_diff]{plot_htna_diff()}} to plot the result.

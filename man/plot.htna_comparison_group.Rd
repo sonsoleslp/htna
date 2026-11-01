@@ -9,12 +9,18 @@
 \arguments{
 \item{x}{An \code{htna_comparison_group} from \code{\link[=compare_htna]{compare_htna()}}.}
 
-\item{...}{Passed to the \code{net_comparison} plot method, including \code{type} and
-\code{combined}.}
+\item{...}{Passed to the \code{net_comparison} plot method, including \code{type}
+(\code{"scatter"}, \code{"heatmap"}, \code{"diff_hist"}, \code{"weight_dist"} or \code{"all"})
+and \code{combined}.}
 }
 \value{
 Invisibly, a named list containing the plot for every comparison.
 }
 \description{
 Applies Nestimate's \code{net_comparison} plot method to every cohort pair.
+}
+\examples{
+data(human_ai)
+grouped <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+plot(compare_htna(grouped))
 }

@@ -46,24 +46,34 @@ positive/negative edge coloring.
 \code{\link[cograph:splot]{cograph::splot.net_permutation()}} so the significance overlay
 (significant pos/neg edges, dashed non-significant edges, stars) is
 drawn upstream.
-\item A \code{net_permutation_group}: iterates over all pairwise comparisons and
-plots each (no \code{par(mfrow=...)} management - user controls layout).
+\item A \code{net_permutation_group} (the result of \code{\link[=permutation_htna]{permutation_htna()}} on an
+\code{htna_group}): iterates over all pairwise comparisons and plots each,
+titled with the pair name (no \code{par(mfrow=...)} management - user
+controls layout).
+\item A \code{\link[=bayes_compare_htna]{bayes_compare_htna()}} result for two networks, which also inherits
+\code{net_permutation}.
 }
 
-In all cases the layout, node colours and donut match \code{\link[=plot_htna]{plot_htna()}}.
+In all cases the layout, node colours and donut match \code{\link[=plot_htna]{plot_htna()}};
+the drawing itself is done by cograph.
 }
 \examples{
-\donttest{
 data(human_ai)
-grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-plot_htna_diff(grp$Early, grp$Late)
+# Two networks: early vs late sessions
+early <- build_htna(subset(human_ai, phase == "Early"),
+                    actor_type = "actor_type")
+late  <- build_htna(subset(human_ai, phase == "Late"),
+                    actor_type = "actor_type")
+plot_htna_diff(early, late)
 
-perm <- permutation_htna(grp$Early, grp$Late, iter = 50)
+# Permutation test on a grouped network: one plot per cohort pair
+grp  <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+perm <- permutation_htna(grp, iter = 50, seed = 1)
 plot_htna_diff(perm)
 plot_htna_diff(perm, show_nonsig = TRUE)
-}
 
 }
 \seealso{
-\code{\link[=plot_htna]{plot_htna()}}, \code{\link[=build_htna]{build_htna()}}, \code{\link[Nestimate:permutation]{Nestimate::permutation()}}.
+\code{\link[=plot_htna]{plot_htna()}}, \code{\link[=build_htna]{build_htna()}}, \code{\link[=permutation_htna]{permutation_htna()}},
+\code{\link[=bayes_compare_htna]{bayes_compare_htna()}}.
 }

@@ -50,14 +50,13 @@ actor. Each session contributes one row per actor that had at least one
 event in it.
 }
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 
 sequence_plot_htna(net)                       # index, faceted
 sequence_plot_htna(net, type = "heatmap")     # single carpet, white gulf
 sequence_plot_htna(net, type = "distribution")
-}
+sequence_plot_htna(net, by = "group")         # cells coloured by actor
 
 }
 \seealso{

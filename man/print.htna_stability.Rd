@@ -9,19 +9,22 @@
 \arguments{
 \item{x}{An object of class \code{htna_stability} from \code{\link[=centrality_stability_htna]{centrality_stability_htna()}}.}
 
-\item{...}{Additional arguments passed to the print method.}
+\item{...}{Unused; present for consistency with the generic.}
 }
 \value{
-Invisibly returns the object, prints stability information.
+Invisibly, \code{x}, unchanged.
 }
 \description{
 S3 method for printing htna centrality stability results.
 }
+\details{
+Prints the number of iterations, the threshold, the drop proportions and
+the CS-coefficient of each measure. Use \code{summary()} for the tidy
+per-measure, per-drop-proportion correlation table.
+}
 \examples{
-\donttest{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 cs  <- centrality_stability_htna(net, iter = 20, seed = 1)
 print(cs)
-}
 }
