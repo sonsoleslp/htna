@@ -35,7 +35,9 @@ test_that("summary.htna network metrics work for every construction method", {
     ], nrow(net$weights), info = method)
     expect_equal(result$network_metrics$value[
       result$network_metrics$metric == "Edge Count"
-    ], sum(net$weights > 0), info = method)
+    ], sum(net$weights[if (net$directed) TRUE else
+                         upper.tri(net$weights, diag = TRUE)] > 0),
+    info = method)
     expect_true(any(grepl("Network Density", actual, fixed = TRUE)),
                 info = method)
   }
