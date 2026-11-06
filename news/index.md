@@ -1,5 +1,13 @@
 # Changelog
 
+## htna 0.3.3
+
+### Tests
+
+- The expected Edge Count in the
+  [`summary()`](https://rdrr.io/r/base/summary.html) test follows the
+  network’s `directed` flag, for Nestimate 1.0.7.
+
 ## htna 0.3.2
 
 ### Documentation

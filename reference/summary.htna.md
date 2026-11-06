@@ -85,9 +85,9 @@ summary(net)
 #>              Network Density   1.00000000
 #>                Mean Distance   0.02743124
 #>            Mean Out-Strength   1.00000000
-#>              SD Out-Strength   0.63085045
+#>              SD Out-Strength   0.00000000
 #>             Mean In-Strength   1.00000000
-#>               SD In-Strength   0.00000000
+#>               SD In-Strength   0.63085045
 #>              Mean Out-Degree  11.25000000
 #>                SD Out-Degree   0.96530730
 #>  Centralization (Out-Degree)   0.05785124

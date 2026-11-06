@@ -215,9 +215,9 @@ summary(net)
 #>              Network Density   1.00000000
 #>                Mean Distance   0.02743124
 #>            Mean Out-Strength   1.00000000
-#>              SD Out-Strength   0.63085045
+#>              SD Out-Strength   0.00000000
 #>             Mean In-Strength   1.00000000
-#>               SD In-Strength   0.00000000
+#>               SD In-Strength   0.63085045
 #>              Mean Out-Degree  11.25000000
 #>                SD Out-Degree   0.96530730
 #>  Centralization (Out-Degree)   0.05785124
@@ -266,9 +266,9 @@ summary(grp)
 #>              Network Density 1.000000e+00
 #>                Mean Distance 2.438201e-02
 #>            Mean Out-Strength 1.000000e+00
-#>              SD Out-Strength 6.109845e-01
+#>              SD Out-Strength 3.347448e-17
 #>             Mean In-Strength 1.000000e+00
-#>               SD In-Strength 3.347448e-17
+#>               SD In-Strength 6.109845e-01
 #>              Mean Out-Degree 1.116667e+01
 #>                SD Out-Degree 9.374369e-01
 #>  Centralization (Out-Degree) 5.785124e-02
@@ -298,9 +298,9 @@ summary(grp)
 #>              Network Density   1.00000000
 #>                Mean Distance   0.02704448
 #>            Mean Out-Strength   1.00000000
-#>              SD Out-Strength   0.65969479
+#>              SD Out-Strength   0.00000000
 #>             Mean In-Strength   1.00000000
-#>               SD In-Strength   0.00000000
+#>               SD In-Strength   0.65969479
 #>              Mean Out-Degree  11.25000000
 #>                SD Out-Degree   0.96530730
 #>  Centralization (Out-Degree)   0.05785124
