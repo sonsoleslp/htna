@@ -66,9 +66,7 @@ Shared nodes must have the same actor assignment in both networks.
 ``` r
 data(human_ai)
 grouped <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
-#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
 comparisons <- compare_htna(grouped)
 names(comparisons)

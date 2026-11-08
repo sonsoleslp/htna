@@ -37,7 +37,6 @@ see `data-raw/human_ai.R` for the build script.
 ``` r
 data(human_simplified, ai_simplified)
 net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
-#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 summary(net)
 #> <htna network>

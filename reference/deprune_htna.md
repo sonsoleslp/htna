@@ -50,7 +50,6 @@ sit alongside the rest of the htna API.
 ``` r
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 pruned <- prune_htna(net, method = "threshold", threshold = 0.05)
 deprune_htna(pruned)

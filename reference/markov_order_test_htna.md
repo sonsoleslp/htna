@@ -77,7 +77,6 @@ when both packages are loaded.
 ``` r
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 # Few permutations to keep the example fast; use the default 500 in practice.
 markov_order_test_htna(net, max_order = 2, n_perm = 20, seed = 1)

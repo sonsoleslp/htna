@@ -190,7 +190,6 @@ data(human_ai, human_simplified, ai_simplified, human_ai_codebook)
 
 # Form 1: named list of per-actor frames
 net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
-#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 summary(net)
 #> <htna network>
@@ -226,19 +225,15 @@ summary(net)
 
 # Form 2: single combined frame with a row-level actor-type tag
 net <- build_htna(human_ai, actor_type = "actor_type")
-#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 
 # Form 3: combined frame plus a code-to-actor codebook
 net <- build_htna(human_ai, node_groups = human_ai_codebook)
-#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 
 # One network per cohort
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
-#> A network with one long sequence is not recommended and can't be validated using bootstrap and other confirmatory testings.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
 summary(grp)
 #> <htna_group: 2 cohorts (Late, Early)>
