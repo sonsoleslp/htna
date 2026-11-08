@@ -1,3 +1,11 @@
+# LOCAL ONLY (moved 2026-11-08 from tests/testthat/test-clustering-equivalence.R, whole file):
+# a shipped test may not compare
+# htna's output against another package (Nestimate / tna). These blocks do,
+# so they live here, outside the built package (^equivalence$ in .Rbuildignore).
+# Run from the htna root:
+#   Rscript -e 'pkgload::load_all("."); source("tests/testthat/helper-fixtures.R");
+#               testthat::test_file("equivalence/test-equiv-clustering.R")'
+
 # Cross-package, cell-level equivalence for clustered HTNA construction.
 # These tests compare build_htna() with ordinary Nestimate results and manual
 # per-assignment builds, so shared metadata plumbing cannot make a wrong

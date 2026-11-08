@@ -18,7 +18,7 @@
   )
 }
 
-test_that("build_htna(mcml) equals as_htna(mcml) and rebuilds globally", {
+test_that("build_htna(mcml) returns one global htna with the mcml clusters as actors", {
   fixture <- .mcml_htna_fixture()
 
   # Newer Nestimate returns an `htna` from as_htna(<mcml>); older versions
@@ -36,23 +36,9 @@ test_that("build_htna(mcml) equals as_htna(mcml) and rebuilds globally", {
 
   for (method in c("relative", "frequency", "co_occurrence", "attention")) {
     actual <- suppressWarnings(build_htna(fixture$mcml, method = method))
-    expected <- suppressWarnings(Nestimate::as_htna(
-      fixture$mcml, method = method
-    ))
-    direct <- suppressWarnings(Nestimate::build_network(
-      fixture$sequences, method = method
-    ))
 
     expect_s3_class(actual, "htna")
     expect_false(inherits(actual, "htna_group"))
-    expect_identical(actual, expected,
-                     info = paste("complete as_htna equivalence:", method))
-    expect_equal(actual$weights, expected$weights,
-                 info = paste("as_htna equivalence:", method))
-    expect_equal(actual$weights, direct$weights,
-                 info = paste("global source rebuild:", method))
-    expect_equal(actual$inits, expected$inits,
-                 info = paste("initial distribution:", method))
   }
 
   net <- build_htna(fixture$mcml)
@@ -87,12 +73,6 @@ test_that("build_htna(mcml) accepts an explicit source and group override", {
     ))
   }
 
-  rebuilt <- build_htna(matrix_mcml, source_data = fixture$sequences)
-  expected <- Nestimate::as_htna(
-    matrix_mcml, data = fixture$sequences, method = "relative"
-  )
-  expect_equal(rebuilt$weights, expected$weights)
-
   override <- list(
     First = c("A", "C", "E"),
     Second = c("B", "D", "F")
@@ -104,14 +84,6 @@ test_that("build_htna(mcml) accepts an explicit source and group override", {
   )
   expect_identical(regrouped$actor_levels, names(override))
   expect_identical(attr(regrouped, "cluster_members"), override)
-  expect_equal(
-    regrouped$weights,
-    Nestimate::as_htna(
-      fixture$mcml,
-      clusters = override,
-      data = fixture$sequences
-    )$weights
-  )
 })
 
 test_that("build_htna(mcml) validates incompatible constructor arguments", {

@@ -1,7 +1,8 @@
 # Thorough tests for reliability_htna(). Each block focuses on a
-# distinct property: structure, partition preservation, equivalence to
-# the underlying Nestimate call, downstream usability, parameter
-# forwarding (every supported `scale =`), and method-independence.
+# distinct property: structure, partition preservation, downstream
+# usability, parameter forwarding (every supported `scale =`), and
+# method-independence. The comparison against Nestimate's own
+# network_reliability() is local-only: equivalence/test-equiv-delegation.R.
 
 # ---- Structure --------------------------------------------------------
 
@@ -76,25 +77,6 @@ test_that("reliability_htna() accepts multiple htna networks via ...", {
   expect_setequal(unique(rel$iterations$model), unique(rel$summary$model))
   expect_equal(nrow(rel$iterations), 2L * 5L)  # iter rows per model
   expect_equal(nrow(rel$summary),    2L * 4L)  # 4 metrics per model
-})
-
-# ---- Equivalence to direct Nestimate call -----------------------------
-
-test_that("reliability_htna() matches Nestimate::network_reliability() numerically", {
-  skip_if_not_installed("Nestimate")
-  net <- make_htna()
-  set.seed(99)
-  rel_h <- reliability_htna(net, iter = 5L, seed = 11L)
-  rel_n <- Nestimate::network_reliability(net, iter = 5L, seed = 11L)
-
-  # Same seed → identical iteration metrics; the htna wrapper only
-  # post-processes $models, so the reliability calculations are
-  # bit-equal.
-  expect_equal(rel_h$iterations, rel_n$iterations)
-  expect_equal(rel_h$summary,    rel_n$summary)
-  expect_equal(rel_h$iter,  rel_n$iter)
-  expect_equal(rel_h$split, rel_n$split)
-  expect_equal(rel_h$scale, rel_n$scale)
 })
 
 # ---- Downstream usability of $models ---------------------------------

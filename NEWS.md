@@ -1,3 +1,10 @@
+# htna 0.3.4
+
+## Tests
+
+* The Edge Count test in `summary()` works with CRAN Nestimate as well as with
+  Nestimate 1.0.7 and later. It failed on CRAN Nestimate since 0.3.3.
+
 # htna 0.3.3
 
 ## Tests

@@ -17,9 +17,4 @@ test_that("permutation_htna() is a stable ...-forwarding wrapper for Nestimate::
   # Durable-wrapper design: documented formals stay `x, y, ...` regardless of
   # upstream signature changes, so codoc can never regress (see NEWS 0.1.2).
   expect_identical(names(formals(htna::permutation_htna)), c("x", "y", "..."))
-
-  pair <- make_htna_pair()
-  via_htna <- permutation_htna(pair$ctrl, pair$exp, iter = 20, seed = 1)
-  direct   <- Nestimate::permutation(pair$ctrl, pair$exp, iter = 20, seed = 1)
-  expect_equal(via_htna$p_values, direct$p_values)
 })

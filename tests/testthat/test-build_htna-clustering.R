@@ -18,6 +18,11 @@
     expect_identical(as.character(net$node_groups$node),
                      as.character(net$nodes$label))
     expect_false(anyNA(net$node_groups$group))
+    # the fixture's partition: H1-H3 are Human, A1-A3 are AI
+    nodes <- as.character(net$node_groups$node)
+    groups <- as.character(net$node_groups$group)
+    expect_identical(groups, ifelse(startsWith(nodes, "H"), "Human", "AI"))
+    expect_identical(as.character(net$nodes$groups), groups)
   }
 }
 
@@ -62,12 +67,6 @@ test_that("build_htna consumes fitted cluster_mmm output without refitting", {
   expect_equal(attr(result, "clustering")$posterior,
                fit$posterior)
   expect_equal(attr(result, "clustering")$mixing, fit$mixing)
-
-  via_generic <- Nestimate::as_htna(fit)
-  .expect_htna_clustering_group(via_generic)
-  expect_equal(lapply(via_generic, function(net) net$weights), weights_before)
-  expect_identical(attr(via_generic, "clustering")$assignments,
-                   fit$assignments)
 })
 
 test_that("build_htna consumes legacy tna::cluster_sequences output", {

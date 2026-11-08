@@ -1,8 +1,9 @@
 # Delegation tests: the htna-named re-exports are `...`-forwarding
 # wrappers over Nestimate's source functions (NEWS 0.1.2). They pin
 # stable documented formals -- guarding against codoc regressions when
-# Nestimate changes a signature -- while still delegating unchanged. We
-# assert both the stable formals and that a call forwards to Nestimate.
+# Nestimate changes a signature -- while still delegating unchanged. The
+# stable formals are asserted here; the equality of each call with the
+# Nestimate result is local-only (equivalence/test-equiv-delegation.R).
 #
 # `mosaic_plot_htna()` additionally colours axis-tick labels by actor
 # group using `htna_palette`, so it is checked for delegation only.
@@ -13,17 +14,12 @@ test_that("mosaic_plot_htna() delegates to Nestimate::mosaic_plot", {
                         fixed = TRUE)))
 })
 
-test_that("state_distribution_htna() forwards to Nestimate::state_distribution and keeps S3 dispatch", {
+test_that("state_distribution_htna() keeps its stable forwarding formals", {
   expect_identical(names(formals(htna::state_distribution_htna)), c("x", "..."))
-  net <- make_htna()
-  expect_equal(state_distribution_htna(net), Nestimate::state_distribution(net))
 })
 
-test_that("state_frequencies_htna() forwards to Nestimate::state_frequencies", {
+test_that("state_frequencies_htna() keeps its stable forwarding formals", {
   expect_identical(names(formals(htna::state_frequencies_htna)), c("data", "..."))
-  net <- make_htna()
-  expect_equal(state_frequencies_htna(net$data),
-               Nestimate::state_frequencies(net$data))
 })
 
 test_that("frequencies_htna() returns tidy per-actor frequency table from an htna network", {
@@ -39,11 +35,8 @@ test_that("frequencies_htna() rejects non-htna input", {
   expect_error(frequencies_htna(42L), "htna network")
 })
 
-test_that("association_rules_htna() forwards to Nestimate::association_rules", {
+test_that("association_rules_htna() keeps its stable forwarding formals", {
   expect_identical(names(formals(htna::association_rules_htna)), c("x", "..."))
-  net <- make_htna()
-  expect_equal(association_rules_htna(net, max_length = 3L),
-               Nestimate::association_rules(net, max_length = 3L))
 })
 
 # Behavior tests for the three aliases backed by explicit .htna S3

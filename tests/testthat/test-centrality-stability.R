@@ -1,8 +1,8 @@
 # Thorough tests for centrality_stability_htna(). The wrapper itself is
 # thin (no embedded models to repair) so the focus is on: input
 # validation, htna_group iteration, parameter forwarding, structure of
-# the returned `net_stability` object, and equivalence to the
-# underlying Nestimate call.
+# the returned `net_stability` object. The comparison against the
+# underlying Nestimate call is local-only: equivalence/test-equiv-nestimate-cs.R.
 
 # ---- Structure & class -----------------------------------------------
 
@@ -37,20 +37,19 @@ test_that("centrality_stability_htna() returns the documented structure", {
   expect_equal(cs$method, "pearson")
 })
 
-# ---- Equivalence to the underlying Nestimate call --------------------
+# ---- The CS-coefficient follows from the correlations ------------------
 
-test_that("centrality_stability_htna() matches Nestimate::centrality_stability()", {
-  skip_if_not_installed("Nestimate")
+test_that("centrality_stability_htna() CS is the largest drop that stays correlated", {
   net <- make_htna()
   cs_h <- centrality_stability_htna(net, iter = 5L, seed = 11L)
-  # Same measures on both sides: Nestimate's default set differs from the one
-  # centrality_stability_htna() requests.
-  cs_n <- Nestimate::centrality_stability(net, measures = htna_cs_measures(),
-                                          iter = 5L, seed = 11L)
-  # Same seed → bit-equal results (the wrapper only adds a class tag)
-  expect_equal(cs_h$cs,           cs_n$cs)
-  expect_equal(cs_h$correlations, cs_n$correlations)
-  expect_equal(cs_h$measures,     cs_n$measures)
+  # per measure: the largest drop proportion whose draws reach `threshold` in
+  # at least `certainty` of iterations, 0 when none does; NA counts as below
+  expected <- vapply(names(cs_h$correlations), function(m) {
+    r <- cs_h$correlations[[m]]
+    reached <- colMeans(!is.na(r) & r >= cs_h$threshold) >= cs_h$certainty
+    if (any(reached)) max(cs_h$drop_prop[reached]) else 0
+  }, numeric(1))
+  expect_equal(cs_h$cs[names(expected)], expected)
 })
 
 # ---- Parameter forwarding --------------------------------------------

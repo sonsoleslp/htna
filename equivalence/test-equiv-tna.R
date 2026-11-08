@@ -1,3 +1,11 @@
+# LOCAL ONLY (moved 2026-11-08 from tests/testthat/test-tna-equivalence.R, whole file):
+# a shipped test may not compare
+# htna's output against another package (Nestimate / tna). These blocks do,
+# so they live here, outside the built package (^equivalence$ in .Rbuildignore).
+# Run from the htna root:
+#   Rscript -e 'pkgload::load_all("."); source("tests/testthat/helper-fixtures.R");
+#               testthat::test_file("equivalence/test-equiv-tna.R")'
+
 # Mirrors the equivalence checks in
 # `vignettes/articles/tna-equivalence.Rmd` and runs them across several
 # diverse datasets, so the htna <-> tna <-> Nestimate equivalence
@@ -418,143 +426,8 @@ build_all_input_forms <- function(ds, actor_order = names(ds$actors),
 
 # --- Tests -------------------------------------------------------------
 
-test_that("all four input forms produce identical $weights, $initial, $node_groups, $nodes (diverse data)", {
-  testthat::skip_on_cran()
-  testthat::skip_if_not_installed("Nestimate")
-
-  # Per-slot alignment + comparison rules. `$data` is large enough
-  # that we test it separately in the next block.
-  cmp_slot <- function(ref_v, other_v, info) {
-    if (is.data.frame(ref_v)) {
-      # Identify the row key column: `node_groups` keys on `node`,
-      # `nodes` keys on `label`; fall back to first column otherwise.
-      key <- intersect(c("node", "label"), names(ref_v))[1L]
-      if (is.na(key)) key <- names(ref_v)[1L]
-      aligned <- other_v[match(ref_v[[key]], other_v[[key]]), ,
-                         drop = FALSE]
-      rownames(aligned) <- NULL
-      ref_clean <- ref_v
-      rownames(ref_clean) <- NULL
-      expect_identical(aligned, ref_clean, info = info)
-    } else if (!is.null(dim(ref_v))) {
-      # Verify natural row/col order matches first; if it doesn't,
-      # `[rownames(ref_v), colnames(ref_v), ]` would silently re-align
-      # and mask the divergence.
-      if (!is.null(rownames(ref_v)) && !is.null(rownames(other_v))) {
-        expect_identical(rownames(other_v), rownames(ref_v),
-                         info = paste0(info, " (rownames)"))
-        expect_identical(colnames(other_v), colnames(ref_v),
-                         info = paste0(info, " (colnames)"))
-      }
-      expect_equal(other_v, ref_v, info = info)
-    } else {
-      aligned <- if (!is.null(names(other_v)) && !is.null(names(ref_v))) {
-        other_v[names(ref_v)]
-      } else other_v
-      expect_equal(aligned, ref_v, info = info)
-    }
-  }
-
-  for (ds in equivalence_datasets()) {
-    info  <- ds$name
-    forms <- build_all_input_forms(ds)
-    ref   <- forms$list_form
-    for (slot in c("weights", "initial", "node_groups", "nodes",
-                   "actor_levels")) {
-      for (form_name in setdiff(names(forms), "list_form")) {
-        cmp_slot(ref[[slot]], forms[[form_name]][[slot]],
-                 info = paste0(info, " | ", slot, " | ", form_name))
-      }
-    }
-  }
-})
-
-test_that("all four input forms agree for every transition/co-occurrence method", {
-  testthat::skip_on_cran()
-  testthat::skip_if_not_installed("Nestimate")
-  for (method in c("relative", "frequency", "co_occurrence", "attention")) {
-    for (ds in equivalence_datasets()) {
-      info  <- paste0(ds$name, " | method=", method)
-      forms <- build_all_input_forms(ds, method = method)
-      ref   <- forms$list_form
-      # Verify the chosen method propagates onto every form.
-      for (form_name in names(forms)) {
-        expect_identical(forms[[form_name]]$method, method,
-                         info = paste0(info, " | ", form_name, " method"))
-      }
-      # And the resulting weight matrices are bit-identical across forms.
-      for (form_name in setdiff(names(forms), "list_form")) {
-        a <- ref$weights
-        b <- forms[[form_name]]$weights[rownames(a), colnames(a),
-                                        drop = FALSE]
-        expect_equal(a, b, info = paste0(info, " | ", form_name,
-                                          " weights"))
-      }
-    }
-  }
-})
-
-test_that("all four input forms preserve the declared actor order in BOTH directions (diverse data)", {
-  testthat::skip_on_cran()
-  testthat::skip_if_not_installed("Nestimate")
-  for (ds in equivalence_datasets()) {
-    info     <- ds$name
-    natural  <- names(ds$actors)
-    reversed <- rev(natural)
-    for (declared in list(natural, reversed)) {
-      forms <- build_all_input_forms(ds, actor_order = declared)
-      for (form_name in names(forms)) {
-        expect_identical(
-          forms[[form_name]]$actor_levels,
-          declared,
-          info = paste0(info,
-                        " | declared=", paste(declared, collapse=","),
-                        " | ", form_name)
-        )
-      }
-    }
-  }
-})
-
-test_that("all four input forms produce a bit-identical wide session matrix (diverse data)", {
-  testthat::skip_on_cran()
-  testthat::skip_if_not_installed("Nestimate")
-
-  # `as.matrix(<data.frame>)` doesn't always preserve dimnames across
-  # platforms, so strip them before comparing cells + NA pattern.
-  to_plain_mat <- function(d) {
-    m <- as.matrix(d)
-    dimnames(m) <- NULL
-    m
-  }
-
-  for (ds in equivalence_datasets()) {
-    info  <- ds$name
-    forms <- build_all_input_forms(ds)
-    ref   <- forms$list_form$data
-    rn    <- rownames(ref)
-    cn    <- colnames(ref)
-    ref_mat <- to_plain_mat(ref)
-    ref_na  <- is.na(ref_mat)
-    for (form_name in setdiff(names(forms), "list_form")) {
-      raw <- forms[[form_name]]$data
-      # Natural row + column order must match the reference *before*
-      # alignment. Subsetting via `[rn, cn]` would silently re-order
-      # any divergent natural ordering and mask the bug.
-      expect_identical(rownames(raw), rn,
-                       info = paste0(info, " | ", form_name,
-                                     " natural row order"))
-      expect_identical(colnames(raw), cn,
-                       info = paste0(info, " | ", form_name,
-                                     " natural col order"))
-      m <- to_plain_mat(raw)
-      expect_identical(m, ref_mat,
-                       info = paste0(info, " | ", form_name, " cells"))
-      expect_identical(is.na(m), ref_na,
-                       info = paste0(info, " | ", form_name, " NA pattern"))
-    }
-  }
-})
+# The four input-form tests (htna against itself) are shipped in
+# tests/testthat/test-input-forms.R.
 
 test_that("model weights match across htna, tna, Nestimate (diverse data)", {
   skip_if_missing_eq_deps()

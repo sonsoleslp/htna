@@ -1,21 +1,3 @@
-test_that("sequence_compare_htna() default (level='state') matches Nestimate::sequence_compare()", {
-  data(human_long, ai_long, package = "Nestimate", envir = environment())
-  net <- suppressWarnings(build_htna(list(Human = human_long, AI = ai_long)))
-  n   <- nrow(net$data)
-  grp <- rep(c("early", "late"), length.out = n)
-
-  set.seed(1L)
-  res_htna <- suppressWarnings(
-    sequence_compare_htna(net, group = grp, iter = 10, min_freq = 5)
-  )
-  set.seed(1L)
-  res_nest <- suppressWarnings(
-    Nestimate::sequence_compare(net, group = grp, iter = 10, min_freq = 5)
-  )
-  expect_identical(res_htna$patterns, res_nest$patterns)
-  expect_identical(res_htna$groups,   res_nest$groups)
-})
-
 test_that("sequence_compare_htna() level='type' folds states into actor types", {
   data(human_long, ai_long, package = "Nestimate", envir = environment())
   net <- suppressWarnings(build_htna(list(Human = human_long, AI = ai_long)))
