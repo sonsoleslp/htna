@@ -1,27 +1,44 @@
-#' Plot an htna Bootstrap Result
+#' Plot the bootstrap-assessed edges of an htna network
 #'
-#' Renders the bootstrap result via [cograph::splot.net_bootstrap()] so the
-#' CI / significance / dashed-edge overlay is preserved, but overrides the
-#' layout and node styling to match [plot_htna()] (multi-group circular
-#' layout, warm [htna_palette], darkened donut).
+#' @description
+#' `plot_htna_bootstrap()` plots the bootstrap-assessed edges of an htna
+#' network: it shows which transitions of a heterogeneous network are
+#' stable enough to interpret. Edges that are significant across resamples
+#' are drawn solid, the others dashed (or hidden), so the reader sees which
+#' within-actor transitions and which hand-overs between actors the data
+#' support. A bootstrap of a transition network resamples the sessions many
+#' times and records how often each edge is present and how much its weight
+#' varies.
 #'
-#' For an `htna_bootstrap_group` (i.e. the result of running
-#' [bootstrap_htna()] on a `build_htna(..., group = ...)` output), each
-#' element is plotted individually with its name as the title - this
-#' function does not manage `par(mfrow=...)`.
+#' `plot_htna_bootstrap()` draws the result of [bootstrap_htna()] in the
+#' layout and actor styling of [plot_htna()]. With `display = "significant"`
+#' only the significant edges are drawn; `show_ci = TRUE` adds the
+#' confidence interval of each edge weight. A grouped bootstrap is drawn as
+#' one plot per cohort, titled with its cohort name. `plot()` on a
+#' bootstrap result calls this function. It is called for the plot and
+#' returns, invisibly, the value of the drawing call, or `boot` for a
+#' grouped bootstrap.
 #'
-#' @param boot An object from [bootstrap_htna()] (or a `htna_bootstrap_group`
-#'   list of them).
-#' @param x Same as `boot`; used when calling via the `plot()` generic.
-#' @param group_colors Character vector of colours, one per actor group.
-#'   Defaults to the built-in [htna_palette].
-#' @param ... Forwarded to [cograph::splot.net_bootstrap()] (e.g. `display`,
-#'   `show_ci`, `show_stars`). User args win.
+#' The table behind the plot (one row per edge, with its weight, interval
+#' and p-value) is returned by `summary()` of the bootstrap result.
 #'
-#' @return The value returned by [cograph::splot.net_bootstrap()]
-#'   (invisibly), or the input group invisibly.
-#' @seealso [bootstrap_htna()], [plot_htna()],
-#'   [cograph::splot.net_bootstrap()].
+#' @param boot,x A result of [bootstrap_htna()]: an `htna_bootstrap` or an
+#'   `htna_bootstrap_group`.
+#' @param group_colors Colours of the actor types, in actor order. Default
+#'   [htna_palette].
+#' @param ... Further drawing arguments: `display` (`"styled"` (default),
+#'   `"significant"` or `"full"`), `show_ci` (default `FALSE`), `show_stars`
+#'   (default `TRUE`), `title`, and the arguments of [cograph::splot()].
+#'
+#' @return Called for the plot. Invisibly, the value of the drawing call for
+#'   one bootstrap, or `boot` for a grouped bootstrap.
+#'
+#' @section Conditions:
+#' `htna_empty_input` for a grouped bootstrap without cohorts;
+#' `htna_bad_input` when `boot` is not a result of [bootstrap_htna()] on an
+#' htna network.
+#'
+#' @seealso [bootstrap_htna()], [plot_htna()], [certainty_htna()]
 #'
 #' @examples
 #' data(human_ai)
@@ -31,25 +48,24 @@
 #' plot_htna_bootstrap(boot, display = "significant")
 #'
 #' @export
-#' @rdname plot_htna_bootstrap
 plot_htna_bootstrap <- function(boot, group_colors = htna_palette, ...) {
   if (inherits(boot, "htna_bootstrap_group") ||
       (is.list(boot) && !inherits(boot, "htna_bootstrap"))) {
-    if (length(boot) == 0L) stop("Empty htna_bootstrap_group.", call. = FALSE)
+    if (length(boot) == 0L) .htna_stop("Empty htna_bootstrap_group.",
+                                       class = "htna_empty_input")
     nms <- names(boot) %||% as.character(seq_along(boot))
-    for (i in seq_along(boot)) {
+    lapply(seq_along(boot), function(i) {
       plot_htna_bootstrap(boot[[i]], group_colors = group_colors,
                           title = nms[i], ...)
-    }
+    })
     return(invisible(boot))
   }
   if (!inherits(boot, "htna_bootstrap")) {
-    stop("`boot` must come from bootstrap_htna().", call. = FALSE)
+    .htna_stop("`boot` must come from bootstrap_htna().")
   }
   net <- boot$model
   if (is.null(net) || is.null(net$node_groups)) {
-    stop("boot$model has no $node_groups; was it built by build_htna()?",
-         call. = FALSE)
+    .htna_stop("boot$model has no $node_groups; was it built by build_htna()?")
   }
 
   ng_styling <- .htna_node_styling(net, group_colors)
@@ -87,6 +103,7 @@ htna_shape_palette <- c("circle", "square", "diamond", "triangle",
                         "pentagon", "hexagon", "star", "cross")
 
 #' @keywords internal
+#' @noRd
 .htna_node_styling <- function(net, group_colors,
                                group_shapes = htna_shape_palette) {
   groups   <- net$actor_levels %||% unique(as.character(net$node_groups$group))

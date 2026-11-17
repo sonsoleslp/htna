@@ -3,24 +3,23 @@
 \docType{data}
 \name{ai_simplified}
 \alias{ai_simplified}
-\title{Simplified AI Interaction Sequences (per-actor frame)}
+\title{AI turns of the vibe-coding sessions}
 \format{
-A data frame with 8551 rows and 10 columns. Schema matches
-\code{\link{human_ai}} minus the \code{phase} column; every value
-in \code{actor_type} is \code{"AI"}.
+A data frame with 8,551 rows and 10 columns: the columns of
+\link{human_ai} without \code{phase}; \code{actor_type} is always \code{"AI"}.
 }
 \source{
-Derived from \code{Nestimate::ai_long}; see
-\code{data-raw/human_ai.R} for the build script.
+Derived from the \code{ai_long} data of the 'Nestimate' package (see
+\link{human_ai}).
 }
 \usage{
 ai_simplified
 }
 \description{
-The AI-only slice of \code{\link{human_ai}}, in a long-format data
-frame ready to feed the named-list form of \code{\link{build_htna}()}.
-Codes have already been collapsed into the simplified AI alphabet;
-see \code{\link{human_ai}} for the remapping rules.
+\code{ai_simplified} is the AI part of \link{human_ai}: its AI rows, as one data frame
+for one actor type. Together with \link{human_simplified} it is the input for the
+named-list form of \code{\link[=build_htna]{build_htna()}}, in which each actor type comes in its own
+data frame.
 }
 \examples{
 data(human_simplified, ai_simplified)
@@ -28,7 +27,6 @@ net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
 summary(net)
 }
 \seealso{
-\code{\link{human_ai}}, \code{\link{human_simplified}},
-\code{\link{human_ai_codebook}}.
+\link{human_ai}, \link{human_simplified}, \link{human_ai_codebook}
 }
 \keyword{datasets}

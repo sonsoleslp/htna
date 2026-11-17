@@ -1,0 +1,276 @@
+---
+title: "Sequences and patterns"
+author: "Written by [Mohammed Saqr](https://saqr.me) and [Sonsoles López-Pernas](https://sonsoles.me)"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{Sequences and patterns}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r options, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", message = FALSE,
+                      fig.width = 7.5, fig.height = 5, fig.align = "center",
+                      dpi = 96)
+old_options <- options(digits = 3, width = 90)
+```
+
+A transition network compresses a set of sessions into one matrix of
+single-step transitions. The compression keeps the structure of the
+interaction, which codes lead to which, but it discards two things that
+questions about human-AI collaboration often need. The first is time: when
+in a session each actor acts, whether sessions open with a long human
+specification or with an immediate request, and how long each actor holds
+the turn. The second is longer patterns: a human request answered by an AI
+execution and followed by another request is a unit of collaboration that a
+network splits into two independent edges.
+
+This guide covers the views of a heterogeneous network that keep these
+features. Sequence plots draw every session as a row of coded events, either
+coloured by code or by actor. Meta-paths count recurring runs of codes and
+their actor templates, such as `Human->AI->Human`, and compare them with the
+frequencies expected if the codes followed each other independently.
+Association rules describe which codes occur together in the same session,
+regardless of order. Sequence comparison tests which patterns distinguish
+two groups of sessions.
+
+```{r package}
+library(htna)
+```
+
+## Data
+
+`human_ai` holds 429 sessions of human-AI pair programming; each row is one
+coded event.
+
+- **Session**: `session_id`; one row of a sequence plot.
+- **Code**: `code`; six human codes (Specify, Request, Frustrate, Check,
+  Inquire, Refine) and six AI codes (Delegate, Plan, Execute, Ask, Repair,
+  Report).
+- **Actor type**: `actor_type`, `"Human"` or `"AI"`; the actor of each code.
+- **Order**: `order_in_session`; the position of the event in its session.
+- **Cohort**: `phase`, `Early` or `Late`; used for the group comparison.
+
+```{r build}
+data(human_ai)
+net <- build_htna(human_ai, actor_type = "actor_type")
+```
+
+## How does each actor's work unfold within a session?
+
+`sequence_plot_htna()` extracts each actor's events from every session and
+draws them as one row per session and actor, coloured by code. The default
+index layout has one panel per actor, with sessions ordered so that similar
+sequences lie next to each other.
+
+```{r index-state, fig.height = 5.5}
+sequence_plot_htna(net)
+```
+
+The human panel is dominated by requests and specifications and the AI
+panel by executions and asks; long runs of one colour along a row are the
+repeated moves that appear as self-transitions in the network. The legend is
+split by actor, so each code is read under the actor that owns it.
+
+The distribution layout summarizes the same information over sessions: at
+each position, the share of sessions in each code. Because each actor's row
+is empty at the positions where the other actor acted, `na = FALSE` leaves
+those positions out, so the shares are within the actor.
+
+```{r distribution-state}
+sequence_plot_htna(net, type = "distribution", na = FALSE)
+```
+
+## How do the actors take turns?
+
+With `by = "group"`, every event of the combined session is coloured by its
+actor, which turns the plot into a display of turn-taking. Rows with many
+short stripes are sessions in which the actors alternate quickly; long
+blocks of one colour are stretches in which one actor holds the turn.
+
+```{r index-group, fig.height = 5.5}
+sequence_plot_htna(net, by = "group")
+```
+
+The distribution layout gives the share of sessions in which each actor
+acts at each position, so it shows whether either actor dominates the
+openings or the later stages of the sessions.
+
+```{r distribution-group}
+sequence_plot_htna(net, by = "group", type = "distribution")
+```
+
+The heatmap layout draws the sessions as one carpet, with the actors
+separated by a white band; it compares session lengths and the uniformity
+of the sessions at a glance.
+
+```{r heatmap, fig.height = 5.5}
+sequence_plot_htna(net, type = "heatmap")
+```
+
+## Which turn-taking templates recur?
+
+`extract_meta_paths()` with `level = "type"` replaces every code by its
+actor and counts the resulting templates. For runs of two events, the four
+templates are the four blocks of the network.
+
+```{r meta-2}
+extract_meta_paths(net, level = "type", length = 2)
+```
+
+Handovers dominate: a human event is followed by an AI event 5,970 times
+and an AI event by a human event 5,693 times, against 4,674 human-human and
+2,581 AI-AI pairs. The lift compares each count with the count expected if
+consecutive events were independent given the overall share of each actor;
+handovers occur 1.28 and 1.22 times as often as expected, continuations of
+the same actor less often than expected (0.79 and 0.70). The interaction is
+alternating rather than a series of monologues.
+
+Longer templates show how the alternation is organized. For runs of four
+events:
+
+```{r meta-4}
+print(extract_meta_paths(net, level = "type", length = 4), n = 8)
+```
+
+The most frequent four-event template is `AI->Human->Human->AI`, an AI move
+answered by two human moves before the AI acts again (2,276 occurrences in
+389 sessions, lift 2.07). Strict alternation (`AI->Human->AI->Human`, lift
+1.81) is next. The human more often takes two consecutive turns between AI
+moves than the AI does between human moves.
+
+## Which concrete paths realize a template?
+
+A `schema` restricts the search to one template and returns its concrete
+instances, each with the template in `meta_schema`. Elements can be actor
+types, codes or `*` for any element.
+
+```{r schema-human}
+print(extract_meta_paths(net, schema = "Human->AI->Human"), n = 8)
+```
+
+The 163 concrete paths of the `Human->AI->Human` template are led by a
+request, an AI execution and another request (401 occurrences in 194
+sessions, 45.2% of the sessions), which occurs five times as often as
+expected (lift 5.00). The request-execute-request loop is the backbone of
+these sessions. Its mirror image, the AI side of the alternation, is found
+with the template `AI->Human->AI`, here restricted to paths at least twice
+as frequent as expected:
+
+```{r schema-ai}
+print(extract_meta_paths(net, schema = "AI->Human->AI", min_lift = 2), n = 8)
+```
+
+`Execute->Request->Execute` is the AI-centered view of the same loop (391
+occurrences, lift 4.65). The pattern with the highest lift among those shown,
+`Plan->Check->Execute` (lift 6.00), is a human check between an AI plan and
+its execution.
+
+Patterns need not be contiguous. With `type = "gapped"` the elements of a
+path are `gap + 1` positions apart, which describes what happens two moves
+later regardless of the move in between.
+
+```{r gapped}
+extract_meta_paths(net, level = "type", length = 3, type = "gapped", gap = 1)
+```
+
+Even with one event skipped between the elements, `Human->AI->Human`
+remains the most frequent template (3,265 occurrences, lift 1.35).
+
+## Which codes occur together in a session?
+
+Association rules ignore order and ask which codes appear together in the
+same session. `association_rules_htna()` treats each session as the set of
+its codes and keeps the rules above the support, confidence and lift
+thresholds.
+
+```{r rules}
+rules <- association_rules_htna(net, min_support = 0.3, min_confidence = 0.8,
+                                max_length = 3L)
+rules
+```
+
+With support of at least 0.3 and confidence of at least 0.8, 499 rules
+remain. The rules with the highest lift link the AI's `Report` to the human's
+`Inquire`: sessions that contain an AI report together with a human check,
+or with an AI plan, execution or ask, contain a human inquiry in more than
+80% of cases (confidence 0.803 to 0.831), 1.32 to 1.37 times as often as
+sessions in general. Session-level co-occurrence is a
+coarser view than the paths above and complements them.
+
+## Which patterns distinguish early from late sessions?
+
+`sequence_compare_htna()` counts every pattern of three to five codes in two
+cohorts of sessions and tests, by permuting whole sessions between the
+cohorts, whether its frequency differs between them. P-values are adjusted
+for the number of patterns (false discovery rate). Each pattern also has a
+standardised residual per cohort (Haberman, 1973): a positive residual means
+the pattern is more frequent in that cohort than independence of pattern and
+cohort predicts. The permutations are random, so a seed is set first.
+
+```{r compare}
+set.seed(2026)
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+res <- sequence_compare_htna(grp, sub = 3:5, min_freq = 25L, iter = 500L)
+res
+```
+
+Of the 106 patterns that occur at least 25 times in each cohort, the
+comparison counts how many differ at an adjusted p-value below 0.05:
+
+```{r compare-count}
+xtabs(~ p_value < 0.05, data = summary(res))
+```
+
+Thirteen patterns distinguish the cohorts. The late sessions contain more
+`Request->Specify->Ask` (residual 3.73 in the late cohort) and
+`Ask->Plan->Frustrate`; the early sessions contain more
+`Request->Specify->Frustrate` and `Specify->Frustrate->Ask->Plan` (residuals
+3.76 and 3.72 in the early cohort). Frustration therefore sits at different
+points of the request-plan cycle in the two phases: before the AI asks and
+plans in the early sessions, after it plans in the late ones. The pyramid
+plot shows the most distinctive patterns with their counts and residuals.
+
+```{r pyramid, fig.height = 5.5}
+plot(res, style = "pyramid", show_residuals = TRUE)
+```
+
+With `level = "type"`, the comparison runs on actor templates instead of
+codes.
+
+```{r compare-type}
+sequence_compare_htna(grp, level = "type", sub = 3:5, min_freq = 25L,
+                      iter = 500L)
+```
+
+At the level of actor templates no pattern reaches an adjusted p-value below
+0.05; the smallest is 0.0519, for `Human->Human->Human->AI->Human`, which is
+about twice as frequent in the late sessions (196 against 112
+occurrences). The turn-taking structure is largely the same in both phases;
+what changes is which codes fill the turns.
+
+## Which view to use
+
+| Question | Function |
+|---|---|
+| When does each actor do what within a session? | `sequence_plot_htna()` (index, `by = "state"`) |
+| How do the actors take turns? | `sequence_plot_htna(by = "group")` |
+| Which actor templates recur, and more than expected? | `extract_meta_paths(level = "type")` |
+| Which concrete paths realize a template? | `extract_meta_paths(schema = )` |
+| Which codes occur together in sessions? | `association_rules_htna()` |
+| Which patterns distinguish groups of sessions? | `sequence_compare_htna()` |
+
+Single transitions between cohorts are compared with the functions of the
+[Comparing networks](comparing-networks.html) guide.
+
+## References
+
+Haberman, S. J. (1973). The analysis of residuals in cross-classified
+tables. *Biometrics*, 29(1), 205-220. <https://doi.org/10.2307/2529686>
+
+```{r restore-options, include = FALSE}
+options(old_options)
+```

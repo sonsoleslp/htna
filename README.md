@@ -1,204 +1,192 @@
+---
+output: github_document
+---
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- README.md is generated from README.Rmd. Please edit that file and rebuild
+     from the repository root with:
+     Rscript -e 'pkgload::load_all(".", quiet = TRUE); knitr::knit("README.Rmd", "README.md")' -->
 
-# `htna`: Heterogeneous Transition Network Analysis <img src="man/figures/logo.png" align="right" height="139"/>
+
+
+# htna: Heterogeneous Transition Network Analysis <img src="man/figures/logo.png" align="right" height="139" alt="htna logo"/>
 
 <!-- badges: start -->
-
+[![CRAN status](https://www.r-pkg.org/badges/version/htna)](https://CRAN.R-project.org/package=htna)
 [![R-CMD-check](https://github.com/sonsoleslp/htna/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/sonsoleslp/htna/actions/workflows/R-CMD-check.yaml)
-[![License:
-MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 <!-- badges: end -->
 
-`htna` is an R package for Heterogeneous Transition Network Analysis
-(HTNA) that models processes or interactions between a mix of two or more
-actor groups (e.g.  Human and AI) as a single network. HTNA builds on
-the traditions of Transition Network Analysis (TNA) and Co-occurrence
-Network Analysis (CNA) and maintains the rigor of either method.
+## Vignettes and guides
 
-The package provides a focused API on top of the
-[Nestimate](https://CRAN.R-project.org/package=Nestimate) estimation
-engine and the [cograph](https://CRAN.R-project.org/package=cograph)
-rendering engine: build a network over the combined sequence while
-preserving the actor partition, so downstream bootstrap, permutation,
-reliability, centrality, and plotting functions treat each actor’s codes
-as a distinct node group.
+**Vignettes**
+
+- [Heterogeneous transition network analysis](https://sonsoles.me/htna/articles/htna.html)
+- [Grouped heterogeneous transition networks](https://sonsoles.me/htna/articles/grouped.html)
+
+**Guides**
+
+- [Input formats](https://sonsoles.me/htna/articles/input-formats.html)
+- [Comparing networks](https://sonsoles.me/htna/articles/comparing-networks.html)
+- [Model assessment](https://sonsoles.me/htna/articles/model-assessment.html)
+- [Markov-order adequacy](https://sonsoles.me/htna/articles/markov-order.html)
+- [Sequences and patterns](https://sonsoles.me/htna/articles/sequences-and-patterns.html)
+- [Frequencies and mosaic plots](https://sonsoles.me/htna/articles/frequencies-and-mosaic.html)
+- [Clustering inputs](https://sonsoles.me/htna/articles/clustering.html)
+- [Three or more actor groups](https://sonsoles.me/htna/articles/multigroup.html)
+
+**Case studies**
+
+- [Early and late sessions of vibe coding](https://sonsoles.me/htna/articles/case-early-late.html)
+- [Help-seeking in vibe coding](https://sonsoles.me/htna/articles/case-vibe-coding.html)
+
+## Overview
+
+`htna` analyses sequences of events produced by actors of different kinds
+that take turns: a learner and an AI assistant, a programmer and a coding
+agent, a student and a tutor. Heterogeneous transition network analysis
+(HTNA) represents such sequences as one transition network in which each
+code belongs to one actor type, so the network separates what each actor
+does after its own moves from how the actors hand over to each other
+(López-Pernas, Misiejuk & Saqr, 2026). It shows, for example, what the AI
+does after the learner asks for help, and how the learner responds. Networks
+can be built for one group or for several cohorts or clusters, compared by
+permutation or Bayesian tests, and assessed by bootstrap, split-half
+reliability, case-dropping stability and Markov-order tests; paths and
+meta-paths of turn-taking can be counted.
+
+The networks are estimated from long event data or clustering results by the
+[Nestimate](https://CRAN.R-project.org/package=Nestimate) package and drawn by
+[cograph](https://CRAN.R-project.org/package=cograph), with each actor type on
+its own arc of the layout and in its own colour and shape. The actor
+partition is kept on the results of every later analysis.
+
+## The model
+
+A session is a sequence of codes $c_1, \ldots, c_T$, and every code $i$
+belongs to one actor type $a(i)$. With $n_{ij}$ the number of times code $i$
+is directly followed by code $j$ over all sessions, the relative
+transition network has the weights
+$w_{ij} = n_{ij} / \sum_k n_{ik}$. The actor partition divides the weight
+matrix into blocks $W_{AB}$ of transitions from codes of actor $A$ to codes
+of actor $B$: the diagonal blocks describe how an actor continues its own
+turn and the off-diagonal blocks how the actors hand over to each other.
+A meta-path is the sequence of actor types that a path of codes passes
+through, such as Human $\to$ AI $\to$ Human.
 
 ## Installation
 
-Install the released version of `htna` from CRAN:
 
 ``` r
 install.packages("htna")
-```
 
-Or the development version from
-[GitHub](https://github.com/sonsoleslp/htna):
-
-``` r
-# install.packages("devtools")
-devtools::install_github("sonsoleslp/htna")
+# development version
+install.packages("remotes")
+remotes::install_github("sonsoleslp/htna")
 ```
 
 ## Example
 
-``` r
-library("htna")
-```
+The bundled `human_ai` data hold 19,347 coded events from 429 sessions in
+which programmers worked with an AI coding agent, with six human and six
+AI codes. `build_htna()` estimates the network; `actor_type` names the
+column that assigns each event to its actor.
 
-Load the example data shipped with `htna`:
-
-``` r
-data(human_ai)
-```
-
-### Build a heterogeneous transition network
-
-`build_htna()` takes a data frame with a column indicating the actor
-type, combines the sequences, estimates transition probabilities, and
-stores the actor partition on the resulting network:
 
 ``` r
+library(htna)
 net <- build_htna(human_ai, actor_type = "actor_type")
+as.data.frame(summary(net), what = "actor_pairs")
+#>   source_actor target_actor n_edges
+#> 1        Human        Human      35
+#> 2        Human           AI      36
+#> 3           AI        Human      36
+#> 4           AI           AI      28
 ```
 
-### Plot the network
+All 36 possible transitions between the human and the AI codes occur in
+both directions. `plot_htna()` draws each actor's codes on their own arc.
 
-`plot_htna()` auto-detects the actor groups and renders them, through
-cograph’s `plot_htna()`, with one colour and shape per actor group:
 
 ``` r
-plot_htna(net, threshold = 0.05, layout = "circular")
+plot_htna(net)
 ```
 
-<img src="man/figures/README-htna-plot-1.png" alt="" width="60%" style="display: block; margin: auto;" />
+<div class="figure" style="text-align: center">
+<img src="man/figures/README-htna-plot-1.png" alt="plot of chunk htna-plot" width="70%" />
+<p class="caption">plot of chunk htna-plot</p>
+</div>
 
-### Extract path patterns
+Meta-paths count the order in which the actors take turns; a lift above
+one means a pattern occurs more often than the frequencies of the actors
+would predict.
 
-By default `extract_meta_paths()` enumerates concrete state-level
-patterns and tags each row with the type-level template it instantiates:
-
-``` r
-extract_meta_paths(net)
-#> Patterns (state-level) over 429 sequences
-#> Rows: 5445 | Lengths: 2, 3, 4 | Gaps: 0
-#>              schema  meta_schema length gap count n_seq support frequency lift
-#>    Request->Specify Human->Human      2   0  1042   402   0.937     0.055 2.27
-#>           Ask->Plan       AI->AI      2   0   964   346   0.807     0.051 4.87
-#>    Execute->Request    AI->Human      2   0   921   269   0.627     0.049 1.80
-#>    Request->Execute    Human->AI      2   0   904   299   0.697     0.048 1.77
-#>    Specify->Execute    Human->AI      2   0   796   261   0.608     0.042 1.66
-#>        Specify->Ask    Human->AI      2   0   784   292   0.681     0.041 2.20
-#>      Check->Execute    Human->AI      2   0   534   243   0.566     0.028 2.50
-#>       Plan->Request    AI->Human      2   0   503   268   0.625     0.027 1.98
-#>        Request->Ask    Human->AI      2   0   459   222   0.517     0.024 1.21
-#>  Execute->Frustrate    AI->Human      2   0   451   230   0.536     0.024 1.50
-#> ... (5435 more)
-```
-
-Filter to concrete instances of a type-level template. Schema parts can
-mix type names, concrete codes, and `*`:
 
 ``` r
-extract_meta_paths(net, schema = "Human->AI->Human")
-#> State-level instances of schema 'Human->AI->Human' over 429 sequences
-#> Rows: 163 | Lengths: 3 | Gaps: 0
-#>                       schema      meta_schema length gap count n_seq support
-#>    Request->Execute->Request Human->AI->Human      3   0   401   194   0.452
-#>    Specify->Execute->Request Human->AI->Human      3   0   176   107   0.249
-#>        Request->Ask->Request Human->AI->Human      3   0   130    91   0.212
-#>      Check->Execute->Request Human->AI->Human      3   0   123    96   0.224
-#>        Specify->Ask->Request Human->AI->Human      3   0   120    84   0.196
-#>  Specify->Execute->Frustrate Human->AI->Human      3   0   114    88   0.205
-#>  Request->Execute->Frustrate Human->AI->Human      3   0   106    88   0.205
-#>    Request->Execute->Inquire Human->AI->Human      3   0    97    76   0.177
-#>      Specify->Ask->Frustrate Human->AI->Human      3   0    86    70   0.163
-#>    Inquire->Execute->Request Human->AI->Human      3   0    73    52   0.121
-#>  frequency lift
-#>      0.112 5.00
-#>      0.049 2.33
-#>      0.036 2.19
-#>      0.034 3.67
-#>      0.033 2.15
-#>      0.032 2.57
-#>      0.030 2.24
-#>      0.027 4.40
-#>      0.024 2.61
-#>      0.020 3.31
-#> ... (153 more)
-extract_meta_paths(net, schema = "Human->Ask->*")
-#> State-level instances of schema 'Human->Ask->*' over 429 sequences
-#> Rows: 63 | Lengths: 3 | Gaps: 0
-#>                   schema      meta_schema length gap count n_seq support
-#>       Specify->Ask->Plan    Human->AI->AI      3   0   340   197   0.459
-#>     Frustrate->Ask->Plan    Human->AI->AI      3   0   214   187   0.436
-#>       Request->Ask->Plan    Human->AI->AI      3   0   139   106   0.247
-#>    Request->Ask->Request Human->AI->Human      3   0   130    91   0.212
-#>    Specify->Ask->Request Human->AI->Human      3   0   120    84   0.196
-#>  Specify->Ask->Frustrate Human->AI->Human      3   0    86    70   0.163
-#>       Inquire->Ask->Plan    Human->AI->AI      3   0    53    45   0.105
-#>        Refine->Ask->Plan    Human->AI->AI      3   0    52    46   0.107
-#>  Request->Ask->Frustrate Human->AI->Human      3   0    50    44   0.103
-#>    Specify->Ask->Specify Human->AI->Human      3   0    49    41   0.096
-#>  frequency  lift
-#>      0.170 11.65
-#>      0.107 11.71
-#>      0.070  4.48
-#>      0.065  2.19
-#>      0.060  2.15
-#>      0.043  2.61
-#>      0.027  6.22
-#>      0.026  6.57
-#>      0.025  1.43
-#>      0.025  0.93
-#> ... (53 more)
-```
-
-Pass `level = "type"` for the type-level meta-path summary:
-
-``` r
-extract_meta_paths(net, level = "type")
+extract_meta_paths(net, level = "type", length = 3)
 #> Meta-paths (type-level) over 429 sequences
-#> Rows: 28 | Lengths: 2, 3, 4 | Gaps: 0
-#>            schema length gap count n_seq support frequency lift
-#>         Human->AI      2   0  5970   428   0.998     0.316 1.28
-#>         AI->Human      2   0  5693   424   0.988     0.301 1.22
-#>      Human->Human      2   0  4674   422   0.984     0.247 0.79
-#>            AI->AI      2   0  2581   403   0.939     0.136 0.70
-#>  Human->AI->Human      3   0  3593   402   0.937     0.194 1.41
-#>  Human->Human->AI      3   0  3172   422   0.984     0.172 1.25
-#>  AI->Human->Human      3   0  2828   403   0.939     0.153 1.11
-#>     AI->Human->AI      3   0  2744   383   0.893     0.148 1.36
-#>     Human->AI->AI      3   0  2189   403   0.939     0.118 1.09
-#>     AI->AI->Human      3   0  2100   397   0.925     0.114 1.04
-#> ... (18 more)
+#> Rows: 8 | Lengths: 3 | Gaps: 0
+#>               schema length gap count n_seq support frequency lift
+#>     Human->AI->Human      3   0  3593   402   0.937     0.194 1.41
+#>     Human->Human->AI      3   0  3172   422   0.984     0.172 1.25
+#>     AI->Human->Human      3   0  2828   403   0.939     0.153 1.11
+#>        AI->Human->AI      3   0  2744   383   0.893     0.148 1.36
+#>        Human->AI->AI      3   0  2189   403   0.939     0.118 1.09
+#>        AI->AI->Human      3   0  2100   397   0.925     0.114 1.04
+#>  Human->Human->Human      3   0  1472   396   0.923     0.080 0.46
+#>           AI->AI->AI      3   0   392   165   0.385     0.021 0.25
 ```
 
-## Related packages
+The bootstrap shows which transitions the resampled sessions reproduce.
 
-- [`tna`](https://CRAN.R-project.org/package=tna) – Transition Network
-  Analysis for homogeneous sequences.
-- [`Nestimate`](https://CRAN.R-project.org/package=Nestimate) – Network
-  estimation, bootstrap, permutation, reliability, and centrality.
-- [`cograph`](https://CRAN.R-project.org/package=cograph) – Network
-  visualisation and rendering.
-- [`codyna`](https://CRAN.R-project.org/package=codyna) – Sequence
-  patterns, outcomes, and indices.
 
-## Related research
+``` r
+bootstrap_htna(net, iter = 100, seed = 1)
+#>   Edge                   Mean     95% CI          p
+#>   -----------------------------------------------
+#>   Delegate → Plan      0.609  [0.541, 0.670]  ** 
+#>   Refine → Specify     0.412  [0.360, 0.468]  ** 
+#>   Ask → Plan           0.411  [0.384, 0.437]  ** 
+#>   Check → Execute      0.411  [0.382, 0.444]  ** 
+#>   Repair → Execute     0.389  [0.333, 0.454]  ** 
+#>   ... and 55 more significant edges
+#> 
+#> Bootstrap Network  [Transition Network (relative) | directed]
+#>   Iterations : 100  |  Nodes : 12
+#>   Edges      : 60 significant / 135 total
+#>   CI         : 95%  |  Inference: stability  |  CR [0.75, 1.25]
+```
+
+## Authors and citation
+
+`htna` is written by [Sonsoles López-Pernas](https://sonsoles.me), Kamila
+Misiejuk and [Mohammed Saqr](https://saqr.me). Sonsoles López-Pernas
+maintains the package. Questions and bug reports can be submitted through
+the [repository issue tracker](https://github.com/sonsoleslp/htna/issues).
+The package citation is available through `citation("htna")`.
+
+The method is described in:
+
+- López-Pernas, S., Misiejuk, K., & Saqr, M. (2026). How AI-generated
+  feedback hinders or helps learning: A heterogeneous TNA study of learning
+  dynamics. *Journal of Computer Assisted Learning*, 42(4), e70285.
+  <https://doi.org/10.1002/jcal.70285>
+
+Related research:
 
 - López-Pernas, S., Misiejuk, K., Tikka, S., & Saqr, M. (2026). Role
-  Dynamics in Student–AI Collaboration: A Heterogeneous Transition
-  Network Analysis Approach. Innovations in Analytics of Learning
-  Dynamics: Proceedings of the 1st Workshop on Transition Network
-  Analysis (TNA). <https://dx.doi.org/10.2139/ssrn.6082190>
-- López-Pernas, S., Misiejuk, K., & Saqr, M. (2026). How AI-generated
-  feedback hinders or helps learning: A heterogeneous TNA study of
-  learning dynamics. Journal of Computer Assisted Learning, 42(4),
-  e70285. <https://doi.org/10.1002/jcal.70285>
+  dynamics in student-AI collaboration: A heterogeneous transition network
+  analysis approach. *Innovations in Analytics of Learning Dynamics:
+  Proceedings of the 1st Workshop on Transition Network Analysis (TNA)*.
+  <https://dx.doi.org/10.2139/ssrn.6082190>
 - Rinja, D., Oliveira, E. A., López-Pernas, S., Saqr, M., Specht, M., &
   Misiejuk, K. (2027). Unpacking vibe coding: Help-seeking processes in
-  student-AI interactions while programming. Proceedings of Artificial
-  Intelligence in Education: 27th International Conference, AIED 2026.
-  Springer Nature Switzerland.
-  <https://doi.org/10.1007/978-3-032-29763-1_35>
+  student-AI interactions while programming. *Proceedings of Artificial
+  Intelligence in Education: 27th International Conference, AIED 2026*.
+  Springer Nature Switzerland. <https://doi.org/10.1007/978-3-032-29763-1_35>
+
+Related packages: [tna](https://CRAN.R-project.org/package=tna) for
+transition network analysis of single-actor sequences,
+[Nestimate](https://CRAN.R-project.org/package=Nestimate) for network
+estimation and inference, and
+[cograph](https://CRAN.R-project.org/package=cograph) for network plots.
+
+

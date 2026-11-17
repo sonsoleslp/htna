@@ -2,35 +2,33 @@
 % Please edit documentation in R/deprune_htna.R
 \name{deprune_htna}
 \alias{deprune_htna}
-\title{Restore All Edges of a Pruned Transition Network}
+\title{Restore the edges removed by pruning}
 \usage{
 deprune_htna(x, ...)
 }
 \arguments{
-\item{x}{A pruned htna network (or other object accepted by
-\code{\link[Nestimate:net_deprune]{Nestimate::net_deprune()}}); S3 dispatch on \code{x} is preserved.}
+\item{x}{An htna network pruned with \code{\link[=prune_htna]{prune_htna()}}.}
 
-\item{...}{Additional arguments passed to \code{\link[Nestimate:net_deprune]{Nestimate::net_deprune()}}.
-See that function for details.}
+\item{...}{Unused.}
 }
 \value{
-The depruned htna network. See \code{\link[Nestimate:net_deprune]{Nestimate::net_deprune()}}.
+An htna network with the original weight matrix.
 }
 \description{
-htna-named wrapper for \code{\link[Nestimate:net_deprune]{Nestimate::net_deprune()}}. Reverses a
-\code{\link[=prune_htna]{prune_htna()}} step, restoring the original (unpruned) edge set.
-}
-\details{
-The actor partition (\verb{$node_groups}, \verb{$actor_levels}, \code{htna} class)
-is preserved, so the restored network stays htna-aware.
+\code{deprune_htna()} restores the edges that \code{\link[=prune_htna]{prune_htna()}} removed: it
+returns the network with every removed edge put back at its original
+weight. Pruning sets weak edges aside rather than deleting them, so
+restoring them gives back the full network, for example to compare the
+pruned and the unpruned structure or to apply a different rule.
 
-Suffixed \verb{_htna} to avoid clashing with the tna verb \code{deprune()} and
-to sit alongside the rest of the htna API.
+\code{deprune_htna()} runs Nestimate's \code{net_deprune()} with the actor
+partition kept. The rule stays recorded, so \code{\link[=reprune_htna]{reprune_htna()}} can apply it
+again.
 }
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-pruned <- prune_htna(net, method = "threshold", threshold = 0.05)
+pruned <- prune_htna(net, threshold = 0.05)
 deprune_htna(pruned)
 }
 \seealso{

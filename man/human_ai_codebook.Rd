@@ -3,28 +3,25 @@
 \docType{data}
 \name{human_ai_codebook}
 \alias{human_ai_codebook}
-\title{Code-to-Actor-Type Codebook for \code{human_ai}}
+\title{Code-to-actor codebook for the vibe-coding data}
 \format{
-A data frame with 12 rows and 2 columns:
+A data frame with 12 rows, one per code, and 2 columns:
 \describe{
-\item{code}{Character. Simplified action code (one of the 12
-Human + AI codes in \code{\link{human_ai}}).}
-\item{actor_type}{Character. \code{"Human"} or \code{"AI"}.}
+\item{code}{Simplified interaction code.}
+\item{actor_type}{\code{"Human"} or \code{"AI"}.}
 }
 }
 \source{
-Derived from \code{\link{human_simplified}} and
-\code{\link{ai_simplified}}; see \code{data-raw/human_ai.R} for
-the build script.
+Derived from \link{human_simplified} and \link{ai_simplified}.
 }
 \usage{
 human_ai_codebook
 }
 \description{
-A tidy two-column lookup tagging every simplified code in
-\code{\link{human_ai}} with its actor type. Ready to pass as
-\code{node_groups} to \code{\link{build_htna}()} (Form 3b in the
-\code{vignette("input-formats", package = "htna")}).
+\code{human_ai_codebook} is the codebook of \link{human_ai}: the actor type of each of
+its twelve codes. A codebook of this form declares the actor partition when
+the event data have no actor-type column: it is passed to \code{\link[=build_htna]{build_htna()}} as
+\code{node_groups}.
 }
 \examples{
 data(human_ai, human_ai_codebook)
@@ -33,7 +30,6 @@ net <- build_htna(human_ai, node_groups = human_ai_codebook)
 summary(net)
 }
 \seealso{
-\code{\link{human_ai}}, \code{\link{human_simplified}},
-\code{\link{ai_simplified}}.
+\link{human_ai}, \code{\link[=build_htna]{build_htna()}}
 }
 \keyword{datasets}

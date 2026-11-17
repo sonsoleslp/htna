@@ -1,0 +1,198 @@
+---
+title: "Case study: early and late sessions of vibe coding"
+author: "Written by [Mohammed Saqr](https://saqr.me) and [Sonsoles López-Pernas](https://sonsoles.me)"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{Case study: early and late sessions of vibe coding}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r options, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", message = FALSE,
+                      fig.width = 7, fig.height = 5.5, fig.align = "center",
+                      dpi = 96)
+old_options <- options(digits = 3, width = 90)
+```
+
+When people work with a generative AI tool over several weeks, the way they
+interact with it can change: they may learn which requests the tool handles
+well, delegate more, check less, or become more frustrated with its
+failures. Whether such a change has occurred is a question about the
+process of interaction, not about how often each action occurs, and it is
+answered by comparing the transition structure of early and late sessions.
+With two actors the comparison has a further layer: the change can lie in
+how each actor continues its own turn or in how the actors hand over to
+each other.
+
+This case study compares the first and second halves of a set of vibe-coding
+sessions, in which programmers directed an AI coding agent. It asks, in
+turn, whether the two networks differ at all, in which actor-pair blocks
+the differences lie, which individual transitions differ and with what
+certainty, and whether the turn-taking patterns between the actors have
+changed.
+
+```{r package}
+library(htna)
+set.seed(2026)
+```
+
+## Data
+
+`human_ai` holds the coded turns of 429 vibe-coding sessions. Each row is
+one coded event.
+
+- **Session and order:** `session_id`, `order_in_session`; transitions are
+  counted within sessions.
+- **Code:** `code`, six human codes (`Check`, `Frustrate`, `Inquire`,
+  `Refine`, `Request`, `Specify`) and six AI codes (`Ask`, `Delegate`,
+  `Execute`, `Plan`, `Repair`, `Report`).
+- **Actor type:** `actor_type`, `"Human"` or `"AI"`.
+- **Phase:** `phase`, `Early` or `Late`: the sessions ordered by their first
+  date and split in half (214 and 215 sessions).
+
+```{r build}
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+grp
+```
+
+Both networks contain all twelve codes; the early network has 135 non-zero
+edges and the late one 134.
+
+## Do the networks differ at all?
+
+A permutation test reshuffles the sessions between the two phases and asks
+whether the observed differences exceed those of the reshuffled data. Its
+global statistics test the networks as a whole, so they need no correction
+for the number of edges.
+
+```{r permutation}
+perm <- permutation_htna(grp, iter = 1000, seed = 1)
+perm
+```
+
+The sum of the absolute edge differences, 2.76, is larger than in any of
+the 1,000 reshuffles (p = 0.001), and the largest single difference, 0.181,
+is exceeded in about one percent of them (p = 0.012). The way the
+programmers and the agent interact did change between the two halves of
+the study.
+
+## Where in the actor structure?
+
+The descriptive comparison splits the edge differences by actor-pair block;
+differences are early minus late.
+
+```{r compare}
+cmp <- compare_htna(grp)
+summary(cmp)
+```
+
+The four blocks change by similar amounts on average (mean absolute
+differences between 0.016 and 0.022), so the change is not confined to one
+kind of transition. The AI-to-AI block holds the largest single difference
+(0.181). The transitions from AI codes to human codes carry more weight in
+the late sessions (mean difference, early minus late, −0.006), and those
+between AI codes carry less by the same amount: after an AI event, the next
+event is more often a human one late in the study. The overall similarity of the two networks stays high.
+
+```{r metrics}
+head(as.data.frame(cmp, what = "metrics"), 8)
+```
+
+The edge weights correlate at 0.959 between the phases: the late network is
+a modified version of the early one, not a different process.
+
+## Which transitions differ?
+
+The permutation test also gives a p-value for each of the 135 edges.
+
+```{r edge-tests}
+xtabs(~ sig, data = summary(perm))
+```
+
+At the 0.05 level, 31 edges differ. With 135 tests about seven would be
+expected by chance alone, so the edge tests are repeated with the
+Benjamini-Hochberg adjustment of the p-values.
+
+```{r edge-tests-bh}
+permutation_htna(grp, iter = 1000, adjust = "BH", seed = 1)
+```
+
+After the adjustment no edge remains significant. The difference
+network shows the 31 unadjusted differences, green where the early
+sessions have the larger weight and red where the late sessions do.
+
+```{r edge-plot, fig.height = 6}
+plot_htna_diff(perm)
+```
+
+The Bayesian comparison estimates the size of each difference with a
+credible interval.
+
+```{r bayes}
+bc <- bayes_compare_htna(grp, draws = 5000, seed = 1)
+xtabs(~ sig, data = summary(bc))
+head(summary(bc))
+```
+
+Thirty-six edges have a 95% credible interval that excludes zero and pass
+the default size thresholds; the Bayesian model treats every transition as
+independent and makes no correction for multiplicity, so this count is an
+upper bound on the edges that changed. The first rows of the table show the
+pattern: an AI `Ask` is followed by an AI `Execute` with probability 0.033
+in the early sessions and 0.012 in the late ones, and by a human
+`Frustrate` with probability 0.099 and 0.131.
+
+```{r bayes-plot, fig.height = 6}
+plot_htna_diff(bc)
+```
+
+## Has the turn-taking changed?
+
+Replacing every code by its actor type gives the meta-paths of the
+sessions, and the sequence comparison asks which of them became more or
+less frequent.
+
+```{r meta-paths}
+sequence_compare_htna(grp, level = "type", sub = 2:4, iter = 1000)
+```
+
+Runs in which the AI acts twice in a row after a human event
+(Human $\to$ Human $\to$ AI $\to$ AI, Human $\to$ AI $\to$ AI) are more
+frequent in the early sessions than independence predicts (positive
+residuals), and strict alternation (Human $\to$ AI $\to$ Human,
+Human $\to$ AI $\to$ Human $\to$ AI) is more frequent in the late sessions.
+None of these patterns differs significantly after the false discovery rate
+correction (smallest adjusted p = 0.084), so the shift towards shorter AI
+turns is a tendency, not an established change.
+
+## Conclusion
+
+The networks of the early and late sessions differ as wholes (p = 0.001),
+yet no single transition differs once the 135 tests are taken into
+account, and the four actor-pair blocks change by similar amounts. The
+change between the two halves of the study is diffuse: many transitions
+shift a little, in the direction of more frequent alternation between the
+programmer and the agent and fewer consecutive AI actions, rather than a
+few transitions changing a lot. A report of this comparison should rest on
+the global test and the actor-pair summary, and present the individual
+edge differences as descriptive.
+
+## When to use which
+
+- `permutation_htna()`: whether two networks differ, globally and edge by
+  edge, respecting the nesting of transitions in sessions; set `adjust` for
+  the edge tests.
+- `compare_htna()`: where the differences lie in the actor structure, and
+  how similar the networks are overall; descriptive only.
+- `bayes_compare_htna()`: how large each difference is and how precisely it
+  is estimated.
+- `sequence_compare_htna(level = "type")`: whether the turn-taking between
+  the actors has changed, beyond single transitions.
+
+```{r restore-options, include = FALSE}
+options(old_options)
+```

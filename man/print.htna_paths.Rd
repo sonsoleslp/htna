@@ -2,28 +2,35 @@
 % Please edit documentation in R/print_paths.R
 \name{print.htna_paths}
 \alias{print.htna_paths}
-\title{Print Method for htna Path/Pattern Objects}
+\title{Print a table of paths or meta-paths}
 \usage{
 \method{print}{htna_paths}(x, n = 10L, ...)
 }
 \arguments{
-\item{x}{An \code{htna_paths} object.}
+\item{x}{A result of \code{\link[=extract_meta_paths]{extract_meta_paths()}}.}
 
-\item{n}{Maximum number of rows to print. Default \code{10}.}
+\item{n}{Number of rows to print (default 10).}
 
 \item{...}{Unused.}
 }
 \value{
-The input object, invisibly.
+\code{x}, invisibly.
 }
 \description{
-Shared print method for objects returned by \code{\link[=extract_meta_paths]{extract_meta_paths()}}
-(class \code{htna_meta_paths}). Dispatches on the \code{htna_paths} parent class.
+\code{print()} prints the result of \code{\link[=extract_meta_paths]{extract_meta_paths()}}: a header with the
+level (concrete paths or meta-paths), the template if one was given, the
+number of sessions, the lengths and gaps counted, and then the first \code{n}
+rows with support, frequency and lift rounded for reading. It returns \code{x}
+invisibly. The result is itself a data frame, so all rows and full
+precision are available with \code{\link[utils:head]{utils::head()}}, \code{\link[=subset]{subset()}} or
+\code{as.data.frame()}.
 }
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-p <- extract_meta_paths(net, length = 3)
-print(p, n = 5)
+paths <- extract_meta_paths(net, length = 3)
+print(paths, n = 5)
 }
-\keyword{internal}
+\seealso{
+\code{\link[=extract_meta_paths]{extract_meta_paths()}}.
+}

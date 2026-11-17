@@ -4,7 +4,7 @@
 \alias{plot_htna}
 \alias{plot.htna}
 \alias{plot.htna_group}
-\title{Plot a Heterogeneous Transition Network}
+\title{Plot a heterogeneous transition network}
 \usage{
 plot_htna(
   x,
@@ -20,48 +20,63 @@ plot_htna(
 \method{plot}{htna_group}(x, ...)
 }
 \arguments{
-\item{x}{A network produced by \code{\link[=build_htna]{build_htna()}}, or an \code{htna_group}.}
+\item{x}{An htna network from \code{\link[=build_htna]{build_htna()}}, or an \code{htna_group}.}
 
-\item{layout}{Character. Layout algorithm. Default \code{"circular"}.}
+\item{layout}{Node layout. Default \code{"circular"}; \code{"polygon"} places three
+or more actor types on the sides of a polygon.}
 
-\item{group_colors}{Character vector of colours, one per actor group.
-Defaults to the built-in \link{htna_palette}.}
+\item{group_colors}{Colours of the actor types, in actor order. Default
+\link{htna_palette}.}
 
-\item{group_shapes}{Character vector of node shapes, one per actor group.
-Defaults to the built-in \code{htna_shape_palette}.}
+\item{group_shapes}{Node shapes of the actor types, in actor order.
+Default \code{c("circle", "square", "diamond", "triangle", "pentagon", "hexagon", "star", "cross")}.}
 
-\item{minimum}{Numeric. Minimum absolute edge weight to display.
-Edges below this threshold are hidden. Default \code{0.05}.}
+\item{minimum}{Smallest edge weight drawn. Default \code{0.05}.}
 
-\item{...}{Additional arguments passed to \code{\link[cograph:plot_htna]{cograph::plot_htna()}} (and
-from there to \code{\link[cograph:splot]{cograph::splot()}}), e.g. \code{title}.}
+\item{...}{Further drawing arguments of \code{\link[cograph:plot_htna]{cograph::plot_htna()}} and
+\code{\link[cograph:splot]{cograph::splot()}}, such as \code{title}, \code{threshold} or \code{edge_labels}.}
 }
 \value{
-Called for its side effect (a plot). For a single network,
-invisibly, the value returned by \code{\link[cograph:plot_htna]{cograph::plot_htna()}}; for an
-\code{htna_group}, \code{x} invisibly.
+Called for the plot. Invisibly, the value of
+\code{\link[cograph:plot_htna]{cograph::plot_htna()}} for one network, or \code{x} for a grouped network.
 }
 \description{
-Wrapper around \code{\link[cograph:plot_htna]{cograph::plot_htna()}} with defaults suited for HTNA
-networks built by \code{\link[=build_htna]{build_htna()}}. The drawing itself is done by cograph;
-this function supplies the actor-aware styling: one colour and shape per
-actor group, darkened donut borders, and an actor legend. For the
-circular layout (and \code{"auto"} with two or more groups) the group order
-is arranged so that the first actor group appears on the left.
+\code{plot_htna()} plots a heterogeneous transition network: the codes of
+every actor type as nodes and the transitions between them as directed
+edges whose width and label give the transition weight. Each actor type
+has its own colour and node shape and occupies its own arc of the
+circular layout, so the transitions within an actor type run along its
+arc and the hand-overs between actor types cross the center. The plot
+shows which transitions dominate the interaction and how the actors pass
+control to each other.
+
+\code{plot_htna()} draws one network, or one plot per cohort for a grouped
+network, each titled with its cohort name; arrange several plots with
+\code{par(mfrow = ...)}. Edges with a weight below \code{minimum} are hidden. The
+first actor type is placed on the left of the circular layout. \code{plot()}
+on an htna network or \code{htna_group} calls \code{plot_htna()}. It is called for
+the plot and returns, invisibly, the value of \code{\link[cograph:plot_htna]{cograph::plot_htna()}} for
+one network, or \code{x} for a grouped network.
+
+To show the difference between two networks use \code{\link[=plot_htna_diff]{plot_htna_diff()}}; to
+show only the edges that survive bootstrapping use \code{\link[=plot_htna_bootstrap]{plot_htna_bootstrap()}}.
 }
-\details{
-For an \code{htna_group} (or any plain list of htna networks) one plot is
-drawn per cohort, titled with the cohort name. The function does not
-manage the panel grid; wrap the call in \code{par(mfrow = ...)} for a panel.
+\section{Conditions}{
+
+\code{htna_empty_input} when a grouped network has no cohorts.
 }
+
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 plot_htna(net)
-plot_htna(net, layout = "auto", minimum = 0.1)
-plot(net)                     # the plot() method calls plot_htna()
+plot_htna(net, minimum = 0.1)
+
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+plot(grp)
 
 }
 \seealso{
-\code{\link[cograph:plot_htna]{cograph::plot_htna()}}, \code{\link[=build_htna]{build_htna()}}
+\code{\link[=build_htna]{build_htna()}}, \code{\link[=plot_htna_diff]{plot_htna_diff()}}, \code{\link[=plot_htna_bootstrap]{plot_htna_bootstrap()}},
+\link{htna_palette}
 }

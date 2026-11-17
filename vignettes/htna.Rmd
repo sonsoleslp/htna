@@ -1,236 +1,280 @@
 ---
-title: "Getting Started with htna"
-output: rmarkdown::html_vignette
+title: "Heterogeneous transition network analysis"
+author: "Written by [Mohammed Saqr](https://saqr.me) and [Sonsoles López-Pernas](https://sonsoles.me)"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
 vignette: >
-  %\VignetteIndexEntry{Getting Started with htna}
+  %\VignetteIndexEntry{Heterogeneous transition network analysis}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment  = "#>",
-  message  = FALSE,
-  warning  = FALSE,
-  fig.width  = 10,
-  fig.height = 7,
-  dpi = 90
-)
+```{r options, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", message = FALSE,
+                      fig.width = 7, fig.height = 5.5, fig.align = "center",
+                      dpi = 96)
+old_options <- options(digits = 3, width = 90)
 ```
 
-Heterogeneous Transition Network Analysis (HTNA) studies sequences in
-which two or more actors interleave -- a learner and a tutor, a human
-and an AI, a clinician and a patient -- and treats each actor's codes as
-a distinct node group. The `htna` package builds the network, computes
-the usual analytical quantities, and renders the result with the actor
-partition baked into colour, layout, and the legend. Estimation is done by
-the 'Nestimate' engine and every network plot is rendered by 'cograph';
-`htna` keeps the actor partition attached at each step so that the two
-engines treat each actor's codes as a distinct node group.
+Many interactions in education and work are carried out by actors of
+different kinds: a learner and a tutor, a student and a generative AI
+assistant, a programmer and a coding agent. A record of such an interaction
+is a sequence of coded events in which the actors take turns, and the
+questions it raises concern both what each actor does and how the actors
+respond to each other. Transition network analysis (TNA) models a sequence of
+events as a network whose nodes are the codes and whose weighted, directed
+edges are the probabilities of moving from one code to the next. Applied to a
+mixed sequence, ordinary TNA treats all codes alike and loses the
+information that some codes belong to one actor and some to another.
 
-## 1. Building a heterogeneous network
+Heterogeneous transition network analysis (HTNA) keeps that information. Each
+code is assigned to one actor type, the network is estimated over the
+interleaved sequence so that transitions within and between actors are
+counted from the same events, and the actor partition is carried through
+every subsequent step: the layout and colours of the plot, the summaries of
+transitions within and between actors, and the patterns of turn-taking
+(López-Pernas, Misiejuk, & Saqr, 2026). This vignette sets out the
+formulation and follows one analysis from data to assessed conclusions.
 
-Start from one long-format data frame with an actor-type column tagging
-each row (`"Human"` or `"AI"`) and pass its name as `actor_type` to
-`build_htna()`. The result is a network whose nodes carry the actor
-label they came from. The bundled `human_ai` corpus (see `?human_ai`)
-is used throughout this vignette. 
-
-```{r}
+```{r setup}
 library(htna)
-data(human_ai)
-
-net <- build_htna(human_ai, actor_type = "actor_type", actor = "session_id")
 ```
 
-## 2. Plotting the network
+## The model
 
-`plot_htna()` lays out actor groups around the circle, colours each node
-by its actor type, and draws the actor legend below the plot:
+A session is a sequence of coded events $c_1, c_2, \ldots, c_T$, and every
+code $i$ belongs to exactly one actor type $a(i)$, for example Human or AI.
+Counting, over all sessions, how often code $i$ is directly followed by code
+$j$ gives the counts $n_{ij}$. The relative transition network has the
+weights
 
-```{r}
+$$w_{ij} = \frac{n_{ij}}{\sum_k n_{ik}},$$
+
+the estimated probability that an event coded $i$ is followed by an event
+coded $j$. The actor partition divides the weight matrix $W$ into blocks
+$W_{AB}$, holding the transitions from codes of actor $A$ to codes of actor
+$B$. The diagonal blocks ($A = B$) describe how an actor continues its own
+turn, and the off-diagonal blocks describe the handovers between actors.
+Because each row of $W$ sums to one, the row sum of code $i$ within block
+$W_{AB}$, $\sum_{j:\,a(j) = B} w_{ij}$, is the probability that an event
+coded $i$ is followed by an event of actor $B$. A meta-path is the sequence
+of actor types that a path of codes passes through, such as
+Human $\to$ AI $\to$ Human.
+
+## Data
+
+`human_ai` holds the coded turns of 429 sessions in which programmers worked
+with an AI coding agent ("vibe coding"), from 34 projects. Each row is one
+coded event; a message can carry several codes.
+
+- **Session:** `session_id` identifies the sequence; transitions are counted
+  within sessions.
+- **Order:** `order_in_session` orders the events within a session.
+- **Code:** `code` is the event code, six for the human (`Check`,
+  `Frustrate`, `Inquire`, `Refine`, `Request`, `Specify`) and six for the AI
+  (`Ask`, `Delegate`, `Execute`, `Plan`, `Repair`, `Report`).
+- **Actor type:** `actor_type` (`"Human"` or `"AI"`) assigns each event to
+  its actor.
+- **Phase:** `phase` (`Early`, `Late`) splits the sessions chronologically
+  in half; it is used in the grouped vignette.
+
+```{r data}
+with(human_ai, table(actor_type))
+```
+
+The 19,347 events consist of 10,796 human and 8,551 AI events.
+
+## Building the network
+
+The network is estimated with `build_htna()`, which takes the data and the
+name of the column that assigns each event to its actor.
+
+```{r build}
+net <- build_htna(human_ai, actor_type = "actor_type")
+summary(net)
+```
+
+The network has 12 nodes, six per actor, and 135 of its 144 possible edges
+are non-zero. Within the human codes 35 of the 36 possible transitions occur,
+and in each between-actor block all 36. The AI block is the sparsest, with 28
+non-zero edges: some AI codes rarely follow one another directly.
+
+## How the actors hand over
+
+The edge table lists every non-zero transition with the actor types of its
+source and target, so that within-actor transitions and handovers can be read
+side by side.
+
+```{r edges}
+head(as.data.frame(net))
+```
+
+Each row is one edge; for example, an AI `Ask` is followed by a human
+`Frustrate` with probability 0.116 and by an AI `Plan` with probability
+0.409. The counts per actor-pair block summarize the same table.
+
+```{r actor-pairs}
+as.data.frame(summary(net), what = "actor_pairs")
+```
+
+## The network plot
+
+`plot_htna()` draws the network with the codes of each actor on their own
+arc, in the actor's colour and shape; edges below 0.05 are not drawn.
+
+```{r plot, fig.height = 6}
 plot_htna(net)
 ```
 
-## 3. Per-actor sequence plots
+Edge width is proportional to the weight, and only the 73 edges with a
+weight of at least 0.05 are drawn (the same edges that the pruning step
+below keeps), so the plot shows the transitions that carry the interaction.
 
-The network aggregates transitions over all sessions and so discards
-*when* each code occurs. `sequence_plot_htna()` restores that view.
-With `by = "state"` (the default) each cell is coloured by its
-code; with `by = "group"` cells are coloured by actor type. `type`
-selects the layout: `"index"` draws one panel per actor with one row per
-session, `"heatmap"` joins the actors into a single carpet with a
-separator at the actor boundary, and `"distribution"` shows the state
-composition per timepoint as a stacked area.
+## Which codes are central
 
-```{r, fig.height = 5}
-sequence_plot_htna(net, by = "state", type = "index")
+Centralities rank the codes by their position in the network. In-strength is
+the total transition weight flowing into a code, out-strength the weight
+leaving it, and betweenness the number of shortest paths through it.
+
+```{r centralities}
+centralities_htna(net, measures = c("InStrength", "OutStrength",
+                                    "Betweenness"))
 ```
 
-```{r}
-sequence_plot_htna(net, by = "state", type = "heatmap")
+`Execute` receives the most transition weight (in-strength 2.03) and lies on
+the most shortest paths (betweenness 29), followed on in-strength by the
+human `Request` (1.69). The out-strengths are all close to one because each
+row of a relative network sums to one, less any self-transition. The
+interaction is organized around the request-and-execute exchange.
+
+```{r plot-centralities, fig.height = 5}
+plot_centralities(net, measures = c("InStrength", "Betweenness"),
+                  by = "group")
 ```
 
-```{r, fig.height=4}
-sequence_plot_htna(net, by = "group", type = "distribution", na_color = "white")
+## Focusing on the strong transitions
+
+Pruning sets weak edges aside so that the structure carried by the strong
+transitions can be read.
+
+```{r prune}
+pruned <- prune_htna(net, threshold = 0.05)
+as.data.frame(summary(pruned), what = "actor_pairs")
 ```
 
-When `by = "state"`, the legend is split into one block per actor type
-with the actor type name above each block, so the reader can tell at
-a glance which codes belong to which actor type. 
+At a threshold of 0.05, 73 edges remain. The AI-to-human block keeps 27 of
+its 36 edges, more than any other block, while the AI-to-AI block keeps 13:
+after an AI action the next event is most often a human one.
 
-## 4. Centralities
+## Turn-taking patterns
 
-`centralities_htna()` returns per-node centrality measures: one row
-per node, one column per measure, defaulting to nine standard
-measures (out/in strength, in/out closeness, closeness, betweenness,
-RSP betweenness, diffusion, clustering). Pass `measures = c(...)`
-to restrict to a specific set.
+Meta-paths describe the order in which the actors take turns, regardless of
+the specific codes.
 
-```{r}
-centralities_htna(net)
+```{r meta-paths}
+extract_meta_paths(net, level = "type", length = 3)
 ```
 
-To plot centralities, the `plot_centralities()` function can be used. 
-Each panel is one measure; bars are coloured per state by default, 
-or by actor type with `by = "group"`:
+The alternating meta-path Human $\to$ AI $\to$ Human is the most frequent
+(3,593 occurrences in 402 sessions) and occurs 1.41 times as often as the
+frequencies of the two actors would predict. Runs within one actor are rare
+by the same standard: three consecutive human events have a lift of 0.46 and
+three AI events of 0.25. The interaction is a dialogue of short turns.
 
-```{r, fig.height = 9}
-plot_centralities(net, by = "state")
+A schema lists the concrete paths behind one meta-path.
+
+```{r schema}
+print(extract_meta_paths(net, schema = "Human->AI->Human"), n = 5)
 ```
 
-```{r, fig.height = 9}
-plot_centralities(net, by = "group")
+The most frequent is a request, an AI execution and a further request (401
+occurrences in 194 sessions, five times as often as expected), the iterative
+loop of directing the agent.
+
+## The sessions over time
+
+The network pools the transitions of all sessions and positions. A sequence
+plot shows the sessions themselves, one row per session and actor, with each
+cell coloured by its code.
+
+```{r sequences, fig.height = 5.5}
+sequence_plot_htna(net, type = "heatmap")
 ```
 
-## 5. Bootstrap
+## How certain are the edges
 
-To validate which transitions of an HTNA model are stable,
-`bootstrap_htna()` resamples sessions to obtain edge-weight
-stability and per-edge p-values. `plot_htna_bootstrap()` renders the
-resampled network. By default (`display = "styled"`) all edges are
-shown, with non-significant edges dashed; pass
-`display = "significant"` to keep only the edges that pass the
-significance threshold.
+The bootstrap resamples the sessions and re-estimates the network to show
+which edge weights the data determine precisely.
 
-```{r}
-boot <- bootstrap_htna(net)
+```{r bootstrap}
+boot <- bootstrap_htna(net, iter = 100, seed = 1)
+boot
+```
+
+With 100 resamples, 60 of the 135 edges are reproduced within the
+consistency range and marked significant; the strongest, `Delegate` to
+`Plan`, has a mean weight of 0.609 with a 95% interval from 0.541 to 0.670.
+A real analysis would use the default 1,000 resamples. The plot draws the
+non-significant edges dashed.
+
+```{r bootstrap-plot, fig.height = 6}
 plot_htna_bootstrap(boot)
 ```
 
-```{r}
-plot_htna_bootstrap(boot, display = "significant")
-```
+## Are the conclusions stable
 
-## 6. Centrality stability
+Two checks ask whether the conclusions depend on the particular sessions
+observed. Centrality stability drops increasing shares of the sessions and
+correlates the centralities with those of the full network (Epskamp,
+Borsboom, & Fried, 2018).
 
-The function `centrality_stability_htna()` runs a case-dropping centrality
-stability check: drops a proportion
-of the sessions, recomputes the centralities, and measures how strongly
-the dropped-sample centralities correlate with the originals. The
-returned `cs` value per measure is the **largest drop proportion at
-which the correlation with the original centralities still meets the
-threshold** (default `0.7`) for at least `certainty` (default `0.95`)
-of resamples — values above ~0.5 are typically considered stable.
-
-```{r}
+```{r stability}
 cs <- centrality_stability_htna(net, iter = 100, seed = 1)
-cs
+as.data.frame(cs)
 ```
 
-By default the check covers `InStrength`, `OutStrength`, and
-`Betweenness`, the three measures whose values are bit-equal between
-htna's `cograph` engine and Nestimate's default implementation. A
-centrality ranking should only be interpreted for measures whose
-CS-coefficient clears the 0.5 mark; `summary(cs)` gives the mean
-correlation at every drop proportion behind each coefficient.
- 
+All three measures keep a correlation above 0.7 until 90% of the sessions
+are dropped (CS coefficient 0.90), well above the recommended 0.5, so the
+centrality ranking can be reported. Split-half reliability estimates the
+network from two random halves of the sessions and compares them.
 
-## 7. Split-half reliability
-
-The function `reliability_htna()` reports how stable each edge weight is under
-random split-half resampling: it draws `iter` random splits of the
-sessions, builds a network on each half, and summarises the
-agreement (mean / median / max absolute deviation, plus correlation)
-between paired half-networks.  
-
-```{r}
+```{r reliability}
 rel <- reliability_htna(net, iter = 100, seed = 1)
-rel
+summary(rel)
 ```
 
-A Pearson correlation close to 1 between half-networks means the edge
-weights do not hinge on which sessions happen to be sampled, so the
-network as a whole can be interpreted. `summary(rel)` returns the same
-numbers as a tidy table.
+The edge weights of the two halves correlate at 0.982 on average and differ
+by 0.0125 on average, so the estimated structure does not depend on which
+sessions happened to be observed.
 
+## Further reading
 
-## 8. Comparing two networks
+- [Grouped heterogeneous transition networks](https://sonsoles.me/htna/articles/grouped.html):
+  one network per cohort.
+- [Input formats](https://sonsoles.me/htna/articles/input-formats.html),
+  [Comparing networks](https://sonsoles.me/htna/articles/comparing-networks.html),
+  [Model assessment](https://sonsoles.me/htna/articles/model-assessment.html),
+  [Markov-order adequacy](https://sonsoles.me/htna/articles/markov-order.html),
+  [Sequences and patterns](https://sonsoles.me/htna/articles/sequences-and-patterns.html),
+  [Frequencies and mosaic plots](https://sonsoles.me/htna/articles/frequencies-and-mosaic.html),
+  [Clustering inputs](https://sonsoles.me/htna/articles/clustering.html) and
+  [Three or more actor groups](https://sonsoles.me/htna/articles/multigroup.html).
+- Case studies: [early and late sessions of vibe coding](https://sonsoles.me/htna/articles/case-early-late.html)
+  and [help-seeking in vibe coding](https://sonsoles.me/htna/articles/case-vibe-coding.html).
 
-Given two HTNA networks over the same actor partition, `plot_htna_diff()`
-draws the edge-level difference `x - y`. Positive differences are green,
-negative red; networks with partially different node sets are aligned to
-the union of their nodes.
+## References
 
-For example, we compare early vs. late sessions using the `phase` column
-in the dataset, building one network from each set of sessions:
+Epskamp, S., Borsboom, D., & Fried, E. I. (2018). Estimating psychological
+networks and their accuracy: A tutorial paper. *Behavior Research Methods*,
+*50*(1), 195--212. <https://doi.org/10.3758/s13428-017-0862-1>
 
-```{r}
-early <- build_htna(subset(human_ai, phase == "Early"), actor_type = "actor_type")
-late  <- build_htna(subset(human_ai, phase == "Late"),  actor_type = "actor_type")
+López-Pernas, S., Misiejuk, K., & Saqr, M. (2026). How AI-generated feedback
+hinders or helps learning: A heterogeneous TNA study of learning dynamics.
+*Journal of Computer Assisted Learning*, *42*(4), e70285.
+<https://doi.org/10.1002/jcal.70285>
 
-plot_htna_diff(early, late)
-```
-
-The same two networks are the cohorts of
-`build_htna(human_ai, actor_type = "actor_type", group = "phase")`; see the
-grouped-HTNA article for comparing every cohort of a grouped network in
-one call.
-
-## 9. Permutation test
-
-A raw difference does not say which edges differ by more than sampling
-noise. The function `permutation_htna()` provides a non-parametric
-significance test on each edge weight difference by shuffling sessions
-between the two networks. Pass the result to `plot_htna_diff()` to render
-significant differences with the pos/neg colouring above; non-significant
-edges are dashed grey when `show_nonsig = TRUE`.
-
-```{r}
-perm <- permutation_htna(early, late, iter = 200, seed = 1)
-plot_htna_diff(perm)
-```
-
-```{r}
-plot_htna_diff(perm, show_nonsig = TRUE)
-```
-
-## 10. Path patterns
-
-`extract_meta_paths()` discovers recurring patterns at two levels. By
-default it returns concrete state-level patterns (alphabet = the code
-set `Ask`, `Plan`, `Check`, ...) and annotates each row with the
-type-level template it instantiates:
-
-```{r}
-extract_meta_paths(net, length = 3)
-```
-
-
-
-A `schema` filters the search. Each part can be a type name (expands to
-every code in that group), a concrete state, or `*`:
-
-```{r}
-extract_meta_paths(net, schema = "Human->AI->Human")
-extract_meta_paths(net, schema = "Human->Ask->*")
-```
-
-Filter by lift to surface over-represented patterns (lift > 1 means
-more frequent than independence would predict):
-
-```{r}
-extract_meta_paths(net, length = 3, min_lift = 2)
-extract_meta_paths(net, level = "type", length = 3, min_lift = 1.2)
+```{r restore-options, include = FALSE}
+options(old_options)
 ```

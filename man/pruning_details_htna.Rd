@@ -2,38 +2,37 @@
 % Please edit documentation in R/pruning_details_htna.R
 \name{pruning_details_htna}
 \alias{pruning_details_htna}
-\title{Tidy Report of a Network's Pruning}
+\title{List the edges removed by pruning}
 \usage{
 pruning_details_htna(x, ...)
 }
 \arguments{
-\item{x}{A pruned htna network (or other object accepted by
-\code{\link[Nestimate:net_pruning_details]{Nestimate::net_pruning_details()}}); S3 dispatch on \code{x} is
-preserved.}
+\item{x}{An htna network pruned with \code{\link[=prune_htna]{prune_htna()}}.}
 
-\item{...}{Additional arguments passed to
-\code{\link[Nestimate:net_pruning_details]{Nestimate::net_pruning_details()}}. See that function for details.}
+\item{...}{Unused.}
 }
 \value{
 A data frame of class \code{c("net_pruning_details", "data.frame")}
-with one row per removed edge and columns \code{from}, \code{to} and \code{weight}
-(the weight the edge had before pruning). The rule is stored in the
-attributes \code{method}, \code{threshold}, \code{lowest}, \code{cut_off}, \code{num_removed}
-and \code{num_retained}. See \code{\link[Nestimate:net_pruning_details]{Nestimate::net_pruning_details()}}.
+with one row per removed edge and columns \code{from}, \code{to} and \code{weight}.
+The rule is kept in the attributes \code{method}, \code{threshold}, \code{lowest},
+\code{cut_off}, \code{num_removed} and \code{num_retained}, and is shown by
+\code{print()}.
 }
 \description{
-htna-named wrapper for \code{\link[Nestimate:net_pruning_details]{Nestimate::net_pruning_details()}}. Returns a
-tidy data frame of the edges removed by a \code{\link[=prune_htna]{prune_htna()}} step, with the
-pruning rule that removed them recorded as attributes.
-}
-\details{
-Suffixed \verb{_htna} to avoid clashing with the tna verb
-\code{pruning_details()} and to sit alongside the rest of the htna API.
+\code{pruning_details_htna()} lists the edges that \code{\link[=prune_htna]{prune_htna()}} removed:
+which transitions were set aside and how strong they were. Pruning
+changes what a network shows, so the removed edges should be reported
+alongside the pruned network.
+
+\code{pruning_details_htna()} runs Nestimate's \code{net_pruning_details()} and
+returns a data frame with one row per removed edge and the weight each
+had before pruning. The pruning rule and the numbers of removed and
+retained edges are printed with the table.
 }
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-pruned <- prune_htna(net, method = "threshold", threshold = 0.05)
+pruned <- prune_htna(net, threshold = 0.05)
 pruning_details_htna(pruned)
 }
 \seealso{

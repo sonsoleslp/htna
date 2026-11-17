@@ -2,51 +2,64 @@
 % Please edit documentation in R/bayes_compare_htna.R
 \name{bayes_compare_htna}
 \alias{bayes_compare_htna}
-\title{Bayesian Comparison of Two Networks}
+\title{Compare networks edge by edge with a Bayesian model}
 \usage{
 bayes_compare_htna(x, y = NULL, ...)
 }
 \arguments{
-\item{x, y}{The two networks to compare, or a grouped network
-(\code{htna_group}) in \code{x} with \code{y = NULL}, in which case every cohort pair
-is compared. See \code{\link[Nestimate:bayes_compare]{Nestimate::bayes_compare()}}.}
+\item{x, y}{Two htna networks, or an \code{htna_group} in \code{x} with \code{y = NULL},
+in which case every pair of cohorts is compared.}
 
-\item{...}{Additional arguments passed to \code{\link[Nestimate:bayes_compare]{Nestimate::bayes_compare()}},
-such as \code{prior}, \code{draws}, \code{ci}, \code{mean_threshold},
-\code{bound_threshold}, and \code{seed}. See that function for the full,
-current argument list.}
+\item{...}{Settings: \code{prior} (Dirichlet concentration, default 0.5),
+\code{draws} (Monte Carlo draws, 10000), \code{ci} (credible level, 0.95),
+\code{mean_threshold} (0.01), \code{bound_threshold} (0.001) and \code{seed}.}
 }
 \value{
 For two networks, an object of class
-\code{c("net_bayes", "netdifference", "net_permutation")}. For a grouped
-network, a named list of class \code{c("net_bayes_group", "list")} with one
-such object per cohort pair. \code{print()} and \code{summary()} methods are
-supplied by Nestimate; see \code{\link[Nestimate:bayes_compare]{Nestimate::bayes_compare()}} for the full
-slot list.
+\code{c("net_bayes", "netdifference", "net_permutation")} with \code{print()},
+\code{summary()} and \code{plot()} methods. For a grouped network, a named list
+of class \code{c("net_bayes_group", "list")} with one result per cohort
+pair (for example \code{"Early vs Late"}). \code{summary()} returns a data frame
+with one row per edge (and pair) and columns including \code{from}, \code{to},
+\code{weight_x}, \code{weight_y}, \code{diff}, \code{effect_size}, \code{ci_lower}, \code{ci_upper},
+\code{p_difference}, \code{p_value} and \code{sig}. Differences are \code{x - y}; in a
+grouped comparison \code{x} is the first cohort of the pair.
 }
 \description{
-htna-named wrapper for \code{\link[Nestimate:bayes_compare]{Nestimate::bayes_compare()}}. The Bayesian
-complement of \code{\link[=permutation_htna]{permutation_htna()}}: instead of a permutation null, it
-places a prior on the transition structure and returns the posterior
-distribution of edge-weight differences between two networks.
-}
-\details{
-Works on htna networks: the actor partition (\verb{$node_groups},
-\verb{$actor_levels}, \code{htna} class) is preserved on \code{result$x} /
-\code{result$y}, and the result carries class \code{net_permutation}, so
-\code{\link[=plot_htna_diff]{plot_htna_diff()}} can render it with htna's colour and layout
-conventions, exactly like a \code{\link[=permutation_htna]{permutation_htna()}} result.
+\code{bayes_compare_htna()} compares two heterogeneous transition networks,
+for example of early and late sessions, edge by edge with a Bayesian
+model: how much more or less likely a human request is to be followed by
+an AI plan in one network than in the other, and how precisely the data
+estimate that difference. The model treats the transitions out of each
+code as a multinomial draw with a Dirichlet prior, so every transition
+probability has a Beta posterior. For each edge it reports the posterior
+mean difference, a credible interval, and the probability that the
+difference lies on its side of zero. An edge whose source code has few
+outgoing transitions gets a wide interval even when its probabilities
+look far apart.
 
-Suffixed \verb{_htna} to avoid clashing with the tna verb \code{compare()} and
-to sit alongside \code{\link[=permutation_htna]{permutation_htna()}} in the htna API.
+\code{bayes_compare_htna()} runs Nestimate's \code{bayes_compare()} with the actor
+partition kept. It compares two htna networks built with
+\code{method = "relative"} or \code{"frequency"} on the same codes, or every pair
+of cohorts of a grouped network. An edge is flagged as credibly
+different when its interval excludes zero and its mean and nearest bound
+pass \code{mean_threshold} and \code{bound_threshold}; no correction is made for
+testing many edges, and every transition is treated as an independent
+draw, so the nesting of transitions in sessions is ignored. It returns a
+\code{net_bayes} object, or one per cohort pair for a grouped network.
+
+The permutation test of \code{\link[=permutation_htna]{permutation_htna()}} respects that nesting and
+asks whether a difference exceeds chance; \code{\link[=compare_htna]{compare_htna()}} gives
+descriptive similarity measures and the differences per actor pair.
+\code{\link[=plot_htna_diff]{plot_htna_diff()}} draws the result.
 }
 \examples{
 data(human_ai)
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-# Pass the grouped network as it is; all pairwise comparisons are returned.
-bayes_compare_htna(grp, draws = 200, seed = 1)
+bc <- bayes_compare_htna(grp, draws = 200, seed = 1)
+head(summary(bc))
+plot_htna_diff(bc)
 }
 \seealso{
-\code{\link[=permutation_htna]{permutation_htna()}} for the permutation-test analogue,
-\code{\link[=plot_htna_diff]{plot_htna_diff()}} to plot the result.
+\code{\link[=permutation_htna]{permutation_htna()}}, \code{\link[=compare_htna]{compare_htna()}}, \code{\link[=plot_htna_diff]{plot_htna_diff()}}.
 }

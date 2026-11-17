@@ -3,40 +3,56 @@
 \name{plot_htna_bootstrap}
 \alias{plot_htna_bootstrap}
 \alias{plot.htna_bootstrap}
-\title{Plot an htna Bootstrap Result}
+\title{Plot the bootstrap-assessed edges of an htna network}
 \usage{
 plot_htna_bootstrap(boot, group_colors = htna_palette, ...)
 
 \method{plot}{htna_bootstrap}(x, ...)
 }
 \arguments{
-\item{boot}{An object from \code{\link[=bootstrap_htna]{bootstrap_htna()}} (or a \code{htna_bootstrap_group}
-list of them).}
+\item{boot, x}{A result of \code{\link[=bootstrap_htna]{bootstrap_htna()}}: an \code{htna_bootstrap} or an
+\code{htna_bootstrap_group}.}
 
-\item{group_colors}{Character vector of colours, one per actor group.
-Defaults to the built-in \link{htna_palette}.}
+\item{group_colors}{Colours of the actor types, in actor order. Default
+\link{htna_palette}.}
 
-\item{...}{Forwarded to \code{\link[cograph:splot]{cograph::splot.net_bootstrap()}} (e.g. \code{display},
-\code{show_ci}, \code{show_stars}). User args win.}
-
-\item{x}{Same as \code{boot}; used when calling via the \code{plot()} generic.}
+\item{...}{Further drawing arguments: \code{display} (\code{"styled"} (default),
+\code{"significant"} or \code{"full"}), \code{show_ci} (default \code{FALSE}), \code{show_stars}
+(default \code{TRUE}), \code{title}, and the arguments of \code{\link[cograph:splot]{cograph::splot()}}.}
 }
 \value{
-The value returned by \code{\link[cograph:splot]{cograph::splot.net_bootstrap()}}
-(invisibly), or the input group invisibly.
+Called for the plot. Invisibly, the value of the drawing call for
+one bootstrap, or \code{boot} for a grouped bootstrap.
 }
 \description{
-Renders the bootstrap result via \code{\link[cograph:splot]{cograph::splot.net_bootstrap()}} so the
-CI / significance / dashed-edge overlay is preserved, but overrides the
-layout and node styling to match \code{\link[=plot_htna]{plot_htna()}} (multi-group circular
-layout, warm \link{htna_palette}, darkened donut).
+\code{plot_htna_bootstrap()} plots the bootstrap-assessed edges of an htna
+network: it shows which transitions of a heterogeneous network are
+stable enough to interpret. Edges that are significant across resamples
+are drawn solid, the others dashed (or hidden), so the reader sees which
+within-actor transitions and which hand-overs between actors the data
+support. A bootstrap of a transition network resamples the sessions many
+times and records how often each edge is present and how much its weight
+varies.
+
+\code{plot_htna_bootstrap()} draws the result of \code{\link[=bootstrap_htna]{bootstrap_htna()}} in the
+layout and actor styling of \code{\link[=plot_htna]{plot_htna()}}. With \code{display = "significant"}
+only the significant edges are drawn; \code{show_ci = TRUE} adds the
+confidence interval of each edge weight. A grouped bootstrap is drawn as
+one plot per cohort, titled with its cohort name. \code{plot()} on a
+bootstrap result calls this function. It is called for the plot and
+returns, invisibly, the value of the drawing call, or \code{boot} for a
+grouped bootstrap.
+
+The table behind the plot (one row per edge, with its weight, interval
+and p-value) is returned by \code{summary()} of the bootstrap result.
 }
-\details{
-For an \code{htna_bootstrap_group} (i.e. the result of running
-\code{\link[=bootstrap_htna]{bootstrap_htna()}} on a \code{build_htna(..., group = ...)} output), each
-element is plotted individually with its name as the title - this
-function does not manage \code{par(mfrow=...)}.
+\section{Conditions}{
+
+\code{htna_empty_input} for a grouped bootstrap without cohorts;
+\code{htna_bad_input} when \code{boot} is not a result of \code{\link[=bootstrap_htna]{bootstrap_htna()}} on an
+htna network.
 }
+
 \examples{
 data(human_ai)
 net  <- build_htna(human_ai, actor_type = "actor_type")
@@ -46,6 +62,5 @@ plot_htna_bootstrap(boot, display = "significant")
 
 }
 \seealso{
-\code{\link[=bootstrap_htna]{bootstrap_htna()}}, \code{\link[=plot_htna]{plot_htna()}},
-\code{\link[cograph:splot]{cograph::splot.net_bootstrap()}}.
+\code{\link[=bootstrap_htna]{bootstrap_htna()}}, \code{\link[=plot_htna]{plot_htna()}}, \code{\link[=certainty_htna]{certainty_htna()}}
 }

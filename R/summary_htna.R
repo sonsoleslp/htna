@@ -1,163 +1,229 @@
-#' Summarise a Heterogeneous Transition Network
+#' Summarize a heterogeneous transition network
 #'
-#' Prints a per-actor summary of an htna network: which nodes belong to
-#' which actor type and how the non-zero edges distribute across the
-#' actor partition. The result is also returned invisibly as a list so
-#' callers can inspect the structured summary programmatically.
+#' @description
+#' `summary()` summarizes a heterogeneous transition network by its actor
+#' partition; `print()` shows the summary and `as.data.frame()` returns its
+#' tables. A heterogeneous transition network is described first by which
+#' codes belong to which actor type, and how the transitions between codes
+#' fall within and between the actors. The summary reports the network's
+#' size (sessions, nodes and non-zero edges), the nodes of each actor, the
+#' number of non-zero edges in every directed actor-pair block (for example
+#' Human to AI), and the standard network-level descriptive metrics
+#' (density, mean distance, strength, degree centralization and
+#' reciprocity).
 #'
-#' For an `htna_group`, the summary is printed once per cohort and the
-#' return value is a named list of the per-cohort lists described under
-#' Value.
+#' `summary()` returns the summary as a `summary.htna` object; printing it
+#' shows the report. For a grouped network, the summary of every cohort is
+#' returned and printed in turn. The tables of the summary are returned as
+#' data frames by `as.data.frame()`.
 #'
 #' @param object An htna network from [build_htna()] or an `htna_group`.
-#' @param max_nodes Integer. Maximum number of nodes to list per actor
-#'   type before truncating with an ellipsis. Default `12`.
-#' @param ... Forwarded for compatibility; currently unused.
+#' @param max_nodes Maximum number of nodes listed per actor type when the
+#'   summary is printed (default 12).
+#' @param x A `summary.htna` or `summary.htna_group` object.
+#' @param row.names,optional Ignored; present for the generic.
+#' @param what Table to return: `"actors"` (default; one row per actor type
+#'   with its number of nodes and their names), `"actor_pairs"` (one row per
+#'   directed actor pair with the number of non-zero edges) or `"metrics"`
+#'   (one row per network metric).
+#' @param ... Unused.
 #'
-#' @return Invisibly, a list with components:
-#'   \itemize{
-#'     \item `actors` - data frame with one row per actor type (`actor`,
-#'       `n_nodes`, `nodes`).
-#'     \item `edges_by_actor` - integer matrix of non-zero edge counts,
-#'       rows are source actor, columns are target actor.
-#'     \item `network_metrics` - data frame (columns `metric`, `value`) of
-#'       standard network-level descriptive metrics from the Nestimate
-#'       engine (node/edge counts, density, distance, strength, degree
-#'       centralization, and reciprocity).
-#'     \item `n_nodes`, `n_edges`, `n_sessions`, `n_timesteps`,
-#'       `method`.
-#'   }
+#' @return `summary()` returns an object of class `summary.htna`: a list
+#'   with `actors` (data frame: `actor`, `n_nodes`, `nodes`),
+#'   `edges_by_actor` (integer matrix of non-zero edge counts, source actors
+#'   in rows), `network_metrics` (data frame: `metric`, `value`), and the
+#'   scalars `n_nodes`, `n_edges`, `n_sessions`, `n_timesteps` and `method`.
+#'   For an `htna_group` it returns a `summary.htna_group`, a named list of
+#'   `summary.htna` objects. `print()` returns its input invisibly.
+#'   `as.data.frame()` returns the table chosen by `what`; for a grouped
+#'   summary the cohorts are stacked with a leading `group` column.
+#'
+#' @seealso [build_htna()], [as.data.frame.htna()] for the edge and node
+#'   tables of the network itself.
 #'
 #' @examples
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' summary(net)
+#' as.data.frame(summary(net), what = "actor_pairs")
+#'
+#' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#' as.data.frame(summary(grp), what = "metrics")
 #'
 #' @export
 summary.htna <- function(object, max_nodes = 12L, ...) {
-  invisible(.print_htna_summary(
-    object,
-    max_nodes = max_nodes,
-    network_metrics = .htna_network_summary(object)
-  ))
+  out <- .htna_summary_object(object, .htna_network_summary(object))
+  attr(out, "max_nodes") <- max_nodes
+  out
 }
 
 #' @rdname summary.htna
 #' @export
 summary.htna_group <- function(object, max_nodes = 12L, ...) {
-  if (length(object) == 0L) {
-    cat("<htna_group: empty>\n")
-    return(invisible(list()))
-  }
   nms <- names(object) %||% as.character(seq_along(object))
-  cat("<htna_group: ", length(object), " cohort",
-      if (length(object) != 1L) "s", " (",
-      paste(nms, collapse = ", "), ")>\n\n", sep = "")
-  out <- vector("list", length(object))
-  names(out) <- nms
-  for (i in seq_along(object)) {
-    cat("=== ", nms[i], " ===\n", sep = "")
-    out[[i]] <- .print_htna_summary(
-      object[[i]],
-      max_nodes = max_nodes,
-      network_metrics = .htna_network_summary(object[[i]])
-    )
-    if (i != length(object)) cat("\n")
-  }
-  invisible(out)
+  out <- lapply(unclass(object), summary.htna, max_nodes = max_nodes)
+  names(out) <- if (length(out)) nms else NULL
+  structure(out, class = "summary.htna_group")
 }
 
-#' @keywords internal
-.print_htna_summary <- function(net, max_nodes = 12L,
-                                network_metrics = NULL) {
-  ng <- net$node_groups
-  if (is.null(ng) || nrow(ng) == 0L) {
-    cat("<htna network: no actor partition>\n")
-    return(invisible(NULL))
+#' @rdname summary.htna
+#' @export
+print.summary.htna <- function(x, max_nodes = attr(x, "max_nodes") %||% 12L,
+                               ...) {
+  .print_htna_summary(x, max_nodes = max_nodes)
+  invisible(x)
+}
+
+#' @rdname summary.htna
+#' @export
+print.summary.htna_group <- function(x, ...) {
+  if (length(x) == 0L) {
+    cat("<htna_group: empty>\n")
+    return(invisible(x))
   }
+  nms <- names(x)
+  cat("<htna_group: ", length(x), " cohort",
+      if (length(x) != 1L) "s", " (",
+      paste(nms, collapse = ", "), ")>\n\n", sep = "")
+  lapply(seq_along(x), function(i) {
+    cat("=== ", nms[i], " ===\n", sep = "")
+    print(x[[i]], ...)
+    if (i != length(x)) cat("\n")
+  })
+  invisible(x)
+}
 
-  actor_levels <- net$actor_levels %||% unique(as.character(ng$group))
-  n_nodes      <- nrow(net$weights %||% matrix(0, 0, 0))
-  W            <- net$weights
-  n_edges_total <- if (!is.null(W)) length(W) else NA_integer_
-  n_edges_nz    <- if (!is.null(W)) sum(W != 0, na.rm = TRUE) else NA_integer_
+#' @rdname summary.htna
+#' @export
+as.data.frame.summary.htna <- function(x, row.names = NULL, optional = FALSE,
+                                       ...,
+                                       what = c("actors", "actor_pairs",
+                                                "metrics")) {
+  what <- match.arg(what)
+  switch(what,
+    actors = x$actors,
+    actor_pairs = .actor_pair_counts(x$edges_by_actor),
+    metrics = {
+      metrics <- x$network_metrics
+      class(metrics) <- "data.frame"
+      metrics
+    }
+  )
+}
 
-  data_df    <- net$data
-  n_sessions <- if (is.data.frame(data_df)) nrow(data_df) else NA_integer_
-  n_steps    <- if (is.data.frame(data_df)) ncol(data_df) else NA_integer_
-  method     <- net$method %||% "?"
+#' @rdname summary.htna
+#' @export
+as.data.frame.summary.htna_group <- function(x, row.names = NULL,
+                                             optional = FALSE, ...,
+                                             what = c("actors",
+                                                      "actor_pairs",
+                                                      "metrics")) {
+  what <- match.arg(what)
+  .stack_by(x, "group", function(item) {
+    as.data.frame.summary.htna(item, what = what)
+  })
+}
 
-  # ---- Header --------------------------------------------------------
-  cat("<htna network>\n")
-  cat(sprintf("  Method:    %s\n", method))
-  if (!is.na(n_sessions))
-    cat(sprintf("  Sessions:  %d   (max %d timesteps)\n",
-                n_sessions, n_steps))
-  cat(sprintf("  Nodes:     %d\n", n_nodes))
-  if (!is.na(n_edges_total))
-    cat(sprintf("  Edges:     %d / %d (non-zero)\n",
-                n_edges_nz, n_edges_total))
-
-  # ---- Per-actor breakdown ------------------------------------------
-  cat(sprintf("\nActor types (%d):\n", length(actor_levels)))
-  label_w  <- max(nchar(actor_levels))
-  actors_df <- data.frame(
-    actor   = actor_levels,
-    n_nodes = integer(length(actor_levels)),
-    nodes   = character(length(actor_levels)),
+#' Tidy one-row-per-block table from the actor edge-count matrix
+#' @keywords internal
+#' @noRd
+.actor_pair_counts <- function(em) {
+  actors <- rownames(em)
+  blocks <- expand.grid(target_actor = actors, source_actor = actors,
+                        stringsAsFactors = FALSE)
+  data.frame(
+    source_actor = factor(blocks$source_actor, levels = actors),
+    target_actor = factor(blocks$target_actor, levels = actors),
+    n_edges = em[cbind(blocks$source_actor, blocks$target_actor)],
     stringsAsFactors = FALSE
   )
-  for (i in seq_along(actor_levels)) {
-    a       <- actor_levels[i]
-    a_nodes <- as.character(ng$node[as.character(ng$group) == a])
-    actors_df$n_nodes[i] <- length(a_nodes)
-    actors_df$nodes[i]   <- paste(a_nodes, collapse = ", ")
-    n_show  <- min(length(a_nodes), max_nodes)
-    shown   <- a_nodes[seq_len(n_show)]
-    suffix  <- if (length(a_nodes) > max_nodes) {
-      sprintf(", ... (+%d more)", length(a_nodes) - max_nodes)
-    } else ""
-    cat(sprintf("  %-*s (%d nodes):  %s%s\n",
-                label_w, a, length(a_nodes),
-                paste(shown, collapse = ", "), suffix))
-  }
+}
 
-  # ---- Edge-count matrix by actor ----------------------------------
-  if (!is.null(W) && length(actor_levels) >= 2L) {
-    node_actor <- setNames(as.character(ng$group),
-                           as.character(ng$node))
-    src_actor  <- node_actor[rownames(W)]
-    tgt_actor  <- node_actor[colnames(W)]
-    em <- matrix(0L, length(actor_levels), length(actor_levels),
-                 dimnames = list(actor_levels, actor_levels))
-    nz <- which(W != 0, arr.ind = TRUE)
-    if (nrow(nz) > 0L) {
-      tab <- table(factor(src_actor[nz[, 1L]], levels = actor_levels),
-                   factor(tgt_actor[nz[, 2L]], levels = actor_levels))
-      em[] <- as.integer(tab)
-    }
-    cat("\nEdge counts by actor (rows = source, cols = target):\n")
-    .print_actor_matrix(em)
+#' Compute the summary list of one htna network
+#' @keywords internal
+#' @noRd
+.htna_summary_object <- function(net, network_metrics = NULL) {
+  ng <- net$node_groups
+  if (!is.data.frame(ng) || nrow(ng) == 0L) {
+    .htna_stop("`object` has no actor partition (`node_groups` is empty); ",
+               "build it with `build_htna()`.",
+               class = "htna_unassigned_node")
   }
+  actor_levels <- net$actor_levels %||% unique(as.character(ng$group))
+  W <- net$weights
+  data_df <- net$data
+  node_actor <- stats::setNames(as.character(ng$group),
+                                as.character(ng$node))
 
-  if (!is.null(network_metrics)) {
-    cat("\nNetwork metrics:\n")
-    print.data.frame(network_metrics, row.names = FALSE)
-  }
+  actor_nodes <- lapply(actor_levels, function(a) {
+    as.character(ng$node[as.character(ng$group) == a])
+  })
+  actors_df <- data.frame(
+    actor   = actor_levels,
+    n_nodes = lengths(actor_nodes),
+    nodes   = vapply(actor_nodes, paste, character(1L), collapse = ", "),
+    stringsAsFactors = FALSE
+  )
 
-  invisible(list(
-    actors         = actors_df,
-    edges_by_actor = if (exists("em")) em else NULL,
-    network_metrics = network_metrics,
-    n_nodes        = n_nodes,
-    n_edges        = n_edges_nz,
-    n_sessions     = n_sessions,
-    n_timesteps    = n_steps,
-    method         = method
+  nz <- which(W != 0, arr.ind = TRUE)
+  em <- unclass(table(
+    factor(node_actor[rownames(W)][nz[, 1L]], levels = actor_levels),
+    factor(node_actor[colnames(W)][nz[, 2L]], levels = actor_levels)
   ))
+  em <- matrix(as.integer(em), nrow = length(actor_levels),
+               dimnames = list(actor_levels, actor_levels))
+
+  structure(list(
+    actors          = actors_df,
+    edges_by_actor  = em,
+    network_metrics = network_metrics,
+    n_nodes         = nrow(W),
+    n_edges         = sum(W != 0, na.rm = TRUE),
+    n_sessions      = if (is.data.frame(data_df)) nrow(data_df) else NA_integer_,
+    n_timesteps     = if (is.data.frame(data_df)) ncol(data_df) else NA_integer_,
+    method          = net$method %||% "?"
+  ), class = "summary.htna")
+}
+
+#' Print the report of one `summary.htna`
+#' @keywords internal
+#' @noRd
+.print_htna_summary <- function(s, max_nodes = 12L) {
+  cat("<htna network>\n")
+  cat(sprintf("  Method:    %s\n", s$method))
+  if (!is.na(s$n_sessions)) {
+    cat(sprintf("  Sessions:  %d   (max %d timesteps)\n",
+                s$n_sessions, s$n_timesteps))
+  }
+  cat(sprintf("  Nodes:     %d\n", s$n_nodes))
+  cat(sprintf("  Edges:     %d / %d (non-zero)\n", s$n_edges,
+              s$n_nodes^2))
+
+  actors <- s$actors
+  cat(sprintf("\nActor types (%d):\n", nrow(actors)))
+  node_lists <- strsplit(actors$nodes, ", ", fixed = TRUE)
+  shown <- vapply(node_lists, function(v) {
+    suffix <- if (length(v) > max_nodes) {
+      sprintf(", ... (+%d more)", length(v) - max_nodes)
+    } else ""
+    paste0(paste(utils::head(v, max_nodes), collapse = ", "), suffix)
+  }, character(1L))
+  cat(sprintf("  %-*s (%d nodes):  %s\n", max(nchar(actors$actor)),
+              actors$actor, actors$n_nodes, shown), sep = "")
+
+  if (nrow(actors) >= 2L) {
+    cat("\nEdge counts by actor (rows = source, cols = target):\n")
+    .print_actor_matrix(s$edges_by_actor)
+  }
+  if (!is.null(s$network_metrics)) {
+    cat("\nNetwork metrics:\n")
+    print.data.frame(s$network_metrics, row.names = FALSE)
+  }
+  invisible(s)
 }
 
 #' @keywords internal
+#' @noRd
 .htna_network_summary <- function(net) {
   # Remove only htna's leading dispatch class so the Nestimate engine's
   # summary method computes its canonical metric table. The network itself is
@@ -168,19 +234,17 @@ summary.htna_group <- function(object, max_nodes = 12L, ...) {
 }
 
 #' @keywords internal
+#' @noRd
 .print_actor_matrix <- function(em) {
-  rn <- rownames(em); cn <- colnames(em)
+  rn <- rownames(em)
+  cn <- colnames(em)
   col_w <- max(nchar(cn), max(nchar(as.character(em))), 5L)
   row_w <- max(nchar(rn))
-  # Header
-  cat(sprintf("  %-*s", row_w + 2L, ""))
-  for (c in cn) cat(sprintf(" %*s", col_w, c))
-  cat("\n")
-  for (i in seq_len(nrow(em))) {
-    cat(sprintf("  %-*s", row_w + 2L, rn[i]))
-    for (j in seq_len(ncol(em))) {
-      cat(sprintf(" %*d", col_w, em[i, j]))
-    }
-    cat("\n")
-  }
+  header <- paste0(sprintf("  %-*s", row_w + 2L, ""),
+                   paste(sprintf(" %*s", col_w, cn), collapse = ""))
+  rows <- vapply(seq_len(nrow(em)), function(i) {
+    paste0(sprintf("  %-*s", row_w + 2L, rn[i]),
+           paste(sprintf(" %*d", col_w, em[i, ]), collapse = ""))
+  }, character(1L))
+  cat(header, rows, sep = "\n")
 }

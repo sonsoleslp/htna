@@ -1,37 +1,35 @@
-#' Chi-square Mosaic Plot of a Transition Network
+#' Plot a chi-square mosaic of the transitions of an htna network
 #'
-#' htna-named wrapper for [Nestimate::mosaic_plot()]. Renders a
-#' chi-square mosaic where row x column area equals the joint share
-#' of `(from, to)` transitions and fill encodes the standardized
-#' residual (blue = over-represented, red = under-represented,
-#' white = at-expected).
+#' @description
+#' `mosaic_plot_htna()` plots a chi-square mosaic of the transitions of an
+#' htna network. A mosaic plot of a transition table shows, for every pair
+#' of codes, the share of all transitions that go from the first code to the
+#' second (the area of the tile) and how far that count lies from what
+#' independence of the source and target codes would predict (the colour of
+#' the tile, from the standardized residual of a chi-square test).
+#' Over-represented transitions are shaded blue and under-represented ones
+#' red. In a heterogeneous network the plot shows which hand-overs between
+#' actors are more or less frequent than the overall frequencies of the
+#' codes imply.
 #'
-#' Designed with htna in mind: Nestimate ships an explicit
-#' `mosaic_plot.htna` S3 method that recognises the actor partition
-#' on `htna` networks. Pass an htna network from [build_htna()]
-#' directly. The underlying transition matrix must be integer-weighted
-#' (build with `method = "frequency"`), since the chi-square test
-#' needs counts.
+#' `mosaic_plot_htna()` draws the mosaic of the transition counts of an htna
+#' network with Nestimate's `mosaic_plot()`, with the axis labels coloured
+#' by actor type. The chi-square test needs counts, so build the network
+#' with `method = "frequency"`. With `n_perm`, p-values are obtained by
+#' permutation (set `seed` for a reproducible result). It returns a `ggplot`
+#' object.
 #'
-#' Axis tick labels are coloured by actor group using the htna
-#' palette ([htna_palette]), matching the colours used elsewhere in
-#' htna (e.g. [plot_htna()]).
+#' For the marginal frequencies of the codes use [plot_frequencies_htna()].
 #'
-#' Suffixed `_htna` to avoid clashing with `Nestimate::mosaic_plot()`
-#' when both packages are loaded.
+#' @param x An htna network built with `method = "frequency"`.
+#' @param ... Further arguments of `Nestimate::mosaic_plot()`, such as
+#'   `n_perm` and `seed`.
 #'
-#' @param x An htna network built with `method = "frequency"` (or other
-#'   object accepted by [Nestimate::mosaic_plot()]); S3 dispatch on `x`
-#'   is preserved, so `htna` objects use `mosaic_plot.htna`.
-#' @param ... Additional arguments passed to [Nestimate::mosaic_plot()],
-#'   such as `n_perm` and `seed`. See that function for details.
+#' @return A `ggplot` object (or a `gtable` for some inputs), which is drawn
+#'   when printed.
 #'
-#' @return A ggplot or gtable, depending on input shape. See
-#'   [Nestimate::mosaic_plot()] for full details and the per-class S3
-#'   methods.
+#' @seealso [plot_frequencies_htna()], [frequencies_htna()], [build_htna()]
 #'
-#' @seealso [plot_frequencies_htna()] for the marginal-frequency
-#'   companion view.
 #' @examples
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type",
@@ -39,7 +37,18 @@
 #' mosaic_plot_htna(net, n_perm = 50, seed = 1)
 #' @export
 mosaic_plot_htna <- function(x, ...) {
-  p <- Nestimate::mosaic_plot(x, ...)
+  # Nestimate's group strips colour each tick label through a vectorized
+  # `element_text()` colour, which ggplot2 flags as "not officially
+  # supported". It is the standard idiom for per-tick colours (htna uses it
+  # below too); muffle only that warning, leave any other alone.
+  p <- withCallingHandlers(
+    Nestimate::mosaic_plot(x, ...),
+    warning = function(w) {
+      if (grepl("Vectorized input to .element_text", conditionMessage(w))) {
+        invokeRestart("muffleWarning")
+      }
+    }
+  )
   if (inherits(x, "htna") && inherits(p, "ggplot") &&
       !is.null(x$node_groups)) {
     p <- .htna_color_mosaic_axes(p, x)

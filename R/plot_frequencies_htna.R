@@ -1,42 +1,47 @@
-#' Plot State Frequencies (htna-named)
+#' Plot the frequencies of the codes of an htna network
 #'
-#' Renders one of three views of an htna network's state frequencies:
-#' the upstream treemap (default), a combined actor-coloured bar
-#' chart, or a per-actor faceted bar chart.
+#' @description
+#' `plot_frequencies_htna()` plots the frequencies of the codes of an htna
+#' network: the number of occurrences of every code, coloured by its actor
+#' type. Knowing how often each code occurs helps before transitions are
+#' interpreted: a rare code can have extreme transition probabilities that
+#' rest on a few events, and the balance between the actor types (how much
+#' the human and the AI each contribute) frames every later comparison.
 #'
-#' Suffixed `_htna` to avoid clashing with
-#' `Nestimate::plot_state_frequencies()` when both packages are loaded.
+#' `plot_frequencies_htna()` draws one of three views: a treemap of the codes
+#' (`"treemap"`, the default, drawn with Nestimate's
+#' `plot_state_frequencies()`), a single bar chart of all codes sorted by
+#' count (`"bars"`), or one bar chart per actor type (`"facet"`). The bar
+#' views are 'ggplot2' charts and need that package. It returns the
+#' frequency object for the treemap and a `ggplot` object for the bar views.
+#'
+#' The counts and proportions behind the plot are returned as a table by
+#' [frequencies_htna()]. For how the transitions from each code deviate from
+#' independence use [mosaic_plot_htna()].
 #'
 #' @param x An htna network from [build_htna()].
-#' @param view One of `"treemap"` (default), `"bars"`, or `"facet"`.
-#'   * `"treemap"` forwards to [Nestimate::plot_state_frequencies()]
-#'     and renders the chart automatically; returns the underlying
-#'     `state_freq` object invisibly.
-#'   * `"bars"` builds a combined bar chart with all states on one
-#'     y-axis, sorted by count, fill coloured by actor (using
-#'     `htna_palette` keyed off `x$actor_levels`). Returns the ggplot.
-#'   * `"facet"` builds a per-actor faceted bar chart with
-#'     `scales = "free_y"` so each panel only shows its own actor's
-#'     states. Returns the ggplot.
-#' @param ... Forwarded to [Nestimate::plot_state_frequencies()] when
-#'   `view = "treemap"`. Ignored for `"bars"` and `"facet"`; those
-#'   return ggplot objects, so customisation works through standard
-#'   ggplot composition (`+ theme(...)`, `+ labs(...)`,
-#'   `+ scale_fill_*()`, etc.).
+#' @param view `"treemap"` (default), `"bars"` or `"facet"`.
+#' @param ... Further arguments of `Nestimate::plot_state_frequencies()` for
+#'   the treemap; ignored by the bar views.
 #'
-#' @return For `view = "treemap"`: the `state_freq` object invisibly.
-#'   For `"bars"` / `"facet"`: a ggplot, returned visibly so the
-#'   chart auto-prints and standard `+` composition works.
+#' @return For `"treemap"`, invisibly, the frequency object of class
+#'   `state_freq` (its table via `as.data.frame()`). For `"bars"` and
+#'   `"facet"`, a `ggplot` object, which can be modified with `+`.
 #'
-#' @seealso [frequencies_htna()] for the underlying tidy table,
-#'   [state_frequencies_htna()], [state_distribution_htna()],
-#'   [mosaic_plot_htna()].
+#' @section Conditions:
+#' `htna_missing_package` when 'ggplot2' is not installed for a bar view;
+#' `htna_bad_input` when a bar view is asked for an object that is not an
+#' htna network.
+#'
+#' @seealso [frequencies_htna()], [state_frequencies_htna()],
+#'   [state_distribution_htna()], [mosaic_plot_htna()]
+#'
 #' @examples
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
-#' plot_frequencies_htna(net, view = "treemap")
+#' plot_frequencies_htna(net)
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   plot_frequencies_htna(net, view = "bars")
+#'   plot_frequencies_htna(net, view = "facet")
 #' }
 #' @export
 plot_frequencies_htna <- function(x,
@@ -51,14 +56,15 @@ plot_frequencies_htna <- function(x,
   }
 
   if (!requireNamespace("ggplot2", quietly = TRUE)) {  # nocov start
-    stop("`plot_frequencies_htna(view = '", view, "')` needs the ",
-         "'ggplot2' package. Install it with ",
-         "`install.packages(\"ggplot2\")`.", call. = FALSE)
+    .htna_stop("`plot_frequencies_htna(view = '", view, "')` needs the ",
+               "'ggplot2' package. Install it with ",
+               "`install.packages(\"ggplot2\")`.",
+               class = "htna_missing_package")
   }                                                    # nocov end
 
   if (!inherits(x, "htna")) {
-    stop("`view = '", view, "'` requires an htna network from ",
-         "build_htna().", call. = FALSE)
+    .htna_stop("`view = '", view, "'` requires an htna network from ",
+               "build_htna().")
   }
 
   sd <- frequencies_htna(x)

@@ -1,250 +1,229 @@
 ---
-title: "Model assessment for htna networks"
-output: rmarkdown::html_vignette
+title: "Model assessment"
+author: "Written by [Mohammed Saqr](https://saqr.me) and [Sonsoles López-Pernas](https://sonsoles.me)"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
 vignette: >
-  %\VignetteIndexEntry{Model assessment for htna networks}
+  %\VignetteIndexEntry{Model assessment}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse  = TRUE,
-  comment   = "#>",
-  message   = FALSE,
-  warning   = FALSE,
-  fig.width = 8, 
-  fig.height = 5, 
-  dpi = 90
-)
+```{r options, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", message = FALSE,
+                      fig.width = 7, fig.height = 5, fig.align = "center",
+                      dpi = 96)
+old_options <- options(digits = 3, width = 90)
 ```
 
+A heterogeneous transition network is an estimate. Every edge weight is a
+proportion computed from the sessions that happened to be observed, and
+every centrality is a function of those proportions. Claims drawn from one
+estimate, that a transition from a human request to an AI action is strong,
+that one code is more central than another, or that the AI hands back to the
+human more often than it continues on its own, rest on the assumption that
+another sample of sessions would give a similar network. Model assessment
+quantifies how far that assumption holds before the network is used as
+evidence (Saqr et al., 2025).
 
+The assessments answer different questions and sit at different levels of
+the network. The bootstrap and its closed-form counterpart ask which
+individual edges are estimated precisely enough to interpret. Split-half
+reliability asks whether the network as a whole would be the same in another
+half of the data. Case-dropping stability asks how many sessions can be lost
+before the ordering of the edges or of the node centralities changes. A
+fourth question, whether a first-order network is adequate at all, is the
+subject of the [Markov-order adequacy](markov-order.html) guide. Every
+function below takes an htna network or a grouped network, and every
+result has a `plot()` method.
 
-A heterogeneous transition network is a sample-based estimate of a
-generative process. Each edge weight is a statistic computed from
-the observed sequences, and as with any statistic the value carries
-sampling variability. Interpretive claims drawn from a single
-estimate — that an edge is strong, that one node is more central
-than another, that a particular state dominates a phase of the
-trajectory — depend on assumptions about that variability. Model
-assessment is the procedure by which those assumptions are
-quantified, before the network is used as evidence.
-
-Four assessments are commonly applied to transition networks
-(Saqr et al., 2025) and are exposed by the htna package as wrappers
-around the `Nestimate` implementations:
-
-1. **Split-half reliability**: estimates the agreement between two
-   networks built from independent halves of the corpus.
-2. **Edge-weight case-dropping stability**: estimates the proportion
-   of cases that may be removed before the rank-ordering of edge
-   weights deteriorates.
-3. **Centrality stability**: estimates the proportion of cases that
-   may be removed before node-level centrality rankings cease to be
-   stable.
-4. **Markov-order adequacy**: tests whether a first-order Markov
-   model is sufficient to describe the observed transitions, or
-   whether higher-order dependencies are required.
-
-Each assessment is computed by a single function and visualised by
-calling `plot()` on the result. The htna wrappers preserve the
-actor partition (`$node_groups`, `$actor_levels`) on resampled
-networks, so the assessment results remain compatible with downstream
-htna-aware analysis.
-
-# Data and baseline network
-
-The example uses the bundled `human_ai` corpus -- Human + AI events
-in a single long frame, tagged by an `actor_type` column (see
-`?human_ai`). The default htna network is constructed under the
-relative-probability scheme (`method = "relative"`); every assessment
-below, including the Markov-order test, takes this network directly.
-
-```{r load}
+```{r package}
 library(htna)
-data(human_ai)
+```
 
+## Data
+
+`human_ai` holds 429 sessions of human-AI pair programming coded into six
+human and six AI codes; each row is one coded event.
+
+- **Session**: `session_id`; the unit that is resampled, split and dropped.
+- **Code**: `code`; the node of the network.
+- **Actor type**: `actor_type`, `"Human"` or `"AI"`.
+- **Order**: `order_in_session`; the position of the event in its session.
+
+The network assessed throughout is the relative transition network of all
+sessions.
+
+```{r build}
+data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 ```
 
-# Split-half reliability
+## Which edges are estimated precisely?
 
-Split-half reliability quantifies the consistency of the network
-estimate across random partitions of the corpus. At each iteration,
-the sessions are partitioned uniformly at random into two halves; a
-network is estimated on each half; and four discrepancy metrics are
-computed between the two estimates: mean absolute deviation, median
-absolute deviation, maximum absolute deviation, and the Pearson
-correlation between the flattened edge-weight vectors. The procedure
-is repeated `iter` times and the metrics are summarised across
-iterations.
+`bootstrap_htna()` resamples the 429 sessions with replacement, rebuilds the
+network on every resample and summarizes the distribution of each edge
+weight. Under the default stability test, an edge is significant when its
+resampled weights stay within 75% to 125% of the observed weight often
+enough for the p-value to fall below 0.05.
 
-The Pearson correlation provides a one-number summary of similarity.
-Values above 0.95 indicate near-identical estimates between halves;
-values between 0.90 and 0.95 indicate substantively similar estimates
-with minor sample-dependent variation; values below 0.85 indicate
-that interpretation should be tempered.
+```{r bootstrap}
+boot <- bootstrap_htna(net, iter = 200, seed = 1)
+boot
+```
+
+Of the 135 non-zero edges, 64 are reproduced by the resamples within the
+consistency range. The strongest edge, from the AI's `Delegate` to its own
+`Plan`, has a bootstrap mean of 0.611 with a 95% interval from 0.546 to
+0.673. The edge table, one row per edge, holds the interval and the
+p-value of every edge.
+
+```{r bootstrap-table}
+head(summary(boot))
+```
+
+Weak edges fail the stability test even when they are clearly present: the
+self-transition of `Ask` has a weight of 0.0182 and an interval from 0.0129
+to 0.0242 that excludes zero, but its resampled weights leave the narrow
+consistency range around such a small weight too often (p = 0.154). The
+test asks whether a weight is reproduced, not whether it differs from
+zero. `plot_htna_bootstrap()` draws the network with the edges that pass
+the test.
+
+```{r bootstrap-plot, fig.height = 5.5}
+plot_htna_bootstrap(boot, display = "significant")
+```
+
+`certainty_htna()` derives the same quantities in closed form, from the
+Dirichlet posterior of each row of transition counts, without resampling.
+
+```{r certainty}
+cert <- certainty_htna(net)
+cert
+```
+
+The closed-form analysis marks 68 edges as certain, and its intervals for the
+strongest edges are close to the bootstrap ones (0.600, from 0.543 to 0.656,
+for `Delegate` to `Plan`). The two verdicts agree on most edges:
+
+```{r certainty-agreement}
+both <- merge(summary(boot), summary(cert), by = c("from", "to"))
+xtabs(~ sig.x + sig.y, data = both)
+```
+
+Of the 135 edges, 61 pass both tests and 64 fail both; the 10 disagreements
+are edges near the boundary of the consistency range. The closed-form
+analysis treats every transition as independent and so ignores the nesting of
+transitions in sessions, which the bootstrap respects; it is the faster
+screen, and the bootstrap the analysis to report.
+
+## Would another half of the data give the same network?
+
+`reliability_htna()` splits the sessions at random into two halves 200 times,
+estimates a network from each half, and compares the two networks.
 
 ```{r reliability}
-rel <- reliability_htna(net, iter = 200L, seed = 1L)
+rel <- reliability_htna(net, iter = 200, seed = 1)
 rel
 ```
+
+Two networks estimated from disjoint halves of the sessions correlate at
+0.982 on average (SD 0.0047), and their edge weights differ by 0.0125 on
+average. Even the largest difference between the halves, 0.0955 on average,
+is small beside the strongest edges of around 0.4 to 0.6. The network as a
+whole does not depend on which sessions were sampled.
 
 ```{r reliability-plot}
 plot(rel)
 ```
 
- 
+## How many sessions can be lost before the edge ordering changes?
 
-# Edge-weight case-dropping stability
-
-Case-dropping stability refines reliability by quantifying how much
-of the sample may be removed before the *ordering* of edge weights
-changes. For each drop proportion in a fixed grid (default: 0.1 to
-0.9 in steps of 0.1), a fraction of the sessions is removed at
-random, the network is re-estimated, and the rank correlation
-(Spearman by default; configurable via `method =`) between the
-flattened edge-weight vector (off-diagonal by default; see
-`include_diag`) of the reduced network and the original is recorded.
-The procedure is repeated `iter` times per drop proportion.
-
-The CS-coefficient (Epskamp et al., 2018) is defined as the maximum
-drop proportion at which the rank correlation remains above
-`threshold` (default 0.7) in at least `certainty` of the iterations
-(default 0.95). A coefficient of 0.5 indicates that the edge ranking
-is robust to removing half of the sample. Conventional cut-offs
-(Epskamp et al., 2018) treat CS > 0.25 as acceptable and CS > 0.5
-as preferred for inferential use.
+`casedrop_reliability_htna()` drops increasing proportions of the sessions,
+from 10% to 90%, re-estimates the network and correlates its edge weights
+with those of the full network (Spearman correlation, off-diagonal edges).
+The case-dropping stability (CS) coefficient is the largest proportion that
+can be dropped while the correlation stays above 0.7 in at least 95% of the
+200 resamples per proportion (Epskamp et al., 2018).
 
 ```{r casedrop}
-cd <- casedrop_reliability_htna(net, iter = 200L, seed = 1L)
+cd <- casedrop_reliability_htna(net, iter = 200, seed = 1)
 cd
 ```
+
+The CS coefficient is 0.90, the largest proportion tested: even with 90% of
+the sessions dropped, the 125 off-diagonal edge weights correlate with
+those of the full network at 0.912 on average. The ordering of the edges is
+therefore stable well beyond the conventional criterion of 0.5.
 
 ```{r casedrop-plot}
 plot(cd)
 ```
 
-The four-panel display shows the across-iteration mean of each
-metric (mean / median / maximum absolute deviation, and rank
-correlation) across drop proportions, with ribbons at ±1 SD across
-iterations. The dashed reference line on the correlation panel
-marks the threshold used to compute the CS-coefficient.
+## Are the centrality rankings stable?
 
-# Centrality stability
+Analyses often interpret rankings of codes by centrality rather than single
+edges. `centrality_stability_htna()` applies the case-dropping procedure to
+the in-strength, out-strength and betweenness of the codes.
 
-Reliability and case-dropping stability address the network as a
-whole and the edge ranking, respectively. Centrality stability
-addresses the node-level summaries that are commonly the target of
-substantive interpretation. Many studies that report on transition
-networks do not interpret individual edges; they interpret rankings
-of nodes by centrality measures such as in-strength, out-strength,
-or betweenness. Such rankings are only safely interpretable when
-they are themselves stable under resampling.
-
-`centrality_stability_htna()` applies the case-dropping procedure to
-node-level centralities, computing each measure at every iteration
-and quantifying the rank consistency of nodes across iterations.
-The CS-coefficient is reported per measure.
-
-```{r cstab}
-cs <- centrality_stability_htna(
-  net,
-  measures = c("InStrength", "OutStrength", "Betweenness"),
-  iter     = 200L,
-  seed     = 1L
-)
-cs
+```{r centrality-stability}
+cs <- centrality_stability_htna(net, iter = 200, seed = 1)
+as.data.frame(cs)
 ```
 
-```{r cstab-plot}
+All three measures reach the maximum CS coefficient of 0.9. The correlation
+traces behind the coefficients show how much of that margin each measure
+has:
+
+```{r centrality-stability-table}
+as.data.frame(cs, what = "correlations")
+```
+
+In-strength barely moves (a mean correlation of 0.981 with 90% of the
+sessions dropped), out-strength falls to 0.924, and betweenness, which
+depends on shortest paths and reacts to small changes in the weights, falls
+to 0.888, with 97.5% of the resamples still above the threshold. All three
+rankings are stable enough to report; betweenness is the one to read with
+the most care.
+
+```{r centrality-stability-plot, fig.height = 4.5}
 plot(cs)
 ```
 
-In-strength and out-strength are typically more stable than
-path-based measures because they aggregate weighted incoming and
-outgoing edges directly. Betweenness depends on shortest paths and
-is sensitive to small changes in edge weights that re-route many
-paths simultaneously; consequently, its CS-coefficient is often
-substantially lower than that of strength-based measures.
-Interpretation by ranking should be limited to measures whose
-CS-coefficient meets the conventional threshold.
+## Which assessment to use
 
-By default `centrality_stability_htna()` evaluates only the three
-measures that produce numerically identical results between cograph
-and Nestimate (`InStrength`, `OutStrength`, `Betweenness`). The
-remaining six htna centrality measures (closeness variants, RSP
-betweenness, diffusion, weighted clustering) may be assessed by
-supplying a custom `centrality_fn` argument.
+| Question | Function | Criterion used here |
+|---|---|---|
+| Which edges are reproduced by resampling? | `bootstrap_htna()` | p < 0.05 under the stability test |
+| The same, in closed form | `certainty_htna()` | interval within the consistency range |
+| Is the whole network the same in another half of the data? | `reliability_htna()` | mean split-half correlation |
+| How many sessions can be lost before the edge order changes? | `casedrop_reliability_htna()` | CS coefficient above 0.5 |
+| Are centrality rankings stable? | `centrality_stability_htna()` | CS coefficient above 0.5 per measure |
+| Is a first-order network adequate? | `markov_order_test_htna()` | see [Markov-order adequacy](markov-order.html) |
 
-# Markov-order adequacy
+The assessments are complementary and are best reported together. In these
+data every criterion is met: the network is reliable across halves, its
+edge order and centrality rankings survive the loss of most sessions, and
+about half of its edges are individually reproducible. For a grouped
+network, every function returns one result per cohort; the
+[Grouped heterogeneous transition networks](grouped.html) vignette shows
+the grouped forms.
 
-The preceding three assessments take the model — a first-order
-Markov transition network — as a given and characterise its
-sample-based variability. Markov-order adequacy addresses a more
-fundamental question: whether the first-order assumption itself is
-appropriate for the observed sequences.
+## References
 
-`markov_order_test_htna()` tests the empirical transition structure
-against orders 1, 2, ..., `max_order` via permutation. For each
-candidate order *k*, the null hypothesis is that order-(*k*-1) is
-sufficient; the alternative is that order-*k* captures dependencies
-beyond what order-(*k*-1) explains. The steps are tested in sequence,
-and the reported permutation-test order is the last order reached
-before the first non-significant step (or `max_order` when every step
-is significant). The BIC- and AIC-preferred orders are reported
-alongside it.
+Epskamp, S., Borsboom, D., & Fried, E. I. (2018). Estimating psychological
+networks and their accuracy: A tutorial paper. *Behavior Research Methods*,
+50(1), 195-212. <https://doi.org/10.3758/s13428-017-0862-1>
 
-The test reads the session sequences stored on the htna network, so
-it assesses the combined Human + AI process that the network
-summarises.
+Saqr, M., López-Pernas, S., Törmänen, T., Kaliisa, R., Misiejuk, K., &
+Tikka, S. (2025). Transition network analysis: A novel framework for
+modeling, visualizing, and identifying the temporal patterns of learners
+and learning processes. *Proceedings of the 15th International Learning
+Analytics and Knowledge Conference*, 351-361.
+<https://doi.org/10.1145/3706468.3706513>
 
-```{r markov-test}
-mo <- markov_order_test_htna(net, max_order = 3L, n_perm = 200L,
-                             seed = 1L)
-mo
+```{r restore-options, include = FALSE}
+options(old_options)
 ```
-
-```{r markov-plot}
-plot(mo)
-```
-
-If the selected order is greater than 1, the first-order network is
-misspecified for the corpus, and a higher-order model is indicated. The
-[Markov-order article](markov-order.html) compares the combined process
-with each actor's own sequences. htna does not
-implement higher-order networks directly; users who require them may
-construct higher-order or memory-augmented models via
-`Nestimate::build_hon()` or `Nestimate::build_mogen()`.
-
-# Joint interpretation
-
-The four assessments are complementary, addressing distinct levels
-of the inferential chain:
-
-| Assessment | Quantity assessed | Conventional pass criterion |
-| --- | --- | --- |
-| Split-half reliability | Whole-network estimate | mean correlation > 0.95 |
-| Edge-weight case-drop | Edge-rank ordering | CS-coefficient > 0.5 |
-| Centrality stability | Node-rank ordering | CS-coefficient > 0.5 per measure |
-| Markov-order test | Model specification | optimal order = 1 |
-
-A network that meets all four criteria supports interpretation at
-every level — whole network, individual edges, node rankings, and
-underlying model. A failure on any single criterion identifies the
-level at which inferential claims should be qualified.
-
-# References
-
-Epskamp, S., Borsboom, D., & Fried, E. I. (2018). Estimating
-psychological networks and their accuracy: A tutorial paper.
-*Behavior Research Methods*, 50(1), 195-212.
-
-Saqr, M., López-Pernas, S., Törmänen, T., Kaliisa, R., Misiejuk, K., 
-& Tikka, S. (2025). Transition network analysis: A novel framework for 
-modeling, visualizing, and identifying the temporal patterns of learners and 
-learning processes. 
-*Proceedings of the 15th International Learning Analytics and Knowledge Conference*, 
-351–361. https://doi.org/10.1145/3706468.3706513
-

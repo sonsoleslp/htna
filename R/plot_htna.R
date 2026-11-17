@@ -1,9 +1,19 @@
-#' Default HTNA colour palette
+#' Colours of the actor types in htna plots
 #'
-#' A colour palette for up to 6 actor groups, used by [plot_htna()] when
-#' no explicit colours are supplied.
+#' @description
+#' `htna_palette` gives the default fill colours of the actor types in the
+#' network plots of htna: the first actor type takes the first colour, the
+#' second the second, and so on. With more than six actor types the colours
+#' are recycled with a warning, so pass a longer vector to `group_colors` in
+#' that case. Each plot also gives the actor types different node shapes, so
+#' the actor types are not distinguished by colour alone.
 #'
-#' @return A character vector of 6 hex colour codes.
+#' @format A character vector of six hexadecimal colours.
+#'
+#' @return A character vector of six hexadecimal colours.
+#'
+#' @seealso [plot_htna()], [plot_htna_diff()], [plot_htna_bootstrap()]
+#'
 #' @examples
 #' htna_palette
 #' @export
@@ -16,57 +26,73 @@ htna_palette <- c(
   "#F6B26B"
 )
 
-#' Plot a Heterogeneous Transition Network
+#' Plot a heterogeneous transition network
 #'
-#' Wrapper around [cograph::plot_htna()] with defaults suited for HTNA
-#' networks built by [build_htna()]. The drawing itself is done by cograph;
-#' this function supplies the actor-aware styling: one colour and shape per
-#' actor group, darkened donut borders, and an actor legend. For the
-#' circular layout (and `"auto"` with two or more groups) the group order
-#' is arranged so that the first actor group appears on the left.
+#' @description
+#' `plot_htna()` plots a heterogeneous transition network: the codes of
+#' every actor type as nodes and the transitions between them as directed
+#' edges whose width and label give the transition weight. Each actor type
+#' has its own colour and node shape and occupies its own arc of the
+#' circular layout, so the transitions within an actor type run along its
+#' arc and the hand-overs between actor types cross the center. The plot
+#' shows which transitions dominate the interaction and how the actors pass
+#' control to each other.
 #'
-#' For an `htna_group` (or any plain list of htna networks) one plot is
-#' drawn per cohort, titled with the cohort name. The function does not
-#' manage the panel grid; wrap the call in `par(mfrow = ...)` for a panel.
+#' `plot_htna()` draws one network, or one plot per cohort for a grouped
+#' network, each titled with its cohort name; arrange several plots with
+#' `par(mfrow = ...)`. Edges with a weight below `minimum` are hidden. The
+#' first actor type is placed on the left of the circular layout. `plot()`
+#' on an htna network or `htna_group` calls `plot_htna()`. It is called for
+#' the plot and returns, invisibly, the value of [cograph::plot_htna()] for
+#' one network, or `x` for a grouped network.
 #'
-#' @param x A network produced by [build_htna()], or an `htna_group`.
-#' @param layout Character. Layout algorithm. Default `"circular"`.
-#' @param group_colors Character vector of colours, one per actor group.
-#'   Defaults to the built-in [htna_palette].
-#' @param group_shapes Character vector of node shapes, one per actor group.
-#'   Defaults to the built-in `htna_shape_palette`.
-#' @param minimum Numeric. Minimum absolute edge weight to display.
-#'   Edges below this threshold are hidden. Default `0.05`.
-#' @param ... Additional arguments passed to [cograph::plot_htna()] (and
-#'   from there to [cograph::splot()]), e.g. `title`.
+#' To show the difference between two networks use [plot_htna_diff()]; to
+#' show only the edges that survive bootstrapping use [plot_htna_bootstrap()].
 #'
-#' @return Called for its side effect (a plot). For a single network,
-#'   invisibly, the value returned by [cograph::plot_htna()]; for an
-#'   `htna_group`, `x` invisibly.
+#' @param x An htna network from [build_htna()], or an `htna_group`.
+#' @param layout Node layout. Default `"circular"`; `"polygon"` places three
+#'   or more actor types on the sides of a polygon.
+#' @param group_colors Colours of the actor types, in actor order. Default
+#'   [htna_palette].
+#' @param group_shapes Node shapes of the actor types, in actor order.
+#'   Default `c("circle", "square", "diamond", "triangle", "pentagon",
+#'   "hexagon", "star", "cross")`.
+#' @param minimum Smallest edge weight drawn. Default `0.05`.
+#' @param ... Further drawing arguments of [cograph::plot_htna()] and
+#'   [cograph::splot()], such as `title`, `threshold` or `edge_labels`.
 #'
-#' @seealso [cograph::plot_htna()], [build_htna()]
+#' @return Called for the plot. Invisibly, the value of
+#'   [cograph::plot_htna()] for one network, or `x` for a grouped network.
+#'
+#' @section Conditions:
+#' `htna_empty_input` when a grouped network has no cohorts.
+#'
+#' @seealso [build_htna()], [plot_htna_diff()], [plot_htna_bootstrap()],
+#'   [htna_palette]
 #'
 #' @examples
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' plot_htna(net)
-#' plot_htna(net, layout = "auto", minimum = 0.1)
-#' plot(net)                     # the plot() method calls plot_htna()
+#' plot_htna(net, minimum = 0.1)
+#'
+#' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#' plot(grp)
 #'
 #' @export
-#' @rdname plot_htna
 plot_htna <- function(x, layout = "circular",
                       group_colors = htna_palette,
                       group_shapes = htna_shape_palette,
                       minimum = 0.05, ...) {
   if (inherits(x, "htna_group") || (is.list(x) && !is.data.frame(x) &&
                                     !inherits(x, "htna"))) {
-    if (length(x) == 0L) stop("Empty htna_group.", call. = FALSE)
+    if (length(x) == 0L) .htna_stop("Empty htna_group.",
+                                    class = "htna_empty_input")
     nms <- names(x) %||% as.character(seq_along(x))
-    for (i in seq_along(x)) {
+    lapply(seq_along(x), function(i) {
       plot_htna(x[[i]], layout = layout, group_colors = group_colors,
                 group_shapes = group_shapes, title = nms[i], ...)
-    }
+    })
     return(invisible(x))
   }
 
@@ -163,6 +189,7 @@ plot.htna_group <- function(x, ...) plot_htna(x, ...)
 }
 
 #' @keywords internal
+#' @noRd
 .htna_circular <- function(node_list, labels, radius = 2,
                            angle_spacing = 0.35) {
   n <- length(labels)
@@ -176,6 +203,8 @@ plot.htna_group <- function(x, ...) plot_htna(x, ...)
   x_pos <- rep(0, n)
   y_pos <- rep(0, n)
 
+  # Loop kept: each actor group writes its own arc of positions into the
+  # shared x_pos / y_pos vectors (at most a handful of groups).
   for (i in seq_len(n_groups)) {
     g_idx <- group_indices[[i]]
     n_nodes <- length(g_idx)
@@ -198,6 +227,7 @@ plot.htna_group <- function(x, ...) plot_htna(x, ...)
 }
 
 #' @keywords internal
+#' @noRd
 .htna_legend <- function(groups, colors, position = "bottomright") {
   graphics::legend(position, legend = groups, fill = colors,
                    border = NA, bty = "n", title = "Groups")

@@ -6,41 +6,82 @@
 \alias{htna-package}
 \title{htna: Heterogeneous Transition Network Analysis}
 \description{
-Build, analyze, and visualize transition networks over sequences that mix
-two or more actor groups (e.g. Human and AI) within the same interaction.
+\code{htna} estimates, describes, plots and tests heterogeneous transition
+networks of sequences of events produced by two or more types of actor,
+such as a learner and an AI assistant, a student and a teacher, or a
+clinician and a patient. Heterogeneous transition network analysis (HTNA)
+models such sequences as one transition network in which each node is a
+code belonging to one actor type and each edge is the transition from one
+code to the next (Lopez-Pernas, Misiejuk and Saqr, 2026). Keeping the actor
+partition on the network separates the dynamics within each actor from the
+hand-overs between actors, so the estimation, inference and visualisation
+tools of transition network analysis can show what the AI does after the
+learner asks for help, and how the learner responds.
+
+\code{htna} builds the network from long event data, describes it by actor
+type, draws it with each actor type in its own colour, shape and arc of
+the layout, and keeps the partition on the results of every downstream
+analysis.
 }
-\details{
-The package is a thin layer on top of two foundations:
-\itemize{
-\item \pkg{Nestimate} - estimation, bootstrap, permutation, reliability,
-centrality, and Markov machinery.
-\item \pkg{cograph} - rendering. Every network plot drawn by htna is
-rendered by \code{cograph::plot_htna()} or \code{cograph::splot()};
-the htna plotting functions only supply the actor-aware layout,
-colours and legend.
-}
-\pkg{htna} adds the heterogeneous-actor constructor
-\code{\link{build_htna}} and \code{_htna}-named wrappers around the most
-commonly used downstream functions, so users do not need to attach
-\pkg{Nestimate} or \pkg{cograph} explicitly. Analysis wrappers restore
-the actor partition on their results, so the output stays htna-aware.
-}
-\seealso{
-Useful links:
-\itemize{
-  \item \url{https://sonsoles.me/htna/}
-  \item Report bugs at \url{https://github.com/sonsoleslp/htna/issues}
+\section{Building and describing}{
+
+\code{\link[=build_htna]{build_htna()}} estimates the network (or one network per cohort or
+cluster); \code{\link[=summary.htna]{summary.htna()}}, \code{\link[=as.data.frame.htna]{as.data.frame.htna()}} and
+\code{\link[=as.igraph.htna]{as.igraph.htna()}} describe and convert it. \code{\link[=prune_htna]{prune_htna()}},
+\code{\link[=deprune_htna]{deprune_htna()}}, \code{\link[=reprune_htna]{reprune_htna()}} and \code{\link[=pruning_details_htna]{pruning_details_htna()}} remove and
+restore weak edges.
 }
 
+\section{Plots}{
+
+\code{\link[=plot_htna]{plot_htna()}} draws the network, \code{\link[=plot_htna_diff]{plot_htna_diff()}} the difference between
+two networks, \code{\link[=plot_htna_bootstrap]{plot_htna_bootstrap()}} the bootstrap-significant edges,
+\code{\link[=sequence_plot_htna]{sequence_plot_htna()}} the sessions, \code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}} and
+\code{\link[=mosaic_plot_htna]{mosaic_plot_htna()}} the code frequencies, \code{\link[=plot_centralities]{plot_centralities()}} and
+\code{\link[=plot_edge_betweenness_htna]{plot_edge_betweenness_htna()}} node and edge importance.
+}
+
+\section{Comparing networks}{
+
+\code{\link[=compare_htna]{compare_htna()}} describes the differences between networks by actor-pair
+block; \code{\link[=permutation_htna]{permutation_htna()}} and \code{\link[=bayes_compare_htna]{bayes_compare_htna()}} test them.
+}
+
+\section{Model assessment}{
+
+\code{\link[=bootstrap_htna]{bootstrap_htna()}}, \code{\link[=certainty_htna]{certainty_htna()}}, \code{\link[=reliability_htna]{reliability_htna()}},
+\code{\link[=casedrop_reliability_htna]{casedrop_reliability_htna()}}, \code{\link[=centrality_stability_htna]{centrality_stability_htna()}} and
+\code{\link[=markov_order_test_htna]{markov_order_test_htna()}} assess the stability of the edges and
+centralities and the adequacy of a first-order model.
+}
+
+\section{Patterns and frequencies}{
+
+\code{\link[=extract_meta_paths]{extract_meta_paths()}} finds recurring paths at the level of codes or actor
+types, \code{\link[=association_rules_htna]{association_rules_htna()}} association rules,
+\code{\link[=sequence_compare_htna]{sequence_compare_htna()}} patterns that differ between cohorts, and
+\code{\link[=frequencies_htna]{frequencies_htna()}}, \code{\link[=state_frequencies_htna]{state_frequencies_htna()}} and
+\code{\link[=state_distribution_htna]{state_distribution_htna()}} the frequencies of the codes.
+}
+
+\references{
+Lopez-Pernas, S., Misiejuk, K., & Saqr, M. (2026). How AI-generated
+feedback hinders or helps learning: A heterogeneous TNA study of learning
+dynamics. \emph{Journal of Computer Assisted Learning}, 42(4), e70285.
+\doi{10.1002/jcal.70285}
+}
+\seealso{
+The bundled data \link{human_ai}; the 'tna' package for transition
+network analysis of sequences with a single actor type.
 }
 \author{
-\strong{Maintainer}: Sonsoles López-Pernas \email{sonsoles.lopez@uef.fi} [copyright holder]
+\strong{Maintainer}: Sonsoles López-Pernas \email{sonsoles.lopez@uef.fi} (\href{https://orcid.org/0000-0002-9621-1392}{ORCID}) [copyright holder]
 
 Authors:
 \itemize{
+  \item Sonsoles López-Pernas \email{sonsoles.lopez@uef.fi} (\href{https://orcid.org/0000-0002-9621-1392}{ORCID}) [copyright holder]
   \item Kamila Misiejuk [copyright holder]
-  \item Mohammed Saqr \email{saqr@saqr.me} [copyright holder]
+  \item Mohammed Saqr \email{saqr@saqr.me} (\href{https://orcid.org/0000-0001-5881-3109}{ORCID}) [copyright holder]
 }
 
 }
-\keyword{internal}

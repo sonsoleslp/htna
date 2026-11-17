@@ -2,7 +2,7 @@
 % Please edit documentation in R/build_htna.R
 \name{build_htna}
 \alias{build_htna}
-\title{Build a Heterogeneous Transition Network (HTNA)}
+\title{Build a heterogeneous transition network}
 \usage{
 build_htna(
   data,
@@ -20,152 +20,132 @@ build_htna(
 )
 }
 \arguments{
-\item{data}{Either:
+\item{data}{The event data, in one of these forms:
 \itemize{
-\item A named list of long-format data frames, one per actor type
-(e.g. \code{list(Human = human_simplified, AI = ai_simplified)}).
-All frames must share the same column schema.
-\item A single long-format data frame. In that case either
-\code{actor_type} (row-level actor-type IDs) or \code{node_groups}
-(node-level actor-type lookup) must be supplied.
-\item A fitted clustering result from
-\code{Nestimate::build_clusters()},
-\code{Nestimate::cluster_mmm()} (a \code{net_mmm}), or
-\code{tna::cluster_sequences()}, or an already-materialized
-\code{netobject_group}. One HTNA network is returned per sequence
-cluster. The clustering fit is not rerun; assignments, diagnostics,
-fitted MMM weights, and actor metadata are preserved.
-\item A fitted \code{Nestimate::build_mcml()} object. Its node clusters
-become the HTNA actor groups and one full node-level network is rebuilt
-from the original source, including transitions between clusters.
+\item a named list of long data frames, one per actor type, with the same
+columns, e.g. \code{list(Human = human_simplified, AI = ai_simplified)};
+\item one long data frame, with \code{actor_type} or \code{node_groups};
+\item a fitted clustering (\code{net_clustering}, \code{net_mmm}, \code{tna_clustering})
+or a \code{netobject_group}, giving one network per cluster;
+\item a fitted \code{mcml} model, whose node clusters become the actor types.
 }}
 
-\item{actor_type}{Character. Name of the column tagging each row's
-actor type / group (e.g. \code{"Human"} vs \code{"AI"}) when \code{data}
-is a single data frame. Ignored when \code{data} is a named list or
-when \code{node_groups} is supplied.}
+\item{actor_type}{Name of the column giving the actor type of each row,
+for a single data frame. A factor column sets the order of the actor
+types; otherwise they are ordered by first appearance.}
 
-\item{actor}{Character. Name of an optional column identifying the
-individual actor that performed each event (e.g. a learner / user id).
-Forwarded to \code{\link[Nestimate]{build_network}} with the same
-semantics; orthogonal to \code{actor_type}, which encodes the
-group/type partition over codes.}
+\item{actor}{Name of an optional column identifying the individual who
+produced each event (for example a learner id). Independent of
+\code{actor_type}. Default \code{NULL}.}
 
-\item{node_groups}{Node-to-actor-type lookup, in either of two forms:
-\itemize{
-\item A \strong{named list} mapping actor-type labels to character vectors
-of code names, e.g. \code{list(Human = c("Specify", "Command"),
-      AI = c("Plan", "Execute"))}.
-\item A \strong{2-column data frame} with one column named after
-\code{action} (the codes) and one other column tagging each code
-with its actor type, e.g.
-\code{data.frame(code = c("Specify", "Plan"),
-                       actor_type = c("Human", "AI"))}.
-The actor-type ordering follows the column's factor levels or, for
-character vectors, the order of first appearance.
-}
-Use \code{node_groups} when \code{data} is a single long-format frame
-with no actor-type column and you want to declare the node-to-type
-partition directly. Each code in \code{data[[action]]} must appear in
-exactly one entry. For clustering inputs, the canonical two-column
-\code{data.frame(node, group)} stored on an existing HTNA model is also
-accepted. The argument may be omitted when Nestimate preserved the
-partition from an HTNA input. Mutually exclusive with \code{actor_type}.
-For an \code{mcml} input, this optionally overrides
-\code{$cluster_members}; otherwise the fitted membership is used.}
+\item{node_groups}{Code-to-actor lookup for a single data frame without an
+actor-type column: a named list of code vectors, e.g.
+\code{list(Human = c("Specify", "Check"), AI = c("Plan", "Execute"))}, or a
+two-column data frame with the code column (named as \code{action}) and the
+actor-type column, such as \link{human_ai_codebook}. Every code must belong to
+exactly one actor type. For a clustering or \code{mcml} input it optionally
+supplies or overrides the partition. Use either \code{actor_type} or
+\code{node_groups}, not both.}
 
-\item{action}{Character. Name of the action/code column. Default
-\code{"code"}.}
+\item{action}{Name of the code column. Default \code{"code"}.}
 
-\item{session}{Character. Name of the session column. Default
-\code{"session_id"}.}
+\item{session}{Name of the session column. Default \code{"session_id"}.}
 
-\item{order}{Character. Name of the within-session order column. Default
+\item{order}{Name of the within-session order column. Default
 \code{"order_in_session"}.}
 
-\item{method}{Character. Transition method passed to
-\code{\link[Nestimate]{build_network}}: \code{"relative"} (default),
-\code{"frequency"}, \code{"co_occurrence"}, or \code{"attention"}.
-Co-occurrence models are undirected and preserve the same actor partition
-as transition models.}
+\item{method}{Network estimator: \code{"relative"} (default, transition
+probabilities), \code{"frequency"}, \code{"co_occurrence"} (undirected) or
+\code{"attention"}.}
 
-\item{group}{Character. Optional name of a column in \code{data} used to
-split sessions into cohorts (e.g. \code{"cluster"}). When supplied,
-one network is built per group level and the result is a named list of
-htna networks with class
-\code{c("htna_group", "netobject_group", "list")}. Pass that object as
-it is to the downstream verbs; they iterate over the cohorts.}
+\item{group}{Name of a session-level column defining cohorts; one network
+is built per cohort. Default \code{NULL} (one network).}
 
-\item{disambiguate}{Logical. If \code{FALSE} (default), the function errors
-when a code label appears in more than one actor-type group. If
-\code{TRUE}, codes are prefixed with the actor-type label
-(\code{"Human:Ask"}, \code{"AI:Ask"}) so they become distinct nodes.}
+\item{disambiguate}{If \code{TRUE}, a code used by more than one actor type is
+split into one node per actor type, prefixed with the actor label
+(\code{"Human:Ask"}, \code{"AI:Ask"}). Default \code{FALSE} (a shared code is an error).}
 
-\item{source_data}{Original node-level data for an \code{mcml} input.
-Usually unnecessary when \code{Nestimate::build_mcml()} retained its
-sequence source. Required when the fitted object has no expandable source,
-such as an \code{mcml} built from a transition matrix or edge list. The
-fitted macro and within-cluster weights are deliberately not stitched
-together: rebuilding from this source is what preserves cross-cluster
-transitions.}
+\item{source_data}{The original event data for an \code{mcml} input whose fitted
+object did not keep it. Default \code{NULL}.}
 
-\item{...}{Additional arguments forwarded to
-\code{\link[Nestimate]{build_network}}.}
+\item{...}{Further estimation arguments, such as \code{threshold} or \code{scaling}.}
 }
 \value{
-An object of class
-\code{c("htna", "netobject", "cograph_network")}: a Nestimate
-\code{netobject} with the actor partition stored in cograph's
-canonical schema, so \code{cograph::plot_htna(net)} auto-detects the
-groups with no further arguments:
-\itemize{
-\item \code{$nodes$groups} - actor label per node (the column name
-\code{cograph::plot_htna} auto-detects).
-\item \code{$node_groups} - data frame with columns \code{node} and
-\code{group} (canonical \code{cograph_network} schema, also
-readable by \code{cograph::get_groups()},
-\code{Nestimate::cluster_summary()}, and the \code{print} method
-for \code{cograph_network}).
-\item \code{$actor_levels} - declared actor ordering, also retained as
-metadata on \code{$node_groups} so the table can be passed back to
-\code{build_htna()} without losing that order.
-}
-All other slots are exactly as returned by
-\code{\link[Nestimate]{build_network}}. A \code{group} argument or a
-clustering input returns an \code{htna_group} (a named list with one
-\code{htna} per cohort or cluster); its children retain the actor
-partition and its outer
-clustering assignments, posterior probabilities, diagnostics, and other
-attributes are preserved. An \code{mcml} input instead returns one
-\code{htna}, equivalent to \code{Nestimate::as_htna()}.
+An object of class \code{c("htna", "netobject", "cograph_network")}:
+a transition network with its weight matrix, nodes, sequence data and
+the actor partition (the actor type of every node and the ordered actor
+types). With \code{group} or a clustering input, an \code{htna_group}: a named list
+with one \code{htna} network per cohort or cluster, which keeps the clustering
+assignments and diagnostics as attributes. An \code{mcml} input returns one
+\code{htna}. \code{\link[=as.data.frame.htna]{as.data.frame.htna()}} returns the edges (one row per non-zero
+transition, with the actor types of its source and target) or the nodes.
 }
 \description{
-Builds a transition network over a combined sequence of two or more actor
-groups (e.g. Human and AI) and preserves the actor partition on the result
-so downstream plotting and analysis can treat each actor's codes as a
-distinct node group.
+\code{build_htna()} builds a heterogeneous transition network: one transition
+network over interaction sequences in which the events are produced by two
+or more types of actor, such as a learner and an AI assistant. In
+heterogeneous transition network analysis (HTNA) each node is a code (an
+action or event) and belongs to exactly one actor type, and each directed
+edge is the transition from one code to the next within a session
+(Lopez-Pernas, Misiejuk and Saqr, 2026). Because the actor partition is
+kept on the network, the within-actor transitions (Human to Human) and the
+hand-overs between actors (Human to AI, AI to Human) can be estimated,
+plotted and tested as distinct parts of one model.
+
+\code{build_htna()} orders the events of every session in time, estimates the
+transition network over the combined sequence with the chosen \code{method}
+(relative transition probabilities by default, or frequencies,
+co-occurrences or attention weights), and attaches the actor type of every
+node. The actor partition can be given in three ways: a named list of one
+long data frame per actor type, a single data frame with a column naming
+the actor type of each row (\code{actor_type}), or a single data frame together
+with a code-to-actor lookup (\code{node_groups}). With \code{group}, one network is
+estimated per level of a session-level variable (for example an early and
+a late phase), in the order of the factor levels. A fitted sequence
+clustering (from \code{Nestimate::build_clusters()}, \code{Nestimate::cluster_mmm()}
+or \code{tna::cluster_sequences()}) is turned into one network per cluster
+without refitting, and a fitted \code{Nestimate::build_mcml()} model into one
+network whose actor types are its node clusters.
+
+It returns an \code{htna} network, or an \code{htna_group} with one network per
+cohort or cluster. The grouped result is passed as it is to the
+comparison, assessment and plotting functions, which work through every
+cohort. Use \code{\link[=summary.htna]{summary.htna()}} to describe the result and
+\code{\link[=as.data.frame.htna]{as.data.frame.htna()}} for its edges and nodes.
 }
+\section{Conditions}{
+
+Errors inherit from \code{htna_error}. Specific classes:
+\code{htna_missing_column} when the session, order or code column is absent;
+\code{htna_actor_conflict} when a code belongs to more than one actor type and
+\code{disambiguate = FALSE}; \code{htna_unassigned_node} when a code has no actor
+type in \code{node_groups}; \code{htna_bad_input} for other invalid arguments.
+}
+
 \examples{
-data(human_ai, human_simplified, ai_simplified, human_ai_codebook)
-
-# Form 1: named list of per-actor frames
-net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
-summary(net)
-
-# Form 2: single combined frame with a row-level actor-type tag
+data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
+net
 
-# Form 3: combined frame plus a code-to-actor codebook
-net <- build_htna(human_ai, node_groups = human_ai_codebook)
+# the same network from one data frame per actor type
+build_htna(list(Human = human_simplified, AI = ai_simplified))
 
-# One network per cohort
+# or from a code-to-actor codebook
+build_htna(human_ai, node_groups = human_ai_codebook)
+
+# one network per phase, in the order of the factor levels
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 summary(grp)
 
 }
+\references{
+Lopez-Pernas, S., Misiejuk, K., & Saqr, M. (2026). How AI-generated
+feedback hinders or helps learning: A heterogeneous TNA study of learning
+dynamics. \emph{Journal of Computer Assisted Learning}, 42(4), e70285.
+\doi{10.1002/jcal.70285}
+}
 \seealso{
-\code{\link[Nestimate]{build_network}},
-\code{\link[Nestimate]{build_tna}},
-\code{\link{summary.htna}}, \code{\link{plot_htna}} (which renders
-through \code{\link[cograph]{plot_htna}})
+\code{\link[=summary.htna]{summary.htna()}} and \code{\link[=as.data.frame.htna]{as.data.frame.htna()}} to describe the
+network; \code{\link[=plot_htna]{plot_htna()}} to draw it; \code{\link[=compare_htna]{compare_htna()}},
+\code{\link[=permutation_htna]{permutation_htna()}} and \code{\link[=bootstrap_htna]{bootstrap_htna()}} for inference.
 }

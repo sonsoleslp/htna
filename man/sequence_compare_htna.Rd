@@ -2,72 +2,74 @@
 % Please edit documentation in R/sequence_compare_htna.R
 \name{sequence_compare_htna}
 \alias{sequence_compare_htna}
-\title{Subsequence Pattern Comparison Across Groups}
+\title{Compare short sequence patterns between groups of sessions}
 \usage{
 sequence_compare_htna(x, group = NULL, level = c("state", "type"), ...)
 }
 \arguments{
-\item{x}{A grouped htna network, a single htna network (paired with
-\code{group}), or wide-format sequence data. See
-\code{\link[Nestimate:sequence_compare]{Nestimate::sequence_compare()}}.}
+\item{x}{A grouped htna network (an \code{htna_group}), or an htna network
+together with \code{group}.}
 
-\item{group}{Grouping specification for the cohorts to compare, when
-not already carried by a grouped htna network. See
-\code{\link[Nestimate:sequence_compare]{Nestimate::sequence_compare()}}.}
+\item{group}{The grouping of the sessions when \code{x} is a single network
+(default \code{NULL}).}
 
-\item{level}{Character. \code{"state"} (default) compares concrete
-state-level k-grams; \code{"type"} first replaces each state with its
-actor type so the comparison runs on meta-paths
-(e.g. \code{Human->AI->Human}). Only meaningful when \code{x} is an htna
-network with an actor partition.}
+\item{level}{\code{"state"} (default) compares patterns of codes; \code{"type"}
+compares patterns of actor types.}
 
-\item{...}{Additional arguments passed to
-\code{\link[Nestimate:sequence_compare]{Nestimate::sequence_compare()}}, such as \code{sub}, \code{min_freq},
-\code{test}, \code{iter}, and \code{adjust}. See that function for the full,
-current argument list.}
+\item{...}{Settings: \code{sub} (pattern lengths, default \code{3:5}), \code{min_freq}
+(minimum count in every group, 5), \code{test} (\code{"permutation"},
+\code{"chisq"} or \code{"none"}), \code{iter} (permutations, 1000), \code{adjust}
+(multiplicity correction, \code{"fdr"}) and \code{actor} (needs Nestimate 1.0.19
+or later).}
 }
 \value{
-An object of class \code{net_sequence_comparison} with components
-\code{patterns}, \code{groups}, \code{n_patterns} and \code{params}. \code{summary()} returns
-the tidy pattern table: one row per k-gram, with columns \code{pattern},
-\code{length}, per-cohort frequencies (\verb{freq_<cohort>}), proportions
-(\verb{prop_<cohort>}) and standardised residuals (\verb{resid_<cohort>}),
-\code{effect_size} and, when a test is run, \code{p_value}. \code{print()} and
-\code{plot()} (\code{style = "pyramid"} or \code{"heatmap"}) methods are supplied by
-Nestimate; see \code{\link[Nestimate:sequence_compare]{Nestimate::sequence_compare()}}.
+An object of class \code{net_sequence_comparison} with \code{print()},
+\code{summary()} and \code{plot()} methods. \code{summary()} returns a data frame
+with one row per pattern and columns \code{pattern}, \code{length}, one
+\verb{freq_<group>}, \verb{prop_<group>} and \verb{resid_<group>} column per group,
+\code{effect_size} and, when a test is run, \code{p_value}.
 }
 \description{
-Extends \code{\link[Nestimate:sequence_compare]{Nestimate::sequence_compare()}} with a \code{level} argument that
-lets the comparison run on type-level (meta-path) sequences as well
-as state-level sequences.
-}
-\details{
-Extracts all k-gram patterns (subsequences of length \code{k}) from the
-sequences in each cohort, computes standardised residuals against
-the independence model, and optionally runs a permutation or
-chi-square test for differences in pattern rates between cohorts.
+\code{sequence_compare_htna()} compares short sequence patterns between the
+cohorts of a grouped htna network, or between the groups of a single
+network given by \code{group}. It counts every k-gram (a run of k consecutive
+codes) in each group and finds the patterns that are more or less
+frequent in a group than expected if pattern and group were independent.
+Each pattern gets a standardized residual per group (Haberman, 1973) and,
+optionally, a permutation test (the session is the unit) or a chi-square
+test of whether its frequency differs between the groups, with p-values
+adjusted across all patterns. Two groups of sessions can differ not only
+in single transitions but in longer runs of codes, such as a human
+request followed by an AI plan and an AI execution.
 
-Operates on grouped htna networks (built via
-\code{build_htna(..., group = ...)}), single htna networks paired with a
-\code{group} argument, or wide-format sequence data with an explicit
-\code{group} argument. The actor partition itself is not consumed when
-\code{level = "state"}: sequence comparison is between cohorts of
-sessions, not between actors. When \code{level = "type"}, concrete codes
-are folded into their actor type before pattern enumeration, so the
-comparison runs on meta-paths.
+With \code{level = "type"} every code is first replaced by its actor type, so
+the patterns are meta-paths such as \code{Human->AI->Human} and the comparison
+shows how the turn-taking between actors differs between the groups.
+\code{sequence_compare_htna()} runs Nestimate's \code{sequence_compare()} on the
+sequences and returns a \code{net_sequence_comparison} object.
+
+For single transitions use \code{\link[=permutation_htna]{permutation_htna()}} or \code{\link[=mosaic_plot_htna]{mosaic_plot_htna()}};
+for descriptive counts of patterns in one network use
+\code{\link[=extract_meta_paths]{extract_meta_paths()}}.
 }
+\section{Conditions}{
+
+An error of class \code{htna_bad_input} when \code{level = "type"} and \code{x} has no
+actor partition.
+}
+
 \examples{
 data(human_ai)
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-
-# State-level comparison (default); few permutations to keep it fast
+# iter = 50 keeps the example fast; use the default 1000 in practice.
 sequence_compare_htna(grp, iter = 50)
-
-# Meta-path comparison
 sequence_compare_htna(grp, level = "type", iter = 50)
 }
+\references{
+Haberman, S. J. (1973). The analysis of residuals in cross-classified
+tables. \emph{Biometrics}, 29(1), 205-220. \doi{10.2307/2529686}
+}
 \seealso{
-\code{\link[=permutation_htna]{permutation_htna()}} for whole-network differences,
-\code{\link[=mosaic_plot_htna]{mosaic_plot_htna()}} for single-step transition residuals,
-\code{\link[=extract_meta_paths]{extract_meta_paths()}} for descriptive meta-path enumeration.
+\code{\link[=extract_meta_paths]{extract_meta_paths()}}, \code{\link[=permutation_htna]{permutation_htna()}},
+\code{\link[=mosaic_plot_htna]{mosaic_plot_htna()}}.
 }

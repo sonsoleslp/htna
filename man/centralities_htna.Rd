@@ -2,7 +2,7 @@
 % Please edit documentation in R/centralities.R
 \name{centralities_htna}
 \alias{centralities_htna}
-\title{Compute Centrality Measures for an htna Network}
+\title{Compute node centralities of an htna network}
 \usage{
 centralities_htna(
   x,
@@ -14,50 +14,56 @@ centralities_htna(
 \arguments{
 \item{x}{An htna network from \code{\link[=build_htna]{build_htna()}} or an \code{htna_group}.}
 
-\item{measures}{Character vector of measure names. Defaults to all nine.}
+\item{measures}{Names of the measures to compute. Default: all nine.}
 
-\item{...}{Forwarded to the underlying cograph centrality functions.}
+\item{...}{Further arguments for the centrality computations.}
 }
 \value{
-A data frame of class \code{c("htna_centralities", "data.frame")}
-with one row per node and columns \code{node}, \code{actor} (the node's actor
-type, when the partition is set) and one numeric column per requested
-measure. For an \code{htna_group}, the rows of all cohorts are stacked, one
-row per (cohort, node), with a leading \code{group} column naming the
-cohort.
+A data frame of class \code{c("htna_centralities", "data.frame")},
+one row per node, with columns \code{node}, \code{actor} (its actor type) and one
+numeric column per measure. For an \code{htna_group}, the rows of all cohorts
+are stacked (one row per cohort and node) with a leading \code{group} column.
 }
 \description{
-Computes a fixed panel of centrality measures via \link[cograph:cograph]{cograph::cograph} and
-returns them as a tidy data frame: one row per node, one column per
-measure (plus \code{node}, an \code{actor} column when the htna partition is
-set, and a \code{group} column when the input is an \code{htna_group}).
-}
-\details{
-The measures are: \code{OutStrength}, \code{InStrength}, \code{ClosenessIn},
-\code{ClosenessOut}, \code{Closeness}, \code{Betweenness}, \code{BetweennessRSP},
-\code{Diffusion}, \code{Clustering}. Path-based measures (closeness and
-betweenness variants) are computed with \code{invert_weights = TRUE},
-since in transition networks larger weight = stronger link =
-shorter distance. Strength and the closed-form measures
-(\code{Diffusion}, \code{Clustering}) use raw weights.
+\code{centralities_htna()} computes the node centralities of an htna network,
+with the actor type of every code kept. Centrality measures rank the
+codes of a transition network by their position in it: how much
+transition probability a code sends and receives (out- and in-strength),
+how close it is to the other codes (closeness), how often it lies on the
+shortest paths between other codes (betweenness), and how far its
+influence spreads (diffusion). Because the actor type is kept, the table
+shows whether the human or the AI codes hold the central positions, for
+example which actor's codes broker the hand-overs.
 
-Mapping from measure name to cograph implementation:
-\itemize{
-\item \code{OutStrength}: \code{\link[cograph:centrality_strength]{cograph::centrality_outstrength()}}
-\item \code{InStrength}: \code{\link[cograph:centrality_strength]{cograph::centrality_instrength()}}
-\item \code{ClosenessIn}: \code{\link[cograph:centrality_closeness]{cograph::centrality_incloseness()}} (inverted)
-\item \code{ClosenessOut}: \code{\link[cograph:centrality_closeness]{cograph::centrality_outcloseness()}} (inverted)
-\item \code{Closeness}: \code{\link[cograph:centrality_closeness]{cograph::centrality_closeness()}} (inverted)
-\item \code{Betweenness}: \code{\link[cograph:centrality_betweenness]{cograph::centrality_betweenness()}} (inverted)
-\item \code{BetweennessRSP}: \code{\link[cograph:centrality_current_flow_betweenness]{cograph::centrality_current_flow_betweenness()}}
-\item \code{Diffusion}: \code{\link[cograph:centrality_diffusion]{cograph::centrality_diffusion()}}
-\item \code{Clustering}: \code{\link[cograph:centrality_transitivity]{cograph::centrality_transitivity()}}
+\code{centralities_htna()} computes nine measures: \code{OutStrength},
+\code{InStrength}, \code{ClosenessIn}, \code{ClosenessOut}, \code{Closeness}, \code{Betweenness},
+\code{BetweennessRSP} (randomized shortest-path betweenness), \code{Diffusion} and
+\code{Clustering} (weighted clustering coefficient). Path-based measures treat
+a larger transition weight as a shorter distance (the weights are
+inverted); strength, diffusion and clustering use the weights as they
+are. For a grouped network the measures are computed per cohort. It
+returns a data frame with one row per code (per cohort and code for a
+grouped network) and one column per measure.
+
+Draw the result with \code{\link[=plot_centralities]{plot_centralities()}}. To check whether the ranking
+of the codes would survive dropping sessions use
+\code{\link[=centrality_stability_htna]{centrality_stability_htna()}}.
 }
+\section{Conditions}{
+
+\code{htna_bad_input} when \code{x} is not an htna network or a measure name is
+unknown; \code{htna_empty_input} for a grouped network without cohorts;
+\code{htna_unnamed_nodes} when the nodes of the network have no names.
 }
+
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 centralities_htna(net)
 centralities_htna(net, measures = c("InStrength", "Betweenness"))
 
+}
+\seealso{
+\code{\link[=plot_centralities]{plot_centralities()}}, \code{\link[=centrality_stability_htna]{centrality_stability_htna()}},
+\code{\link[=edge_betweenness_htna]{edge_betweenness_htna()}}
 }

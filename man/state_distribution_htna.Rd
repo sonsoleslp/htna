@@ -2,38 +2,31 @@
 % Please edit documentation in R/state_distribution_htna.R
 \name{state_distribution_htna}
 \alias{state_distribution_htna}
-\title{State Distribution Across Time}
+\title{Tabulate the distribution of the codes within each actor}
 \usage{
 state_distribution_htna(x, ...)
 }
 \arguments{
-\item{x}{An htna network (or other object accepted by
-\code{\link[Nestimate:state_distribution]{Nestimate::state_distribution()}}); S3 dispatch on \code{x} is
-preserved, so \code{htna} objects use \code{state_distribution.htna}.}
+\item{x}{An htna network from \code{\link[=build_htna]{build_htna()}}, or another network.}
 
-\item{...}{Additional arguments passed to
-\code{\link[Nestimate:state_distribution]{Nestimate::state_distribution()}}. See that function for details.}
+\item{...}{Unused for htna networks.}
 }
 \value{
-A data frame with one row per \verb{(group, state)} pair and
-columns \code{group}, \code{state}, \code{count} and \code{proportion} (proportions sum
-to 1 within each group). For an htna network \code{group} is the actor
-type; for a network without an actor partition it is \code{"all"}. See \code{\link[Nestimate:state_distribution]{Nestimate::state_distribution()}}.
+A data frame with one row per group and code and columns
+\code{group}, \code{state}, \code{count} and \code{proportion} (proportions sum to one
+within each group).
 }
 \description{
-htna-named wrapper for \code{\link[Nestimate:state_distribution]{Nestimate::state_distribution()}}. Returns the
-within-network distribution of states: how often each state occurs and
-its share of the events in its group.
-}
-\details{
-Designed with htna in mind: Nestimate ships an explicit
-\code{state_distribution.htna} S3 method that uses the actor partition
-carried by \code{\link[=build_htna]{build_htna()}} networks, so each state is reported under its
-actor type. For an htna network the result is the same table as
-\code{\link[=frequencies_htna]{frequencies_htna()}}.
+\code{state_distribution_htna()} returns the state distribution of a network:
+how often each code occurs and its share of the events of its group. For
+an htna network the group is the actor type, so the table shows how each
+actor divides its activity over its own codes; for a network without an
+actor partition all codes form one group, \code{"all"}.
 
-Suffixed \verb{_htna} to avoid clashing with
-\code{Nestimate::state_distribution()} when both packages are loaded.
+\code{state_distribution_htna()} runs Nestimate's \code{state_distribution()} and
+returns a data frame with one row per group and code. For an htna network
+it is the same table as \code{\link[=frequencies_htna]{frequencies_htna()}}; the function is provided
+under its general name for code written for other network types.
 }
 \examples{
 data(human_ai)
@@ -42,5 +35,5 @@ state_distribution_htna(net)
 }
 \seealso{
 \code{\link[=frequencies_htna]{frequencies_htna()}}, \code{\link[=state_frequencies_htna]{state_frequencies_htna()}} for the
-pooled (actor-blind) frequency table.
+pooled table.
 }

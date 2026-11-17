@@ -1,28 +1,27 @@
-#' Re-apply a Previous Pruning Rule
+#' Re-apply a recorded pruning rule
 #'
-#' htna-named wrapper for [Nestimate::net_reprune()]. Re-applies the
-#' pruning rule recorded on a network (e.g. after the weights have been
-#' re-estimated), without having to restate the rule.
+#' @description
+#' `reprune_htna()` re-applies the recorded pruning rule of a network and
+#' returns the pruned network with its actor partition. A network that has
+#' been pruned and then restored with [deprune_htna()] still carries the
+#' pruning rule; re-applying it removes the same weak edges again without
+#' restating the method and threshold.
 #'
-#' The actor partition (`$node_groups`, `$actor_levels`, `htna` class)
-#' is preserved, so the re-pruned network stays htna-aware.
+#' `reprune_htna()` runs Nestimate's `net_reprune()` and returns an htna
+#' network with the edges that fail the recorded rule set to zero.
 #'
-#' Suffixed `_htna` to avoid clashing with the tna verb `reprune()` and
-#' to sit alongside the rest of the htna API.
+#' @param x An htna network that was pruned with [prune_htna()] and
+#'   restored with [deprune_htna()].
+#' @param ... Unused.
 #'
-#' @param x An htna network carrying a prior pruning rule (or other
-#'   object accepted by [Nestimate::net_reprune()]); S3 dispatch on `x`
-#'   is preserved.
-#' @param ... Additional arguments passed to [Nestimate::net_reprune()].
-#'   See that function for details.
-#'
-#' @return The re-pruned htna network. See [Nestimate::net_reprune()].
+#' @return An htna network with the edges that fail the recorded rule set
+#'   to zero.
 #'
 #' @seealso [prune_htna()], [deprune_htna()], [pruning_details_htna()].
 #' @examples
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
-#' pruned <- prune_htna(net, method = "threshold", threshold = 0.05)
+#' pruned <- prune_htna(net, threshold = 0.05)
 #' reprune_htna(deprune_htna(pruned))
 #' @export
 reprune_htna <- function(x, ...) {

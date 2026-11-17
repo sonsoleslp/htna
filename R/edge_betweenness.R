@@ -1,41 +1,49 @@
-#' Edge Betweenness Network
+#' Compute the edge betweenness of an htna network
 #'
-#' Computes the edge betweenness of every existing edge in an htna
-#' network and returns a copy whose `$weights` slot stores those
-#' betweenness scores instead of the original transition weights. The
-#' actor partition is preserved, so the result can be plotted with
-#' [plot_htna()] to visualise which edges carry the most shortest-path
-#' traffic.
+#' @description
+#' `edge_betweenness_htna()` computes the edge betweenness of an htna
+#' network. The betweenness of an edge is the number of shortest paths
+#' between pairs of codes that pass through it. Edges with high betweenness
+#' are the bridges of the interaction: transitions through which much of
+#' the flow between otherwise distant codes must pass. In a heterogeneous
+#' network the high-betweenness edges are often hand-overs between actors,
+#' which shows which exchanges hold the interaction together.
 #'
-#' Mirrors `tna::betweenness_network()`: edge weights are inverted to
-#' costs by default (`invert = TRUE`) -- in transition networks a
-#' larger transition probability means the edge is "easier" and so the
-#' equivalent path cost is smaller.
+#' `edge_betweenness_htna()` computes the betweenness of every non-zero edge
+#' and returns a copy of the network whose edge weights are these scores,
+#' with the actor partition kept, so the result can be drawn with
+#' [plot_htna()] and tabulated with [as.data.frame.htna()]. By default a
+#' larger transition probability is a shorter distance (`invert = TRUE`), as
+#' in transition network analysis.
+#'
+#' To draw the result directly use [plot_edge_betweenness_htna()]; for
+#' node-level betweenness use [centralities_htna()].
 #'
 #' @param x An htna network from [build_htna()].
-#' @param directed If `TRUE` (default), shortest paths follow edge
-#'   direction.
-#' @param invert  If `TRUE` (default), use `1 / weight` as the edge
-#'   cost when computing shortest paths.
+#' @param directed Follow edge direction in shortest paths. Default `TRUE`.
+#' @param invert Use `1 / weight` as the length of an edge. Default `TRUE`.
 #'
-#' @return A copy of `x` whose `$weights` matrix entries are
-#'   edge-betweenness scores at every position where the original
-#'   network had a non-zero transition. Class is
-#'   `c("htna_edge_betweenness", class(x))`.
+#' @return An htna network of class `c("htna_edge_betweenness", class(x))`
+#'   whose edge weights are edge-betweenness scores at every position where
+#'   `x` has a non-zero transition. `as.data.frame()` returns one row per
+#'   edge with its score in `weight`.
 #'
-#' @seealso [centralities_htna()] for node-level centrality measures,
-#'   [tna::betweenness_network()] for the tna equivalent.
+#' @section Conditions:
+#' `htna_bad_input` when `x` is not an htna network.
+#'
+#' @seealso [plot_edge_betweenness_htna()], [centralities_htna()],
+#'   [as.data.frame.htna()]
 #'
 #' @examples
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' eb  <- edge_betweenness_htna(net)
-#' plot_htna(eb)                 # edge thickness = betweenness score
+#' head(as.data.frame(eb))
 #'
 #' @export
 edge_betweenness_htna <- function(x, directed = TRUE, invert = TRUE) {
   if (!inherits(x, "htna")) {
-    stop("`x` must be an htna network from build_htna().", call. = FALSE)
+    .htna_stop("`x` must be an htna network from build_htna().")
   }
 
   W <- .weights_of(x)
@@ -54,23 +62,33 @@ edge_betweenness_htna <- function(x, directed = TRUE, invert = TRUE) {
   res
 }
 
-#' Plot the Edge Betweenness Network
+#' Plot the edge betweenness of an htna network
 #'
-#' Computes [edge_betweenness_htna()] and renders it with the htna
-#' actor styling (multi-actor circular layout, [htna_palette] node
-#' colours, actor legend). Edges are scaled by their betweenness
-#' score, so the most-traveled shortest-path edges stand out.
+#' @description
+#' `plot_edge_betweenness_htna()` plots the edge-betweenness network of an
+#' htna network: each transition is drawn with a width given by the number
+#' of shortest paths that pass through it, in the layout and actor styling
+#' of [plot_htna()]. The widest edges are the bridges of the interaction,
+#' the transitions through which the flow between the codes of the actors
+#' is channeled.
 #'
-#' @param x An htna network from [build_htna()] or, equivalently, the
-#'   result of [edge_betweenness_htna()].
-#' @param directed,invert Forwarded to [edge_betweenness_htna()] when
-#'   `x` is a plain htna network. Ignored when `x` already inherits
-#'   from `htna_edge_betweenness`.
-#' @param ... Forwarded to [plot_htna()] (e.g. `minimum`, `layout`,
-#'   `group_colors`).
+#' `plot_edge_betweenness_htna()` computes the scores with
+#' [edge_betweenness_htna()] (unless `x` already holds them) and draws all
+#' edges with a non-zero score, unless `minimum` is given. It is called for
+#' the plot and returns, invisibly, the value of [plot_htna()].
 #'
-#' @return The value returned by [plot_htna()] (invisibly).
-#' @seealso [edge_betweenness_htna()], [plot_htna()].
+#' @param x An htna network, or a result of [edge_betweenness_htna()].
+#' @param directed,invert Passed to [edge_betweenness_htna()] when `x` is an
+#'   htna network; ignored otherwise. Defaults `TRUE`.
+#' @param ... Further arguments of [plot_htna()], such as `minimum`,
+#'   `layout` or `group_colors`.
+#'
+#' @return Called for the plot. Invisibly, the value of [plot_htna()].
+#'
+#' @section Conditions:
+#' `htna_bad_input` when `x` is not an htna network.
+#'
+#' @seealso [edge_betweenness_htna()], [plot_htna()]
 #'
 #' @examples
 #' data(human_ai)

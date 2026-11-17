@@ -1,0 +1,207 @@
+---
+title: "Grouped heterogeneous transition networks"
+author: "Written by [Mohammed Saqr](https://saqr.me) and [Sonsoles López-Pernas](https://sonsoles.me)"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{Grouped heterogeneous transition networks}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r options, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", message = FALSE,
+                      fig.width = 7, fig.height = 5, fig.align = "center",
+                      dpi = 96)
+old_options <- options(digits = 3, width = 90)
+```
+
+Many questions about interactions between actors are comparative. Does the
+way students work with an AI assistant change over a course? Do teams in an
+experimental condition hand work to the AI differently from teams in a
+control condition? Answering them requires one heterogeneous transition
+network per group of sessions, estimated over the same codes and the same
+actor partition so that the networks can be set side by side, described
+with the same measures and assessed with the same procedures.
+
+A grouped heterogeneous transition network is such a set: one network per
+cohort, each built from the sessions of that cohort, all sharing the actor
+types. `build_htna()` creates it from a session-level grouping column, and
+the other functions of the package accept the grouped network as it is and
+work cohort by cohort (or, for comparisons, pair by pair). This vignette
+builds, describes and assesses a grouped network of early and late
+sessions; the comparison of networks is treated in depth in the guide
+[Comparing networks](https://sonsoles.me/htna/articles/comparing-networks.html).
+
+```{r setup}
+library(htna)
+```
+
+## Data
+
+`human_ai` holds the coded turns of 429 sessions in which programmers worked
+with an AI coding agent. The variables used here are:
+
+- **Session and order:** `session_id`, `order_in_session`.
+- **Code and actor type:** `code` (six human and six AI codes) and
+  `actor_type` (`"Human"`, `"AI"`).
+- **Cohort:** `phase`, a factor with levels `Early` and `Late`: the
+  sessions ordered by their first date and split in half.
+
+```{r data}
+xtabs(~ phase, data = unique(subset(human_ai, select = c(session_id, phase))))
+xtabs(~ phase, data = human_ai)
+```
+
+The early cohort has 214 sessions with 10,170 coded events and the late
+cohort 215 sessions with 9,177 events.
+
+## One network per cohort
+
+Passing the name of the cohort column as `group` gives one network per
+cohort, in the order of the factor levels.
+
+```{r build}
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+grp
+```
+
+```{r actor-pairs}
+as.data.frame(summary(grp), what = "actor_pairs")
+```
+
+Both cohorts use all twelve codes, and their non-zero edges fall in the
+actor-pair blocks in almost the same way: the only difference is one AI to
+AI transition that occurs in the early sessions (28 edges) but not in the
+late ones (27). The cohorts differ, if at all, in the weights of the
+transitions rather than in which transitions occur.
+
+## The networks side by side
+
+`plot_htna()` draws one network per cohort, titled with its name, with the
+same layout and colours.
+
+```{r plot, fig.height = 4.5}
+op <- par(mfrow = c(1, 2))
+plot_htna(grp)
+par(op)
+```
+
+## Centralities per cohort
+
+The centralities of a grouped network come in one table with a `group`
+column.
+
+```{r centralities}
+centralities_htna(grp, measures = c("InStrength", "Betweenness"))
+```
+
+`Execute` is the code with the most incoming weight in both cohorts, but its
+in-strength falls from 2.15 to 1.90. The human `Frustrate` gains incoming
+weight (0.87 to 1.08), as does the AI `Report` (0.38 to 0.70), while the
+human `Check` loses it (0.87 to 0.64). The profile plot shows the two
+cohorts on the same axis.
+
+```{r plot-centralities, fig.height = 4.5}
+plot_centralities(grp, measures = c("InStrength", "Betweenness"))
+```
+
+## The sessions of each cohort
+
+A sequence plot per cohort shows the sessions themselves, one row per
+session and actor, coloured by code.
+
+```{r sequences, fig.height = 5}
+sequence_plot_htna(grp, type = "heatmap")
+```
+
+## Assessing each cohort
+
+Each cohort is estimated from about half of the sessions, so its edges are
+less certain than those of the pooled network. The bootstrap of a grouped
+network resamples the sessions of each cohort separately.
+
+```{r bootstrap}
+boots <- bootstrap_htna(grp, iter = 100, seed = 1)
+boots
+```
+
+With 100 resamples, 41 of the 135 early edges and 39 of the 134 late edges
+are reproduced within the consistency range. The strongest edge in both
+cohorts, `Delegate` to `Plan`, has a mean weight of 0.689 in the early
+sessions and 0.518 in the late ones, with intervals (0.624 to 0.781 and
+0.419 to 0.604) that do not overlap. `summary(boots)` returns the edges of
+both cohorts in one table. The plots keep only the significant edges.
+
+```{r bootstrap-plot, fig.height = 4.5}
+op <- par(mfrow = c(1, 2))
+plot_htna_bootstrap(boots, display = "significant")
+par(op)
+```
+
+Centrality stability is computed per cohort in the same way.
+
+```{r stability}
+stab <- centrality_stability_htna(grp, iter = 100, seed = 1)
+as.data.frame(stab)
+```
+
+Every coefficient is 0.8 or 0.9, above the recommended 0.5 (Epskamp,
+Borsboom, & Fried, 2018), so the centralities of each cohort can be
+interpreted and compared.
+
+## A first comparison
+
+The descriptive comparison summarizes how the cohorts differ, overall and
+within each actor-pair block.
+
+```{r compare}
+compare_htna(grp)
+```
+
+The edge weights of the two cohorts correlate at 0.959 and differ by 0.019
+on average. The largest single difference, 0.181, lies in the AI-to-AI
+block. A permutation test asks which differences exceed what reshuffling
+the sessions between the cohorts produces.
+
+```{r permutation}
+perm <- permutation_htna(grp, iter = 200, seed = 1)
+perm
+```
+
+With 200 permutations, 28 of the 135 edges differ significantly, and the
+global test rejects equal networks (p = 0.005 for the sum of absolute
+differences). The difference network draws the significant edges, green
+where the early cohort is higher and red where the late cohort is.
+
+```{r permutation-plot, fig.height = 5.5}
+plot_htna_diff(perm)
+```
+
+The guide [Comparing networks](https://sonsoles.me/htna/articles/comparing-networks.html)
+adds the Bayesian comparison and the full comparison tables, and the case
+study [early and late sessions of vibe coding](https://sonsoles.me/htna/articles/case-early-late.html)
+interprets the differences.
+
+## Working with the grouped object
+
+Every function of the package accepts the grouped network as it is:
+`summary()`, `plot_htna()`, `centralities_htna()`, `sequence_plot_htna()`,
+`bootstrap_htna()`, `centrality_stability_htna()` and
+`casedrop_reliability_htna()` work cohort by cohort; `compare_htna()`,
+`permutation_htna()`, `bayes_compare_htna()` and `sequence_compare_htna()`
+work on the pairs of cohorts. A single cohort is analyzed on its own by
+building it from its sessions, for example
+`build_htna(subset(human_ai, phase == "Early"), actor_type = "actor_type")`.
+
+## References
+
+Epskamp, S., Borsboom, D., & Fried, E. I. (2018). Estimating psychological
+networks and their accuracy: A tutorial paper. *Behavior Research Methods*,
+*50*(1), 195--212. <https://doi.org/10.3758/s13428-017-0862-1>
+
+```{r restore-options, include = FALSE}
+options(old_options)
+```

@@ -1,52 +1,49 @@
-#' Markov-Order Adequacy Test
+#' Test the Markov order of the sessions
 #'
-#' htna-named wrapper for [Nestimate::markov_order_test()]. Tests
-#' whether a first-order Markov model is adequate for the observed
-#' sequences, or whether a higher order is required, by comparing the
-#' empirical transition structure against orders `1..max_order` via
-#' permutation.
+#' @description
+#' `markov_order_test_htna()` tests the Markov order of the session
+#' sequences of an htna network (or of raw sequence data). The Markov-order
+#' test compares the fit of models of increasing order (zero, one, two and
+#' so on) with likelihood-ratio statistics, judged against a permutation
+#' null, and reports the information criteria of each order. A transition
+#' network is a first-order Markov model: the next code is assumed to depend
+#' only on the current one. When the next code also depends on the codes
+#' before it, a first-order network misses part of the process and a higher
+#' order describes it better.
 #'
-#' Accepts an htna network directly (its session sequences are tested),
-#' or raw sequence data (a list of character vectors or a wide-format data
-#' frame). Use alongside [reliability_htna()] and
-#' [casedrop_reliability_htna()] when assessing whether a Markov-1
-#' transition network is appropriate before trusting downstream htna
-#' analyses.
+#' The orders are tested in turn: the selected `optimal_order` is the
+#' highest order reached before the first step that is not significant at
+#' `alpha`, and equals `max_order` when every step is significant, in which
+#' case the search should be widened. The orders preferred by BIC and AIC
+#' are reported alongside. `markov_order_test_htna()` runs Nestimate's
+#' `markov_order_test()` on the sequences and returns a `net_markov_order`
+#' object.
 #'
-#' The orders are tested sequentially: `optimal_order` is the highest order
-#' `k` for which every step from order `j - 1` to `j`, `j = 1, ..., k`, is
-#' significant at `alpha`. It is therefore one less than the first order
-#' whose step is not significant, and equals `max_order` when every step is
-#' significant (in which case the search should be widened). The BIC- and
-#' AIC-preferred orders are reported alongside.
+#' Use it before interpreting a first-order network, together with
+#' [reliability_htna()] and [casedrop_reliability_htna()] for the
+#' stability of the estimated weights.
 #'
-#' Suffixed `_htna` to avoid clashing with
-#' `Nestimate::markov_order_test()` when both packages are loaded.
+#' @param data An htna network from [build_htna()], or sequence data (a
+#'   wide data frame or a list of character vectors).
+#' @param ... Settings: `max_order` (default 3), `n_perm` (permutations,
+#'   500), `alpha` (0.05), `parallel` (`FALSE`), `n_cores` (2), `seed` and
+#'   `dof` (`"paths"` or `"observed"`).
 #'
-#' @param data An htna network from [build_htna()], or raw sequence data:
-#'   a list of character vectors or a wide-format data frame. See
-#'   [Nestimate::markov_order_test()].
-#' @param ... Additional arguments passed to
-#'   [Nestimate::markov_order_test()], such as `max_order`, `n_perm`,
-#'   `alpha`, `parallel`, `n_cores`, and `seed`. See that function for
-#'   the full, current argument list.
-#'
-#' @return An object of class `net_markov_order` with components
-#'   `optimal_order` (sequential permutation-test order), `bic_order`,
-#'   `aic_order`, `test_table` (a data frame with one row per tested order
-#'   and columns `order`, `loglik`, `AIC`, `BIC`, `df`, `g2`,
-#'   `p_permutation`, `p_asymptotic`, `significant`), the permutation null
-#'   distributions, fitted transition matrices, and the inputs. `print()`,
-#'   `summary()` and `plot()` methods are supplied by Nestimate; see
-#'   [Nestimate::markov_order_test()].
+#' @return An object of class `net_markov_order` with `print()`,
+#'   `summary()` and `plot()` methods. `summary()` returns a data frame
+#'   with one row per tested order and columns `order`, `loglik`, `AIC`,
+#'   `BIC`, `df`, `g2`, `p_permutation`, `p_asymptotic` and `significant`.
+#'   The object also holds `optimal_order`, `bic_order` and `aic_order`.
 #'
 #' @seealso [reliability_htna()], [casedrop_reliability_htna()],
 #'   [centrality_stability_htna()].
 #' @examples
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
-#' # Few permutations to keep the example fast; use the default 500 in practice.
-#' markov_order_test_htna(net, max_order = 2, n_perm = 20, seed = 1)
+#' # n_perm = 20 keeps the example fast; use the default 500 in practice.
+#' mo <- markov_order_test_htna(net, max_order = 2, n_perm = 20, seed = 1)
+#' mo
+#' summary(mo)
 #' @export
 markov_order_test_htna <- function(data, ...) {
   Nestimate::markov_order_test(data, ...)

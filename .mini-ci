@@ -1,0 +1,11 @@
+# How htna is tested on the Mac mini (ci VM). Run in the repo: mini-ci [job]
+# Nestimate is installed from the local working tree, so this is Nestimate's revdep gate.
+node system
+sibling ../Nestimate
+sibling ../cograph
+job check  Rscript -e 'r <- rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), error_on = "never"); print(r); if (r$status != 0 || length(r$errors) || length(r$warnings)) quit(status = 1)'
+job test   Rscript -e 'testthat::test_local(stop_on_failure = TRUE)'
+# Same check against the CRAN releases of Nestimate and cograph (installed into a
+# separate library that comes first), for the release order where CRAN Nestimate
+# 0.9.24 must keep working with this htna.
+job check-cran Rscript -e 'lib <- file.path(Sys.getenv("HOME"), "cran-deps-htna"); dir.create(lib, showWarnings = FALSE); install.packages(c("Nestimate", "cograph"), lib = lib, repos = "https://cloud.r-project.org"); print(installed.packages(lib)[, "Version"]); r <- rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), libpath = c(lib, .libPaths()), error_on = "never"); print(r); if (r$status != 0 || length(r$errors) || length(r$warnings)) quit(status = 1)'

@@ -1,41 +1,62 @@
-#' Plot Per-Actor Sequences From an htna Network
+#' Plot the sessions of an htna network as sequences
 #'
-#' Extracts each actor's events from the combined wide sequence in
-#' `net$data` (using `net$node_groups` as the node-to-actor lookup),
-#' compresses each session into the actor's own ordered events, pads to a
-#' common width, and renders with [Nestimate::sequence_plot()] grouped by
-#' actor. Each session contributes one row per actor that had at least one
-#' event in it.
+#' @description
+#' `sequence_plot_htna()` plots the sessions of an htna network as
+#' sequences: every session is a row of coloured cells, one per event, so
+#' the reader sees how sessions begin and end, how long they run and
+#' whether some codes cluster early or late. A transition network pools the
+#' transitions of all sessions and so loses when each code occurs and how
+#' long the sessions are; the sequence plot restores that view. In a
+#' heterogeneous network the plot can separate the actor types, showing the
+#' course of each actor's own events or which actor acted at each step.
 #'
-#' @param net An htna network from [build_htna()]. Must have `$data` and
-#'   `$node_groups` populated.
-#' @param by `"state"` (default) keeps state-level colouring with one
-#'   row per (session, actor) extracted from `net$data`; `"group"`
-#'   re-colours the original combined session matrix by actor (each cell
-#'   = the actor that acted at that time step).
-#' @param type Sequence plot layout: `"index"` (default; one panel per
-#'   actor, vertically stacked), `"heatmap"` (single carpet with a white
-#'   separator at the actor boundary, controllable via `k_line_width`), or
-#'   `"distribution"` (one stacked-area panel per actor).
-#' @param grouped_legend Logical. If `TRUE` (default) and `by = "state"`,
-#'   the per-state legend is split into one block per actor with the actor
-#'   name as a sub-title.
-#' @param x Same as `net`; used when calling via the `plot_sequences()`
-#'   generic.
-#' @param ... Forwarded to [Nestimate::sequence_plot()].
+#' The plot is drawn with `Nestimate::sequence_plot()`. With `by = "state"`
+#' (the default) each cell is coloured by its code, and every session
+#' contributes one row per actor type holding that actor's events in order;
+#' the legend is split into one block per actor type. With
+#' `by = "group"` the sessions are kept whole and each cell is coloured by
+#' the actor type that acted at that step. `type` selects the display: a
+#' sequence index plot with one panel per actor type (`"index"`), a single
+#' carpet with a separator between the actor types (`"heatmap"`), or the
+#' share of each code at every position (`"distribution"`). A grouped
+#' network is drawn as one plot per cohort. `plot_sequences()` on an htna
+#' network calls this function. It is called for the plot and returns,
+#' invisibly, the description of the drawn plot (a list), or `net` for a
+#' grouped network.
 #'
-#' @return Invisibly, the list returned by [Nestimate::sequence_plot()].
+#' Rows are ordered by clustering the sessions, which can take some seconds
+#' for several hundred sessions. For the network itself use [plot_htna()];
+#' to test which sequence patterns differ between cohorts use
+#' [sequence_compare_htna()].
 #'
-#' @seealso [Nestimate::sequence_plot()], [build_htna()].
+#' @param net,x An htna network from [build_htna()], or an `htna_group`.
+#' @param by `"state"` (default) colours cells by code, `"group"` by actor
+#'   type.
+#' @param type `"index"` (default), `"heatmap"` or `"distribution"`.
+#' @param grouped_legend With `by = "state"`, split the legend into one block
+#'   per actor type. Default `TRUE`.
+#' @param ... Further arguments of `Nestimate::sequence_plot()`, such as
+#'   `sort`, `legend`, `state_colors` or `main`.
+#'
+#' @return Called for the plot. Invisibly, the description of the drawn plot
+#'   returned by `Nestimate::sequence_plot()` (a list), or `net` for a
+#'   grouped network.
+#'
+#' @section Conditions:
+#' `htna_bad_input` when `net` is not an htna network with sequence data;
+#' `htna_unassigned_node` when it has no actor partition;
+#' `htna_empty_input` for a grouped network without cohorts.
+#'
+#' @seealso [plot_htna()], [sequence_compare_htna()],
+#'   [extract_meta_paths()], [build_htna()]
 #'
 #' @examples
 #' data(human_ai)
-#' net <- build_htna(human_ai, actor_type = "actor_type")
-#'
-#' sequence_plot_htna(net)                       # index, faceted
-#' sequence_plot_htna(net, type = "heatmap")     # single carpet, white gulf
-#' sequence_plot_htna(net, type = "distribution")
-#' sequence_plot_htna(net, by = "group")         # cells coloured by actor
+#' net <- build_htna(subset(human_ai, project == "Project_9"),
+#'                   actor_type = "actor_type")
+#' sequence_plot_htna(net)
+#' sequence_plot_htna(net, type = "heatmap")
+#' sequence_plot_htna(net, by = "group", type = "distribution")
 #'
 #' @export
 sequence_plot_htna <- function(net,
@@ -45,29 +66,31 @@ sequence_plot_htna <- function(net,
                                ...) {
   if (inherits(net, "htna_group") ||
       (is.list(net) && !inherits(net, "htna") && !is.data.frame(net))) {
-    if (length(net) == 0L) stop("Empty htna_group.", call. = FALSE)
+    if (length(net) == 0L) .htna_stop("Empty htna_group.",
+                                      class = "htna_empty_input")
     nms <- names(net) %||% as.character(seq_along(net))
-    for (i in seq_along(net)) {
-      sequence_plot_htna(net[[i]], by = match.arg(by), type = match.arg(type),
+    by   <- match.arg(by)
+    type <- match.arg(type)
+    lapply(seq_along(net), function(i) {
+      sequence_plot_htna(net[[i]], by = by, type = type,
                          grouped_legend = grouped_legend,
                          main = nms[i], ...)
-    }
+    })
     return(invisible(net))
   }
   by   <- match.arg(by)
   type <- match.arg(type)
 
   if (!inherits(net, "htna")) {
-    stop("`net` must be an htna network produced by build_htna().",
-         call. = FALSE)
+    .htna_stop("`net` must be an htna network produced by build_htna().")
   }
   if (is.null(net$data) || !is.data.frame(net$data)) {
-    stop("`net$data` is missing or not a data frame; rebuild with ",
-         "`build_htna()`.", call. = FALSE)
+    .htna_stop("`net$data` is missing or not a data frame; rebuild with ",
+               "`build_htna()`.")
   }
   if (is.null(net$node_groups) || !nrow(net$node_groups)) {
-    stop("`net` has no actor partition (`$node_groups` is empty).",
-         call. = FALSE)
+    .htna_stop("`net` has no actor partition (`$node_groups` is empty).",
+               class = "htna_unassigned_node")
   }
 
   type_map  <- setNames(as.character(net$node_groups$group),
@@ -165,18 +188,14 @@ sequence_plot_htna <- function(net,
     disambiguated <- grepl(":", all_states, fixed = TRUE)
     if (any(disambiguated)) {
       # Create base code mapping
-      base_code_map <- character(length(all_states))
-      names(base_code_map) <- all_states
-
-      for (i in seq_along(all_states)) {
-        state <- all_states[i]
-        if (grepl(":", state, fixed = TRUE)) {
-          # Extract base code from disambiguated code (e.g., "Human:Ask" -> "Ask")
-          base_code_map[state] <- strsplit(state, ":", fixed = TRUE)[[1]][2]
-        } else {
-          base_code_map[state] <- state
-        }
-      }
+      # Base code of a disambiguated code (e.g. "Human:Ask" -> "Ask").
+      base_code_map <- stats::setNames(
+        ifelse(disambiguated,
+               vapply(strsplit(all_states, ":", fixed = TRUE), `[`,
+                      character(1L), 2L),
+               all_states),
+        all_states
+      )
 
       # Store mapping for later label cleaning
       disambiguated_mapping <- base_code_map
@@ -215,12 +234,7 @@ sequence_plot_htna <- function(net,
       all_states_sorted <- sort(all_states)
 
       # Create color vector in sorted order (unnamed vector for Nestimate)
-      state_colors <- character(length(all_states_sorted))
-      for (i in seq_along(all_states_sorted)) {
-        state <- all_states_sorted[i]
-        base_code <- base_code_map[state]
-        state_colors[i] <- base_colors[base_code]
-      }
+      state_colors <- unname(base_colors[base_code_map[all_states_sorted]])
 
       user_args$state_colors <- state_colors
     }
@@ -263,17 +277,28 @@ sequence_plot_htna <- function(net,
   invisible(result)
 }
 
-#' Sequence plot generic
+#' Plot sequences
 #'
-#' S3 generic dispatched on `x`. Calling `plot_sequences(net)` on an htna
-#' network forwards to [sequence_plot_htna()].
+#' @description
+#' `plot_sequences()` plots the sequences behind a model; it is a generic.
+#' For an htna network it draws the sessions with [sequence_plot_htna()],
+#' so `plot_sequences(net)` gives the same plot as `sequence_plot_htna(net)`.
+#' The 'tna' package exports a generic of the same name; whichever package
+#' is attached last provides `plot_sequences()`.
 #'
-#' @param x An object to plot.
-#' @param ... Forwarded to the method.
-#' @return Method-defined.
+#' @param x An object to plot; for an htna network, see
+#'   [sequence_plot_htna()].
+#' @param ... Arguments for the method.
+#'
+#' @return Called for the plot; the value is defined by the method (for an
+#'   htna network, see [sequence_plot_htna()]).
+#'
+#' @seealso [sequence_plot_htna()]
+#'
 #' @examples
 #' data(human_ai)
-#' net <- build_htna(human_ai, actor_type = "actor_type")
+#' net <- build_htna(subset(human_ai, project == "Project_9"),
+#'                   actor_type = "actor_type")
 #' plot_sequences(net)
 #' @export
 plot_sequences <- function(x, ...) UseMethod("plot_sequences")
@@ -415,7 +440,7 @@ plot_sequences.htna <- function(x, ...) sequence_plot_htna(x, ...)
                         xaxs = "i", yaxs = "i")
   graphics::rect(0, 0, 1, 1, col = "white", border = NA)
 
-  for (i in seq_len(n_blocks)) {
+  lapply(seq_len(n_blocks), function(i) {
     a    <- names(states_by)[i]
     if (position == "right") {
       block_h <- 1 / n_blocks
@@ -432,7 +457,7 @@ plot_sequences.htna <- function(x, ...) sequence_plot_htna(x, ...)
                        title  = a, border = NA, bty = "n",
                        xjust = 0, yjust = 1, cex = cex)
     }
-  }
+  })
   invisible(NULL)
 }
 

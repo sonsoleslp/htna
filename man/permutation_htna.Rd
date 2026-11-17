@@ -2,49 +2,61 @@
 % Please edit documentation in R/permutation_htna.R
 \name{permutation_htna}
 \alias{permutation_htna}
-\title{Permutation Test for Network Differences}
+\title{Test differences between networks by permutation}
 \usage{
 permutation_htna(x, y = NULL, ...)
 }
 \arguments{
-\item{x, y}{The two networks to compare, or a grouped network
-(\code{htna_group}, which is also a \code{netobject_group}) in \code{x} with
-\code{y = NULL} for all pairwise cohort comparisons. See
-\code{\link[Nestimate:permutation]{Nestimate::permutation()}}.}
+\item{x, y}{Two htna networks, or an \code{htna_group} in \code{x} with \code{y = NULL},
+in which case every pair of cohorts is tested.}
 
-\item{...}{Additional arguments passed to \code{\link[Nestimate:permutation]{Nestimate::permutation()}},
-such as \code{iter}, \code{alpha}, \code{paired}, \code{adjust}, \code{measures}, \code{nlambda},
-\code{seed}, and \code{actor}. See that function for the full, current argument
-list.}
+\item{...}{Settings: \code{iter} (shuffles, default 1000), \code{alpha} (0.05),
+\code{paired} (\code{FALSE}), \code{adjust} (multiplicity correction, \code{"none"}),
+\code{measures} (centralities to test), \code{nlambda}, \code{seed} and \code{actor}
+(shuffle whole actors).}
 }
 \value{
-An object of class \code{net_permutation} (single pair) or a named
-list of class \code{c("net_permutation_group", "list")} with one
-\code{net_permutation} per cohort pair. Both render with
-\code{\link[=plot_htna_diff]{plot_htna_diff()}}. See \code{\link[Nestimate:permutation]{Nestimate::permutation()}} for the full slot
-list.
+For two networks, an object of class \code{net_permutation}; for a
+grouped network, a named list of class
+\code{c("net_permutation_group", "list")} with one result per cohort pair
+(for example \code{"Early vs Late"}). Both have \code{print()} and \code{summary()}
+methods; \code{summary()} returns a data frame with one row per edge (and
+pair) and columns \code{from}, \code{to}, \code{weight_x}, \code{weight_y}, \code{diff},
+\code{effect_size}, \code{p_value} and \code{sig}. Differences are \code{x - y}.
 }
 \description{
-htna-named wrapper for \code{\link[Nestimate:permutation]{Nestimate::permutation()}}. Tests whether
-observed edge-weight differences between two networks (or all
-pairwise differences within a \code{netobject_group}) exceed what would
-be expected under a null of identical generating processes.
-}
-\details{
-Works on htna networks: the actor partition (\verb{$node_groups},
-\verb{$actor_levels}, \code{htna} class) is preserved on \code{result$x} /
-\code{result$y}, so \code{\link[=plot_htna_diff]{plot_htna_diff()}} can render the result with
-htna's colour and layout conventions.
+\code{permutation_htna()} tests by permutation whether two heterogeneous
+transition networks, for example of two groups of learners or two phases
+of a study, differ more than chance would produce. The sessions behind
+both networks are pooled, the group labels are shuffled many times, both
+networks are re-estimated on every shuffle, and each observed difference
+is compared with the shuffled ones. Each edge gets a p-value and an
+effect size (the observed difference divided by the standard deviation
+of the shuffled differences), and the networks as a whole are tested
+with the sum and the maximum of the absolute differences. Because whole
+sessions are shuffled, the nesting of transitions in sessions is
+respected.
 
-Suffixed \verb{_htna} to avoid clashing with \code{Nestimate::permutation()}
-when both packages are loaded.
+\code{permutation_htna()} runs Nestimate's \code{permutation()} with the actor
+partition kept. It tests two htna networks estimated with the same
+method on the same codes, or every pair of cohorts of a grouped network.
+With many edges some fall below \code{alpha} by chance; set \code{adjust} (for
+example \code{"BH"}) to correct for multiple testing. With \code{measures}, node
+centralities are tested as well. It returns a \code{net_permutation} object,
+or one per cohort pair for a grouped network.
+
+A small p-value says that a difference is larger than the shuffles
+produce, not how large or how probable it is, which
+\code{\link[=bayes_compare_htna]{bayes_compare_htna()}} estimates. \code{\link[=compare_htna]{compare_htna()}} gives descriptive
+differences per actor pair, and \code{\link[=plot_htna_diff]{plot_htna_diff()}} draws the result.
 }
 \examples{
 data(human_ai)
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-# Pass the grouped network as it is; every cohort pair is tested.
-permutation_htna(grp, iter = 50, seed = 1)
+perm <- permutation_htna(grp, iter = 50, seed = 1)
+perm
+head(summary(perm))
 }
 \seealso{
-\code{\link[=plot_htna_diff]{plot_htna_diff()}} to plot the result.
+\code{\link[=bayes_compare_htna]{bayes_compare_htna()}}, \code{\link[=compare_htna]{compare_htna()}}, \code{\link[=plot_htna_diff]{plot_htna_diff()}}.
 }

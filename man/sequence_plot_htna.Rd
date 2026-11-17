@@ -3,7 +3,7 @@
 \name{sequence_plot_htna}
 \alias{sequence_plot_htna}
 \alias{plot_sequences.htna}
-\title{Plot Per-Actor Sequences From an htna Network}
+\title{Plot the sessions of an htna network as sequences}
 \usage{
 sequence_plot_htna(
   net,
@@ -16,49 +16,70 @@ sequence_plot_htna(
 \method{plot_sequences}{htna}(x, ...)
 }
 \arguments{
-\item{net}{An htna network from \code{\link[=build_htna]{build_htna()}}. Must have \verb{$data} and
-\verb{$node_groups} populated.}
+\item{net, x}{An htna network from \code{\link[=build_htna]{build_htna()}}, or an \code{htna_group}.}
 
-\item{by}{\code{"state"} (default) keeps state-level colouring with one
-row per (session, actor) extracted from \code{net$data}; \code{"group"}
-re-colours the original combined session matrix by actor (each cell
-= the actor that acted at that time step).}
+\item{by}{\code{"state"} (default) colours cells by code, \code{"group"} by actor
+type.}
 
-\item{type}{Sequence plot layout: \code{"index"} (default; one panel per
-actor, vertically stacked), \code{"heatmap"} (single carpet with a white
-separator at the actor boundary, controllable via \code{k_line_width}), or
-\code{"distribution"} (one stacked-area panel per actor).}
+\item{type}{\code{"index"} (default), \code{"heatmap"} or \code{"distribution"}.}
 
-\item{grouped_legend}{Logical. If \code{TRUE} (default) and \code{by = "state"},
-the per-state legend is split into one block per actor with the actor
-name as a sub-title.}
+\item{grouped_legend}{With \code{by = "state"}, split the legend into one block
+per actor type. Default \code{TRUE}.}
 
-\item{...}{Forwarded to \code{\link[Nestimate:sequence_plot]{Nestimate::sequence_plot()}}.}
-
-\item{x}{Same as \code{net}; used when calling via the \code{plot_sequences()}
-generic.}
+\item{...}{Further arguments of \code{Nestimate::sequence_plot()}, such as
+\code{sort}, \code{legend}, \code{state_colors} or \code{main}.}
 }
 \value{
-Invisibly, the list returned by \code{\link[Nestimate:sequence_plot]{Nestimate::sequence_plot()}}.
+Called for the plot. Invisibly, the description of the drawn plot
+returned by \code{Nestimate::sequence_plot()} (a list), or \code{net} for a
+grouped network.
 }
 \description{
-Extracts each actor's events from the combined wide sequence in
-\code{net$data} (using \code{net$node_groups} as the node-to-actor lookup),
-compresses each session into the actor's own ordered events, pads to a
-common width, and renders with \code{\link[Nestimate:sequence_plot]{Nestimate::sequence_plot()}} grouped by
-actor. Each session contributes one row per actor that had at least one
-event in it.
+\code{sequence_plot_htna()} plots the sessions of an htna network as
+sequences: every session is a row of coloured cells, one per event, so
+the reader sees how sessions begin and end, how long they run and
+whether some codes cluster early or late. A transition network pools the
+transitions of all sessions and so loses when each code occurs and how
+long the sessions are; the sequence plot restores that view. In a
+heterogeneous network the plot can separate the actor types, showing the
+course of each actor's own events or which actor acted at each step.
+
+The plot is drawn with \code{Nestimate::sequence_plot()}. With \code{by = "state"}
+(the default) each cell is coloured by its code, and every session
+contributes one row per actor type holding that actor's events in order;
+the legend is split into one block per actor type. With
+\code{by = "group"} the sessions are kept whole and each cell is coloured by
+the actor type that acted at that step. \code{type} selects the display: a
+sequence index plot with one panel per actor type (\code{"index"}), a single
+carpet with a separator between the actor types (\code{"heatmap"}), or the
+share of each code at every position (\code{"distribution"}). A grouped
+network is drawn as one plot per cohort. \code{plot_sequences()} on an htna
+network calls this function. It is called for the plot and returns,
+invisibly, the description of the drawn plot (a list), or \code{net} for a
+grouped network.
+
+Rows are ordered by clustering the sessions, which can take some seconds
+for several hundred sessions. For the network itself use \code{\link[=plot_htna]{plot_htna()}};
+to test which sequence patterns differ between cohorts use
+\code{\link[=sequence_compare_htna]{sequence_compare_htna()}}.
 }
+\section{Conditions}{
+
+\code{htna_bad_input} when \code{net} is not an htna network with sequence data;
+\code{htna_unassigned_node} when it has no actor partition;
+\code{htna_empty_input} for a grouped network without cohorts.
+}
+
 \examples{
 data(human_ai)
-net <- build_htna(human_ai, actor_type = "actor_type")
-
-sequence_plot_htna(net)                       # index, faceted
-sequence_plot_htna(net, type = "heatmap")     # single carpet, white gulf
-sequence_plot_htna(net, type = "distribution")
-sequence_plot_htna(net, by = "group")         # cells coloured by actor
+net <- build_htna(subset(human_ai, project == "Project_9"),
+                  actor_type = "actor_type")
+sequence_plot_htna(net)
+sequence_plot_htna(net, type = "heatmap")
+sequence_plot_htna(net, by = "group", type = "distribution")
 
 }
 \seealso{
-\code{\link[Nestimate:sequence_plot]{Nestimate::sequence_plot()}}, \code{\link[=build_htna]{build_htna()}}.
+\code{\link[=plot_htna]{plot_htna()}}, \code{\link[=sequence_compare_htna]{sequence_compare_htna()}},
+\code{\link[=extract_meta_paths]{extract_meta_paths()}}, \code{\link[=build_htna]{build_htna()}}
 }

@@ -2,45 +2,62 @@
 % Please edit documentation in R/casedrop_reliability_htna.R
 \name{casedrop_reliability_htna}
 \alias{casedrop_reliability_htna}
-\title{Edge-Weight Case-Dropping Stability}
+\title{Assess the case-dropping stability of the edge weights}
 \usage{
 casedrop_reliability_htna(x, ...)
 }
 \arguments{
-\item{x}{An htna network or grouped htna network. See
-\code{\link[Nestimate:casedrop_reliability]{Nestimate::casedrop_reliability()}}.}
+\item{x}{An htna network from \code{\link[=build_htna]{build_htna()}} or an \code{htna_group}.}
 
-\item{...}{Additional arguments passed to
-\code{\link[Nestimate:casedrop_reliability]{Nestimate::casedrop_reliability()}}, such as \code{iter}, \code{drop_prop},
-\code{threshold}, \code{certainty}, \code{method}, \code{include_diag}, and \code{seed}. See
-that function for the full, current argument list.}
+\item{...}{Settings: \code{iter} (resamples per drop proportion, default
+1000), \code{drop_prop} (default \code{seq(0.1, 0.9, by = 0.1)}), \code{threshold}
+(0.7), \code{certainty} (0.95), \code{method} (correlation, \code{"spearman"}),
+\code{include_diag} (\code{FALSE}), \code{seed} and \code{actor} (drop whole actors
+instead of sessions; needs Nestimate 1.0.19 or later).}
 }
 \value{
-An object of class \code{net_casedrop_reliability} (single
-network) or \code{net_casedrop_reliability_group} (grouped htna). See
-\code{\link[Nestimate:casedrop_reliability]{Nestimate::casedrop_reliability()}} for the full component list
-and the corresponding \code{plot()} method.
+An object of class \code{net_casedrop_reliability} (one network) or
+\code{net_casedrop_reliability_group} (a grouped network), with \code{print()},
+\code{summary()} and \code{plot()} methods; \code{summary()} returns a data frame
+with one row per metric and drop proportion (columns \code{metric},
+\code{drop_prop}, \code{mean}, \code{sd}, \code{median}, \code{mad}, \code{q025}, \code{q975}).
 }
 \description{
-htna-named wrapper for \code{\link[Nestimate:casedrop_reliability]{Nestimate::casedrop_reliability()}}. Computes
-the CS-coefficient for the edge-weight vector of a network: the
-maximum proportion of cases (rows of \code{x$data}) that can be dropped
-while the flattened edge-weight vector of the re-estimated network
-still correlates with the original above \code{threshold} in at least
-\code{certainty} of iterations.
-}
-\details{
-Works on htna networks and grouped htna networks directly.
+\code{casedrop_reliability_htna()} measures how far the estimated edge weights
+of an htna network depend on a few sessions, by case-dropping stability
+(Epskamp et al., 2018). Networks are re-estimated after dropping
+increasing proportions of the sessions, and the edge weights of each
+reduced network are correlated with those of the full network. The
+case-dropping stability (CS) coefficient is the largest proportion of
+sessions that can be dropped while the correlation stays above a
+threshold (0.7 by default) in a required share (95 percent) of the
+resamples; Epskamp et al. (2018) recommend a coefficient of at least 0.25
+and preferably above 0.5.
 
-Suffixed \verb{_htna} to avoid clashing with
-\code{Nestimate::casedrop_reliability()} when both packages are loaded.
+\code{casedrop_reliability_htna()} applies the procedure to the edge-weight
+vector of an htna network, or to every cohort of a grouped network, and
+also reports the mean and maximum absolute weight differences at each
+drop proportion. It runs Nestimate's \code{casedrop_reliability()} on the
+network and returns a \code{net_casedrop_reliability} object (a
+\code{net_casedrop_reliability_group} for a grouped network).
+
+For the stability of node centralities use
+\code{\link[=centrality_stability_htna]{centrality_stability_htna()}}; for split-half agreement use
+\code{\link[=reliability_htna]{reliability_htna()}}; for edge-level confidence intervals use
+\code{\link[=bootstrap_htna]{bootstrap_htna()}}.
 }
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 casedrop_reliability_htna(net, iter = 20, seed = 1)
 }
+\references{
+Epskamp, S., Borsboom, D., & Fried, E. I. (2018). Estimating
+psychological networks and their accuracy: A tutorial paper.
+\emph{Behavior Research Methods}, 50(1), 195-212.
+\doi{10.3758/s13428-017-0862-1}
+}
 \seealso{
-\code{\link[=reliability_htna]{reliability_htna()}}, \code{\link[=centrality_stability_htna]{centrality_stability_htna()}},
+\code{\link[=centrality_stability_htna]{centrality_stability_htna()}}, \code{\link[=reliability_htna]{reliability_htna()}},
 \code{\link[=bootstrap_htna]{bootstrap_htna()}}.
 }

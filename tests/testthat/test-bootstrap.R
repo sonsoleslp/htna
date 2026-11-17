@@ -34,3 +34,17 @@ test_that("bootstrap() generic dispatches to .htna", {
   # (the default method would not produce that class).
   expect_s3_class(bootstrap(net, iter = 10), "htna_bootstrap")
 })
+
+test_that("a grouped bootstrap prints per cohort and stacks its summary (0.3.5)", {
+  grp <- make_htna_group()
+  boots <- bootstrap_htna(grp, iter = 10, seed = 1)
+  out <- capture.output(print(boots))
+  expect_false(any(grepl("attr(,", out, fixed = TRUE)))
+  expect_equal(sum(grepl("^--- ", out)), length(grp))
+  stacked <- summary(boots)
+  expect_identical(class(stacked), "data.frame")
+  expect_identical(names(stacked)[1L], "group")
+  expect_equal(nrow(stacked),
+               sum(vapply(boots, function(b) nrow(summary(b)), integer(1))))
+  expect_setequal(unique(stacked$group), names(grp))
+})

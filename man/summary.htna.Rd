@@ -3,49 +3,92 @@
 \name{summary.htna}
 \alias{summary.htna}
 \alias{summary.htna_group}
-\title{Summarise a Heterogeneous Transition Network}
+\alias{print.summary.htna}
+\alias{print.summary.htna_group}
+\alias{as.data.frame.summary.htna}
+\alias{as.data.frame.summary.htna_group}
+\title{Summarize a heterogeneous transition network}
 \usage{
 \method{summary}{htna}(object, max_nodes = 12L, ...)
 
 \method{summary}{htna_group}(object, max_nodes = 12L, ...)
+
+\method{print}{summary.htna}(x, max_nodes = attr(x, "max_nodes") \%||\% 12L, ...)
+
+\method{print}{summary.htna_group}(x, ...)
+
+\method{as.data.frame}{summary.htna}(
+  x,
+  row.names = NULL,
+  optional = FALSE,
+  ...,
+  what = c("actors", "actor_pairs", "metrics")
+)
+
+\method{as.data.frame}{summary.htna_group}(
+  x,
+  row.names = NULL,
+  optional = FALSE,
+  ...,
+  what = c("actors", "actor_pairs", "metrics")
+)
 }
 \arguments{
 \item{object}{An htna network from \code{\link[=build_htna]{build_htna()}} or an \code{htna_group}.}
 
-\item{max_nodes}{Integer. Maximum number of nodes to list per actor
-type before truncating with an ellipsis. Default \code{12}.}
+\item{max_nodes}{Maximum number of nodes listed per actor type when the
+summary is printed (default 12).}
 
-\item{...}{Forwarded for compatibility; currently unused.}
+\item{...}{Unused.}
+
+\item{x}{A \code{summary.htna} or \code{summary.htna_group} object.}
+
+\item{row.names, optional}{Ignored; present for the generic.}
+
+\item{what}{Table to return: \code{"actors"} (default; one row per actor type
+with its number of nodes and their names), \code{"actor_pairs"} (one row per
+directed actor pair with the number of non-zero edges) or \code{"metrics"}
+(one row per network metric).}
 }
 \value{
-Invisibly, a list with components:
-\itemize{
-\item \code{actors} - data frame with one row per actor type (\code{actor},
-\code{n_nodes}, \code{nodes}).
-\item \code{edges_by_actor} - integer matrix of non-zero edge counts,
-rows are source actor, columns are target actor.
-\item \code{network_metrics} - data frame (columns \code{metric}, \code{value}) of
-standard network-level descriptive metrics from the Nestimate
-engine (node/edge counts, density, distance, strength, degree
-centralization, and reciprocity).
-\item \code{n_nodes}, \code{n_edges}, \code{n_sessions}, \code{n_timesteps},
-\code{method}.
-}
+\code{summary()} returns an object of class \code{summary.htna}: a list
+with \code{actors} (data frame: \code{actor}, \code{n_nodes}, \code{nodes}),
+\code{edges_by_actor} (integer matrix of non-zero edge counts, source actors
+in rows), \code{network_metrics} (data frame: \code{metric}, \code{value}), and the
+scalars \code{n_nodes}, \code{n_edges}, \code{n_sessions}, \code{n_timesteps} and \code{method}.
+For an \code{htna_group} it returns a \code{summary.htna_group}, a named list of
+\code{summary.htna} objects. \code{print()} returns its input invisibly.
+\code{as.data.frame()} returns the table chosen by \code{what}; for a grouped
+summary the cohorts are stacked with a leading \code{group} column.
 }
 \description{
-Prints a per-actor summary of an htna network: which nodes belong to
-which actor type and how the non-zero edges distribute across the
-actor partition. The result is also returned invisibly as a list so
-callers can inspect the structured summary programmatically.
-}
-\details{
-For an \code{htna_group}, the summary is printed once per cohort and the
-return value is a named list of the per-cohort lists described under
-Value.
+\code{summary()} summarizes a heterogeneous transition network by its actor
+partition; \code{print()} shows the summary and \code{as.data.frame()} returns its
+tables. A heterogeneous transition network is described first by which
+codes belong to which actor type, and how the transitions between codes
+fall within and between the actors. The summary reports the network's
+size (sessions, nodes and non-zero edges), the nodes of each actor, the
+number of non-zero edges in every directed actor-pair block (for example
+Human to AI), and the standard network-level descriptive metrics
+(density, mean distance, strength, degree centralization and
+reciprocity).
+
+\code{summary()} returns the summary as a \code{summary.htna} object; printing it
+shows the report. For a grouped network, the summary of every cohort is
+returned and printed in turn. The tables of the summary are returned as
+data frames by \code{as.data.frame()}.
 }
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 summary(net)
+as.data.frame(summary(net), what = "actor_pairs")
 
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+as.data.frame(summary(grp), what = "metrics")
+
+}
+\seealso{
+\code{\link[=build_htna]{build_htna()}}, \code{\link[=as.data.frame.htna]{as.data.frame.htna()}} for the edge and node
+tables of the network itself.
 }

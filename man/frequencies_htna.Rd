@@ -2,7 +2,7 @@
 % Please edit documentation in R/frequencies_htna.R
 \name{frequencies_htna}
 \alias{frequencies_htna}
-\title{Tidy Per-Actor Frequency Table for an htna Network}
+\title{Count the codes of each actor in a network}
 \usage{
 frequencies_htna(x)
 }
@@ -10,34 +10,39 @@ frequencies_htna(x)
 \item{x}{An htna network from \code{\link[=build_htna]{build_htna()}}.}
 }
 \value{
-A data frame with one row per \verb{(actor, state)} pair and
-columns \code{group} (the actor type), \code{state}, \code{count} and \code{proportion}
-(the state's share of its own actor's events, so proportions sum to
-1 within each actor).
+A data frame with one row per actor and code, sorted by
+decreasing count, and columns \code{group} (the actor type), \code{state},
+\code{count} and \code{proportion} (the code's share of its actor's events).
 }
 \description{
-Returns the within-network state frequency table, partitioned by
-actor. One row per \verb{(actor, state)} pair, with \code{count} and
-\code{proportion} columns. The data side of \code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}}.
-}
-\details{
-Internally a thin wrapper around the htna S3 method shipped by
-Nestimate (\code{state_distribution.htna}); exposed under the
-\code{frequencies_htna()} name as the canonical "give me the frequency
-table for this network" entry point.
+\code{frequencies_htna()} counts the codes of each actor in an htna network:
+how often each code occurs and how each actor distributes its activity
+over its own codes, such as which requests a human makes most often and
+which actions the AI takes. These counts describe a heterogeneous network
+before its transitions are read.
 
-Suffixed \verb{_htna} to avoid clashing with \code{Nestimate::frequencies()}
-(which takes raw long-format data and a column-name spec) when
-both packages are loaded. If you have raw data rather than an htna
-network, call \code{Nestimate::frequencies()} directly.
+\code{frequencies_htna()} counts the occurrences of every code in the
+sessions of an htna network and reports each code under its actor type,
+with its share of that actor's events. The proportions therefore sum to
+one within each actor, not over all events. It runs Nestimate's
+\code{state_distribution()} on the network and returns a data frame with one
+row per actor and code.
+
+\code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}} draws the table. \code{\link[=state_frequencies_htna]{state_frequencies_htna()}}
+gives the pooled table without actors, with shares of all events;
+\code{\link[=state_distribution_htna]{state_distribution_htna()}} returns the same table as this function.
 }
+\section{Conditions}{
+
+An error of class \code{htna_bad_input} when \code{x} is not an htna network.
+}
+
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 frequencies_htna(net)
 }
 \seealso{
-\code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}} for the rendered version,
-\code{\link[=state_distribution_htna]{state_distribution_htna()}} (same function under the upstream
-name), \code{\link[=mosaic_plot_htna]{mosaic_plot_htna()}}.
+\code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}}, \code{\link[=state_frequencies_htna]{state_frequencies_htna()}},
+\code{\link[=mosaic_plot_htna]{mosaic_plot_htna()}}.
 }

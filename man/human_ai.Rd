@@ -3,71 +3,59 @@
 \docType{data}
 \name{human_ai}
 \alias{human_ai}
-\title{Simplified Human + AI Interaction Sequences}
+\title{Human and AI turns in vibe-coding sessions}
 \format{
-A data frame with 19347 rows and 11 columns:
+A data frame with 19,347 rows (10,796 human and 8,551 AI codes)
+and 11 columns, one row per code:
 \describe{
-\item{message_id}{Integer. Source message identifier.}
-\item{project}{Character. Project label (e.g. \code{"Project_1"}).}
-\item{session_id}{Character. Session identifier; pass to
-\code{\link{build_htna}()} as the session key.}
-\item{timestamp}{Integer. Unix timestamp of the message.}
-\item{session_date}{Character. Date of the session
-(\code{YYYY-MM-DD}).}
-\item{code}{Character. Simplified action code; the
-\code{code}-column value passed to \code{\link{build_htna}()}.}
-\item{cluster}{Character. Original cluster label from the source
-data, retained for reference (see Details).}
-\item{code_order}{Integer. Order of the code within the message.}
-\item{order_in_session}{Integer. Order of the row within the
-session; pass as the order key to \code{\link{build_htna}()}.}
-\item{actor_type}{Character. \code{"AI"} or \code{"Human"}: the
-actor partition for \code{\link{build_htna}(actor_type = "actor_type")}.}
-\item{phase}{Factor with levels \code{"Early"} and \code{"Late"}.
-Session-level cohort tag from a chronological split: sessions
-ordered by their first \code{session_date} (with \code{session_id}
-as a deterministic tiebreak), then split in half. Suitable for
-\code{\link{build_htna}(group = "phase")}.}
+\item{message_id}{Integer identifier of the turn; the codes of one turn
+share it.}
+\item{project}{Project identifier, \code{"Project_1"} to \code{"Project_34"}.}
+\item{session_id}{Session identifier (the session key for
+\code{\link[=build_htna]{build_htna()}}).}
+\item{timestamp}{Integer Unix time of the session date (day
+resolution).}
+\item{session_date}{Date of the row, \code{"YYYY-MM-DD"}.}
+\item{code}{Simplified interaction code.}
+\item{cluster}{High-level cluster of the original code, kept for
+reference; because merged codes may come from different clusters, one
+simplified code can carry more than one cluster label.}
+\item{code_order}{Order of the code within its turn.}
+\item{order_in_session}{Position of the row in its session, counting
+both actors (the order key for \code{\link[=build_htna]{build_htna()}}).}
+\item{actor_type}{\code{"Human"} or \code{"AI"}.}
+\item{phase}{Factor with levels \code{"Early"} and \code{"Late"}: sessions ordered
+by their first date (session id breaking ties) and split in half, 214
+early and 215 late sessions.}
 }
 }
 \source{
-Derived from \code{Nestimate::human_long} and
-\code{Nestimate::ai_long}; see \code{data-raw/human_ai.R} for the
-build script.
+Saqr, M. (2026). Human-AI vibe coding interaction study.
+\url{https://saqr.me/blog/2026/human-ai-interaction-cograph/}. Derived
+from the \code{human_long} and \code{ai_long} data of the 'Nestimate' package; the
+build script is \code{data-raw/human_ai.R} in the package sources.
 }
 \usage{
 human_ai
 }
 \description{
-A long-format heterogeneous sequence dataset built from
-\code{Nestimate::human_long} and \code{Nestimate::ai_long} by
-collapsing several near-synonym codes into a smaller, more
-interpretable alphabet. Suitable as a teaching example for
-\code{\link{build_htna}()}.
-}
-\details{
-Code remapping (all other codes pass through unchanged):
-\itemize{
-\item AI: \code{Investigate}, \code{Ask}, \code{Inquire} \eqn{\to}
-\code{Ask}; \code{Explain}, \code{Report} \eqn{\to} \code{Report}.
-\item Human: \code{Command}, \code{Request} \eqn{\to} \code{Request};
-\code{Correct}, \code{Verify} \eqn{\to} \code{Check};
-\code{Interrupt}, \code{Frustrate} \eqn{\to} \code{Frustrate}.
-}
+\code{human_ai} is a coded dataset of the turns in 429 human-AI pair-programming
+("vibe coding") sessions in 34 projects, held between 5 February and 8 March
+2026. The data are the standard example for a heterogeneous transition
+network with two actor types: six human codes (Check, Frustrate, Inquire,
+Refine, Request, Specify) and six AI codes (Ask, Delegate, Execute, Plan,
+Repair, Report). In each session a person directs an AI coding assistant;
+every turn is coded with one or more interaction codes, and the codes of both
+actors are interleaved in the order in which they occurred.
 
-Resulting alphabets:
-\itemize{
-\item AI (6): \code{Ask}, \code{Delegate}, \code{Execute},
-\code{Plan}, \code{Repair}, \code{Report}.
-\item Human (6): \code{Check}, \code{Frustrate}, \code{Inquire},
-\code{Refine}, \code{Request}, \code{Specify}.
-}
-
-Because two source codes can map to the same simplified code while
-originally belonging to different \code{cluster} values, a single
-simplified \code{code} may appear with more than one \code{cluster}
-label across rows. The \code{cluster} column is preserved verbatim
-from the source data and should be treated as informational only.
+The codes are a simplified version of the original coding, with
+near-synonyms merged. AI codes: Investigate, Ask and Inquire became Ask;
+Explain and Report became Report. Human codes: Command and Request became
+Request; Correct and Verify became Check; Interrupt and Frustrate became
+Frustrate. The \code{phase} column splits the sessions into an early and a late
+half for grouped examples. The same rows are available split by actor
+type in \link{human_simplified} and \link{ai_simplified}, and the code-to-actor
+lookup in \link{human_ai_codebook}.
 }
 \examples{
 data(human_ai)
@@ -75,7 +63,7 @@ net <- build_htna(human_ai, actor_type = "actor_type")
 plot_htna(net)
 }
 \seealso{
-\code{\link{human_simplified}}, \code{\link{ai_simplified}},
-\code{\link{human_ai_codebook}}.
+\link{human_simplified}, \link{ai_simplified}, \link{human_ai_codebook},
+\code{\link[=build_htna]{build_htna()}}
 }
 \keyword{datasets}

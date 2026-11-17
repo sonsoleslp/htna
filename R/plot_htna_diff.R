@@ -1,54 +1,62 @@
-#' Plot the Difference Between Two htna Networks
+#' Plot the difference between two htna networks
 #'
-#' Renders the elementwise edge-weight difference `x - y` as a heterogeneous
-#' transition network. Accepts:
+#' @description
+#' `plot_htna_diff()` plots the difference between two htna networks: for
+#' every transition, how much more (or less) likely it is in one network
+#' than in another, for example in the late sessions compared with the
+#' early ones. Drawn in the layout of the two heterogeneous networks, the
+#' difference network shows whether the change lies within an actor type or
+#' in the hand-overs between actors. When the difference comes from a
+#' permutation test or a Bayesian comparison, only the differences that the
+#' test supports are emphasized.
 #'
-#' * Two htna networks (`x`, `y`): plots `x - y` via [cograph::splot()] with
-#'   positive/negative edge coloring.
-#' * A `net_permutation` result: routes through
-#'   [cograph::splot.net_permutation()] so the significance overlay
-#'   (significant pos/neg edges, dashed non-significant edges, stars) is
-#'   drawn upstream.
-#' * A `net_permutation_group` (the result of [permutation_htna()] on an
-#'   `htna_group`): iterates over all pairwise comparisons and plots each,
-#'   titled with the pair name (no `par(mfrow=...)` management - user
-#'   controls layout).
-#' * A [bayes_compare_htna()] result for two networks, which also inherits
-#'   `net_permutation`.
+#' `plot_htna_diff()` accepts two htna networks and draws `x - y`, with
+#' positive differences in `pos_color` and negative differences in
+#' `neg_color`; networks whose node sets differ are aligned on the union of
+#' their nodes. It also accepts the result of [permutation_htna()] or
+#' [bayes_compare_htna()] for two networks, which adds the significance
+#' overlay (significant edges solid, the others dashed or hidden with
+#' `show_nonsig`), and the grouped results of either test, drawn as one plot
+#' per cohort pair titled with the pair name. It is called for the plot and
+#' returns, invisibly, the value of the drawing call, or `x` for a grouped
+#' test result.
 #'
-#' In all cases the layout, node colours and donut match [plot_htna()];
-#' the drawing itself is done by cograph.
+#' For a table of the differences by actor pair use [compare_htna()].
 #'
-#' @param x One of: an htna network, a `net_permutation` result, or a
-#'   `net_permutation_group`.
-#' @param y htna network (only used when `x` is also an htna network).
-#' @param pos_color Edge colour for positive differences. Default
-#'   `"#009900"`.
-#' @param neg_color Edge colour for negative differences. Default
-#'   `"#C62828"`.
-#' @param group_colors Character vector of colours, one per actor group.
-#'   Defaults to the built-in [htna_palette].
-#' @param ... Forwarded to the underlying splot dispatcher
-#'   ([cograph::splot()] or [cograph::splot.net_permutation()]).
+#' @param x An htna network, or a result of [permutation_htna()] or
+#'   [bayes_compare_htna()] (for two networks or for a grouped network).
+#' @param y A second htna network, when `x` is an htna network. Default
+#'   `NULL`.
+#' @param pos_color Colour of positive differences. Default `"#009900"`.
+#' @param neg_color Colour of negative differences. Default `"#C62828"`.
+#' @param group_colors Colours of the actor types, in actor order. Default
+#'   [htna_palette].
+#' @param ... Further drawing arguments of [cograph::splot()], such as
+#'   `title`, `minimum` or, for a test result, `show_nonsig`.
 #'
-#' @return The value of the underlying splot call (invisibly).
-#' @seealso [plot_htna()], [build_htna()], [permutation_htna()],
-#'   [bayes_compare_htna()].
+#' @return Called for the plot. Invisibly, the value of the drawing call, or
+#'   `x` for a grouped test result.
+#'
+#' @section Conditions:
+#' `htna_bad_input` when `x` and `y` are not two htna networks with the same
+#' actor types, or a test result was not computed on htna networks;
+#' `htna_empty_input` for an empty grouped result.
+#'
+#' @seealso [compare_htna()], [permutation_htna()], [bayes_compare_htna()],
+#'   [plot_htna()]
 #'
 #' @examples
 #' data(human_ai)
-#' # Two networks: early vs late sessions
 #' early <- build_htna(subset(human_ai, phase == "Early"),
 #'                     actor_type = "actor_type")
 #' late  <- build_htna(subset(human_ai, phase == "Late"),
 #'                     actor_type = "actor_type")
-#' plot_htna_diff(early, late)
+#' plot_htna_diff(late, early)
 #'
-#' # Permutation test on a grouped network: one plot per cohort pair
+#' # a permutation test on the grouped network: one plot per pair of phases
 #' grp  <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 #' perm <- permutation_htna(grp, iter = 50, seed = 1)
 #' plot_htna_diff(perm)
-#' plot_htna_diff(perm, show_nonsig = TRUE)
 #'
 #' @export
 plot_htna_diff <- function(x, y = NULL,
@@ -56,12 +64,17 @@ plot_htna_diff <- function(x, y = NULL,
                            neg_color    = "#C62828",
                            group_colors = htna_palette,
                            ...) {
-  if (inherits(x, "net_permutation_group")) {
-    if (length(x) == 0L) stop("Empty net_permutation_group.", call. = FALSE)
-    for (nm in names(x)) {
-      .plot_htna_diff_perm(x[[nm]], pos_color, neg_color, group_colors,
-                           title = nm, ...)
+  # A grouped permutation or Bayesian comparison: one plot per cohort pair,
+  # titled with the pair name (the caller controls the device layout).
+  if (inherits(x, c("net_permutation_group", "net_bayes_group"))) {
+    if (length(x) == 0L) {
+      .htna_stop("Empty grouped comparison `x`.",
+                 class = "htna_empty_input")
     }
+    lapply(names(x), function(pair) {
+      .plot_htna_diff_perm(x[[pair]], pos_color, neg_color, group_colors,
+                           title = pair, ...)
+    })
     return(invisible(x))
   }
   if (inherits(x, "net_permutation")) {
@@ -70,15 +83,13 @@ plot_htna_diff <- function(x, y = NULL,
   }
 
   if (!inherits(x, "htna") || !inherits(y, "htna")) {
-    stop("Both `x` and `y` must be htna networks, or `x` a permutation result.",
-         call. = FALSE)
+    .htna_stop("Both `x` and `y` must be htna networks, or `x` a permutation result.")
   }
   # Both networks must use the same global actor partition (same actor
   # types in the same canonical ordering). Their node sets are allowed
   # to differ — partial coverage is aligned to the union below.
   if (!identical(x$actor_levels, y$actor_levels)) {
-    stop("x and y must share the same actor partition (`actor_levels`).",
-         call. = FALSE)
+    .htna_stop("x and y must share the same actor partition (`actor_levels`).")
   }
 
   aligned  <- .align_diff_inputs(x, y)
@@ -173,8 +184,8 @@ plot_htna_diff <- function(x, y = NULL,
                                  ...) {
   net <- perm$x
   if (!inherits(net, "htna") || is.null(net$node_groups)) {
-    stop("perm$x is not an htna network. Build inputs with build_htna() ",
-         "before calling permutation().", call. = FALSE)
+    .htna_stop("perm$x is not an htna network. Build inputs with build_htna() ",
+               "before calling permutation().")
   }
 
   ng_styling <- .htna_node_styling(net, group_colors)

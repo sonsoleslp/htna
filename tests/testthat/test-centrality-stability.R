@@ -317,3 +317,41 @@ test_that("centrality_stability_htna(): iter sweep round-trips without error", {
     expect_s3_class(cs, "htna_stability")
   }
 })
+
+# ---- plot.htna_stability (0.3.5) ---------------------------------------------
+
+test_that("the stability chart uses Okabe-Ito colours and redundant encodings", {
+  skip_if_not_installed("ggplot2")
+  net <- make_htna()
+  cs <- centrality_stability_htna(net, iter = 10, seed = 1)
+  p <- .htna_stability_ggplot(cs)
+  expect_s3_class(p, "ggplot")
+  built <- ggplot2::ggplot_build(p)
+  okabe_ito <- c("#E69F00", "#56B4E9", "#009E73", "#0072B2", "#D55E00",
+                 "#CC79A7", "#F0E442", "#999999", "#000000")
+  line_layer <- built$data[[2L]]
+  expect_true(all(toupper(line_layer$colour) %in% okabe_ito))
+  # each measure differs in line type and point shape, not colour alone
+  expect_equal(length(unique(line_layer$linetype)), length(cs$cs))
+  expect_equal(length(unique(built$data[[3L]]$shape)), length(cs$cs))
+  # the threshold line sits at the threshold
+  expect_equal(unique(built$data[[4L]]$yintercept), cs$threshold)
+  with_null_device(expect_s3_class(plot(cs), "ggplot"))
+})
+
+test_that("grouped stability charts are titled with the cohort names", {
+  skip_if_not_installed("ggplot2")
+  grp <- make_htna_group()
+  cs <- centrality_stability_htna(grp, iter = 10, seed = 1)
+  plots <- with_null_device(plot(cs))
+  expect_named(plots, names(grp))
+  expect_identical(vapply(plots, function(p) p$labels$title, character(1)),
+                   setNames(names(grp), names(grp)))
+})
+
+test_that("the stability chart raises a classed error without ggplot2", {
+  net <- make_htna()
+  cs <- centrality_stability_htna(net, iter = 10, seed = 1)
+  local_mocked_bindings(.has_ggplot2 = function() FALSE)
+  expect_error(.htna_stability_ggplot(cs), class = "htna_missing_package")
+})

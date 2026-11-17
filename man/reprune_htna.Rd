@@ -2,37 +2,34 @@
 % Please edit documentation in R/reprune_htna.R
 \name{reprune_htna}
 \alias{reprune_htna}
-\title{Re-apply a Previous Pruning Rule}
+\title{Re-apply a recorded pruning rule}
 \usage{
 reprune_htna(x, ...)
 }
 \arguments{
-\item{x}{An htna network carrying a prior pruning rule (or other
-object accepted by \code{\link[Nestimate:net_reprune]{Nestimate::net_reprune()}}); S3 dispatch on \code{x}
-is preserved.}
+\item{x}{An htna network that was pruned with \code{\link[=prune_htna]{prune_htna()}} and
+restored with \code{\link[=deprune_htna]{deprune_htna()}}.}
 
-\item{...}{Additional arguments passed to \code{\link[Nestimate:net_reprune]{Nestimate::net_reprune()}}.
-See that function for details.}
+\item{...}{Unused.}
 }
 \value{
-The re-pruned htna network. See \code{\link[Nestimate:net_reprune]{Nestimate::net_reprune()}}.
+An htna network with the edges that fail the recorded rule set
+to zero.
 }
 \description{
-htna-named wrapper for \code{\link[Nestimate:net_reprune]{Nestimate::net_reprune()}}. Re-applies the
-pruning rule recorded on a network (e.g. after the weights have been
-re-estimated), without having to restate the rule.
-}
-\details{
-The actor partition (\verb{$node_groups}, \verb{$actor_levels}, \code{htna} class)
-is preserved, so the re-pruned network stays htna-aware.
+\code{reprune_htna()} re-applies the recorded pruning rule of a network and
+returns the pruned network with its actor partition. A network that has
+been pruned and then restored with \code{\link[=deprune_htna]{deprune_htna()}} still carries the
+pruning rule; re-applying it removes the same weak edges again without
+restating the method and threshold.
 
-Suffixed \verb{_htna} to avoid clashing with the tna verb \code{reprune()} and
-to sit alongside the rest of the htna API.
+\code{reprune_htna()} runs Nestimate's \code{net_reprune()} and returns an htna
+network with the edges that fail the recorded rule set to zero.
 }
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-pruned <- prune_htna(net, method = "threshold", threshold = 0.05)
+pruned <- prune_htna(net, threshold = 0.05)
 reprune_htna(deprune_htna(pruned))
 }
 \seealso{

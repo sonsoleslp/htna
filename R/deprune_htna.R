@@ -1,26 +1,26 @@
-#' Restore All Edges of a Pruned Transition Network
+#' Restore the edges removed by pruning
 #'
-#' htna-named wrapper for [Nestimate::net_deprune()]. Reverses a
-#' [prune_htna()] step, restoring the original (unpruned) edge set.
+#' @description
+#' `deprune_htna()` restores the edges that [prune_htna()] removed: it
+#' returns the network with every removed edge put back at its original
+#' weight. Pruning sets weak edges aside rather than deleting them, so
+#' restoring them gives back the full network, for example to compare the
+#' pruned and the unpruned structure or to apply a different rule.
 #'
-#' The actor partition (`$node_groups`, `$actor_levels`, `htna` class)
-#' is preserved, so the restored network stays htna-aware.
+#' `deprune_htna()` runs Nestimate's `net_deprune()` with the actor
+#' partition kept. The rule stays recorded, so [reprune_htna()] can apply it
+#' again.
 #'
-#' Suffixed `_htna` to avoid clashing with the tna verb `deprune()` and
-#' to sit alongside the rest of the htna API.
+#' @param x An htna network pruned with [prune_htna()].
+#' @param ... Unused.
 #'
-#' @param x A pruned htna network (or other object accepted by
-#'   [Nestimate::net_deprune()]); S3 dispatch on `x` is preserved.
-#' @param ... Additional arguments passed to [Nestimate::net_deprune()].
-#'   See that function for details.
-#'
-#' @return The depruned htna network. See [Nestimate::net_deprune()].
+#' @return An htna network with the original weight matrix.
 #'
 #' @seealso [prune_htna()], [reprune_htna()], [pruning_details_htna()].
 #' @examples
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
-#' pruned <- prune_htna(net, method = "threshold", threshold = 0.05)
+#' pruned <- prune_htna(net, threshold = 0.05)
 #' deprune_htna(pruned)
 #' @export
 deprune_htna <- function(x, ...) {

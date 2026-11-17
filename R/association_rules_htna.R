@@ -1,30 +1,39 @@
-#' Association Rule Mining over Transitions
+#' Mine association rules from the sessions of a network
 #'
-#' htna-named wrapper for [Nestimate::association_rules()]. Mines
-#' frequent itemsets and association rules over a transition-count
-#' matrix under support / confidence / lift thresholds.
+#' @description
+#' `association_rules_htna()` mines association rules from the sessions of
+#' an htna network: rules that describe which codes tend to occur together
+#' in the same session, regardless of their order. A rule "A, B => C" states
+#' that sessions containing codes A and B also tend to contain code C.
+#' Support is the share of sessions containing all codes of the rule,
+#' confidence the share of sessions with the antecedent that also contain
+#' the consequent, and lift the ratio of the confidence to the overall share
+#' of the consequent. In a heterogeneous network a rule can join codes of
+#' different actors, for example a human request and the AI actions that
+#' accompany it.
 #'
-#' Foundation function in the htna-aware exploratory family. Works on
-#' transition-count input produced by [frequencies_htna()] or
-#' [Nestimate::build_network()]; the rules carry over to htna networks
-#' since the underlying transition counts are the same.
+#' `association_rules_htna()` runs Nestimate's `association_rules()` on the
+#' network: it treats every session as one transaction (the set of codes it
+#' contains), finds the frequent itemsets with the Apriori algorithm, and
+#' keeps the rules that pass the support, confidence and lift thresholds. It
+#' returns a `net_association_rules` object whose rules table has one row
+#' per rule.
 #'
-#' Suffixed `_htna` to avoid clashing with
-#' `Nestimate::association_rules()` when both packages are loaded.
+#' The rules ignore order. For ordered patterns use [extract_meta_paths()];
+#' for associations between codes and sessions use [mosaic_plot_htna()].
 #'
-#' @param x A transition-count matrix or an htna network. See
-#'   [Nestimate::association_rules()].
-#' @param ... Additional arguments passed to
-#'   [Nestimate::association_rules()], such as `min_support`,
-#'   `min_confidence`, `min_lift`, and `max_length`. See that function
-#'   for the full, current argument list.
+#' @param x An htna network from [build_htna()], or a binary
+#'   session-by-code matrix.
+#' @param ... Thresholds: `min_support` (default 0.1), `min_confidence`
+#'   (0.5), `min_lift` (1) and `max_length` (largest itemset, 5).
 #'
-#' @return An object of class `net_association_rules`, holding the
-#'   discovered rules and frequent itemsets, with `print()`, `summary()`
-#'   and `plot()` methods supplied by Nestimate. See
-#'   [Nestimate::association_rules()] for the component list.
+#' @return An object of class `net_association_rules` with `print()`,
+#'   `summary()` and `plot()` methods. Its rules table has one row per
+#'   rule, with columns `antecedent`, `consequent`, `support`,
+#'   `confidence`, `lift`, `conviction`, `count` and `n_transactions`.
 #'
-#' @seealso [frequencies_htna()], [mosaic_plot_htna()].
+#' @seealso [extract_meta_paths()] for ordered patterns,
+#'   [frequencies_htna()], [mosaic_plot_htna()].
 #' @examples
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")

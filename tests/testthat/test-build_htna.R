@@ -342,7 +342,8 @@ test_that("htna_group: a cohort with zero codes for an actor still builds", {
 
 test_that("htna_group: per-cohort summary() reports per-cohort partition", {
   grp <- make_htna_group()
-  out <- capture.output(s <- summary(grp))
+  s <- summary(grp)
+  out <- capture.output(print(s))
   # One header per cohort
   expect_true(any(grepl("=== Control ===",       out)))
   expect_true(any(grepl("=== Experimental ===",  out)))
@@ -350,4 +351,58 @@ test_that("htna_group: per-cohort summary() reports per-cohort partition", {
   for (cohort_name in names(grp)) {
     expect_setequal(s[[cohort_name]]$actors$actor, c("Human", "AI"))
   }
+})
+
+# ---- cohort order follows a factor `group` column (0.3.5) --------------------
+
+test_that("grouped cohorts follow the factor levels of `group`", {
+  d <- make_grouped_data()
+  # The data start with the second level, so first-appearance order would
+  # be Experimental, Control.
+  d$condition <- factor(d$condition, levels = c("Experimental", "Control"))
+  d <- d[order(d$condition != "Control"), ]
+  ng <- list(Human = c("H1", "H2", "H3"), AI = c("A1", "A2", "A3"))
+  grp <- suppressWarnings(build_htna(d, node_groups = ng, group = "condition"))
+  expect_named(grp, c("Experimental", "Control"))
+  expect_identical(names(compare_htna(grp)), "Experimental vs Control")
+
+  # actor_type input path as well
+  d$actor_type <- ifelse(substr(d$code, 1, 1) == "H", "Human", "AI")
+  grp2 <- suppressWarnings(build_htna(d, actor_type = "actor_type",
+                                      group = "condition"))
+  expect_named(grp2, c("Experimental", "Control"))
+})
+
+test_that("human_ai phases come out as Early, Late", {
+  data(human_ai, package = "htna", envir = environment())
+  grp <- suppressMessages(build_htna(human_ai, actor_type = "actor_type",
+                                     group = "phase"))
+  expect_named(grp, levels(human_ai$phase))
+})
+
+test_that("a character `group` column keeps the engine's order", {
+  expect_identical(.cohort_order(c("b", "a"), c("a", "b")), c("b", "a"))
+  expect_identical(.cohort_order(c("b", "a"), factor(c("a", "b"))),
+                   c("a", "b"))
+  # cohorts absent from the levels (cannot happen with a factor, but the
+  # helper must not drop them)
+  expect_identical(.cohort_order(c("b", "z"), factor("b")), c("b", "z"))
+})
+
+# ---- codes shared by two of three actors (0.3.5) -----------------------------
+
+test_that("a code shared by two of three actors is detected", {
+  d <- data.frame(
+    session_id = rep("S", 6),
+    code = c("x", "y", "x", "z", "w", "y"),
+    order_in_session = 1:6,
+    actor_type = c("A", "B", "B", "C", "A", "C"),
+    stringsAsFactors = FALSE
+  )
+  # "x" is used by A and B but not C; it used to slip through because only
+  # codes shared by every actor were checked.
+  expect_error(build_htna(d, actor_type = "actor_type"),
+               class = "htna_actor_conflict")
+  net <- build_htna(d, actor_type = "actor_type", disambiguate = TRUE)
+  expect_true(all(c("A:x", "B:x") %in% net$node_groups$node))
 })

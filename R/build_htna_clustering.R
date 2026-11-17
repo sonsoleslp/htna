@@ -1,6 +1,7 @@
 # Helpers for constructing HTNA groups from fitted clustering results --------
 
 #' @keywords internal
+#' @noRd
 .is_htna_clustering_input <- function(x) {
   inherits(x, c(
     "netobject_group", "net_clustering", "net_mmm",
@@ -9,6 +10,7 @@
 }
 
 #' @keywords internal
+#' @noRd
 .build_htna_from_clustering <- function(data, node_groups, action, method,
                                         dots = list()) {
   source <- data
@@ -23,13 +25,12 @@
   } else if (inherits(data, c("tna_clustering", "net_mmm_clustering"))) {
     nets <- .htna_build_assigned_networks(data, method = method, dots = dots)
   } else { # nocov start
-    stop("Unsupported clustering result class: ", class(data)[1L],
-         call. = FALSE) # nocov end
+    .htna_stop("Unsupported clustering result class: ", class(data)[1L]) # nocov end
   }
 
   if (!inherits(nets, "netobject_group")) {
-    stop("Clustering conversion must produce a `netobject_group`; got `",
-         class(nets)[1L], "`.", call. = FALSE)
+    .htna_stop("Clustering conversion must produce a `netobject_group`; got `",
+               class(nets)[1L], "`.")
   }
 
   partition <- .htna_resolve_cluster_partition(
@@ -45,17 +46,16 @@
   ), use.names = FALSE))
   missing <- setdiff(all_nodes, names(partition$lookup))
   if (length(missing)) {
-    stop("Nodes in the clustered networks are not assigned to an actor: ",
-         paste(missing, collapse = ", "), ".", call. = FALSE)
+    .htna_stop("Nodes in the clustered networks are not assigned to an actor: ",
+               paste(missing, collapse = ", "), ".",
+               class = "htna_unassigned_node")
   }
 
-  # Replace children in place so Nestimate's clustering diagnostics and
-  # group attributes survive the conversion.
-  for (i in seq_along(nets)) {
-    nets[[i]] <- .inject_htna_partition(
-      nets[[i]], partition$lookup, partition$actor_levels
-    )
-  }
+  # Replace children in place (`nets[] <-` keeps the group's attributes) so
+  # Nestimate's clustering assignments and diagnostics survive the conversion.
+  nets[] <- lapply(nets, .inject_htna_partition,
+                   actor_lookup = partition$lookup,
+                   actor_levels = partition$actor_levels)
 
   class(nets) <- unique(c("htna_group", "netobject_group", "list", class(nets)))
   attr(nets, "actor_levels") <- partition$actor_levels
@@ -63,6 +63,7 @@
 }
 
 #' @keywords internal
+#' @noRd
 .htna_build_assigned_networks <- function(x, method, dots = list()) {
   seq_data <- x$data
   assignments <- x$assignments
@@ -77,12 +78,12 @@
   }
 
   if (!is.data.frame(seq_data) && !is.matrix(seq_data)) {
-    stop("The clustering result does not retain sequence data; its networks ",
-         "cannot be built.", call. = FALSE)
+    .htna_stop("The clustering result does not retain sequence data; its networks ",
+               "cannot be built.")
   }
   if (length(assignments) != nrow(seq_data)) {
-    stop("The clustering assignments do not align with the retained sequence ",
-         "data.", call. = FALSE)
+    .htna_stop("The clustering assignments do not align with the retained sequence ",
+               "data.")
   }
 
   nets <- lapply(seq_len(k), function(cluster_id) {
@@ -100,6 +101,7 @@
 }
 
 #' @keywords internal
+#' @noRd
 .htna_resolve_cluster_partition <- function(nets, source, node_groups, action) {
   if (!is.null(node_groups)) {
     result <- .htna_normalize_cluster_partition(node_groups, action = action)
@@ -163,14 +165,13 @@
     return(result)
   }
 
-  stop(
-    "The clustering result has no preserved HTNA actor partition. Pass ",
-    "`node_groups` as a named list or a `(node, group)` data frame.",
-    call. = FALSE
-  )
+  .htna_stop(
+          "The clustering result has no preserved HTNA actor partition. Pass ",
+          "`node_groups` as a named list or a `(node, group)` data frame.")
 }
 
 #' @keywords internal
+#' @noRd
 .htna_normalize_cluster_partition <- function(node_groups, action = "code") {
   declared_levels <- attr(node_groups, "actor_levels")
   if (is.data.frame(node_groups)) {
@@ -179,9 +180,9 @@
       group_values_raw <- node_groups$group
     } else {
       if (ncol(node_groups) != 2L || !action %in% names(node_groups)) {
-        stop("A clustering `node_groups` data frame must contain either ",
-             "`node` and `group`, or the action column `", action,
-             "` and one actor-type column.", call. = FALSE)
+        .htna_stop("A clustering `node_groups` data frame must contain either ",
+                   "`node` and `group`, or the action column `", action,
+                   "` and one actor-type column.")
       }
       group_col <- setdiff(names(node_groups), action)
       node_values <- as.character(node_groups[[action]])
@@ -200,13 +201,12 @@
     node_values <- unlist(node_groups, use.names = FALSE)
     group_values <- rep(actor_levels, lengths(node_groups))
   } else {
-    stop("`node_groups` must be a named list of node vectors or a two-column ",
-         "data frame.", call. = FALSE)
+    .htna_stop("`node_groups` must be a named list of node vectors or a two-column ",
+               "data frame.")
   }
 
   if (anyNA(node_values) || anyNA(group_values)) {
-    stop("`node_groups` cannot contain missing nodes or actor assignments.",
-         call. = FALSE)
+    .htna_stop("`node_groups` cannot contain missing nodes or actor assignments.")
   }
   if (!is.null(declared_levels) &&
       setequal(as.character(declared_levels), unique(group_values))) {
@@ -218,9 +218,9 @@
       length(unique(group_values[node_values == node])) > 1L
     }, logical(1L))
     if (any(conflicts)) {
-      stop("Nodes assigned to more than one actor: ",
-           paste(duplicated_nodes[conflicts], collapse = ", "), ".",
-           call. = FALSE)
+      .htna_stop("Nodes assigned to more than one actor: ",
+                 paste(duplicated_nodes[conflicts], collapse = ", "), ".",
+                 class = "htna_actor_conflict")
     }
     keep <- !duplicated(node_values)
     node_values <- node_values[keep]

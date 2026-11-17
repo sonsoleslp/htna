@@ -1,13 +1,14 @@
 # Helpers for constructing one global HTNA from an MCML partition -----------
 
 #' @keywords internal
+#' @noRd
 .build_htna_from_mcml <- function(data, source_data, node_groups, actor,
                                   action, session, order, method,
                                   dots = list()) {
   clusters <- node_groups %||% data$cluster_members
   if (is.null(clusters)) {
-    stop("The `mcml` object has no `cluster_members`; supply the node ",
-         "partition with `node_groups`.", call. = FALSE)
+    .htna_stop("The `mcml` object has no `cluster_members`; supply the node ",
+               "partition with `node_groups`.")
   }
 
   args <- list(x = data, clusters = clusters, method = method)
@@ -27,8 +28,8 @@
 
   net <- do.call(Nestimate::as_htna, c(args, dots))
   if (!inherits(net, "htna")) { # nocov start
-    stop("Expanding an `mcml` must produce one `htna`; got `",
-         class(net)[1L], "`.", call. = FALSE)
+    .htna_stop("Expanding an `mcml` must produce one `htna`; got `",
+               class(net)[1L], "`.")
   } # nocov end
   net
 }

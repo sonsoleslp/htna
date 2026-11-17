@@ -2,56 +2,58 @@
 % Please edit documentation in R/plot_frequencies_htna.R
 \name{plot_frequencies_htna}
 \alias{plot_frequencies_htna}
-\title{Plot State Frequencies (htna-named)}
+\title{Plot the frequencies of the codes of an htna network}
 \usage{
 plot_frequencies_htna(x, view = c("treemap", "bars", "facet"), ...)
 }
 \arguments{
 \item{x}{An htna network from \code{\link[=build_htna]{build_htna()}}.}
 
-\item{view}{One of \code{"treemap"} (default), \code{"bars"}, or \code{"facet"}.
-\itemize{
-\item \code{"treemap"} forwards to \code{\link[Nestimate:plot_state_frequencies]{Nestimate::plot_state_frequencies()}}
-and renders the chart automatically; returns the underlying
-\code{state_freq} object invisibly.
-\item \code{"bars"} builds a combined bar chart with all states on one
-y-axis, sorted by count, fill coloured by actor (using
-\code{htna_palette} keyed off \code{x$actor_levels}). Returns the ggplot.
-\item \code{"facet"} builds a per-actor faceted bar chart with
-\code{scales = "free_y"} so each panel only shows its own actor's
-states. Returns the ggplot.
-}}
+\item{view}{\code{"treemap"} (default), \code{"bars"} or \code{"facet"}.}
 
-\item{...}{Forwarded to \code{\link[Nestimate:plot_state_frequencies]{Nestimate::plot_state_frequencies()}} when
-\code{view = "treemap"}. Ignored for \code{"bars"} and \code{"facet"}; those
-return ggplot objects, so customisation works through standard
-ggplot composition (\code{+ theme(...)}, \code{+ labs(...)},
-\verb{+ scale_fill_*()}, etc.).}
+\item{...}{Further arguments of \code{Nestimate::plot_state_frequencies()} for
+the treemap; ignored by the bar views.}
 }
 \value{
-For \code{view = "treemap"}: the \code{state_freq} object invisibly.
-For \code{"bars"} / \code{"facet"}: a ggplot, returned visibly so the
-chart auto-prints and standard \code{+} composition works.
+For \code{"treemap"}, invisibly, the frequency object of class
+\code{state_freq} (its table via \code{as.data.frame()}). For \code{"bars"} and
+\code{"facet"}, a \code{ggplot} object, which can be modified with \code{+}.
 }
 \description{
-Renders one of three views of an htna network's state frequencies:
-the upstream treemap (default), a combined actor-coloured bar
-chart, or a per-actor faceted bar chart.
+\code{plot_frequencies_htna()} plots the frequencies of the codes of an htna
+network: the number of occurrences of every code, coloured by its actor
+type. Knowing how often each code occurs helps before transitions are
+interpreted: a rare code can have extreme transition probabilities that
+rest on a few events, and the balance between the actor types (how much
+the human and the AI each contribute) frames every later comparison.
+
+\code{plot_frequencies_htna()} draws one of three views: a treemap of the codes
+(\code{"treemap"}, the default, drawn with Nestimate's
+\code{plot_state_frequencies()}), a single bar chart of all codes sorted by
+count (\code{"bars"}), or one bar chart per actor type (\code{"facet"}). The bar
+views are 'ggplot2' charts and need that package. It returns the
+frequency object for the treemap and a \code{ggplot} object for the bar views.
+
+The counts and proportions behind the plot are returned as a table by
+\code{\link[=frequencies_htna]{frequencies_htna()}}. For how the transitions from each code deviate from
+independence use \code{\link[=mosaic_plot_htna]{mosaic_plot_htna()}}.
 }
-\details{
-Suffixed \verb{_htna} to avoid clashing with
-\code{Nestimate::plot_state_frequencies()} when both packages are loaded.
+\section{Conditions}{
+
+\code{htna_missing_package} when 'ggplot2' is not installed for a bar view;
+\code{htna_bad_input} when a bar view is asked for an object that is not an
+htna network.
 }
+
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-plot_frequencies_htna(net, view = "treemap")
+plot_frequencies_htna(net)
 if (requireNamespace("ggplot2", quietly = TRUE)) {
-  plot_frequencies_htna(net, view = "bars")
+  plot_frequencies_htna(net, view = "facet")
 }
 }
 \seealso{
-\code{\link[=frequencies_htna]{frequencies_htna()}} for the underlying tidy table,
-\code{\link[=state_frequencies_htna]{state_frequencies_htna()}}, \code{\link[=state_distribution_htna]{state_distribution_htna()}},
-\code{\link[=mosaic_plot_htna]{mosaic_plot_htna()}}.
+\code{\link[=frequencies_htna]{frequencies_htna()}}, \code{\link[=state_frequencies_htna]{state_frequencies_htna()}},
+\code{\link[=state_distribution_htna]{state_distribution_htna()}}, \code{\link[=mosaic_plot_htna]{mosaic_plot_htna()}}
 }

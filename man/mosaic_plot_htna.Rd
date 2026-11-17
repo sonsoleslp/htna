@@ -2,44 +2,40 @@
 % Please edit documentation in R/mosaic_plot_htna.R
 \name{mosaic_plot_htna}
 \alias{mosaic_plot_htna}
-\title{Chi-square Mosaic Plot of a Transition Network}
+\title{Plot a chi-square mosaic of the transitions of an htna network}
 \usage{
 mosaic_plot_htna(x, ...)
 }
 \arguments{
-\item{x}{An htna network built with \code{method = "frequency"} (or other
-object accepted by \code{\link[Nestimate:mosaic_plot]{Nestimate::mosaic_plot()}}); S3 dispatch on \code{x}
-is preserved, so \code{htna} objects use \code{mosaic_plot.htna}.}
+\item{x}{An htna network built with \code{method = "frequency"}.}
 
-\item{...}{Additional arguments passed to \code{\link[Nestimate:mosaic_plot]{Nestimate::mosaic_plot()}},
-such as \code{n_perm} and \code{seed}. See that function for details.}
+\item{...}{Further arguments of \code{Nestimate::mosaic_plot()}, such as
+\code{n_perm} and \code{seed}.}
 }
 \value{
-A ggplot or gtable, depending on input shape. See
-\code{\link[Nestimate:mosaic_plot]{Nestimate::mosaic_plot()}} for full details and the per-class S3
-methods.
+A \code{ggplot} object (or a \code{gtable} for some inputs), which is drawn
+when printed.
 }
 \description{
-htna-named wrapper for \code{\link[Nestimate:mosaic_plot]{Nestimate::mosaic_plot()}}. Renders a
-chi-square mosaic where row x column area equals the joint share
-of \verb{(from, to)} transitions and fill encodes the standardized
-residual (blue = over-represented, red = under-represented,
-white = at-expected).
-}
-\details{
-Designed with htna in mind: Nestimate ships an explicit
-\code{mosaic_plot.htna} S3 method that recognises the actor partition
-on \code{htna} networks. Pass an htna network from \code{\link[=build_htna]{build_htna()}}
-directly. The underlying transition matrix must be integer-weighted
-(build with \code{method = "frequency"}), since the chi-square test
-needs counts.
+\code{mosaic_plot_htna()} plots a chi-square mosaic of the transitions of an
+htna network. A mosaic plot of a transition table shows, for every pair
+of codes, the share of all transitions that go from the first code to the
+second (the area of the tile) and how far that count lies from what
+independence of the source and target codes would predict (the colour of
+the tile, from the standardized residual of a chi-square test).
+Over-represented transitions are shaded blue and under-represented ones
+red. In a heterogeneous network the plot shows which hand-overs between
+actors are more or less frequent than the overall frequencies of the
+codes imply.
 
-Axis tick labels are coloured by actor group using the htna
-palette (\link{htna_palette}), matching the colours used elsewhere in
-htna (e.g. \code{\link[=plot_htna]{plot_htna()}}).
+\code{mosaic_plot_htna()} draws the mosaic of the transition counts of an htna
+network with Nestimate's \code{mosaic_plot()}, with the axis labels coloured
+by actor type. The chi-square test needs counts, so build the network
+with \code{method = "frequency"}. With \code{n_perm}, p-values are obtained by
+permutation (set \code{seed} for a reproducible result). It returns a \code{ggplot}
+object.
 
-Suffixed \verb{_htna} to avoid clashing with \code{Nestimate::mosaic_plot()}
-when both packages are loaded.
+For the marginal frequencies of the codes use \code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}}.
 }
 \examples{
 data(human_ai)
@@ -48,6 +44,5 @@ net <- build_htna(human_ai, actor_type = "actor_type",
 mosaic_plot_htna(net, n_perm = 50, seed = 1)
 }
 \seealso{
-\code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}} for the marginal-frequency
-companion view.
+\code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}}, \code{\link[=frequencies_htna]{frequencies_htna()}}, \code{\link[=build_htna]{build_htna()}}
 }

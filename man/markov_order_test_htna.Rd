@@ -2,60 +2,55 @@
 % Please edit documentation in R/markov_order_test_htna.R
 \name{markov_order_test_htna}
 \alias{markov_order_test_htna}
-\title{Markov-Order Adequacy Test}
+\title{Test the Markov order of the sessions}
 \usage{
 markov_order_test_htna(data, ...)
 }
 \arguments{
-\item{data}{An htna network from \code{\link[=build_htna]{build_htna()}}, or raw sequence data:
-a list of character vectors or a wide-format data frame. See
-\code{\link[Nestimate:markov_order_test]{Nestimate::markov_order_test()}}.}
+\item{data}{An htna network from \code{\link[=build_htna]{build_htna()}}, or sequence data (a
+wide data frame or a list of character vectors).}
 
-\item{...}{Additional arguments passed to
-\code{\link[Nestimate:markov_order_test]{Nestimate::markov_order_test()}}, such as \code{max_order}, \code{n_perm},
-\code{alpha}, \code{parallel}, \code{n_cores}, and \code{seed}. See that function for
-the full, current argument list.}
+\item{...}{Settings: \code{max_order} (default 3), \code{n_perm} (permutations,
+500), \code{alpha} (0.05), \code{parallel} (\code{FALSE}), \code{n_cores} (2), \code{seed} and
+\code{dof} (\code{"paths"} or \code{"observed"}).}
 }
 \value{
-An object of class \code{net_markov_order} with components
-\code{optimal_order} (sequential permutation-test order), \code{bic_order},
-\code{aic_order}, \code{test_table} (a data frame with one row per tested order
-and columns \code{order}, \code{loglik}, \code{AIC}, \code{BIC}, \code{df}, \code{g2},
-\code{p_permutation}, \code{p_asymptotic}, \code{significant}), the permutation null
-distributions, fitted transition matrices, and the inputs. \code{print()},
-\code{summary()} and \code{plot()} methods are supplied by Nestimate; see
-\code{\link[Nestimate:markov_order_test]{Nestimate::markov_order_test()}}.
+An object of class \code{net_markov_order} with \code{print()},
+\code{summary()} and \code{plot()} methods. \code{summary()} returns a data frame
+with one row per tested order and columns \code{order}, \code{loglik}, \code{AIC},
+\code{BIC}, \code{df}, \code{g2}, \code{p_permutation}, \code{p_asymptotic} and \code{significant}.
+The object also holds \code{optimal_order}, \code{bic_order} and \code{aic_order}.
 }
 \description{
-htna-named wrapper for \code{\link[Nestimate:markov_order_test]{Nestimate::markov_order_test()}}. Tests
-whether a first-order Markov model is adequate for the observed
-sequences, or whether a higher order is required, by comparing the
-empirical transition structure against orders \verb{1..max_order} via
-permutation.
-}
-\details{
-Accepts an htna network directly (its session sequences are tested),
-or raw sequence data (a list of character vectors or a wide-format data
-frame). Use alongside \code{\link[=reliability_htna]{reliability_htna()}} and
-\code{\link[=casedrop_reliability_htna]{casedrop_reliability_htna()}} when assessing whether a Markov-1
-transition network is appropriate before trusting downstream htna
-analyses.
+\code{markov_order_test_htna()} tests the Markov order of the session
+sequences of an htna network (or of raw sequence data). The Markov-order
+test compares the fit of models of increasing order (zero, one, two and
+so on) with likelihood-ratio statistics, judged against a permutation
+null, and reports the information criteria of each order. A transition
+network is a first-order Markov model: the next code is assumed to depend
+only on the current one. When the next code also depends on the codes
+before it, a first-order network misses part of the process and a higher
+order describes it better.
 
-The orders are tested sequentially: \code{optimal_order} is the highest order
-\code{k} for which every step from order \code{j - 1} to \code{j}, \verb{j = 1, ..., k}, is
-significant at \code{alpha}. It is therefore one less than the first order
-whose step is not significant, and equals \code{max_order} when every step is
-significant (in which case the search should be widened). The BIC- and
-AIC-preferred orders are reported alongside.
+The orders are tested in turn: the selected \code{optimal_order} is the
+highest order reached before the first step that is not significant at
+\code{alpha}, and equals \code{max_order} when every step is significant, in which
+case the search should be widened. The orders preferred by BIC and AIC
+are reported alongside. \code{markov_order_test_htna()} runs Nestimate's
+\code{markov_order_test()} on the sequences and returns a \code{net_markov_order}
+object.
 
-Suffixed \verb{_htna} to avoid clashing with
-\code{Nestimate::markov_order_test()} when both packages are loaded.
+Use it before interpreting a first-order network, together with
+\code{\link[=reliability_htna]{reliability_htna()}} and \code{\link[=casedrop_reliability_htna]{casedrop_reliability_htna()}} for the
+stability of the estimated weights.
 }
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-# Few permutations to keep the example fast; use the default 500 in practice.
-markov_order_test_htna(net, max_order = 2, n_perm = 20, seed = 1)
+# n_perm = 20 keeps the example fast; use the default 500 in practice.
+mo <- markov_order_test_htna(net, max_order = 2, n_perm = 20, seed = 1)
+mo
+summary(mo)
 }
 \seealso{
 \code{\link[=reliability_htna]{reliability_htna()}}, \code{\link[=casedrop_reliability_htna]{casedrop_reliability_htna()}},

@@ -1,0 +1,228 @@
+---
+title: "Comparing networks"
+author: "Written by [Mohammed Saqr](https://saqr.me) and [Sonsoles López-Pernas](https://sonsoles.me)"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{Comparing networks}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r options, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", message = FALSE,
+                      fig.width = 7, fig.height = 5.5, fig.align = "center",
+                      dpi = 96)
+old_options <- options(digits = 3, width = 90)
+```
+
+Many questions about human-AI interaction are comparative: whether learners
+who received AI feedback regulate their work differently from those who did
+not, whether a tutoring dialogue changes as learners gain experience, or
+whether the division of labor between a programmer and a coding assistant
+shifts over a course. In a heterogeneous transition network each of these
+questions becomes a comparison of two weight matrices that share the same
+codes and the same actor partition. The comparison has three parts, which
+answer different questions and should not be confused. A descriptive
+comparison says how similar the two networks are and where their
+differences lie. A permutation test says whether the differences are larger
+than the variation expected between two random halves of the same sessions.
+A Bayesian comparison says how large each difference plausibly is and how
+precisely the data estimate it.
+
+This guide applies the three comparisons to the early and late sessions of
+the bundled vibe-coding data. In a heterogeneous network the descriptive
+comparison has one further element that a homogeneous network lacks: the
+differences can be summarized by actor-pair block, separating changes in
+how each actor continues its own work from changes in how the actors hand
+over to each other.
+
+```{r package}
+library(htna)
+```
+
+## Data
+
+`human_ai` holds 429 sessions of human-AI pair programming, coded into six
+human and six AI codes. Each row is one coded event.
+
+- **Session**: `session_id`; the unit that is resampled and permuted.
+- **Code**: `code`; the node of the network.
+- **Actor type**: `actor_type`, `"Human"` or `"AI"`; the actor partition.
+- **Order**: `order_in_session`; the position of the event in its session.
+- **Cohort**: `phase`, a factor with levels `Early` (the first 214 sessions
+  in chronological order) and `Late` (the remaining 215).
+
+One network is built per cohort with `group`. The cohorts follow the levels
+of `phase`, so every comparison below is `Early` minus `Late`.
+
+```{r build}
+data(human_ai)
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+```
+
+## How similar are the two networks?
+
+`compare_htna()` computes the descriptive comparison of every pair of
+cohorts in a grouped network; here there is one pair. Printing the result
+gives the correlation and mean absolute difference of the edge weights and
+the summary of the differences in each actor-pair block.
+
+```{r compare}
+cmp <- compare_htna(grp)
+cmp
+```
+
+The two networks are close: the Pearson correlation of their 144 edge
+weights is 0.959 and the mean absolute difference is 0.0192, on a scale on
+which every row of transition probabilities sums to one. The actor-pair
+table locates the differences. Because each row sums to one, the within-actor
+and between-actor blocks of the same source actor are mirror images: the
+mean difference is 0.00622 per cell in the AI-to-AI block and -0.00622 in
+the AI-to-human block. Summed over the six target codes, an AI code was
+followed by another AI code with a probability about 0.037 higher in the
+early sessions than in the late ones (6 x 0.00622), and handed back to the
+human correspondingly less often. The changes for human source codes are
+smaller (0.00168 per cell). The largest single difference, 0.181, lies in
+the AI-to-AI block.
+
+The full set of similarity, correlation and distance measures is returned
+by `as.data.frame()` with `what = "metrics"`.
+
+```{r metrics}
+as.data.frame(cmp, what = "metrics")
+```
+
+The rank-based measures agree with the Pearson correlation (Spearman
+0.9365, cosine similarity 0.9744), and the rank agreement of the edges is
+0.8788. The descriptive comparison therefore shows two
+networks with the same overall structure and modest differences
+concentrated in what the AI does after its own moves.
+
+The edge-level differences behind the block summaries are in the edge
+table, one row per edge, with both weights and the actors of the edge.
+
+```{r edges}
+head(as.data.frame(cmp, what = "edges"))
+```
+
+A scatter plot of the edge weights of the two networks shows the same
+agreement graphically: points on the diagonal are edges with equal weights.
+
+```{r scatter, fig.height = 5}
+plot(cmp, type = "scatter")
+```
+
+## Are the differences larger than chance?
+
+A descriptive difference can arise from sampling alone. `permutation_htna()`
+pools the sessions of both cohorts, reassigns them at random to two groups
+of the original sizes, and rebuilds both networks 500 times. Each edge's
+observed difference is compared with the differences between the shuffled
+networks, and the networks as a whole are tested with the sum (M) and the
+maximum (S) of the absolute differences. Because whole sessions are
+shuffled, the nesting of transitions in sessions is respected.
+
+```{r permutation}
+perm <- permutation_htna(grp, iter = 500, seed = 1)
+perm
+```
+
+The global test rejects the hypothesis that the two cohorts come from the
+same process: the summed absolute difference M = 2.760 has p = 0.002 and the
+largest difference S = 0.181 has p = 0.016. At the level of single edges, 30
+of the 135 tested edges have an unadjusted p-value below 0.05.
+`plot_htna_diff()` draws these edges with the actor layout of the network:
+green edges are stronger in the early sessions, red edges in the late ones.
+
+```{r permutation-plot}
+plot_htna_diff(perm)
+```
+
+With 135 tests, about seven edges would fall below 0.05 by chance alone, so
+the individual edges have to be read with a correction for multiple
+testing. The Benjamini-Hochberg correction controls the false discovery
+rate.
+
+```{r permutation-bh}
+permutation_htna(grp, iter = 500, seed = 1, adjust = "BH")
+```
+
+After the correction no single edge remains significant, while the global
+test is unchanged. The cohorts differ as wholes, but the evidence is spread
+over many small edge differences rather than concentrated in a few strong
+ones. Statements about individual transitions changing between the phases
+are not supported by this test; the statement that the interaction changed
+is.
+
+## How large are the differences, and how precisely are they estimated?
+
+The permutation test answers whether a difference exceeds chance, not how
+large it plausibly is. `bayes_compare_htna()` models the transitions out of
+each code as a multinomial draw with a Dirichlet prior and gives, for each
+edge, the posterior mean difference, a 95% credible interval and the
+probability that the difference lies on its side of zero.
+
+```{r bayes}
+bc <- bayes_compare_htna(grp, draws = 4000, seed = 1)
+head(summary(bc))
+```
+
+The first rows show the information the permutation test lacks. The
+transition from `Ask` to `Execute` is 0.0214 more probable in the early
+sessions, with a credible interval from 0.00897 to 0.03355 that excludes
+zero, while the larger difference for `Ask` to `Plan` (0.0477) has a wider
+interval, from 0.0067 to 0.0868. The number of edges flagged as credibly
+different is counted with `xtabs()` on the summary table.
+
+```{r bayes-count}
+xtabs(~ sig, data = summary(bc))
+```
+
+Thirty-four edges have credible intervals that exclude zero and pass the
+default thresholds. No correction for multiple comparisons is applied, and
+the model treats every transition as an independent draw, ignoring the
+nesting of transitions in sessions; the count is therefore larger than a
+corrected permutation test would give and should be read as a ranking of
+where the differences are largest. The two analyses largely agree on which
+edges these are:
+
+```{r agreement}
+both <- merge(summary(perm), summary(bc), by = c("from", "to"))
+xtabs(~ sig.x + sig.y, data = both)
+```
+
+Of the 30 edges with an unadjusted permutation p-value below 0.05
+(`sig.x`), 28 are also credibly different in the Bayesian comparison
+(`sig.y`). The grouped Bayesian result is drawn in the same way as the
+permutation result.
+
+```{r bayes-plot}
+plot_htna_diff(bc)
+```
+
+## Which comparison to use
+
+| Question | Function | Reads |
+|---|---|---|
+| How similar are the networks, and in which actor-pair block do they differ? | `compare_htna()` | `print()`, `summary()`, `as.data.frame(x, what = )` |
+| Do the networks differ more than chance, overall and edge by edge? | `permutation_htna()` | `print()` (global test), `summary()`, `plot_htna_diff()` |
+| How large is each difference, with what uncertainty? | `bayes_compare_htna()` | `summary()`, `plot_htna_diff()` |
+| Which longer patterns differ between the cohorts? | `sequence_compare_htna()` | see [Sequences and patterns](sequences-and-patterns.html) |
+
+The three comparisons are complementary and are best reported together:
+the descriptive comparison for the size and location of the differences,
+the permutation test with a multiple-testing correction for the inferential
+claim, and the Bayesian intervals for the precision of individual edges.
+When the cohorts contain repeated sessions of the same people, pass
+`actor` to `permutation_htna()` so that whole persons are shuffled.
+Comparisons of more than two cohorts work in the same way and return one
+result per pair; the [Case study: early and late sessions of vibe
+coding](case-early-late.html) interprets this comparison in substantive
+terms.
+
+```{r restore-options, include = FALSE}
+options(old_options)
+```

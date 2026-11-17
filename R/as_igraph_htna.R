@@ -1,24 +1,40 @@
-#' Convert an HTNA Network to igraph
+#' Convert an htna network to an igraph graph
 #'
-#' Converts an `htna` network to an [igraph::igraph] object while preserving
-#' its node-to-actor partition. The actor type is stored as the vertex
-#' attribute `actor_type`, and the canonical actor ordering is stored as the
-#' graph attribute `actor_levels`.
+#' @description
+#' `as.igraph()` converts a heterogeneous transition network to an 'igraph'
+#' graph and keeps its actor partition. Many network measures and algorithms
+#' are available for 'igraph' graphs; because the partition is kept, a
+#' measure computed in 'igraph' can still be summarized by actor type, for
+#' example to compare the centrality of human and AI codes.
 #'
-#' Passing an `htna_group` converts every cohort and returns a named list. Each
-#' graph additionally stores its cohort name in the graph attribute `cohort`.
+#' `as.igraph()` creates a weighted graph from the transition weights, stores
+#' the actor type of every vertex as the vertex attribute `actor_type`, the
+#' ordered actor types as the graph attribute `actor_levels` and the
+#' estimation method as `htna_method`. A grouped network is converted cohort
+#' by cohort; each graph also records its cohort name in the graph attribute
+#' `cohort`. It returns an `igraph` graph, or a list of graphs, one per
+#' cohort, for a grouped network.
 #'
-#' @param x An `htna` network or `htna_group`.
-#' @param mode Character igraph adjacency mode. The default, `NULL`, uses
-#'   `"directed"` when `x$directed` is true and `"undirected"` otherwise.
-#' @param weighted Passed to [igraph::graph_from_adjacency_matrix()]. Default
+#' For the edge and node tables of the network without 'igraph', use
+#' [as.data.frame.htna()].
+#'
+#' @param x An htna network from [build_htna()] or an `htna_group`.
+#' @param mode Graph mode. Default `NULL`: `"directed"` for a directed
+#'   network, `"undirected"` otherwise.
+#' @param weighted Use the transition weights as edge weights. Default
 #'   `TRUE`.
-#' @param diag Include diagonal/self-loop entries? Default `TRUE`.
-#' @param ... Additional arguments passed to
-#'   [igraph::graph_from_adjacency_matrix()].
+#' @param diag Keep self-transitions as loops. Default `TRUE`.
+#' @param ... Further arguments to [igraph::graph_from_adjacency_matrix()].
 #'
-#' @return An `igraph` object for an `htna`, or a named list of `igraph`
-#'   objects inheriting from `htna_igraph_group` for an `htna_group`.
+#' @return An `igraph` graph for an htna network. For an `htna_group`, a named
+#'   list of `igraph` graphs, one per cohort, of class
+#'   `c("htna_igraph_group", "list")`.
+#'
+#' @section Conditions:
+#' `htna_bad_input` when `x` is not an htna network or an argument is
+#' invalid; `htna_unassigned_node` when a node has no actor type.
+#'
+#' @seealso [build_htna()], [as.data.frame.htna()], [centralities_htna()]
 #'
 #' @examples
 #' data(human_ai)
@@ -30,26 +46,26 @@
 #' @export
 as.igraph.htna <- function(x, mode = NULL, weighted = TRUE, diag = TRUE, ...) {
   if (!inherits(x, "htna")) {
-    stop("`x` must be an `htna` network.", call. = FALSE)
+    .htna_stop("`x` must be an `htna` network.")
   }
   W <- x$weights
   if (!is.matrix(W) || !is.numeric(W) || nrow(W) != ncol(W) ||
       is.null(rownames(W)) || is.null(colnames(W)) ||
       !identical(rownames(W), colnames(W))) {
-    stop("`x$weights` must be a named numeric square matrix with identical ",
-         "row and column order.", call. = FALSE)
+    .htna_stop("`x$weights` must be a named numeric square matrix with identical ",
+               "row and column order.")
   }
   if (is.null(mode)) {
     mode <- if (isTRUE(x$directed)) "directed" else "undirected"
   }
   if (!is.character(mode) || length(mode) != 1L || is.na(mode)) {
-    stop("`mode` must be `NULL` or one character value.", call. = FALSE)
+    .htna_stop("`mode` must be `NULL` or one character value.")
   }
   if (!is.logical(weighted) || length(weighted) != 1L || is.na(weighted)) {
-    stop("`weighted` must be one non-missing logical value.", call. = FALSE)
+    .htna_stop("`weighted` must be one non-missing logical value.")
   }
   if (!is.logical(diag) || length(diag) != 1L || is.na(diag)) {
-    stop("`diag` must be one non-missing logical value.", call. = FALSE)
+    .htna_stop("`diag` must be one non-missing logical value.")
   }
 
   partition <- .htna_node_partition(x, "x")
@@ -75,7 +91,7 @@ as.igraph.htna <- function(x, mode = NULL, weighted = TRUE, diag = TRUE, ...) {
 as.igraph.htna_group <- function(x, mode = NULL, weighted = TRUE,
                                  diag = TRUE, ...) {
   if (!inherits(x, "htna_group")) {
-    stop("`x` must be an `htna_group`.", call. = FALSE)
+    .htna_stop("`x` must be an `htna_group`.")
   }
   cohort_names <- names(x) %||% as.character(seq_along(x))
   out <- lapply(seq_along(x), function(i) {

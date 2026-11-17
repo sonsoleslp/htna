@@ -2,7 +2,7 @@
 % Please edit documentation in R/centrality_stability_htna.R
 \name{centrality_stability_htna}
 \alias{centrality_stability_htna}
-\title{Centrality Stability for an htna Network}
+\title{Assess the case-dropping stability of node centralities}
 \usage{
 centrality_stability_htna(
   x,
@@ -14,75 +14,89 @@ centrality_stability_htna(
   method = "pearson",
   centrality_fn = NULL,
   loops = FALSE,
-  seed = NULL
+  seed = NULL,
+  ...
 )
 }
 \arguments{
 \item{x}{An htna network from \code{\link[=build_htna]{build_htna()}} or an \code{htna_group}.}
 
-\item{measures}{Character vector of centrality measures to assess.
-Default \code{c("InStrength", "OutStrength", "Betweenness")}: the
-three measures whose values are bit-equal between htna's
-\code{cograph} engine and Nestimate's default centrality
-implementation. To assess htna's nine measures (including the
-three that differ between engines: \code{BetweennessRSP}, \code{Diffusion},
-\code{Clustering}), pass them explicitly together with a custom
-\code{centrality_fn}.}
+\item{measures}{Centrality measures to assess (default
+\code{c("InStrength", "OutStrength", "Betweenness")}).}
 
-\item{iter}{Integer. Number of resamples per drop proportion.
-Default \code{1000}.}
+\item{iter}{Resamples per drop proportion (default 1000).}
 
-\item{drop_prop}{Numeric vector. Proportions of sessions to drop.
-Default \code{seq(0.1, 0.9, by = 0.1)}.}
+\item{drop_prop}{Proportions of sessions to drop (default
+\code{seq(0.1, 0.9, by = 0.1)}).}
 
-\item{threshold}{Numeric in [0, 1]. Correlation threshold for the
-case-dropping stability coefficient. Default \code{0.7}.}
+\item{threshold}{Correlation the reduced networks must reach
+(default 0.7).}
 
-\item{certainty}{Numeric in [0, 1]. Probability of meeting the
-threshold required for a drop proportion to count as stable.
-Default \code{0.95}.}
+\item{certainty}{Probability of reaching \code{threshold} required at a drop
+proportion (default 0.95).}
 
-\item{method}{Correlation method, one of \code{"pearson"}, \code{"spearman"},
-\code{"kendall"}. Default \code{"pearson"}.}
+\item{method}{Correlation: \code{"pearson"} (default), \code{"spearman"} or
+\code{"kendall"}.}
 
-\item{centrality_fn}{Optional function to compute centralities.
-Default \code{NULL} (use Nestimate's internal implementation). See
-\code{\link[Nestimate:centrality_stability]{Nestimate::centrality_stability()}} for the expected signature.}
+\item{centrality_fn}{A function computing the centralities from a weight
+matrix; \code{NULL} (default) uses the built-in measures.}
 
-\item{loops}{Logical. Whether to retain self-loops. Default \code{FALSE}.}
+\item{loops}{Keep self-transitions when computing centralities (default
+\code{FALSE}).}
 
-\item{seed}{Optional integer seed for reproducibility. Default
-\code{NULL} (no seed reset).}
+\item{seed}{Random seed (default \code{NULL}, no seed is set).}
+
+\item{...}{Further arguments passed to
+\code{Nestimate::centrality_stability()}, for example \code{actor} (drop whole
+actors instead of sessions; Nestimate 1.0.19 or later).}
 }
 \value{
-For a single htna network, an object of class
-\code{c("htna_stability", "net_stability")} with the same components
-as \code{\link[Nestimate:centrality_stability]{Nestimate::centrality_stability()}}: \code{cs} (the stability
-coefficients, one per measure), \code{correlations} (per-drop-proportion
-correlation traces), and the parameters that were used. \code{summary()}
-returns the tidy table: one row per (measure, drop proportion), with
-columns \code{measure}, \code{drop_prop}, \code{mean_cor}, \code{sd_cor} and
-\code{prop_above}. See \code{\link[=print.htna_stability]{print.htna_stability()}} and \code{\link[=plot.htna_stability]{plot.htna_stability()}}.
-For an \code{htna_group}, a named list of such objects with class
-\code{c("htna_stability_group", "list")}.
+For a network, an object of class
+\code{c("htna_stability", "net_stability")} holding the CS coefficients
+(\code{cs}, one per measure), the correlation traces and the settings. For
+an \code{htna_group}, a named list of such objects with class
+\code{c("htna_stability_group", "list")}. \code{as.data.frame()} returns the
+coefficients (one row per measure) or, with
+\code{what = "correlations"}, the traces (one row per measure and drop
+proportion); \code{summary()} returns the traces.
 }
 \description{
-Thin wrapper around \code{\link[Nestimate:centrality_stability]{Nestimate::centrality_stability()}} that
-validates the input is an htna network (or \code{htna_group}), forwards
-the call, and tags the result with an \code{htna_stability} class so
-callers can dispatch on the htna form.
+\code{centrality_stability_htna()} computes the case-dropping stability (CS)
+coefficients of the node centralities of an htna network, or of every
+cohort of a grouped network (Epskamp et al., 2018). The procedure
+re-estimates the network after dropping increasing proportions of the
+sessions and correlates the centralities of each reduced network with
+those of the full network; the CS coefficient of a measure is the largest
+proportion of sessions that can be dropped while the correlation stays
+above \code{threshold} with probability \code{certainty}. Epskamp et al. (2018)
+recommend a coefficient of at least 0.25 and preferably above 0.5.
+
+Centrality measures rank the codes of a network, for example by how much
+transition weight flows into them (in-strength) or how often they lie on
+shortest paths (betweenness); before such a ranking is interpreted, it
+should be shown not to depend on a few sessions.
+\code{centrality_stability_htna()} runs Nestimate's \code{centrality_stability()}
+on the network and returns an \code{htna_stability} object (an
+\code{htna_stability_group} for a grouped network). Printing the result shows
+the coefficients, \code{\link[=plot.htna_stability]{plot.htna_stability()}} draws the correlation traces,
+and \code{\link[=as.data.frame.htna_stability]{as.data.frame.htna_stability()}} returns the coefficients or the
+traces as data frames.
+
+For the stability of the edge weights use \code{\link[=casedrop_reliability_htna]{casedrop_reliability_htna()}};
+for edge-level intervals use \code{\link[=bootstrap_htna]{bootstrap_htna()}}.
 }
-\details{
-For an \code{htna_group}, the call is iterated per cohort and the result
-is a named list (one \code{htna_stability} per cohort), with class
-\code{c("htna_stability_group", "list")}.
+\section{Conditions}{
+
+Errors of class \code{htna_bad_input} when \code{x} is not an htna network and
+\code{htna_empty_input} when a group is empty.
 }
+
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 cs  <- centrality_stability_htna(net, iter = 30, seed = 1)
-cs            # CS-coefficient per measure
-summary(cs)   # mean correlation per measure and drop proportion
+cs
+as.data.frame(cs, what = "correlations")
 
 }
 \references{
@@ -92,6 +106,6 @@ psychological networks and their accuracy: A tutorial paper.
 \doi{10.3758/s13428-017-0862-1}
 }
 \seealso{
-\code{\link[Nestimate:centrality_stability]{Nestimate::centrality_stability()}},
-\code{\link[=bootstrap_htna]{bootstrap_htna()}}, \code{\link[=reliability_htna]{reliability_htna()}}.
+\code{\link[=plot.htna_stability]{plot.htna_stability()}}, \code{\link[=as.data.frame.htna_stability]{as.data.frame.htna_stability()}},
+\code{\link[=casedrop_reliability_htna]{casedrop_reliability_htna()}}, \code{\link[=bootstrap_htna]{bootstrap_htna()}}.
 }

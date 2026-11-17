@@ -2,38 +2,44 @@
 % Please edit documentation in R/association_rules_htna.R
 \name{association_rules_htna}
 \alias{association_rules_htna}
-\title{Association Rule Mining over Transitions}
+\title{Mine association rules from the sessions of a network}
 \usage{
 association_rules_htna(x, ...)
 }
 \arguments{
-\item{x}{A transition-count matrix or an htna network. See
-\code{\link[Nestimate:association_rules]{Nestimate::association_rules()}}.}
+\item{x}{An htna network from \code{\link[=build_htna]{build_htna()}}, or a binary
+session-by-code matrix.}
 
-\item{...}{Additional arguments passed to
-\code{\link[Nestimate:association_rules]{Nestimate::association_rules()}}, such as \code{min_support},
-\code{min_confidence}, \code{min_lift}, and \code{max_length}. See that function
-for the full, current argument list.}
+\item{...}{Thresholds: \code{min_support} (default 0.1), \code{min_confidence}
+(0.5), \code{min_lift} (1) and \code{max_length} (largest itemset, 5).}
 }
 \value{
-An object of class \code{net_association_rules}, holding the
-discovered rules and frequent itemsets, with \code{print()}, \code{summary()}
-and \code{plot()} methods supplied by Nestimate. See
-\code{\link[Nestimate:association_rules]{Nestimate::association_rules()}} for the component list.
+An object of class \code{net_association_rules} with \code{print()},
+\code{summary()} and \code{plot()} methods. Its rules table has one row per
+rule, with columns \code{antecedent}, \code{consequent}, \code{support},
+\code{confidence}, \code{lift}, \code{conviction}, \code{count} and \code{n_transactions}.
 }
 \description{
-htna-named wrapper for \code{\link[Nestimate:association_rules]{Nestimate::association_rules()}}. Mines
-frequent itemsets and association rules over a transition-count
-matrix under support / confidence / lift thresholds.
-}
-\details{
-Foundation function in the htna-aware exploratory family. Works on
-transition-count input produced by \code{\link[=frequencies_htna]{frequencies_htna()}} or
-\code{\link[Nestimate:build_network]{Nestimate::build_network()}}; the rules carry over to htna networks
-since the underlying transition counts are the same.
+\code{association_rules_htna()} mines association rules from the sessions of
+an htna network: rules that describe which codes tend to occur together
+in the same session, regardless of their order. A rule "A, B => C" states
+that sessions containing codes A and B also tend to contain code C.
+Support is the share of sessions containing all codes of the rule,
+confidence the share of sessions with the antecedent that also contain
+the consequent, and lift the ratio of the confidence to the overall share
+of the consequent. In a heterogeneous network a rule can join codes of
+different actors, for example a human request and the AI actions that
+accompany it.
 
-Suffixed \verb{_htna} to avoid clashing with
-\code{Nestimate::association_rules()} when both packages are loaded.
+\code{association_rules_htna()} runs Nestimate's \code{association_rules()} on the
+network: it treats every session as one transaction (the set of codes it
+contains), finds the frequent itemsets with the Apriori algorithm, and
+keeps the rules that pass the support, confidence and lift thresholds. It
+returns a \code{net_association_rules} object whose rules table has one row
+per rule.
+
+The rules ignore order. For ordered patterns use \code{\link[=extract_meta_paths]{extract_meta_paths()}};
+for associations between codes and sessions use \code{\link[=mosaic_plot_htna]{mosaic_plot_htna()}}.
 }
 \examples{
 data(human_ai)
@@ -41,5 +47,6 @@ net <- build_htna(human_ai, actor_type = "actor_type")
 association_rules_htna(net, max_length = 3L)
 }
 \seealso{
+\code{\link[=extract_meta_paths]{extract_meta_paths()}} for ordered patterns,
 \code{\link[=frequencies_htna]{frequencies_htna()}}, \code{\link[=mosaic_plot_htna]{mosaic_plot_htna()}}.
 }

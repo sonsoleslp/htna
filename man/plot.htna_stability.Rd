@@ -2,28 +2,49 @@
 % Please edit documentation in R/methods-stability.R
 \name{plot.htna_stability}
 \alias{plot.htna_stability}
-\title{Plot Method for htna Centrality Stability Objects}
+\alias{plot.htna_stability_group}
+\title{Plot centrality stability against the proportion of sessions dropped}
 \usage{
 \method{plot}{htna_stability}(x, ...)
+
+\method{plot}{htna_stability_group}(x, ...)
 }
 \arguments{
-\item{x}{An object of class \code{htna_stability} from \code{\link[=centrality_stability_htna]{centrality_stability_htna()}}.}
+\item{x}{A result of \code{\link[=centrality_stability_htna]{centrality_stability_htna()}}: an \code{htna_stability}
+or, for a grouped network, an \code{htna_stability_group}.}
 
-\item{...}{Unused; present for consistency with the generic.}
+\item{...}{Unused.}
 }
 \value{
-Invisibly, the \code{ggplot} object; the plot is printed as a side
-effect.
+Invisibly, the \code{ggplot} object (for \code{htna_stability}) or a named
+list of \code{ggplot} objects, one per cohort (for \code{htna_stability_group}).
+The charts are printed.
 }
 \description{
-S3 method for plotting htna centrality stability results. Draws, with
-'ggplot2', the mean correlation between the original and the
-case-dropped centralities against the proportion of sessions dropped:
-one line per measure, a +/- 1 SD ribbon, and a dashed line at the
-stability \code{threshold}. A measure is stable up to the drop proportion
-at which its line falls below that threshold. Requires the 'ggplot2'
-package (Suggests).
+\code{plot()} plots the case-dropping stability of an \code{htna_stability} result
+from \code{\link[=centrality_stability_htna]{centrality_stability_htna()}}: for each centrality measure, how
+closely the centralities of networks estimated from a subset of sessions
+correlate with those of the full network as more sessions are dropped.
+A measure whose mean correlation stays above the threshold until a large
+share of the sessions is dropped has a node ranking that does not depend
+on a few sessions; a measure whose line falls early cannot be interpreted
+with confidence.
+
+The plot draws one line per measure (distinguished by colour, line type
+and point shape), a ribbon of plus or minus one standard deviation of the
+correlations, and a dashed line at the stability threshold. The grouped
+method draws one such chart per cohort, titled with the cohort name. The
+charts are drawn with 'ggplot2', which must be installed, and are
+returned invisibly as \code{ggplot} objects. The CS coefficients themselves
+are reported by \code{\link[=print.htna_stability]{print.htna_stability()}} and returned as a table by
+\code{\link[=as.data.frame.htna_stability]{as.data.frame.htna_stability()}}.
 }
+\section{Conditions}{
+
+An error of class \code{htna_missing_package} is raised when 'ggplot2' is not
+installed.
+}
+
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
@@ -31,4 +52,7 @@ cs  <- centrality_stability_htna(net, iter = 20, seed = 1)
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   plot(cs)
 }
+}
+\seealso{
+\code{\link[=centrality_stability_htna]{centrality_stability_htna()}}, \code{\link[=as.data.frame.htna_stability]{as.data.frame.htna_stability()}}
 }

@@ -11,8 +11,7 @@
 ^docs$
 ^pkgdown$
 ^Rplots\.pdf$
-^AGENT-NOTE-HTNA-REVIEW\.md$
-^AGENT-NOTE-NESTIMATE-ALIASES\.md$
+^AGENT-NOTE-.*\.md$
 ^HANDOFF\.md$
 ^LEARNINGS\.md$
 ^CHANGES\.md$
@@ -20,4 +19,9 @@
 ^htna_hex\.png$
 ^\.github$
 ^\.claude$
+^\.mini-ci$
+^\.ci$
+^.*\.tar\.gz$
+^vignettes/articles$
+^Project_docs$
 ^inst/.*\.qmd$

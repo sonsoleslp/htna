@@ -2,7 +2,7 @@
 % Please edit documentation in R/centralities.R
 \name{plot_centralities}
 \alias{plot_centralities}
-\title{Plot Centrality Measures}
+\title{Plot node centralities of an htna network}
 \usage{
 plot_centralities(
   x,
@@ -18,53 +18,69 @@ plot_centralities(
 )
 }
 \arguments{
-\item{x}{An htna network, \code{htna_group}, or \code{htna_centralities} data
-frame from \code{\link[=centralities_htna]{centralities_htna()}}.}
+\item{x}{An htna network, an \code{htna_group}, or a table from
+\code{\link[=centralities_htna]{centralities_htna()}}.}
 
-\item{measures}{Centralities to plot. Default: all nine.}
+\item{measures}{Measures to plot. Default: all nine.}
 
-\item{by}{\code{"state"} (default) gives each node its own colour;
-\code{"group"} colours by actor group (Human, AI, ...) using
-\link{htna_palette}.}
+\item{by}{\code{"state"} (default) gives every code its own colour; \code{"group"}
+colours the bars by actor type.}
 
-\item{reorder}{If \code{TRUE}, sort nodes by value within each measure.}
+\item{reorder}{Sort the codes by value within each measure. Default
+\code{TRUE}.}
 
 \item{ncol}{Number of facet columns. Default \code{3}.}
 
-\item{scales}{Facet scaling: \code{"free_x"} (default) or \code{"fixed"}.}
+\item{scales}{Facet scales: \code{"free_x"} (default) or \code{"fixed"}.}
 
-\item{colors}{Optional fill colours, recycled per group/node.}
+\item{colors}{Fill colours, recycled over codes or actor types. Default
+\code{NULL} (Okabe-Ito for codes, \link{htna_palette} for actor types).}
 
-\item{labels}{If \code{TRUE} (default), draw the value next to each bar.}
+\item{labels}{Print the value next to each bar. Default \code{TRUE}.}
 
-\item{...}{Forwarded to \code{\link[=centralities_htna]{centralities_htna()}} when computing on the fly.}
+\item{...}{Further arguments for \code{\link[=centralities_htna]{centralities_htna()}} when \code{x} is a
+network.}
 }
 \value{
-A \code{ggplot} object (printed when returned at top level).
+A \code{ggplot} object, drawn when printed.
 }
 \description{
-Faceted bar plot of node-level centralities, one panel per measure,
-drawn with 'ggplot2' (Suggests). Mirrors the look of
-\code{\link[tna:plot.tna_centralities]{tna::plot.tna_centralities()}}.
+\code{plot_centralities()} plots the node centralities of an htna network: the
+value of each centrality measure for every code, one panel per measure,
+so the codes that hold the central positions of the interaction can be
+read at a glance and compared across measures. Colouring the bars by
+actor type shows whether the central codes belong to one actor or are
+shared between them.
+
+\code{plot_centralities()} draws horizontal bars, one per code, in one facet per
+measure, sorted by value within each facet by default and labelled with
+the value. It accepts an htna network, a grouped network or a table from
+\code{\link[=centralities_htna]{centralities_htna()}}. For a grouped network each panel shows one
+line-and-point profile per cohort over the same codes, so differences
+between cohorts read along one axis; \code{by} is then not used. The chart is
+a 'ggplot2' chart and needs that package; it is returned as a \code{ggplot}
+object.
+
+The values themselves are returned by \code{\link[=centralities_htna]{centralities_htna()}}.
 }
-\details{
-Accepts an htna network, an \code{htna_group}, or a data frame produced by
-\code{\link[=centralities_htna]{centralities_htna()}}. For an \code{htna_group} the bars are replaced by one
-line-and-point profile per cohort in each panel (colour = cohort), so
-cohort differences on a measure read along the same node axis; \code{by} is
-then not used.
+\section{Conditions}{
+
+\code{htna_missing_package} when 'ggplot2' is not installed; \code{htna_bad_input}
+when none of \code{measures} is in the table or \code{by = "group"} is asked for a
+table without an \code{actor} column.
 }
+
 \examples{
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   data(human_ai)
   net <- build_htna(human_ai, actor_type = "actor_type")
-  plot_centralities(net)
-  plot_centralities(net, by = "group")
+  plot_centralities(net, measures = c("InStrength", "OutStrength",
+                                      "Betweenness"), by = "group")
 
   grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-  plot_centralities(grp)
+  plot_centralities(grp, measures = c("InStrength", "Betweenness"))
 }
 }
 \seealso{
-\code{\link[=centralities_htna]{centralities_htna()}}.
+\code{\link[=centralities_htna]{centralities_htna()}}, \code{\link[=centrality_stability_htna]{centrality_stability_htna()}}
 }

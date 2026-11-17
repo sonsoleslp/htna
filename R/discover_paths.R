@@ -30,9 +30,8 @@
     )
     gap_vals <- sort(unique(as.integer(gap)))
     if (any(gap_vals == 0L)) {
-      stop("`gap = 0` is not valid when `type = \"gapped\"`; ",
-           "use `type = \"contiguous\"` for adjacency-only matches.",
-           call. = FALSE)
+      .htna_stop("`gap = 0` is not valid when `type = \"gapped\"`; ",
+                 "use `type = \"contiguous\"` for adjacency-only matches.")
     }
   }
 
@@ -48,11 +47,12 @@
       all(len == as.integer(len))
     )
     len_vals <- sort(unique(as.integer(len)))
-    rows <- list()
-    for (g in gap_vals) for (k in len_vals) {
-      rows[[length(rows) + 1L]] <-
+    # gap-major, then length, matching the documented row order
+    rows <- unlist(lapply(gap_vals, function(g) {
+      lapply(len_vals, function(k) {
         .enumerate_paths(int_seqs, T, k, g, n_seq, alphabet, marg_p)
-    }
+      })
+    }), recursive = FALSE)
   }
 
   out <- do.call(rbind, rows)
@@ -95,13 +95,11 @@
   span <- (k - 1L) * (gap + 1L)
   n_valid <- length(v) - span
   if (n_valid < 1L) return(integer(0L))
-  codes <- integer(n_valid)
-  for (j in seq_len(k)) {
+  # base-T code of each window: sum over positions j of T^(j-1) * state
+  Reduce(`+`, lapply(seq_len(k), function(j) {
     start <- 1L + (j - 1L) * (gap + 1L)
-    codes <- codes + (as.integer(T) ^ (j - 1L)) *
-      v[start:(start + n_valid - 1L)]
-  }
-  codes
+    (as.integer(T) ^ (j - 1L)) * v[start:(start + n_valid - 1L)]
+  }), integer(n_valid))
 }
 
 .marginal_freq <- function(int_seqs, T) {
@@ -117,24 +115,17 @@
   stopifnot(is.character(pattern), length(pattern) == 1L, nzchar(pattern))
   parts <- strsplit(gsub("\\s+", "", pattern), "->", fixed = TRUE)[[1]]
   if (length(parts) < 2L) {
-    stop("`pattern` must have at least two elements separated by '->'.",
-         call. = FALSE)
+    .htna_stop("`pattern` must have at least two elements separated by '->'.")
   }
-  parts_idx <- vector("list", length(parts))
-  for (i in seq_along(parts)) {
-    if (parts[i] == "*") {
-      parts_idx[[i]] <- seq_len(length(alphabet)) - 1L
-    } else {
-      m <- match(parts[i], alphabet)
-      if (is.na(m)) {
-        stop("Unknown alphabet element in pattern: '", parts[i], "'. ",
-             "Known: ", paste(alphabet, collapse = ", "), ".",
-             call. = FALSE)
-      }
-      parts_idx[[i]] <- m - 1L
+  lapply(parts, function(p) {
+    if (p == "*") return(seq_len(length(alphabet)) - 1L)
+    m <- match(p, alphabet)
+    if (is.na(m)) {
+      .htna_stop("Unknown alphabet element in pattern: '", p, "'. ",
+                 "Known: ", paste(alphabet, collapse = ", "), ".")
     }
-  }
-  parts_idx
+    m - 1L
+  })
 }
 
 
@@ -146,25 +137,18 @@
   stopifnot(is.character(schema), length(schema) == 1L, nzchar(schema))
   parts <- strsplit(gsub("\\s+", "", schema), "->", fixed = TRUE)[[1]]
   if (length(parts) < 2L) {
-    stop("`schema` must have at least two elements separated by '->'.",
-         call. = FALSE)
+    .htna_stop("`schema` must have at least two elements separated by '->'.")
   }
-  parts_idx <- vector("list", length(parts))
-  for (i in seq_along(parts)) {
-    p <- parts[i]
-    if (p == "*") {
-      parts_idx[[i]] <- seq_along(type_alphabet) - 1L
-    } else if (p %in% type_alphabet) {
-      parts_idx[[i]] <- match(p, type_alphabet) - 1L
-    } else if (p %in% names(type_map)) {
-      parts_idx[[i]] <- match(unname(type_map[p]), type_alphabet) - 1L
-    } else {
-      stop("Unknown alphabet element in schema: '", p, "'. ",
-           "Must be a type (", paste(type_alphabet, collapse = ", "), "), ",
-           "a state, or '*'.", call. = FALSE)
+  lapply(parts, function(p) {
+    if (p == "*") return(seq_along(type_alphabet) - 1L)
+    if (p %in% type_alphabet) return(match(p, type_alphabet) - 1L)
+    if (p %in% names(type_map)) {
+      return(match(unname(type_map[p]), type_alphabet) - 1L)
     }
-  }
-  parts_idx
+    .htna_stop("Unknown alphabet element in schema: '", p, "'. ",
+               "Must be a type (", paste(type_alphabet, collapse = ", "), "), ",
+               "a state, or '*'.")
+  })
 }
 
 
@@ -179,32 +163,25 @@
   stopifnot(is.character(schema), length(schema) == 1L, nzchar(schema))
   parts <- strsplit(gsub("\\s+", "", schema), "->", fixed = TRUE)[[1]]
   if (length(parts) < 2L) {
-    stop("`schema` must have at least two elements separated by '->'.",
-         call. = FALSE)
+    .htna_stop("`schema` must have at least two elements separated by '->'.")
   }
   types <- unique(unname(type_map))
-  parts_idx <- vector("list", length(parts))
-  for (i in seq_along(parts)) {
-    p <- parts[i]
-    if (p == "*") {
-      parts_idx[[i]] <- seq_along(states) - 1L
-    } else if (p %in% types) {
+  lapply(parts, function(p) {
+    if (p == "*") return(seq_along(states) - 1L)
+    if (p %in% types) {
       codes <- names(type_map)[type_map == p]
       idx <- match(codes, states) - 1L
       idx <- idx[!is.na(idx)]
       if (!length(idx)) {
-        stop("No states found for type '", p, "'.", call. = FALSE)
+        .htna_stop("No states found for type '", p, "'.")
       }
-      parts_idx[[i]] <- idx
-    } else if (p %in% states) {
-      parts_idx[[i]] <- match(p, states) - 1L
-    } else {
-      stop("Unknown alphabet element in schema: '", p, "'. ",
-           "Must be a type (", paste(types, collapse = ", "), "), ",
-           "a state, or '*'.", call. = FALSE)
+      return(idx)
     }
-  }
-  parts_idx
+    if (p %in% states) return(match(p, states) - 1L)
+    .htna_stop("Unknown alphabet element in schema: '", p, "'. ",
+               "Must be a type (", paste(types, collapse = ", "), "), ",
+               "a state, or '*'.")
+  })
 }
 
 
@@ -220,15 +197,13 @@
 
 .enumerate_paths <- function(int_seqs, T, k, gap, n_seq, alphabet, marg_p) {
   n_codes <- as.integer(T) ^ k
-  total  <- integer(n_codes)
-  in_seq <- integer(n_codes)
-  for (s in int_seqs) {
-    codes <- .window_codes(s, k, gap, T)
-    if (!length(codes)) next
-    tab <- tabulate(codes + 1L, nbins = n_codes)
-    total  <- total + tab
-    in_seq <- in_seq + (tab > 0L)
-  }
+  # total = all windows; in_seq = number of sequences with the code at least
+  # once (each sequence's distinct codes counted once)
+  window_codes <- lapply(int_seqs, .window_codes, k = k, gap = gap, T = T)
+  total  <- tabulate(unlist(window_codes, use.names = FALSE) + 1L,
+                     nbins = n_codes)
+  in_seq <- tabulate(unlist(lapply(window_codes, unique), use.names = FALSE) +
+                       1L, nbins = n_codes)
   keep <- total > 0L
   if (!any(keep)) return(NULL)
   codes_kept <- which(keep) - 1L
@@ -259,18 +234,15 @@
   weights <- as.integer(T) ^ (0L:(k - 1L))
   targets <- as.integer(expanded %*% weights)
 
-  total  <- integer(length(targets))
-  in_seq <- integer(length(targets))
-  for (s in int_seqs) {
-    codes <- .window_codes(s, k, gap, T)
-    if (!length(codes)) next
-    m <- match(codes, targets)
-    m <- m[!is.na(m)]
-    if (!length(m)) next
-    tab <- tabulate(m, nbins = length(targets))
-    total  <- total + tab
-    in_seq <- in_seq + (tab > 0L)
-  }
+  # index of each window in `targets` (NA when it matches none)
+  hits <- lapply(int_seqs, function(s) {
+    m <- match(.window_codes(s, k, gap, T), targets)
+    m[!is.na(m)]
+  })
+  total  <- tabulate(unlist(hits, use.names = FALSE),
+                     nbins = length(targets))
+  in_seq <- tabulate(unlist(lapply(hits, unique), use.names = FALSE),
+                     nbins = length(targets))
   keep <- total > 0L
   if (!any(keep)) return(NULL)
   schema <- apply(expanded[keep, , drop = FALSE], 1L,
@@ -293,13 +265,11 @@
 # ---- Decode integer codes to base-T digit matrix --------------------------
 
 .decode_codes <- function(codes, k, T) {
-  digits <- matrix(0L, nrow = length(codes), ncol = k)
-  rem <- codes
-  for (j in seq_len(k)) {
-    digits[, j] <- rem %% as.integer(T)
-    rem <- rem %/% as.integer(T)
-  }
-  digits
+  # digit j (least significant first) of each base-T code
+  T <- as.integer(T)
+  matrix(vapply(seq_len(k), function(j) {
+    as.integer((codes %/% T ^ (j - 1L)) %% T)
+  }, integer(length(codes))), nrow = length(codes), ncol = k)
 }
 
 

@@ -56,3 +56,29 @@ test_that("plot_htna_diff() rejects non-htna inputs", {
     regexp = "htna"
   )
 })
+
+test_that("plot_htna_diff() draws a grouped Bayesian comparison (0.3.5)", {
+  grp <- make_htna_group()
+  bc <- bayes_compare_htna(grp, draws = 50, seed = 1)
+  expect_s3_class(bc, "net_bayes_group")
+  drawn <- character(0)
+  trace_title <- function(perm, pos_color, neg_color, group_colors,
+                          title = "", ...) {
+    drawn <<- c(drawn, title)
+    invisible(NULL)
+  }
+  local_mocked_bindings(.plot_htna_diff_perm = trace_title)
+  expect_invisible(plot_htna_diff(bc))
+  expect_identical(drawn, names(bc))
+})
+
+test_that("plot_htna_diff() renders a grouped Bayesian comparison", {
+  grp <- make_htna_group()
+  bc <- bayes_compare_htna(grp, draws = 50, seed = 1)
+  with_null_device(expect_no_error(plot_htna_diff(bc)))
+})
+
+test_that("an empty grouped comparison raises a classed error", {
+  empty <- structure(list(), class = c("net_bayes_group", "list"))
+  expect_error(plot_htna_diff(empty), class = "htna_empty_input")
+})

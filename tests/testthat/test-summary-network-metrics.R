@@ -3,7 +3,8 @@ test_that("summary.htna prints a network metric table and leaves its input uncha
     net <- make_htna(seed)
     net_before <- net
 
-    output <- capture.output(actual <- summary(net))
+    actual <- summary(net)
+  output <- capture.output(print(actual))
     expect_true(any(grepl("Network metrics:", output, fixed = TRUE)))
     expect_identical(net, net_before)
   }
@@ -16,7 +17,8 @@ test_that("summary.htna network metrics work for every construction method", {
   for (method in c("relative", "frequency", "co_occurrence", "attention")) {
     net <- suppressWarnings(build_htna(d, node_groups = node_groups,
                                        method = method))
-    actual <- capture.output(result <- summary(net))
+    result <- summary(net)
+  actual <- capture.output(print(result))
 
     expect_equal(result$network_metrics$value[
       result$network_metrics$metric == "Node Count"
@@ -36,7 +38,8 @@ test_that("summary.htna network metrics work for every construction method", {
 
 test_that("summary.htna_group includes independent metrics for every cohort", {
   group <- make_htna_group(seed = 181L)
-  output <- capture.output(result <- summary(group))
+  result <- summary(group)
+  output <- capture.output(print(result))
 
   expect_named(result, names(group))
   expect_equal(sum(grepl("Network metrics:", output, fixed = TRUE)),
@@ -62,7 +65,8 @@ test_that("summary network metrics remain correct with partial actor coverage", 
     node_groups = list(Human = c("H1", "H2"), AI = c("A1", "A2")),
     group = "cohort"
   ))
-  result <- capture.output(summaries <- summary(group))
+  summaries <- summary(group)
+  result <- capture.output(print(summaries))
 
   expect_identical(group$HumanOnly$actor_levels, c("Human", "AI"))
   expect_setequal(summaries$HumanOnly$actors$actor, c("Human", "AI"))

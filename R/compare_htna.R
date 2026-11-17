@@ -1,79 +1,106 @@
-#' Compare Heterogeneous Transition Networks
+#' Describe the differences between heterogeneous transition networks
 #'
-#' Computes the descriptive network comparison implemented by
-#' [Nestimate::compare_model()] while retaining the HTNA actor partition.
-#' Comparing two individual networks returns one `htna_comparison`. Passing an
-#' `htna_group` as `x` with `y = NULL` compares every cohort pair and returns an
-#' `htna_comparison_group`; callers do not need to select or subset cohorts.
+#' @description
+#' `compare_htna()` describes the differences between two heterogeneous
+#' transition networks, or between every pair of cohorts of a grouped
+#' network: overall, in how similar their weight matrices are, and in where
+#' the differences lie in the actor structure, within an actor (for example,
+#' how humans move between their own codes) or between actors (how the
+#' human hands over to the AI and back). It reports correlation, distance
+#' and similarity measures of the two weight matrices, the network-level
+#' metrics of each network, the difference of every edge, and a summary of
+#' the differences in each directed actor-pair block.
 #'
-#' Networks may contain different subsets of the declared nodes. Their weight
-#' matrices are aligned to the union of nodes, in canonical actor order, and
-#' missing nodes are represented by zero rows and columns. Shared nodes must
-#' have the same actor assignment in both networks.
+#' Networks that contain different subsets of the codes are aligned on the
+#' union of their codes, in actor order, with the missing codes treated as
+#' having no transitions; a code shared by both networks must belong to the
+#' same actor in both. Differences are `x - y`. `compare_htna()` runs
+#' Nestimate's `compare_model()` on the aligned networks and adds the
+#' actor-pair summary. It returns an `htna_comparison` object (an
+#' `htna_comparison_group` for a grouped network).
 #'
-#' @param x An `htna` network or an `htna_group`.
-#' @param y A second `htna` network. Must be `NULL` when `x` is an
-#'   `htna_group`, in which case all cohort pairs are compared.
-#' @param ... Additional arguments passed to [Nestimate::compare_model()],
-#'   including `scaling`, `measures`, and `network`.
+#' The comparison is descriptive and gives no test. Use
+#' [permutation_htna()] for a permutation test of the differences and
+#' [bayes_compare_htna()] for credible intervals; [plot_htna_diff()] draws
+#' the difference network. The tables of the result are returned by
+#' `summary()` and `as.data.frame()` (see [htna_comparison-methods]).
 #'
-#' @return For two networks, an object inheriting from `htna_comparison` and
-#'   `net_comparison`. In addition to the Nestimate comparison fields it
-#'   contains:
+#' @param x An htna network, or an `htna_group`.
+#' @param y A second htna network; `NULL` (default) when `x` is an
+#'   `htna_group`, in which case every pair of cohorts is compared.
+#' @param ... Settings of the comparison: `scaling`, `measures` and
+#'   `network`.
 #'
-#'   * `node_groups` and `actor_levels`: the aligned actor partition;
-#'   * `edge_metrics$source_actor` and `edge_metrics$target_actor`;
-#'   * `actor_pair_metrics`: difference summaries for every directed
-#'     actor-type block;
-#'   * `models`: the two original, unmodified HTNA networks.
+#' @return For two networks, an object of class
+#'   `c("htna_comparison", "net_comparison")`. For an `htna_group`, a named
+#'   list of class `c("htna_comparison_group", "list")` with one comparison
+#'   per cohort pair (for example `"Early vs Late"`). `summary()` returns
+#'   the actor-pair table, one row per directed actor pair;
+#'   `as.data.frame(x, what = )` returns the actor-pair, edge, metric or
+#'   network table (see [htna_comparison-methods]).
 #'
-#'   For an `htna_group`, a named `htna_comparison_group` containing every
-#'   pairwise comparison is returned.
+#' @section Conditions:
+#' Errors of class `htna_bad_input` when `x` and `y` are not htna networks,
+#' when `y` is given with an `htna_group`, or when the networks use different
+#' actor types; `htna_empty_input` when a group has fewer than two cohorts;
+#' `htna_actor_conflict` when a shared code belongs to different actors.
 #'
-#' @seealso [Nestimate::compare_model()], [plot_htna_diff()]
+#' @seealso [htna_comparison-methods], [permutation_htna()],
+#'   [bayes_compare_htna()], [plot_htna_diff()].
 #'
 #' @examples
 #' data(human_ai)
-#' grouped <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-#' comparisons <- compare_htna(grouped)
-#' names(comparisons)
+#' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#' comparison <- compare_htna(grp)
+#' comparison
+#' summary(comparison)
 #'
 #' @export
 compare_htna <- function(x, y = NULL, ...) {
   if (inherits(x, "htna_group")) {
     if (!is.null(y)) {
-      stop("When `x` is an `htna_group`, leave `y = NULL`; all cohort pairs ",
-           "are compared automatically.", call. = FALSE)
+      .htna_stop("When `x` is an `htna_group`, leave `y = NULL`; all cohort pairs ",
+                 "are compared automatically.")
     }
     return(.compare_htna_group(x, ...))
   }
 
   if (!inherits(x, "htna") || !inherits(y, "htna")) {
-    stop("`x` and `y` must both be `htna` networks, or `x` must be an ",
-         "`htna_group`.", call. = FALSE)
+    .htna_stop("`x` and `y` must both be `htna` networks, or `x` must be an ",
+               "`htna_group`.")
   }
 
   .compare_htna_pair(x, y, labels = c("x", "y"), dots = list(...))
 }
 
-#' Plot All Comparisons in an HTNA Comparison Group
+#' Plot the comparisons of a grouped network
 #'
-#' Applies Nestimate's `net_comparison` plot method to every cohort pair.
+#' @description
+#' `plot()` draws the plots of a descriptive network comparison for every
+#' cohort pair of a grouped comparison from [compare_htna()]: a scatter plot
+#' of the edge weights of the two networks, a heatmap of the edge
+#' differences, a histogram of the differences, or the weight distributions.
+#' It returns, invisibly, a named list with the plot of every cohort pair.
 #'
 #' @param x An `htna_comparison_group` from [compare_htna()].
-#' @param ... Passed to the `net_comparison` plot method, including `type`
-#'   (`"scatter"`, `"heatmap"`, `"diff_hist"`, `"weight_dist"` or `"all"`)
-#'   and `combined`.
+#' @param ... Plot settings: `type` (`"scatter"`, `"heatmap"`,
+#'   `"diff_hist"`, `"weight_dist"` or `"all"`) and `combined`.
 #'
-#' @return Invisibly, a named list containing the plot for every comparison.
+#' @return Invisibly, a named list with the plot of every cohort pair.
+#'
+#' @section Conditions:
+#' An error of class `htna_empty_input` when `x` is empty.
+#'
+#' @seealso [compare_htna()], [plot_htna_diff()] for the difference network.
 #' @examples
 #' data(human_ai)
-#' grouped <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-#' plot(compare_htna(grouped))
+#' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#' plot(compare_htna(grp), type = "scatter")
 #' @export
 plot.htna_comparison_group <- function(x, ...) {
   if (!length(x)) {
-    stop("Cannot plot an empty `htna_comparison_group`.", call. = FALSE)
+    .htna_stop("Cannot plot an empty `htna_comparison_group`.",
+               class = "htna_empty_input")
   }
   out <- lapply(x, function(item) plot(item, ...))
   names(out) <- names(x)
@@ -83,18 +110,17 @@ plot.htna_comparison_group <- function(x, ...) {
 #' @keywords internal
 .compare_htna_group <- function(x, ...) {
   if (length(x) < 2L) {
-    stop("An `htna_group` needs at least two cohorts for comparison.",
-         call. = FALSE)
+    .htna_stop("An `htna_group` needs at least two cohorts for comparison.",
+               class = "htna_empty_input")
   }
   if (!all(vapply(x, inherits, logical(1L), what = "htna"))) {
-    stop("Every member of `x` must be an `htna` network.", call. = FALSE)
+    .htna_stop("Every member of `x` must be an `htna` network.")
   }
 
   cohort_names <- names(x) %||% as.character(seq_along(x))
   if (anyNA(cohort_names) || any(!nzchar(cohort_names)) ||
       anyDuplicated(cohort_names)) {
-    stop("An `htna_group` must have unique, non-empty cohort names.",
-         call. = FALSE)
+    .htna_stop("An `htna_group` must have unique, non-empty cohort names.")
   }
 
   pairs <- utils::combn(seq_along(x), 2L)
@@ -158,14 +184,14 @@ plot.htna_comparison_group <- function(x, ...) {
   py <- .htna_node_partition(y, "y")
 
   if (!identical(px$actor_levels, py$actor_levels)) {
-    stop("`x` and `y` must use identical `actor_levels`, including order.",
-         call. = FALSE)
+    .htna_stop("`x` and `y` must use identical `actor_levels`, including order.")
   }
   shared <- intersect(names(px$lookup), names(py$lookup))
   conflicts <- shared[px$lookup[shared] != py$lookup[shared]]
   if (length(conflicts)) {
-    stop("Shared nodes assigned to different actors: ",
-         paste(conflicts, collapse = ", "), ".", call. = FALSE)
+    .htna_stop("Shared nodes assigned to different actors: ",
+               paste(conflicts, collapse = ", "), ".",
+               class = "htna_actor_conflict")
   }
 
   actor_lookup <- c(px$lookup, py$lookup[setdiff(names(py$lookup),
@@ -204,37 +230,37 @@ plot.htna_comparison_group <- function(x, ...) {
 
 #' @keywords internal
 .htna_actor_pair_comparison <- function(edge_metrics, actor_levels) {
-  rows <- vector("list", length(actor_levels)^2L)
-  k <- 0L
-  for (source_actor in actor_levels) {
-    for (target_actor in actor_levels) {
-      k <- k + 1L
-      keep <- as.character(edge_metrics$source_actor) == source_actor &
-        as.character(edge_metrics$target_actor) == target_actor
-      block <- edge_metrics[keep, , drop = FALSE]
-      n <- nrow(block)
-      rows[[k]] <- data.frame(
-        source_actor = source_actor,
-        target_actor = target_actor,
-        n_cells = n,
-        n_nonzero_x = if (n) sum(block$weight_x != 0) else 0L,
-        n_nonzero_y = if (n) sum(block$weight_y != 0) else 0L,
-        n_changed = if (n) sum(block$absolute_difference > 0) else 0L,
-        mean_difference = if (n) mean(block$raw_difference) else NA_real_,
-        mean_absolute_difference = if (n) {
-          mean(block$absolute_difference)
-        } else NA_real_,
-        rms_difference = if (n) {
-          sqrt(mean(block$squared_difference))
-        } else NA_real_,
-        max_absolute_difference = if (n) {
-          max(block$absolute_difference)
-        } else NA_real_,
-        stringsAsFactors = FALSE
-      )
-    }
-  }
-  out <- do.call(rbind, rows)
+  # Every directed (source actor, target actor) block, source-major.
+  blocks <- expand.grid(target_actor = actor_levels,
+                        source_actor = actor_levels,
+                        stringsAsFactors = FALSE)
+  src <- as.character(edge_metrics$source_actor)
+  tgt <- as.character(edge_metrics$target_actor)
+  rows <- Map(function(source_actor, target_actor) {
+    block <- edge_metrics[src == source_actor & tgt == target_actor, ,
+                          drop = FALSE]
+    n <- nrow(block)
+    data.frame(
+      source_actor = source_actor,
+      target_actor = target_actor,
+      n_cells = n,
+      n_nonzero_x = if (n) sum(block$weight_x != 0) else 0L,
+      n_nonzero_y = if (n) sum(block$weight_y != 0) else 0L,
+      n_changed = if (n) sum(block$absolute_difference > 0) else 0L,
+      mean_difference = if (n) mean(block$raw_difference) else NA_real_,
+      mean_absolute_difference = if (n) {
+        mean(block$absolute_difference)
+      } else NA_real_,
+      rms_difference = if (n) {
+        sqrt(mean(block$squared_difference))
+      } else NA_real_,
+      max_absolute_difference = if (n) {
+        max(block$absolute_difference)
+      } else NA_real_,
+      stringsAsFactors = FALSE
+    )
+  }, blocks$source_actor, blocks$target_actor)
+  out <- do.call(rbind, unname(rows))
   rownames(out) <- NULL
   out$source_actor <- factor(out$source_actor, levels = actor_levels)
   out$target_actor <- factor(out$target_actor, levels = actor_levels)

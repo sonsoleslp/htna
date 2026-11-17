@@ -1,54 +1,66 @@
-#' Centrality Stability for an htna Network
+#' Assess the case-dropping stability of node centralities
 #'
-#' Thin wrapper around [Nestimate::centrality_stability()] that
-#' validates the input is an htna network (or `htna_group`), forwards
-#' the call, and tags the result with an `htna_stability` class so
-#' callers can dispatch on the htna form.
+#' @description
+#' `centrality_stability_htna()` computes the case-dropping stability (CS)
+#' coefficients of the node centralities of an htna network, or of every
+#' cohort of a grouped network (Epskamp et al., 2018). The procedure
+#' re-estimates the network after dropping increasing proportions of the
+#' sessions and correlates the centralities of each reduced network with
+#' those of the full network; the CS coefficient of a measure is the largest
+#' proportion of sessions that can be dropped while the correlation stays
+#' above `threshold` with probability `certainty`. Epskamp et al. (2018)
+#' recommend a coefficient of at least 0.25 and preferably above 0.5.
 #'
-#' For an `htna_group`, the call is iterated per cohort and the result
-#' is a named list (one `htna_stability` per cohort), with class
-#' `c("htna_stability_group", "list")`.
+#' Centrality measures rank the codes of a network, for example by how much
+#' transition weight flows into them (in-strength) or how often they lie on
+#' shortest paths (betweenness); before such a ranking is interpreted, it
+#' should be shown not to depend on a few sessions.
+#' `centrality_stability_htna()` runs Nestimate's `centrality_stability()`
+#' on the network and returns an `htna_stability` object (an
+#' `htna_stability_group` for a grouped network). Printing the result shows
+#' the coefficients, [plot.htna_stability()] draws the correlation traces,
+#' and [as.data.frame.htna_stability()] returns the coefficients or the
+#' traces as data frames.
+#'
+#' For the stability of the edge weights use [casedrop_reliability_htna()];
+#' for edge-level intervals use [bootstrap_htna()].
 #'
 #' @param x An htna network from [build_htna()] or an `htna_group`.
-#' @param measures Character vector of centrality measures to assess.
-#'   Default `c("InStrength", "OutStrength", "Betweenness")`: the
-#'   three measures whose values are bit-equal between htna's
-#'   `cograph` engine and Nestimate's default centrality
-#'   implementation. To assess htna's nine measures (including the
-#'   three that differ between engines: `BetweennessRSP`, `Diffusion`,
-#'   `Clustering`), pass them explicitly together with a custom
-#'   `centrality_fn`.
-#' @param iter Integer. Number of resamples per drop proportion.
-#'   Default `1000`.
-#' @param drop_prop Numeric vector. Proportions of sessions to drop.
-#'   Default `seq(0.1, 0.9, by = 0.1)`.
-#' @param threshold Numeric in \[0, 1\]. Correlation threshold for the
-#'   case-dropping stability coefficient. Default `0.7`.
-#' @param certainty Numeric in \[0, 1\]. Probability of meeting the
-#'   threshold required for a drop proportion to count as stable.
-#'   Default `0.95`.
-#' @param method Correlation method, one of `"pearson"`, `"spearman"`,
-#'   `"kendall"`. Default `"pearson"`.
-#' @param centrality_fn Optional function to compute centralities.
-#'   Default `NULL` (use Nestimate's internal implementation). See
-#'   [Nestimate::centrality_stability()] for the expected signature.
-#' @param loops Logical. Whether to retain self-loops. Default `FALSE`.
-#' @param seed Optional integer seed for reproducibility. Default
-#'   `NULL` (no seed reset).
+#' @param measures Centrality measures to assess (default
+#'   `c("InStrength", "OutStrength", "Betweenness")`).
+#' @param iter Resamples per drop proportion (default 1000).
+#' @param drop_prop Proportions of sessions to drop (default
+#'   `seq(0.1, 0.9, by = 0.1)`).
+#' @param threshold Correlation the reduced networks must reach
+#'   (default 0.7).
+#' @param certainty Probability of reaching `threshold` required at a drop
+#'   proportion (default 0.95).
+#' @param method Correlation: `"pearson"` (default), `"spearman"` or
+#'   `"kendall"`.
+#' @param centrality_fn A function computing the centralities from a weight
+#'   matrix; `NULL` (default) uses the built-in measures.
+#' @param loops Keep self-transitions when computing centralities (default
+#'   `FALSE`).
+#' @param seed Random seed (default `NULL`, no seed is set).
+#' @param ... Further arguments passed to
+#'   `Nestimate::centrality_stability()`, for example `actor` (drop whole
+#'   actors instead of sessions; Nestimate 1.0.19 or later).
 #'
-#' @return For a single htna network, an object of class
-#'   `c("htna_stability", "net_stability")` with the same components
-#'   as [Nestimate::centrality_stability()]: `cs` (the stability
-#'   coefficients, one per measure), `correlations` (per-drop-proportion
-#'   correlation traces), and the parameters that were used. `summary()`
-#'   returns the tidy table: one row per (measure, drop proportion), with
-#'   columns `measure`, `drop_prop`, `mean_cor`, `sd_cor` and
-#'   `prop_above`. See [print.htna_stability()] and [plot.htna_stability()].
-#'   For an `htna_group`, a named list of such objects with class
-#'   `c("htna_stability_group", "list")`.
+#' @return For a network, an object of class
+#'   `c("htna_stability", "net_stability")` holding the CS coefficients
+#'   (`cs`, one per measure), the correlation traces and the settings. For
+#'   an `htna_group`, a named list of such objects with class
+#'   `c("htna_stability_group", "list")`. `as.data.frame()` returns the
+#'   coefficients (one row per measure) or, with
+#'   `what = "correlations"`, the traces (one row per measure and drop
+#'   proportion); `summary()` returns the traces.
 #'
-#' @seealso [Nestimate::centrality_stability()],
-#'   [bootstrap_htna()], [reliability_htna()].
+#' @section Conditions:
+#' Errors of class `htna_bad_input` when `x` is not an htna network and
+#' `htna_empty_input` when a group is empty.
+#'
+#' @seealso [plot.htna_stability()], [as.data.frame.htna_stability()],
+#'   [casedrop_reliability_htna()], [bootstrap_htna()].
 #'
 #' @references
 #' Epskamp, S., Borsboom, D., & Fried, E. I. (2018). Estimating
@@ -60,8 +72,8 @@
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' cs  <- centrality_stability_htna(net, iter = 30, seed = 1)
-#' cs            # CS-coefficient per measure
-#' summary(cs)   # mean correlation per measure and drop proportion
+#' cs
+#' as.data.frame(cs, what = "correlations")
 #'
 #' @export
 centrality_stability_htna <- function(
@@ -74,17 +86,19 @@ centrality_stability_htna <- function(
     method        = "pearson",
     centrality_fn = NULL,
     loops         = FALSE,
-    seed          = NULL) {
+    seed          = NULL,
+    ...) {
 
   if (inherits(x, "htna_group") ||
       (is.list(x) && !inherits(x, "htna") && !is.data.frame(x))) {
-    if (length(x) == 0L) stop("Empty htna_group.", call. = FALSE)
+    if (length(x) == 0L) .htna_stop("Empty htna_group.",
+                                    class = "htna_empty_input")
     nms <- names(x) %||% as.character(seq_along(x))
     res <- lapply(seq_along(x), function(i) {
       centrality_stability_htna(
         x[[i]], measures = measures, iter = iter, drop_prop = drop_prop,
         threshold = threshold, certainty = certainty, method = method,
-        centrality_fn = centrality_fn, loops = loops, seed = seed
+        centrality_fn = centrality_fn, loops = loops, seed = seed, ...
       )
     })
     names(res) <- nms
@@ -92,21 +106,13 @@ centrality_stability_htna <- function(
     return(res)
   }
   if (!inherits(x, "htna")) {
-    stop("`x` must be an htna network from build_htna() (or htna_group).",
-         call. = FALSE)
+    .htna_stop("`x` must be an htna network from build_htna() (or htna_group).")
   }
 
   cs <- Nestimate::centrality_stability(
-    x,
-    measures      = measures,
-    iter          = iter,
-    drop_prop     = drop_prop,
-    threshold     = threshold,
-    certainty     = certainty,
-    method        = method,
-    centrality_fn = centrality_fn,
-    loops         = loops,
-    seed          = seed
+    x, measures = measures, iter = iter, drop_prop = drop_prop,
+    threshold = threshold, certainty = certainty, method = method,
+    centrality_fn = centrality_fn, loops = loops, seed = seed, ...
   )
 
   if (!inherits(cs, "htna_stability")) {

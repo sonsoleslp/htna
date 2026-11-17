@@ -2,47 +2,55 @@
 % Please edit documentation in R/edge_betweenness.R
 \name{edge_betweenness_htna}
 \alias{edge_betweenness_htna}
-\title{Edge Betweenness Network}
+\title{Compute the edge betweenness of an htna network}
 \usage{
 edge_betweenness_htna(x, directed = TRUE, invert = TRUE)
 }
 \arguments{
 \item{x}{An htna network from \code{\link[=build_htna]{build_htna()}}.}
 
-\item{directed}{If \code{TRUE} (default), shortest paths follow edge
-direction.}
+\item{directed}{Follow edge direction in shortest paths. Default \code{TRUE}.}
 
-\item{invert}{If \code{TRUE} (default), use \code{1 / weight} as the edge
-cost when computing shortest paths.}
+\item{invert}{Use \code{1 / weight} as the length of an edge. Default \code{TRUE}.}
 }
 \value{
-A copy of \code{x} whose \verb{$weights} matrix entries are
-edge-betweenness scores at every position where the original
-network had a non-zero transition. Class is
-\code{c("htna_edge_betweenness", class(x))}.
+An htna network of class \code{c("htna_edge_betweenness", class(x))}
+whose edge weights are edge-betweenness scores at every position where
+\code{x} has a non-zero transition. \code{as.data.frame()} returns one row per
+edge with its score in \code{weight}.
 }
 \description{
-Computes the edge betweenness of every existing edge in an htna
-network and returns a copy whose \verb{$weights} slot stores those
-betweenness scores instead of the original transition weights. The
-actor partition is preserved, so the result can be plotted with
-\code{\link[=plot_htna]{plot_htna()}} to visualise which edges carry the most shortest-path
-traffic.
+\code{edge_betweenness_htna()} computes the edge betweenness of an htna
+network. The betweenness of an edge is the number of shortest paths
+between pairs of codes that pass through it. Edges with high betweenness
+are the bridges of the interaction: transitions through which much of
+the flow between otherwise distant codes must pass. In a heterogeneous
+network the high-betweenness edges are often hand-overs between actors,
+which shows which exchanges hold the interaction together.
+
+\code{edge_betweenness_htna()} computes the betweenness of every non-zero edge
+and returns a copy of the network whose edge weights are these scores,
+with the actor partition kept, so the result can be drawn with
+\code{\link[=plot_htna]{plot_htna()}} and tabulated with \code{\link[=as.data.frame.htna]{as.data.frame.htna()}}. By default a
+larger transition probability is a shorter distance (\code{invert = TRUE}), as
+in transition network analysis.
+
+To draw the result directly use \code{\link[=plot_edge_betweenness_htna]{plot_edge_betweenness_htna()}}; for
+node-level betweenness use \code{\link[=centralities_htna]{centralities_htna()}}.
 }
-\details{
-Mirrors \code{tna::betweenness_network()}: edge weights are inverted to
-costs by default (\code{invert = TRUE}) -- in transition networks a
-larger transition probability means the edge is "easier" and so the
-equivalent path cost is smaller.
+\section{Conditions}{
+
+\code{htna_bad_input} when \code{x} is not an htna network.
 }
+
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 eb  <- edge_betweenness_htna(net)
-plot_htna(eb)                 # edge thickness = betweenness score
+head(as.data.frame(eb))
 
 }
 \seealso{
-\code{\link[=centralities_htna]{centralities_htna()}} for node-level centrality measures,
-\code{\link[tna:betweenness_network]{tna::betweenness_network()}} for the tna equivalent.
+\code{\link[=plot_edge_betweenness_htna]{plot_edge_betweenness_htna()}}, \code{\link[=centralities_htna]{centralities_htna()}},
+\code{\link[=as.data.frame.htna]{as.data.frame.htna()}}
 }

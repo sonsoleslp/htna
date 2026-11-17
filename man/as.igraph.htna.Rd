@@ -3,44 +3,61 @@
 \name{as.igraph.htna}
 \alias{as.igraph.htna}
 \alias{as.igraph.htna_group}
-\title{Convert an HTNA Network to igraph}
+\title{Convert an htna network to an igraph graph}
 \usage{
 \method{as.igraph}{htna}(x, mode = NULL, weighted = TRUE, diag = TRUE, ...)
 
 \method{as.igraph}{htna_group}(x, mode = NULL, weighted = TRUE, diag = TRUE, ...)
 }
 \arguments{
-\item{x}{An \code{htna} network or \code{htna_group}.}
+\item{x}{An htna network from \code{\link[=build_htna]{build_htna()}} or an \code{htna_group}.}
 
-\item{mode}{Character igraph adjacency mode. The default, \code{NULL}, uses
-\code{"directed"} when \code{x$directed} is true and \code{"undirected"} otherwise.}
+\item{mode}{Graph mode. Default \code{NULL}: \code{"directed"} for a directed
+network, \code{"undirected"} otherwise.}
 
-\item{weighted}{Passed to \code{\link[igraph:graph_from_adjacency_matrix]{igraph::graph_from_adjacency_matrix()}}. Default
+\item{weighted}{Use the transition weights as edge weights. Default
 \code{TRUE}.}
 
-\item{diag}{Include diagonal/self-loop entries? Default \code{TRUE}.}
+\item{diag}{Keep self-transitions as loops. Default \code{TRUE}.}
 
-\item{...}{Additional arguments passed to
-\code{\link[igraph:graph_from_adjacency_matrix]{igraph::graph_from_adjacency_matrix()}}.}
+\item{...}{Further arguments to \code{\link[igraph:graph_from_adjacency_matrix]{igraph::graph_from_adjacency_matrix()}}.}
 }
 \value{
-An \code{igraph} object for an \code{htna}, or a named list of \code{igraph}
-objects inheriting from \code{htna_igraph_group} for an \code{htna_group}.
+An \code{igraph} graph for an htna network. For an \code{htna_group}, a named
+list of \code{igraph} graphs, one per cohort, of class
+\code{c("htna_igraph_group", "list")}.
 }
 \description{
-Converts an \code{htna} network to an \link[igraph:aaa-igraph-package]{igraph::igraph} object while preserving
-its node-to-actor partition. The actor type is stored as the vertex
-attribute \code{actor_type}, and the canonical actor ordering is stored as the
-graph attribute \code{actor_levels}.
+\code{as.igraph()} converts a heterogeneous transition network to an 'igraph'
+graph and keeps its actor partition. Many network measures and algorithms
+are available for 'igraph' graphs; because the partition is kept, a
+measure computed in 'igraph' can still be summarized by actor type, for
+example to compare the centrality of human and AI codes.
+
+\code{as.igraph()} creates a weighted graph from the transition weights, stores
+the actor type of every vertex as the vertex attribute \code{actor_type}, the
+ordered actor types as the graph attribute \code{actor_levels} and the
+estimation method as \code{htna_method}. A grouped network is converted cohort
+by cohort; each graph also records its cohort name in the graph attribute
+\code{cohort}. It returns an \code{igraph} graph, or a list of graphs, one per
+cohort, for a grouped network.
+
+For the edge and node tables of the network without 'igraph', use
+\code{\link[=as.data.frame.htna]{as.data.frame.htna()}}.
 }
-\details{
-Passing an \code{htna_group} converts every cohort and returns a named list. Each
-graph additionally stores its cohort name in the graph attribute \code{cohort}.
+\section{Conditions}{
+
+\code{htna_bad_input} when \code{x} is not an htna network or an argument is
+invalid; \code{htna_unassigned_node} when a node has no actor type.
 }
+
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 graph <- igraph::as.igraph(net)
 igraph::vertex_attr(graph, "actor_type")
 
+}
+\seealso{
+\code{\link[=build_htna]{build_htna()}}, \code{\link[=as.data.frame.htna]{as.data.frame.htna()}}, \code{\link[=centralities_htna]{centralities_htna()}}
 }

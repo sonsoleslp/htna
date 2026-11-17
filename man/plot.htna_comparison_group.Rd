@@ -2,25 +2,36 @@
 % Please edit documentation in R/compare_htna.R
 \name{plot.htna_comparison_group}
 \alias{plot.htna_comparison_group}
-\title{Plot All Comparisons in an HTNA Comparison Group}
+\title{Plot the comparisons of a grouped network}
 \usage{
 \method{plot}{htna_comparison_group}(x, ...)
 }
 \arguments{
 \item{x}{An \code{htna_comparison_group} from \code{\link[=compare_htna]{compare_htna()}}.}
 
-\item{...}{Passed to the \code{net_comparison} plot method, including \code{type}
-(\code{"scatter"}, \code{"heatmap"}, \code{"diff_hist"}, \code{"weight_dist"} or \code{"all"})
-and \code{combined}.}
+\item{...}{Plot settings: \code{type} (\code{"scatter"}, \code{"heatmap"},
+\code{"diff_hist"}, \code{"weight_dist"} or \code{"all"}) and \code{combined}.}
 }
 \value{
-Invisibly, a named list containing the plot for every comparison.
+Invisibly, a named list with the plot of every cohort pair.
 }
 \description{
-Applies Nestimate's \code{net_comparison} plot method to every cohort pair.
+\code{plot()} draws the plots of a descriptive network comparison for every
+cohort pair of a grouped comparison from \code{\link[=compare_htna]{compare_htna()}}: a scatter plot
+of the edge weights of the two networks, a heatmap of the edge
+differences, a histogram of the differences, or the weight distributions.
+It returns, invisibly, a named list with the plot of every cohort pair.
 }
+\section{Conditions}{
+
+An error of class \code{htna_empty_input} when \code{x} is empty.
+}
+
 \examples{
 data(human_ai)
-grouped <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-plot(compare_htna(grouped))
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+plot(compare_htna(grp), type = "scatter")
+}
+\seealso{
+\code{\link[=compare_htna]{compare_htna()}}, \code{\link[=plot_htna_diff]{plot_htna_diff()}} for the difference network.
 }

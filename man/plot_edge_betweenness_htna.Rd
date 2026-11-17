@@ -2,30 +2,40 @@
 % Please edit documentation in R/edge_betweenness.R
 \name{plot_edge_betweenness_htna}
 \alias{plot_edge_betweenness_htna}
-\title{Plot the Edge Betweenness Network}
+\title{Plot the edge betweenness of an htna network}
 \usage{
 plot_edge_betweenness_htna(x, directed = TRUE, invert = TRUE, ...)
 }
 \arguments{
-\item{x}{An htna network from \code{\link[=build_htna]{build_htna()}} or, equivalently, the
-result of \code{\link[=edge_betweenness_htna]{edge_betweenness_htna()}}.}
+\item{x}{An htna network, or a result of \code{\link[=edge_betweenness_htna]{edge_betweenness_htna()}}.}
 
-\item{directed, invert}{Forwarded to \code{\link[=edge_betweenness_htna]{edge_betweenness_htna()}} when
-\code{x} is a plain htna network. Ignored when \code{x} already inherits
-from \code{htna_edge_betweenness}.}
+\item{directed, invert}{Passed to \code{\link[=edge_betweenness_htna]{edge_betweenness_htna()}} when \code{x} is an
+htna network; ignored otherwise. Defaults \code{TRUE}.}
 
-\item{...}{Forwarded to \code{\link[=plot_htna]{plot_htna()}} (e.g. \code{minimum}, \code{layout},
-\code{group_colors}).}
+\item{...}{Further arguments of \code{\link[=plot_htna]{plot_htna()}}, such as \code{minimum},
+\code{layout} or \code{group_colors}.}
 }
 \value{
-The value returned by \code{\link[=plot_htna]{plot_htna()}} (invisibly).
+Called for the plot. Invisibly, the value of \code{\link[=plot_htna]{plot_htna()}}.
 }
 \description{
-Computes \code{\link[=edge_betweenness_htna]{edge_betweenness_htna()}} and renders it with the htna
-actor styling (multi-actor circular layout, \link{htna_palette} node
-colours, actor legend). Edges are scaled by their betweenness
-score, so the most-traveled shortest-path edges stand out.
+\code{plot_edge_betweenness_htna()} plots the edge-betweenness network of an
+htna network: each transition is drawn with a width given by the number
+of shortest paths that pass through it, in the layout and actor styling
+of \code{\link[=plot_htna]{plot_htna()}}. The widest edges are the bridges of the interaction,
+the transitions through which the flow between the codes of the actors
+is channeled.
+
+\code{plot_edge_betweenness_htna()} computes the scores with
+\code{\link[=edge_betweenness_htna]{edge_betweenness_htna()}} (unless \code{x} already holds them) and draws all
+edges with a non-zero score, unless \code{minimum} is given. It is called for
+the plot and returns, invisibly, the value of \code{\link[=plot_htna]{plot_htna()}}.
 }
+\section{Conditions}{
+
+\code{htna_bad_input} when \code{x} is not an htna network.
+}
+
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
@@ -34,5 +44,5 @@ plot_edge_betweenness_htna(net, minimum = 5)
 
 }
 \seealso{
-\code{\link[=edge_betweenness_htna]{edge_betweenness_htna()}}, \code{\link[=plot_htna]{plot_htna()}}.
+\code{\link[=edge_betweenness_htna]{edge_betweenness_htna()}}, \code{\link[=plot_htna]{plot_htna()}}
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/extract_meta_paths.R
 \name{extract_meta_paths}
 \alias{extract_meta_paths}
-\title{Extract Path Patterns from a Heterogeneous Transition Network}
+\title{Count recurring paths and meta-paths in the sessions}
 \usage{
 extract_meta_paths(
   x,
@@ -20,96 +20,93 @@ extract_meta_paths(
 )
 }
 \arguments{
-\item{x}{[\code{htna}]\cr
-A network built with \code{\link[=build_htna]{build_htna()}}. Must have \verb{$nodes$groups},
-\verb{$node_groups}, and \verb{$data} populated.}
+\item{x}{An htna network from \code{\link[=build_htna]{build_htna()}}.}
 
-\item{level}{[\code{character(1)}: \code{"state"}]\cr
-\code{"state"} returns concrete state-level patterns with a \code{meta_schema}
-rollup column. \code{"type"} returns the type-level meta-path summary.}
+\item{level}{\code{"state"} (default) for concrete paths with their
+meta-path, or \code{"type"} for meta-paths only.}
 
-\item{length}{[\code{integer()}: \code{2:4}]\cr
-Pattern lengths to enumerate. Ignored when \code{schema} is supplied.}
+\item{length}{Path lengths to count (default \code{2:4}); ignored when
+\code{schema} is given.}
 
-\item{schema}{[\code{character(1)}]\cr
-Optional. A path template written as elements separated by \code{"->"}. Each
-element can be a type name, a concrete state, or \code{"*"}. See Details.}
+\item{schema}{A template of elements separated by \code{"->"}; each element
+is an actor type, a code or \code{"*"}. \code{NULL} (default) counts all paths.}
 
-\item{type}{[\code{character(1)}: \code{"contiguous"}]\cr
-\code{"contiguous"} (default) considers consecutive positions; \code{"gapped"}
-considers positions spaced by \code{gap + 1} apart.}
+\item{type}{\code{"contiguous"} (default) for adjacent elements, or
+\code{"gapped"} for elements \code{gap + 1} positions apart.}
 
-\item{gap}{[\code{integer()}: \code{1L}]\cr
-Gap size(s) used when \code{type = "gapped"}. Multiple values produce one
-row per (length, gap) combination.}
+\item{gap}{Gap or gaps for \code{type = "gapped"} (default 1); several values
+give one set of rows per length and gap.}
 
-\item{min_count}{[\code{integer(1)}: \code{1L}]\cr
-Minimum total occurrences to retain.}
+\item{min_count}{Minimum number of occurrences (default 1).}
 
-\item{min_support}{[\code{numeric(1)}: \code{0}]\cr
-Minimum proportion of sequences containing the pattern at least once.}
+\item{min_support}{Minimum share of sessions containing the path
+(default 0).}
 
-\item{min_lift}{[\code{numeric(1)}: \code{0}]\cr
-Minimum lift (observed / expected under marginal independence). \code{0}
-disables the filter.}
+\item{min_lift}{Minimum lift (default 0, no filter).}
 
-\item{start, end, contain}{[\code{character()}]\cr
-Filter rows whose first / last element is in \code{start} / \code{end}, or whose
-element sequence contains all of \code{contain}. Compared against the
-alphabet of the chosen level (types or concrete states).}
+\item{start, end, contain}{Keep only paths whose first element is in
+\code{start}, whose last element is in \code{end}, or that contain every element
+of \code{contain} (default \code{NULL}); elements are codes or, with
+\code{level = "type"}, actor types.}
 }
 \value{
-An object of class \code{c("htna_meta_paths", "htna_paths", "data.frame")}. At \code{level = "state"} the columns are \code{schema},
-\code{meta_schema}, \code{length}, \code{gap}, \code{count}, \code{n_sequences}, \code{support},
-\code{frequency}, \code{lift}. At \code{level = "type"} the \code{meta_schema} column is
-omitted (the \code{schema} column already holds the type pattern).
-Attributes: \code{n_sequences}, \code{alphabet}, \code{level}, and (when supplied)
-\code{schema}.
+A data frame of class
+\code{c("htna_meta_paths", "htna_paths", "data.frame")} with one row per
+path and gap, sorted by length, gap and decreasing count, and columns
+\code{schema} (the path), \code{meta_schema} (its meta-path; only with
+\code{level = "state"}), \code{length}, \code{gap}, \code{count}, \code{n_sequences},
+\code{support}, \code{frequency} and \code{lift}. The number of sessions and the
+level are kept as attributes and shown by \code{print()}.
 }
 \description{
-Discovers recurring patterns in the actor-typed sequences that produced a
-heterogeneous transition network. Operates at two levels:
+\code{extract_meta_paths()} counts the recurring paths and meta-paths in the
+sessions of an htna network. In a heterogeneous network every code
+belongs to an actor, so each run of codes in a session has two readings:
+the concrete path (for example \code{Request->Plan->Execute}) and its
+meta-path, the sequence of actor types it passes through
+(\code{Human->AI->AI}). Meta-paths describe the turn-taking between the
+actors, such as how often the human intervenes between two AI actions,
+while the concrete paths say what is done in each turn. Counting both
+shows which interaction patterns recur and whether they occur more often
+than the frequencies of their codes would predict.
+
+\code{extract_meta_paths()} counts every path of the requested lengths in the
+sessions of an htna network. With \code{level = "state"} (default) it returns
+concrete paths, each tagged with its meta-path; with \code{level = "type"} it
+returns the meta-paths, summed over their concrete instances. A
+\code{schema} restricts the search to one template whose elements can be
+actor types (any code of that actor), concrete codes, or \code{"*"} (any
+element), freely mixed: \code{"Human->Ask->*"} is any human code, then the AI
+code \code{Ask}, then anything. With \code{type = "gapped"}, the elements of a path
+are \code{gap + 1} positions apart instead of adjacent.
+
+It returns a data frame with one row per path and gap. For each path the
+table gives its count, the number and share (\code{support}) of sessions that
+contain it, its share among the paths of the same length and gap
+(\code{frequency}), and its \code{lift}: the count divided by the count expected if
+the elements occurred independently with their overall frequencies.
+
+To compare paths between groups of sessions use
+\code{\link[=sequence_compare_htna]{sequence_compare_htna()}}; for unordered co-occurrence use
+\code{\link[=association_rules_htna]{association_rules_htna()}}.
 }
-\details{
-\itemize{
-\item \code{level = "state"} (default) - enumerate concrete state-level patterns
-(e.g. \code{Command->Execute->Command}) and annotate each row with the
-type-level template it instantiates (e.g. \code{Human->AI->Human}).
-\item \code{level = "type"} - enumerate type-level meta-paths only (one row per
-actor-type pattern, summed over its concrete instances).
+\section{Conditions}{
+
+Errors of class \code{htna_bad_input} for an unknown element in \code{schema} or a
+zero gap with \code{type = "gapped"}, and \code{htna_unassigned_node} when \code{x} has
+no actor partition.
 }
 
-At either level, a \code{schema} can filter the search. Schema parts can be
-type names (expand to every concrete code in that group), concrete
-states, or \code{"*"} (any element). Parts can be mixed freely - e.g.
-\code{"Human->Ask->Human"} means "any Human code, then \code{Ask}, then any Human
-code". At \code{level = "type"} concrete codes resolve to their type, so the
-same schema becomes \code{Human->AI->Human}.
-
-Operates on the actor partition stored on the network by \code{\link[=build_htna]{build_htna()}}.
-}
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
-
-# Concrete state-level patterns of length 2..4 (default)
-extract_meta_paths(net)
-
-# Type-level meta-path summary
-extract_meta_paths(net, level = "type")
-
-# Concrete instances of a type-level template
+extract_meta_paths(net, level = "type", length = 3)
 extract_meta_paths(net, schema = "Human->AI->Human")
-
-# Mix types, concrete codes, and wildcards
-extract_meta_paths(net, schema = "Human->Ask->Human")
-extract_meta_paths(net, schema = "Human->*->Human")
-
-# Gapped patterns; lift threshold
+extract_meta_paths(net, schema = "Human->Ask->*", min_lift = 1)
 extract_meta_paths(net, length = 3, type = "gapped", gap = 1:2)
-extract_meta_paths(net, length = 3, min_lift = 1.2)
 
 }
 \seealso{
-\code{\link[=build_htna]{build_htna()}}.
+\code{\link[=print.htna_paths]{print.htna_paths()}}, \code{\link[=sequence_compare_htna]{sequence_compare_htna()}},
+\code{\link[=association_rules_htna]{association_rules_htna()}}.
 }

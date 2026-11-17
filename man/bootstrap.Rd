@@ -2,24 +2,35 @@
 % Please edit documentation in R/bootstrap_htna.R
 \name{bootstrap}
 \alias{bootstrap}
-\title{Bootstrap generic}
+\title{Bootstrap a network}
 \usage{
 bootstrap(x, ...)
 }
 \arguments{
-\item{x}{An object to bootstrap.}
+\item{x}{An object to bootstrap; for htna, a network from \code{\link[=build_htna]{build_htna()}}.}
 
-\item{...}{Arguments forwarded to the method.}
+\item{...}{Passed to the method; see \code{\link[=bootstrap_htna]{bootstrap_htna()}}.}
 }
 \value{
-An object whose structure is method-defined.
+The method's result; for an htna network an \code{htna_bootstrap}
+(see \code{\link[=bootstrap_htna]{bootstrap_htna()}}).
 }
 \description{
-S3 generic dispatched on the class of \code{x}. Provided so \code{bootstrap(net)}
-works directly on an htna network (see \code{\link[=bootstrap_htna]{bootstrap_htna()}}).
+\code{bootstrap()} bootstraps a fitted network: it is a generic for
+resampling-based uncertainty of a fitted network. Its htna method runs
+\code{\link[=bootstrap_htna]{bootstrap_htna()}}: the sessions are resampled, the network is
+re-estimated on each resample, and the distribution of every edge weight
+is summarized. For an htna network it returns an \code{htna_bootstrap}.
+
+The generic has the same name as the \code{tna} generic; when both packages
+are attached, the one attached last is found first. \code{\link[=bootstrap_htna]{bootstrap_htna()}}
+is unambiguous.
 }
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 bootstrap(net, iter = 50, seed = 1)
+}
+\seealso{
+\code{\link[=bootstrap_htna]{bootstrap_htna()}}.
 }

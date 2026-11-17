@@ -2,54 +2,70 @@
 % Please edit documentation in R/compare_htna.R
 \name{compare_htna}
 \alias{compare_htna}
-\title{Compare Heterogeneous Transition Networks}
+\title{Describe the differences between heterogeneous transition networks}
 \usage{
 compare_htna(x, y = NULL, ...)
 }
 \arguments{
-\item{x}{An \code{htna} network or an \code{htna_group}.}
+\item{x}{An htna network, or an \code{htna_group}.}
 
-\item{y}{A second \code{htna} network. Must be \code{NULL} when \code{x} is an
-\code{htna_group}, in which case all cohort pairs are compared.}
+\item{y}{A second htna network; \code{NULL} (default) when \code{x} is an
+\code{htna_group}, in which case every pair of cohorts is compared.}
 
-\item{...}{Additional arguments passed to \code{\link[Nestimate:compare_model]{Nestimate::compare_model()}},
-including \code{scaling}, \code{measures}, and \code{network}.}
+\item{...}{Settings of the comparison: \code{scaling}, \code{measures} and
+\code{network}.}
 }
 \value{
-For two networks, an object inheriting from \code{htna_comparison} and
-\code{net_comparison}. In addition to the Nestimate comparison fields it
-contains:
-\itemize{
-\item \code{node_groups} and \code{actor_levels}: the aligned actor partition;
-\item \code{edge_metrics$source_actor} and \code{edge_metrics$target_actor};
-\item \code{actor_pair_metrics}: difference summaries for every directed
-actor-type block;
-\item \code{models}: the two original, unmodified HTNA networks.
-}
-
-For an \code{htna_group}, a named \code{htna_comparison_group} containing every
-pairwise comparison is returned.
+For two networks, an object of class
+\code{c("htna_comparison", "net_comparison")}. For an \code{htna_group}, a named
+list of class \code{c("htna_comparison_group", "list")} with one comparison
+per cohort pair (for example \code{"Early vs Late"}). \code{summary()} returns
+the actor-pair table, one row per directed actor pair;
+\code{as.data.frame(x, what = )} returns the actor-pair, edge, metric or
+network table (see \link{htna_comparison-methods}).
 }
 \description{
-Computes the descriptive network comparison implemented by
-\code{\link[Nestimate:compare_model]{Nestimate::compare_model()}} while retaining the HTNA actor partition.
-Comparing two individual networks returns one \code{htna_comparison}. Passing an
-\code{htna_group} as \code{x} with \code{y = NULL} compares every cohort pair and returns an
-\code{htna_comparison_group}; callers do not need to select or subset cohorts.
+\code{compare_htna()} describes the differences between two heterogeneous
+transition networks, or between every pair of cohorts of a grouped
+network: overall, in how similar their weight matrices are, and in where
+the differences lie in the actor structure, within an actor (for example,
+how humans move between their own codes) or between actors (how the
+human hands over to the AI and back). It reports correlation, distance
+and similarity measures of the two weight matrices, the network-level
+metrics of each network, the difference of every edge, and a summary of
+the differences in each directed actor-pair block.
+
+Networks that contain different subsets of the codes are aligned on the
+union of their codes, in actor order, with the missing codes treated as
+having no transitions; a code shared by both networks must belong to the
+same actor in both. Differences are \code{x - y}. \code{compare_htna()} runs
+Nestimate's \code{compare_model()} on the aligned networks and adds the
+actor-pair summary. It returns an \code{htna_comparison} object (an
+\code{htna_comparison_group} for a grouped network).
+
+The comparison is descriptive and gives no test. Use
+\code{\link[=permutation_htna]{permutation_htna()}} for a permutation test of the differences and
+\code{\link[=bayes_compare_htna]{bayes_compare_htna()}} for credible intervals; \code{\link[=plot_htna_diff]{plot_htna_diff()}} draws
+the difference network. The tables of the result are returned by
+\code{summary()} and \code{as.data.frame()} (see \link{htna_comparison-methods}).
 }
-\details{
-Networks may contain different subsets of the declared nodes. Their weight
-matrices are aligned to the union of nodes, in canonical actor order, and
-missing nodes are represented by zero rows and columns. Shared nodes must
-have the same actor assignment in both networks.
+\section{Conditions}{
+
+Errors of class \code{htna_bad_input} when \code{x} and \code{y} are not htna networks,
+when \code{y} is given with an \code{htna_group}, or when the networks use different
+actor types; \code{htna_empty_input} when a group has fewer than two cohorts;
+\code{htna_actor_conflict} when a shared code belongs to different actors.
 }
+
 \examples{
 data(human_ai)
-grouped <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-comparisons <- compare_htna(grouped)
-names(comparisons)
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+comparison <- compare_htna(grp)
+comparison
+summary(comparison)
 
 }
 \seealso{
-\code{\link[Nestimate:compare_model]{Nestimate::compare_model()}}, \code{\link[=plot_htna_diff]{plot_htna_diff()}}
+\link{htna_comparison-methods}, \code{\link[=permutation_htna]{permutation_htna()}},
+\code{\link[=bayes_compare_htna]{bayes_compare_htna()}}, \code{\link[=plot_htna_diff]{plot_htna_diff()}}.
 }

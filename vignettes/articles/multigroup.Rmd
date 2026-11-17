@@ -1,38 +1,63 @@
 ---
-title: "Multi-Group HTNA (3+ Actor Groups)"
-output: rmarkdown::html_vignette
+title: "Three or more actor groups"
+author: "Written by [Mohammed Saqr](https://saqr.me) and [Sonsoles López-Pernas](https://sonsoles.me)"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
 vignette: >
-  %\VignetteIndexEntry{Multi-Group HTNA (3+ Actor Groups)}
+  %\VignetteIndexEntry{Three or more actor groups}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  message = FALSE,
-  warning = FALSE,
-  fig.width = 10,
-  fig.height = 7,
-  dpi = 90
-)
+```{r options, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", message = FALSE,
+                      fig.width = 7, fig.height = 5.5, fig.align = "center",
+                      dpi = 96)
+old_options <- options(digits = 3, width = 90)
 ```
 
-HTNA is not limited to two actor groups. This vignette demonstrates how to
-build and visualise a heterogeneous transition network with three groups.
+Many learning settings involve more than two kinds of actor. A student
+working with an AI assistant inside a programming environment interacts with
+the assistant and with the environment itself, whose compiler messages,
+notifications and logs are events of a third kind. A classroom dialogue can
+involve a teacher, students and a conversational agent. Heterogeneous
+transition network analysis does not depend on there being two actors: the
+actor partition can have any number of groups, and the weight matrix is then
+partitioned into one block for every ordered pair of actors. With three
+actors there are three within-actor blocks and six between-actor blocks, so
+the question of who hands over to whom has six answers instead of two.
 
-## Simulating a three-actor interaction
+This guide builds a three-actor network, reads its actor-pair structure,
+draws it in the layouts available for several groups, counts the
+three-actor meta-paths, and compares two networks. Every function used for
+two actors works unchanged.
 
-We simulate a collaborative coding session with three actors -- a Student, an
-AI assistant, and a System (e.g. IDE or automated tooling) -- each with four
-distinct codes:
-
-```{r}
+```{r package}
 library(htna)
+```
 
+## Data
+
+The package has no bundled data with three actor types, so the guide uses a
+small simulated study of 30 sessions in which a Student, an AI assistant and
+a System (the programming environment) act in turn. Each actor has four
+codes.
+
+- **Student**: `Ask`, `Confirm`, `Revise`, `Evaluate`.
+- **AI**: `Suggest`, `Explain`, `Execute`, `Clarify`.
+- **System**: `Log`, `Notify`, `Compile`, `Sync`.
+- **Session and order**: `session_id` and `order_in_session`. In each
+  session the three actors act in the fixed cycle Student, AI, System for as
+  long as each has events (15 to 25 per actor and session), and the codes
+  within an actor are drawn at random.
+
+The turn order is therefore built into the data, and the codes carry no
+structure. The analyses below should recover the cycle and nothing else.
+
+```{r simulate}
 set.seed(42)
-
 student_codes <- c("Ask", "Confirm", "Revise", "Evaluate")
 ai_codes      <- c("Suggest", "Explain", "Execute", "Clarify")
 system_codes  <- c("Log", "Notify", "Compile", "Sync")
@@ -41,12 +66,8 @@ sessions      <- sprintf("S%03d", seq_len(30))
 make_events <- function(codes, sessions, offset) {
   rows <- lapply(sessions, function(sid) {
     n <- sample(15:25, 1)
-    data.frame(
-      session_id       = sid,
-      code             = sample(codes, n, replace = TRUE),
-      order_in_session = seq_len(n) * 3L - offset,
-      stringsAsFactors = FALSE
-    )
+    data.frame(session_id = sid, code = sample(codes, n, replace = TRUE),
+               order_in_session = seq_len(n) * 3L - offset)
   })
   do.call(rbind, rows)
 }
@@ -56,113 +77,123 @@ ai_data      <- make_events(ai_codes, sessions, 1L)
 system_data  <- make_events(system_codes, sessions, 0L)
 ```
 
-## Building a 3-group network
+## Building a network with three actors
 
-Pass all three groups as a named list:
+The three tables are passed as a named list; the names become the actor
+types, in the order given. A single table with an actor column or a
+codebook works in the same way (see [Input formats](input-formats.html)).
 
-```{r}
-net3 <- build_htna(
-  list(Student = student_data, AI = ai_data, System = system_data)
-)
-net3
-```
-
-The actor partition now contains three levels, each with its four
-codes; `summary()` lists them and counts the non-zero edges within and
-between every pair of actors:
-
-```{r}
+```{r build}
+net3 <- build_htna(list(Student = student_data, AI = ai_data,
+                        System = system_data))
 summary(net3)
 ```
 
-## Plotting
+The network has 12 nodes, four per actor, and 116 of its 144 possible edges
+are non-zero. The edge counts by actor form a three-by-three table. As a
+tidy table, one row per directed actor pair:
 
-With the default circular layout, each of the three groups occupies its
-own arc of the circle. The first three colours of the default HTNA palette
-are applied in order:
+```{r actor-pairs}
+as.data.frame(summary(net3), what = "actor_pairs")
+```
 
-```{r}
+The block structure reflects the turn cycle: the Student-to-Student block
+has only 3 non-zero edges, because a student event is followed by another
+student event only where the other actors have run out of events, while the
+blocks of the cycle (Student to AI, AI to System, System to Student) have 16
+each, all possible edges. The other blocks are filled at the ends of
+sessions, where the remaining actors continue among themselves.
+
+## Drawing three actor groups
+
+With the default circular layout each actor occupies one arc of the circle,
+coloured and shaped by actor.
+
+```{r plot-circle}
 plot_htna(net3)
 ```
 
-`layout = "polygon"` (alias `"triangle"` for three groups) places each
-group along one side of a regular polygon (one side per group) instead:
+`layout = "polygon"` places each actor along one side of a regular polygon,
+a triangle for three actors, which separates the groups more clearly.
 
-```{r}
+```{r plot-polygon}
 plot_htna(net3, layout = "polygon")
 ```
 
-## Per-actor sequences
+## Which three-actor templates recur?
 
-`sequence_plot_htna()` works the same way with three actors. With
-`by = "state"` each row is one (session, actor) and is coloured by
-the concrete code; with `by = "group"` cells are coloured by actor
-(here Student / AI / System):
+`extract_meta_paths()` at the type level counts runs of actor types. With
+three actors there are 27 possible templates of length three.
 
-```{r, fig.height = 7}
-sequence_plot_htna(net3, by = "state", type = "index")
+```{r meta-type}
+print(extract_meta_paths(net3, level = "type", length = 3), n = 6)
 ```
 
-```{r}
-sequence_plot_htna(net3, by = "group", type = "distribution")
+The three rotations of the cycle (`Student->AI->System`,
+`AI->System->Student`, `System->Student->AI`) occur in all 30 sessions and
+account for 0.295, 0.288 and 0.282 of the runs, about eight times as often
+as expected from the actors' overall shares (lift 7.62 to 7.98). The next
+most frequent template, `AI->System->AI`, occurs 41 times in 10 sessions,
+less often than expected (lift 0.62). The
+meta-paths recover the built-in turn order exactly. A schema returns the
+concrete instances of one template:
+
+```{r meta-schema}
+print(extract_meta_paths(net3, schema = "Student->AI->System"), n = 6)
 ```
 
-The `by = "state"` legend is split into one block per actor with the
-actor name as a sub-title, so the reader can tell at a glance which
-codes belong to which actor.
+All 64 combinations of four codes per actor occur, and because the codes
+within each actor were drawn at random they have similar counts (the most
+frequent, `Confirm->Clarify->Compile`, occurs 15 times); no particular
+student move leads to a particular AI move. Their high lifts come from the
+turn cycle, not from the codes.
 
-## Comparing two networks
+## Do two samples from the same process differ?
 
-Build a second network from the same actors (e.g. with different
-session-level dynamics) and use `plot_htna_diff()` for the elementwise
-difference. Positive differences are green, negative red:
+A second set of 30 sessions is simulated from the same process. A
+permutation test of the two networks should find no difference.
 
-```{r}
+```{r second-sample}
 set.seed(7)
-student_data2 <- make_events(student_codes, sessions, 2L)
-ai_data2      <- make_events(ai_codes,      sessions, 1L)
-system_data2  <- make_events(system_codes,  sessions, 0L)
-
-net3b <- build_htna(
-  list(Student = student_data2, AI = ai_data2, System = system_data2)
-)
-
-plot_htna_diff(net3, net3b)
+net3b <- build_htna(list(
+  Student = make_events(student_codes, sessions, 2L),
+  AI      = make_events(ai_codes, sessions, 1L),
+  System  = make_events(system_codes, sessions, 0L)
+))
+perm3 <- permutation_htna(net3, net3b, iter = 200, seed = 1)
+perm3
 ```
 
-`permutation_htna()` provides the non-parametric significance test; pass the
-result to `plot_htna_diff()` to surface only the edges that differ
-significantly:
+The global test finds no difference (M = 2.693, p = 0.587; S = 0.103,
+p = 0.846), and 2 of the 136 tested edges fall below 0.05, fewer than the
+seven expected by chance at that level. The test behaves as it should when
+the two networks come from one process. The difference network draws the
+two nominally significant edges:
 
-```{r}
-perm3 <- permutation_htna(net3, net3b, iter = 200)
+```{r diff-plot}
 plot_htna_diff(perm3)
 ```
 
-```{r}
+With `show_nonsig = TRUE`, the non-significant differences are added as
+dashed edges.
+
+```{r diff-plot-all}
 plot_htna_diff(perm3, show_nonsig = TRUE)
 ```
 
-## Meta-paths across three actors
+## What changes with more actors
 
-Patterns now span all three actor types. The default is state-level, with
-a `meta_schema` rollup column tagging each row with its type-level
-template:
+| Step | Two actors | Three or more actors |
+|---|---|---|
+| Actor-pair blocks | 4 | the number of actors squared (9 for three) |
+| Layout | circular, two arcs | circular arcs, or `layout = "polygon"` |
+| Meta-paths of length three | 8 templates | the number of actors cubed (27 for three) |
+| Comparison and assessment | `compare_htna()`, `permutation_htna()`, `bootstrap_htna()` | unchanged |
 
-```{r}
-extract_meta_paths(net3, length = 3)
-```
+The number of blocks and templates grows quickly with the number of actors,
+so more sessions are needed to estimate every block; the actor-pair table of
+`summary()` shows which blocks rest on few edges.
 
-Pass `level = "type"` to collapse the rows into the type-level meta-path
-summary:
-
-```{r}
-extract_meta_paths(net3, level = "type", length = 3)
-```
-
-A schema filters the search. For example, the concrete state-level
-instances of paths where the System mediates between Student and AI:
-
-```{r}
-extract_meta_paths(net3, schema = "Student->System->AI")
+```{r restore-options, include = FALSE}
+options(old_options)
 ```

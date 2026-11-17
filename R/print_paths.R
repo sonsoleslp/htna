@@ -1,19 +1,26 @@
-#' Print Method for htna Path/Pattern Objects
+#' Print a table of paths or meta-paths
 #'
-#' Shared print method for objects returned by [extract_meta_paths()]
-#' (class `htna_meta_paths`). Dispatches on the `htna_paths` parent class.
-#' @keywords internal
+#' @description
+#' `print()` prints the result of [extract_meta_paths()]: a header with the
+#' level (concrete paths or meta-paths), the template if one was given, the
+#' number of sessions, the lengths and gaps counted, and then the first `n`
+#' rows with support, frequency and lift rounded for reading. It returns `x`
+#' invisibly. The result is itself a data frame, so all rows and full
+#' precision are available with [utils::head()], [subset()] or
+#' `as.data.frame()`.
 #'
-#' @param x An `htna_paths` object.
-#' @param n Maximum number of rows to print. Default `10`.
+#' @param x A result of [extract_meta_paths()].
+#' @param n Number of rows to print (default 10).
 #' @param ... Unused.
 #'
-#' @return The input object, invisibly.
+#' @return `x`, invisibly.
+#'
+#' @seealso [extract_meta_paths()].
 #' @examples
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
-#' p <- extract_meta_paths(net, length = 3)
-#' print(p, n = 5)
+#' paths <- extract_meta_paths(net, length = 3)
+#' print(paths, n = 5)
 #' @export
 print.htna_paths <- function(x, n = 10L, ...) {
   level  <- attr(x, "level") %||% "paths"

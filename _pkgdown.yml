@@ -3,114 +3,138 @@ url: https://sonsoles.me/htna/
 template:
   bootstrap: 5
   bootswatch: flatly
+
+authors:
+  Sonsoles López-Pernas:
+    href: https://sonsoles.me
+  Mohammed Saqr:
+    href: https://saqr.me
+
 navbar:
   structure:
-    left: [intro, reference, articles]
+    left: [intro, reference, articles, news]
     right: [search, github]
 
 reference:
-  - title: Build
-    desc: Construct, inspect, and convert a heterogeneous transition network
-    contents:
-      - build_htna
-      - summary.htna
-      - as.igraph.htna
+- title: Overview
+  contents:
+  - htna-package
 
-  - title: Pruning
-    desc: Remove weak edges, restore them, and report what was removed
-    contents:
-      - prune_htna
-      - deprune_htna
-      - reprune_htna
-      - pruning_details_htna
+- title: Building networks
+  desc: Estimate a heterogeneous transition network, one per cohort, or one
+    per cluster, and read it as tables.
+  contents:
+  - build_htna
+  - summary.htna
+  - as.data.frame.htna
+  - as.igraph.htna
 
-  - title: Frequencies and distributions
-    desc: Marginal state-level summaries and chi-square mosaics
-    contents:
-      - frequencies_htna
-      - plot_frequencies_htna
-      - state_frequencies_htna
-      - state_distribution_htna
-      - mosaic_plot_htna
+- title: Network plots
+  desc: Draw a network with each actor's codes on its own arc, and the
+    difference between two networks.
+  contents:
+  - plot_htna
+  - plot_htna_diff
+  - htna_palette
 
-  - title: Sequences
-    desc: Per-session trajectories and k-gram pattern comparison
-    contents:
-      - sequence_plot_htna
-      - plot_sequences
-      - sequence_compare_htna
+- title: Pruning
+  desc: Set weak edges aside, restore them, and list what was removed.
+  contents:
+  - prune_htna
+  - deprune_htna
+  - reprune_htna
+  - pruning_details_htna
 
-  - title: Network plots
-    desc: Visualise an htna network and contrasts between networks
-    contents:
-      - plot_htna
-      - plot_htna_bootstrap
-      - plot_htna_diff
-      - htna_palette
+- title: Frequencies and distributions
+  desc: How often each code occurs, within each actor and overall, and the
+    associations between codes and sessions.
+  contents:
+  - frequencies_htna
+  - plot_frequencies_htna
+  - state_frequencies_htna
+  - state_distribution_htna
+  - mosaic_plot_htna
 
-  - title: Centrality
-    desc: Compute and visualise node-level centralities
-    contents:
-      - centralities_htna
-      - plot_centralities
+- title: Sequences
+  desc: The sessions as sequences of codes, and the comparison of short
+    patterns between groups of sessions.
+  contents:
+  - sequence_plot_htna
+  - plot_sequences
+  - sequence_compare_htna
 
-  - title: Edge betweenness
-    desc: Replace edge weights with shortest-path betweenness scores
-    contents:
-      - edge_betweenness_htna
-      - plot_edge_betweenness_htna
+- title: Paths and patterns
+  desc: Recurring paths, meta-paths of turn-taking, and association rules.
+  contents:
+  - extract_meta_paths
+  - print.htna_paths
+  - association_rules_htna
 
-  - title: Paths and patterns
-    desc: Discover meta-paths, state-level patterns, and association rules
-    contents:
-      - extract_meta_paths
-      - print.htna_paths
-      - association_rules_htna
+- title: Centrality
+  desc: The position of each code in the network and of each edge on
+    shortest paths.
+  contents:
+  - centralities_htna
+  - plot_centralities
+  - edge_betweenness_htna
+  - plot_edge_betweenness_htna
 
-  - title: Comparing networks
-    desc: Descriptive, permutation, and Bayesian comparison of htna networks
-    contents:
-      - compare_htna
-      - plot.htna_comparison_group
-      - permutation_htna
-      - bayes_compare_htna
+- title: Comparing networks
+  desc: Descriptive, permutation and Bayesian comparison of two networks or
+    of the cohorts of a grouped network.
+  contents:
+  - compare_htna
+  - htna_comparison-methods
+  - plot.htna_comparison_group
+  - permutation_htna
+  - bayes_compare_htna
 
-  - title: Model assessment
-    desc: Bootstrap, certainty, reliability, stability, and Markov-order adequacy
-    contents:
-      - bootstrap_htna
-      - bootstrap
-      - certainty_htna
-      - reliability_htna
-      - casedrop_reliability_htna
-      - centrality_stability_htna
-      - plot.htna_stability
-      - plot.htna_stability_group
-      - print.htna_stability
-      - print.htna_stability_group
-      - markov_order_test_htna
+- title: Model assessment
+  desc: Certainty of the edges, reliability and stability of the estimates,
+    and the adequacy of a first-order model.
+  contents:
+  - bootstrap_htna
+  - bootstrap
+  - print.htna_bootstrap_group
+  - plot_htna_bootstrap
+  - certainty_htna
+  - reliability_htna
+  - casedrop_reliability_htna
+  - centrality_stability_htna
+  - print.htna_stability
+  - plot.htna_stability
+  - as.data.frame.htna_stability
+  - markov_order_test_htna
 
-  - title: Datasets
-    desc: Sample datasets
-    contents:
-    - human_ai
-    - human_simplified
-    - ai_simplified
-    - human_ai_codebook
+- title: Data
+  desc: Coded sessions of programmers working with an AI coding agent.
+  contents:
+  - human_ai
+  - human_simplified
+  - ai_simplified
+  - human_ai_codebook
+
 articles:
-  - title: Getting started
-    contents:
-      - htna
-      - input-formats
-      - articles/grouped
-  - title: Analysis
-    contents:
-      - articles/frequencies-and-mosaic
-      - articles/sequence-plots
-      - articles/sequence-comparison
-  - title: Advanced
-    contents:
-      - articles/multigroup
-      - articles/clustering
-      - articles/markov-order
-      - articles/model-assessment
+- title: Vignettes
+  navbar: Vignettes
+  contents:
+  - htna
+  - grouped
+
+- title: Guides
+  navbar: Guides
+  contents:
+  - articles/input-formats
+  - articles/comparing-networks
+  - articles/model-assessment
+  - articles/markov-order
+  - articles/sequences-and-patterns
+  - articles/frequencies-and-mosaic
+  - articles/clustering
+  - articles/multigroup
+
+- title: Case studies
+  navbar: Case studies
+  contents:
+  - articles/case-early-late
+  - articles/case-vibe-coding

@@ -3,66 +3,74 @@
 \name{bootstrap_htna}
 \alias{bootstrap_htna}
 \alias{bootstrap.htna}
-\title{Bootstrap an HTNA Network}
+\title{Bootstrap the edges of a heterogeneous transition network}
 \usage{
 bootstrap_htna(x, ...)
 
 \method{bootstrap}{htna}(x, ...)
 }
 \arguments{
-\item{x}{[\code{htna}]\cr A network built with \code{\link[=build_htna]{build_htna()}}, or an
-\code{htna_group} (from \code{build_htna(..., group = ...)}), in which case every
-cohort is bootstrapped.}
+\item{x}{An htna network from \code{\link[=build_htna]{build_htna()}}, or an \code{htna_group}, in
+which case every cohort is bootstrapped.}
 
-\item{...}{Arguments forwarded to \code{\link[Nestimate:bootstrap_network]{Nestimate::bootstrap_network()}} (e.g.
-\code{iter}, \code{ci_level}, \code{consistency_range}, \code{seed}).}
+\item{...}{Settings: \code{iter} (resamples, default 1000), \code{ci_level}
+(0.05), \code{inference} (\code{"stability"} or \code{"threshold"}),
+\code{consistency_range} (\code{c(0.75, 1.25)}), \code{edge_threshold}, \code{seed},
+\code{boundary}, \code{ci_method} and \code{actor} (resample whole actors instead of
+sessions).}
 }
 \value{
-For a single network, an object of class
-\code{c("htna_bootstrap", "net_bootstrap")}. All slots produced by
-\code{\link[Nestimate:bootstrap_network]{Nestimate::bootstrap_network()}} are preserved verbatim (\code{summary},
-\code{mean}, \code{sd}, \code{p_values}, \code{significant}, \code{ci_lower}/\code{ci_upper},
-\code{cr_lower}/\code{cr_upper}, \code{model}, \code{original}, etc.). \code{summary()} returns
-the tidy edge table: one row per edge, with columns \code{from}, \code{to},
-\code{weight}, \code{mean}, \code{sd}, \code{p_value}, \code{sig}, \code{ci_lower}, \code{ci_upper},
-\code{cr_lower}, \code{cr_upper}. Plot it with \code{\link[=plot_htna_bootstrap]{plot_htna_bootstrap()}}.
-
-For an \code{htna_group}, a named list of such objects, one per cohort, with
-class \code{c("htna_bootstrap_group", "list")}.
+For a network, an object of class
+\code{c("htna_bootstrap", "net_bootstrap")} with \code{print()}, \code{summary()} and
+\code{plot()} methods. \code{summary()} returns a data frame with one row per
+edge and columns \code{from}, \code{to}, \code{weight}, \code{mean}, \code{sd}, \code{p_value},
+\code{sig}, \code{ci_lower}, \code{ci_upper}, \code{cr_lower} and \code{cr_upper}. For an
+\code{htna_group}, a named list of such objects with class
+\code{c("htna_bootstrap_group", "list")}.
 }
 \description{
-Thin wrapper around \code{\link[Nestimate:bootstrap_network]{Nestimate::bootstrap_network()}} that runs the standard
-state-level edge bootstrap on an htna network and tags the result so it is
-identifiable as an htna bootstrap. The bootstrap inference itself is
-Nestimate's: per-edge mean, sd, p-value, significance, and confidence /
-credibility intervals across \code{iter} resamples. State-level granularity is
-the correct level for edge-stability analysis - aggregating up to actor
-pairs would smear over real edge-by-edge differences.
+\code{bootstrap_htna()} bootstraps the edges of a heterogeneous transition
+network, or of every cohort of a grouped network, to show which
+transitions would reappear in another sample of sessions. The
+non-parametric bootstrap resamples the sessions with replacement,
+re-estimates the network on each resample, and summarizes the
+distribution of every edge weight: its mean, standard deviation,
+percentile confidence interval, and a p-value. An edge weight estimated
+from a sample of sessions is uncertain, and a plot of the network alone
+does not show that uncertainty.
+
+Under the default \code{inference = "stability"}, the p-value is the share of
+resamples (plus one, over the number of resamples plus one) whose weight
+falls outside a consistency range around the observed weight (by default
+75 to 125 percent of it); an edge with a p-value below \code{ci_level} is
+reproduced by the resamples and is marked significant. The bootstrap
+works at the level of individual codes and runs Nestimate's
+\code{bootstrap_network()} with the actor partition kept, so
+\code{\link[=plot_htna_bootstrap]{plot_htna_bootstrap()}} draws the result with the actor layout and
+colours. \code{bootstrap()} is the generic, with a method for htna networks.
+It returns an \code{htna_bootstrap} object, or one per cohort for a grouped
+network.
+
+For a closed-form estimate of the same quantities use
+\code{\link[=certainty_htna]{certainty_htna()}}; to remove unstable edges use \code{\link[=prune_htna]{prune_htna()}} with
+\code{method = "bootstrap"}; for the stability of centralities use
+\code{\link[=centrality_stability_htna]{centrality_stability_htna()}}.
 }
-\details{
-What this wrapper adds is identity and downstream class continuity:
-\itemize{
-\item The returned object has class \code{"htna_bootstrap"} ahead of
-\code{"net_bootstrap"}, so \code{inherits(boot, "htna_bootstrap")} works.
-\item The actor partition (\verb{$nodes$groups}, \verb{$node_groups}) is restored on
-\code{boot$model} from the input network so cograph's auto-detect still
-recognizes the heterogeneous schema downstream.
-\item \code{boot$model} is re-tagged with \code{"htna"} at the front of its class chain
-so the chain is \code{c("htna", "netobject", "cograph_network")} - identical
-to what \code{\link[=build_htna]{build_htna()}} returns.
+\section{Conditions}{
+
+An error of class \code{htna_bad_input} is raised when \code{x} is neither an htna
+network nor a list of them.
 }
-}
+
 \examples{
 data(human_ai)
 net  <- build_htna(human_ai, actor_type = "actor_type")
 boot <- bootstrap_htna(net, iter = 50, seed = 1)
 boot
-summary(boot)                               # state-level edge stability
-
-# A real analysis would use the default `iter = 1000`.
+head(summary(boot))
 
 }
 \seealso{
-\code{\link[Nestimate:bootstrap_network]{Nestimate::bootstrap_network()}} for the underlying algorithm
-and slot documentation. \code{\link[=build_htna]{build_htna()}} for constructing the input.
+\code{\link[=plot_htna_bootstrap]{plot_htna_bootstrap()}}, \code{\link[=certainty_htna]{certainty_htna()}}, \code{\link[=prune_htna]{prune_htna()}},
+\code{\link[=reliability_htna]{reliability_htna()}}.
 }

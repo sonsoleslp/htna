@@ -2,24 +2,33 @@
 % Please edit documentation in R/sequence_plot_htna.R
 \name{plot_sequences}
 \alias{plot_sequences}
-\title{Sequence plot generic}
+\title{Plot sequences}
 \usage{
 plot_sequences(x, ...)
 }
 \arguments{
-\item{x}{An object to plot.}
+\item{x}{An object to plot; for an htna network, see
+\code{\link[=sequence_plot_htna]{sequence_plot_htna()}}.}
 
-\item{...}{Forwarded to the method.}
+\item{...}{Arguments for the method.}
 }
 \value{
-Method-defined.
+Called for the plot; the value is defined by the method (for an
+htna network, see \code{\link[=sequence_plot_htna]{sequence_plot_htna()}}).
 }
 \description{
-S3 generic dispatched on \code{x}. Calling \code{plot_sequences(net)} on an htna
-network forwards to \code{\link[=sequence_plot_htna]{sequence_plot_htna()}}.
+\code{plot_sequences()} plots the sequences behind a model; it is a generic.
+For an htna network it draws the sessions with \code{\link[=sequence_plot_htna]{sequence_plot_htna()}},
+so \code{plot_sequences(net)} gives the same plot as \code{sequence_plot_htna(net)}.
+The 'tna' package exports a generic of the same name; whichever package
+is attached last provides \code{plot_sequences()}.
 }
 \examples{
 data(human_ai)
-net <- build_htna(human_ai, actor_type = "actor_type")
+net <- build_htna(subset(human_ai, project == "Project_9"),
+                  actor_type = "actor_type")
 plot_sequences(net)
+}
+\seealso{
+\code{\link[=sequence_plot_htna]{sequence_plot_htna()}}
 }

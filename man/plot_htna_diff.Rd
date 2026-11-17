@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_htna_diff.R
 \name{plot_htna_diff}
 \alias{plot_htna_diff}
-\title{Plot the Difference Between Two htna Networks}
+\title{Plot the difference between two htna networks}
 \usage{
 plot_htna_diff(
   x,
@@ -14,66 +14,71 @@ plot_htna_diff(
 )
 }
 \arguments{
-\item{x}{One of: an htna network, a \code{net_permutation} result, or a
-\code{net_permutation_group}.}
+\item{x}{An htna network, or a result of \code{\link[=permutation_htna]{permutation_htna()}} or
+\code{\link[=bayes_compare_htna]{bayes_compare_htna()}} (for two networks or for a grouped network).}
 
-\item{y}{htna network (only used when \code{x} is also an htna network).}
+\item{y}{A second htna network, when \code{x} is an htna network. Default
+\code{NULL}.}
 
-\item{pos_color}{Edge colour for positive differences. Default
-\code{"#009900"}.}
+\item{pos_color}{Colour of positive differences. Default \code{"#009900"}.}
 
-\item{neg_color}{Edge colour for negative differences. Default
-\code{"#C62828"}.}
+\item{neg_color}{Colour of negative differences. Default \code{"#C62828"}.}
 
-\item{group_colors}{Character vector of colours, one per actor group.
-Defaults to the built-in \link{htna_palette}.}
+\item{group_colors}{Colours of the actor types, in actor order. Default
+\link{htna_palette}.}
 
-\item{...}{Forwarded to the underlying splot dispatcher
-(\code{\link[cograph:splot]{cograph::splot()}} or \code{\link[cograph:splot]{cograph::splot.net_permutation()}}).}
+\item{...}{Further drawing arguments of \code{\link[cograph:splot]{cograph::splot()}}, such as
+\code{title}, \code{minimum} or, for a test result, \code{show_nonsig}.}
 }
 \value{
-The value of the underlying splot call (invisibly).
+Called for the plot. Invisibly, the value of the drawing call, or
+\code{x} for a grouped test result.
 }
 \description{
-Renders the elementwise edge-weight difference \code{x - y} as a heterogeneous
-transition network. Accepts:
+\code{plot_htna_diff()} plots the difference between two htna networks: for
+every transition, how much more (or less) likely it is in one network
+than in another, for example in the late sessions compared with the
+early ones. Drawn in the layout of the two heterogeneous networks, the
+difference network shows whether the change lies within an actor type or
+in the hand-overs between actors. When the difference comes from a
+permutation test or a Bayesian comparison, only the differences that the
+test supports are emphasized.
+
+\code{plot_htna_diff()} accepts two htna networks and draws \code{x - y}, with
+positive differences in \code{pos_color} and negative differences in
+\code{neg_color}; networks whose node sets differ are aligned on the union of
+their nodes. It also accepts the result of \code{\link[=permutation_htna]{permutation_htna()}} or
+\code{\link[=bayes_compare_htna]{bayes_compare_htna()}} for two networks, which adds the significance
+overlay (significant edges solid, the others dashed or hidden with
+\code{show_nonsig}), and the grouped results of either test, drawn as one plot
+per cohort pair titled with the pair name. It is called for the plot and
+returns, invisibly, the value of the drawing call, or \code{x} for a grouped
+test result.
+
+For a table of the differences by actor pair use \code{\link[=compare_htna]{compare_htna()}}.
 }
-\details{
-\itemize{
-\item Two htna networks (\code{x}, \code{y}): plots \code{x - y} via \code{\link[cograph:splot]{cograph::splot()}} with
-positive/negative edge coloring.
-\item A \code{net_permutation} result: routes through
-\code{\link[cograph:splot]{cograph::splot.net_permutation()}} so the significance overlay
-(significant pos/neg edges, dashed non-significant edges, stars) is
-drawn upstream.
-\item A \code{net_permutation_group} (the result of \code{\link[=permutation_htna]{permutation_htna()}} on an
-\code{htna_group}): iterates over all pairwise comparisons and plots each,
-titled with the pair name (no \code{par(mfrow=...)} management - user
-controls layout).
-\item A \code{\link[=bayes_compare_htna]{bayes_compare_htna()}} result for two networks, which also inherits
-\code{net_permutation}.
+\section{Conditions}{
+
+\code{htna_bad_input} when \code{x} and \code{y} are not two htna networks with the same
+actor types, or a test result was not computed on htna networks;
+\code{htna_empty_input} for an empty grouped result.
 }
 
-In all cases the layout, node colours and donut match \code{\link[=plot_htna]{plot_htna()}};
-the drawing itself is done by cograph.
-}
 \examples{
 data(human_ai)
-# Two networks: early vs late sessions
 early <- build_htna(subset(human_ai, phase == "Early"),
                     actor_type = "actor_type")
 late  <- build_htna(subset(human_ai, phase == "Late"),
                     actor_type = "actor_type")
-plot_htna_diff(early, late)
+plot_htna_diff(late, early)
 
-# Permutation test on a grouped network: one plot per cohort pair
+# a permutation test on the grouped network: one plot per pair of phases
 grp  <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 perm <- permutation_htna(grp, iter = 50, seed = 1)
 plot_htna_diff(perm)
-plot_htna_diff(perm, show_nonsig = TRUE)
 
 }
 \seealso{
-\code{\link[=plot_htna]{plot_htna()}}, \code{\link[=build_htna]{build_htna()}}, \code{\link[=permutation_htna]{permutation_htna()}},
-\code{\link[=bayes_compare_htna]{bayes_compare_htna()}}.
+\code{\link[=compare_htna]{compare_htna()}}, \code{\link[=permutation_htna]{permutation_htna()}}, \code{\link[=bayes_compare_htna]{bayes_compare_htna()}},
+\code{\link[=plot_htna]{plot_htna()}}
 }

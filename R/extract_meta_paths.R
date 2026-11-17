@@ -1,82 +1,80 @@
-#' Extract Path Patterns from a Heterogeneous Transition Network
+#' Count recurring paths and meta-paths in the sessions
 #'
-#' Discovers recurring patterns in the actor-typed sequences that produced a
-#' heterogeneous transition network. Operates at two levels:
+#' @description
+#' `extract_meta_paths()` counts the recurring paths and meta-paths in the
+#' sessions of an htna network. In a heterogeneous network every code
+#' belongs to an actor, so each run of codes in a session has two readings:
+#' the concrete path (for example `Request->Plan->Execute`) and its
+#' meta-path, the sequence of actor types it passes through
+#' (`Human->AI->AI`). Meta-paths describe the turn-taking between the
+#' actors, such as how often the human intervenes between two AI actions,
+#' while the concrete paths say what is done in each turn. Counting both
+#' shows which interaction patterns recur and whether they occur more often
+#' than the frequencies of their codes would predict.
 #'
-#' * `level = "state"` (default) - enumerate concrete state-level patterns
-#'   (e.g. `Command->Execute->Command`) and annotate each row with the
-#'   type-level template it instantiates (e.g. `Human->AI->Human`).
-#' * `level = "type"` - enumerate type-level meta-paths only (one row per
-#'   actor-type pattern, summed over its concrete instances).
+#' `extract_meta_paths()` counts every path of the requested lengths in the
+#' sessions of an htna network. With `level = "state"` (default) it returns
+#' concrete paths, each tagged with its meta-path; with `level = "type"` it
+#' returns the meta-paths, summed over their concrete instances. A
+#' `schema` restricts the search to one template whose elements can be
+#' actor types (any code of that actor), concrete codes, or `"*"` (any
+#' element), freely mixed: `"Human->Ask->*"` is any human code, then the AI
+#' code `Ask`, then anything. With `type = "gapped"`, the elements of a path
+#' are `gap + 1` positions apart instead of adjacent.
 #'
-#' At either level, a `schema` can filter the search. Schema parts can be
-#' type names (expand to every concrete code in that group), concrete
-#' states, or `"*"` (any element). Parts can be mixed freely - e.g.
-#' `"Human->Ask->Human"` means "any Human code, then `Ask`, then any Human
-#' code". At `level = "type"` concrete codes resolve to their type, so the
-#' same schema becomes `Human->AI->Human`.
+#' It returns a data frame with one row per path and gap. For each path the
+#' table gives its count, the number and share (`support`) of sessions that
+#' contain it, its share among the paths of the same length and gap
+#' (`frequency`), and its `lift`: the count divided by the count expected if
+#' the elements occurred independently with their overall frequencies.
 #'
-#' Operates on the actor partition stored on the network by [build_htna()].
+#' To compare paths between groups of sessions use
+#' [sequence_compare_htna()]; for unordered co-occurrence use
+#' [association_rules_htna()].
 #'
-#' @param x \[`htna`\]\cr
-#'   A network built with [build_htna()]. Must have `$nodes$groups`,
-#'   `$node_groups`, and `$data` populated.
-#' @param level \[`character(1)`: `"state"`\]\cr
-#'   `"state"` returns concrete state-level patterns with a `meta_schema`
-#'   rollup column. `"type"` returns the type-level meta-path summary.
-#' @param length \[`integer()`: `2:4`\]\cr
-#'   Pattern lengths to enumerate. Ignored when `schema` is supplied.
-#' @param schema \[`character(1)`\]\cr
-#'   Optional. A path template written as elements separated by `"->"`. Each
-#'   element can be a type name, a concrete state, or `"*"`. See Details.
-#' @param type \[`character(1)`: `"contiguous"`\]\cr
-#'   `"contiguous"` (default) considers consecutive positions; `"gapped"`
-#'   considers positions spaced by `gap + 1` apart.
-#' @param gap \[`integer()`: `1L`\]\cr
-#'   Gap size(s) used when `type = "gapped"`. Multiple values produce one
-#'   row per (length, gap) combination.
-#' @param min_count \[`integer(1)`: `1L`\]\cr
-#'   Minimum total occurrences to retain.
-#' @param min_support \[`numeric(1)`: `0`\]\cr
-#'   Minimum proportion of sequences containing the pattern at least once.
-#' @param min_lift \[`numeric(1)`: `0`\]\cr
-#'   Minimum lift (observed / expected under marginal independence). `0`
-#'   disables the filter.
-#' @param start,end,contain \[`character()`\]\cr
-#'   Filter rows whose first / last element is in `start` / `end`, or whose
-#'   element sequence contains all of `contain`. Compared against the
-#'   alphabet of the chosen level (types or concrete states).
+#' @param x An htna network from [build_htna()].
+#' @param level `"state"` (default) for concrete paths with their
+#'   meta-path, or `"type"` for meta-paths only.
+#' @param length Path lengths to count (default `2:4`); ignored when
+#'   `schema` is given.
+#' @param schema A template of elements separated by `"->"`; each element
+#'   is an actor type, a code or `"*"`. `NULL` (default) counts all paths.
+#' @param type `"contiguous"` (default) for adjacent elements, or
+#'   `"gapped"` for elements `gap + 1` positions apart.
+#' @param gap Gap or gaps for `type = "gapped"` (default 1); several values
+#'   give one set of rows per length and gap.
+#' @param min_count Minimum number of occurrences (default 1).
+#' @param min_support Minimum share of sessions containing the path
+#'   (default 0).
+#' @param min_lift Minimum lift (default 0, no filter).
+#' @param start,end,contain Keep only paths whose first element is in
+#'   `start`, whose last element is in `end`, or that contain every element
+#'   of `contain` (default `NULL`); elements are codes or, with
+#'   `level = "type"`, actor types.
 #'
-#' @return An object of class `c("htna_meta_paths", "htna_paths",
-#'   "data.frame")`. At `level = "state"` the columns are `schema`,
-#'   `meta_schema`, `length`, `gap`, `count`, `n_sequences`, `support`,
-#'   `frequency`, `lift`. At `level = "type"` the `meta_schema` column is
-#'   omitted (the `schema` column already holds the type pattern).
-#'   Attributes: `n_sequences`, `alphabet`, `level`, and (when supplied)
-#'   `schema`.
+#' @return A data frame of class
+#'   `c("htna_meta_paths", "htna_paths", "data.frame")` with one row per
+#'   path and gap, sorted by length, gap and decreasing count, and columns
+#'   `schema` (the path), `meta_schema` (its meta-path; only with
+#'   `level = "state"`), `length`, `gap`, `count`, `n_sequences`,
+#'   `support`, `frequency` and `lift`. The number of sessions and the
+#'   level are kept as attributes and shown by `print()`.
 #'
-#' @seealso [build_htna()].
+#' @section Conditions:
+#' Errors of class `htna_bad_input` for an unknown element in `schema` or a
+#' zero gap with `type = "gapped"`, and `htna_unassigned_node` when `x` has
+#' no actor partition.
+#'
+#' @seealso [print.htna_paths()], [sequence_compare_htna()],
+#'   [association_rules_htna()].
 #'
 #' @examples
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
-#'
-#' # Concrete state-level patterns of length 2..4 (default)
-#' extract_meta_paths(net)
-#'
-#' # Type-level meta-path summary
-#' extract_meta_paths(net, level = "type")
-#'
-#' # Concrete instances of a type-level template
+#' extract_meta_paths(net, level = "type", length = 3)
 #' extract_meta_paths(net, schema = "Human->AI->Human")
-#'
-#' # Mix types, concrete codes, and wildcards
-#' extract_meta_paths(net, schema = "Human->Ask->Human")
-#' extract_meta_paths(net, schema = "Human->*->Human")
-#'
-#' # Gapped patterns; lift threshold
+#' extract_meta_paths(net, schema = "Human->Ask->*", min_lift = 1)
 #' extract_meta_paths(net, length = 3, type = "gapped", gap = 1:2)
-#' extract_meta_paths(net, length = 3, min_lift = 1.2)
 #'
 #' @export
 extract_meta_paths <- function(x,
@@ -150,16 +148,15 @@ extract_meta_paths <- function(x,
 
 .check_htna_input <- function(x) {
   if (!inherits(x, "cograph_network") && !inherits(x, "netobject")) {
-    stop("`x` must be a network produced by build_htna() (or a netobject).",
-         call. = FALSE)
+    .htna_stop("`x` must be a network produced by build_htna() (or a netobject).")
   }
   if (is.null(x$node_groups) || !nrow(x$node_groups)) {
-    stop("`x` has no actor partition (`$node_groups` is empty). ",
-         "Build it with `build_htna()`.", call. = FALSE)
+    .htna_stop("`x` has no actor partition (`$node_groups` is empty). ",
+               "Build it with `build_htna()`.",
+               class = "htna_unassigned_node")
   }
   if (is.null(x$data) || !is.data.frame(x$data)) {
-    stop("`x$data` is missing or not a data frame; cannot extract sequences.",
-         call. = FALSE)
+    .htna_stop("`x$data` is missing or not a data frame; cannot extract sequences.")
   }
 }
 

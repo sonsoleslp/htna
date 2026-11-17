@@ -1,31 +1,26 @@
-#' State Distribution Across Time
+#' Tabulate the distribution of the codes within each actor
 #'
-#' htna-named wrapper for [Nestimate::state_distribution()]. Returns the
-#' within-network distribution of states: how often each state occurs and
-#' its share of the events in its group.
+#' @description
+#' `state_distribution_htna()` returns the state distribution of a network:
+#' how often each code occurs and its share of the events of its group. For
+#' an htna network the group is the actor type, so the table shows how each
+#' actor divides its activity over its own codes; for a network without an
+#' actor partition all codes form one group, `"all"`.
 #'
-#' Designed with htna in mind: Nestimate ships an explicit
-#' `state_distribution.htna` S3 method that uses the actor partition
-#' carried by [build_htna()] networks, so each state is reported under its
-#' actor type. For an htna network the result is the same table as
-#' [frequencies_htna()].
+#' `state_distribution_htna()` runs Nestimate's `state_distribution()` and
+#' returns a data frame with one row per group and code. For an htna network
+#' it is the same table as [frequencies_htna()]; the function is provided
+#' under its general name for code written for other network types.
 #'
-#' Suffixed `_htna` to avoid clashing with
-#' `Nestimate::state_distribution()` when both packages are loaded.
+#' @param x An htna network from [build_htna()], or another network.
+#' @param ... Unused for htna networks.
 #'
-#' @param x An htna network (or other object accepted by
-#'   [Nestimate::state_distribution()]); S3 dispatch on `x` is
-#'   preserved, so `htna` objects use `state_distribution.htna`.
-#' @param ... Additional arguments passed to
-#'   [Nestimate::state_distribution()]. See that function for details.
-#'
-#' @return A data frame with one row per `(group, state)` pair and
-#'   columns `group`, `state`, `count` and `proportion` (proportions sum
-#'   to 1 within each group). For an htna network `group` is the actor
-#'   type; for a network without an actor partition it is `"all"`. See [Nestimate::state_distribution()].
+#' @return A data frame with one row per group and code and columns
+#'   `group`, `state`, `count` and `proportion` (proportions sum to one
+#'   within each group).
 #'
 #' @seealso [frequencies_htna()], [state_frequencies_htna()] for the
-#'   pooled (actor-blind) frequency table.
+#'   pooled table.
 #' @examples
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")

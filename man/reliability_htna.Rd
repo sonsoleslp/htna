@@ -2,47 +2,56 @@
 % Please edit documentation in R/reliability_htna.R
 \name{reliability_htna}
 \alias{reliability_htna}
-\title{Network Reliability for an htna Network}
+\title{Estimate the split-half reliability of a heterogeneous transition network}
 \usage{
 reliability_htna(..., iter = 1000L, split = 0.5, scale = "none", seed = NULL)
 }
 \arguments{
-\item{...}{One or more htna networks built by \code{\link[=build_htna]{build_htna()}}.}
+\item{...}{One or more htna networks from \code{\link[=build_htna]{build_htna()}}.}
 
-\item{iter}{Integer. Number of split-half iterations. Default \code{1000}.}
+\item{iter}{Number of random splits (default 1000).}
 
-\item{split}{Numeric in (0, 1). Proportion of sessions used for the
-first half-network. Default \code{0.5}.}
+\item{split}{Proportion of the sessions in the first half (default 0.5).}
 
-\item{scale}{One of \code{"none"}, \code{"minmax"}, \code{"standardize"},
-\code{"proportion"}. Forwarded to \code{\link[Nestimate:network_reliability]{Nestimate::network_reliability()}}.}
+\item{scale}{Scaling of the weights before they are compared: \code{"none"}
+(default), \code{"minmax"}, \code{"standardize"} or \code{"proportion"}.}
 
-\item{seed}{Optional integer seed for reproducibility. Default \code{NULL}
-(no seed reset).}
+\item{seed}{Random seed (default \code{NULL}, no seed is set).}
 }
 \value{
-An object of class \code{c("htna_reliability", "net_reliability")},
-with the same components as \code{\link[Nestimate:network_reliability]{Nestimate::network_reliability()}}
-(\code{iterations}, \code{summary}, \code{models}, \code{iter}, \code{split}, \code{scale}), and
-each entry of \code{models} carrying the htna actor partition
-(\code{nodes$groups}, \code{node_groups}, \code{actor_levels}). \code{print()},
-\code{summary()} and \code{plot()} methods are supplied by Nestimate;
-\code{summary()} returns a data frame with one row per (model, metric) and
-columns \code{model}, \code{metric} (\code{mean_dev}, \code{median_dev}, \code{cor},
-\code{max_dev}), \code{mean} and \code{sd}.
+An object of class \code{c("htna_reliability", "net_reliability")}
+with \code{print()}, \code{summary()} and \code{plot()} methods. \code{summary()} returns
+a data frame with one row per network and metric and columns \code{model},
+\code{metric} (\code{mean_dev}, \code{median_dev}, \code{cor}, \code{max_dev}), \code{mean} and
+\code{sd}.
 }
 \description{
-Thin wrapper around \code{\link[Nestimate:network_reliability]{Nestimate::network_reliability()}} that preserves
-the htna actor partition on every model in the returned \verb{$models}
-slot, so downstream htna-aware code (plotting, centralities, etc.)
-keeps working on the reliability output.
+\code{reliability_htna()} estimates the split-half reliability of one or more
+htna networks: how far each network would look the same if it had been
+estimated from a different half of the sessions. The sessions are split
+at random into two halves many times, a network is estimated from each
+half, and the two networks are compared: the mean, median and maximum
+absolute difference of their edge weights and the correlation of their
+weights. High correlations and small deviations over the splits indicate
+that the estimated structure does not depend on which sessions happened
+to be observed.
+
+When several networks are given (for example, built with different
+methods from the same data), each is assessed with the same splits.
+\code{reliability_htna()} runs Nestimate's \code{network_reliability()}, and the
+networks re-estimated on the splits keep the actor partition. It returns
+an \code{htna_reliability} object.
+
+For the stability of the weights when increasing shares of the sessions
+are dropped use \code{\link[=casedrop_reliability_htna]{casedrop_reliability_htna()}}; for edge-level intervals
+use \code{\link[=bootstrap_htna]{bootstrap_htna()}}.
 }
-\details{
-Mirrors the signature of the underlying function: pass one or more
-networks via \code{...} plus the optional \code{iter}, \code{split}, \code{scale}, and
-\code{seed} arguments. All networks passed through \code{...} must be htna
-networks built by \code{\link[=build_htna]{build_htna()}}.
+\section{Conditions}{
+
+An error of class \code{htna_empty_input} when no network is given, and of
+class \code{htna_bad_input} when an input is not an htna network.
 }
+
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
@@ -52,5 +61,6 @@ summary(rel)
 
 }
 \seealso{
-\code{\link[Nestimate:network_reliability]{Nestimate::network_reliability()}}, \code{\link[=bootstrap_htna]{bootstrap_htna()}}.
+\code{\link[=casedrop_reliability_htna]{casedrop_reliability_htna()}}, \code{\link[=bootstrap_htna]{bootstrap_htna()}},
+\code{\link[=centrality_stability_htna]{centrality_stability_htna()}}.
 }
