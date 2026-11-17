@@ -1,11 +1,25 @@
-# Chi-square Mosaic Plot of a Transition Network
+# Plot a chi-square mosaic of the transitions of an htna network
 
-htna-named wrapper for
-[`Nestimate::mosaic_plot()`](https://pak.dynasite.org/Nestimate/reference/mosaic_plot.html).
-Renders a chi-square mosaic where row x column area equals the joint
-share of `(from, to)` transitions and fill encodes the standardized
-residual (blue = over-represented, red = under-represented, white =
-at-expected).
+`mosaic_plot_htna()` plots a chi-square mosaic of the transitions of an
+htna network. A mosaic plot of a transition table shows, for every pair
+of codes, the share of all transitions that go from the first code to
+the second (the area of the tile) and how far that count lies from what
+independence of the source and target codes would predict (the colour of
+the tile, from the standardized residual of a chi-square test).
+Over-represented transitions are shaded blue and under-represented ones
+red. In a heterogeneous network the plot shows which hand-overs between
+actors are more or less frequent than the overall frequencies of the
+codes imply.
+
+`mosaic_plot_htna()` draws the mosaic of the transition counts of an
+htna network with Nestimate's `mosaic_plot()`, with the axis labels
+coloured by actor type. The chi-square test needs counts, so build the
+network with `method = "frequency"`. With `n_perm`, p-values are
+obtained by permutation (set `seed` for a reproducible result). It
+returns a `ggplot` object.
+
+For the marginal frequencies of the codes use
+[`plot_frequencies_htna()`](https://sonsoles.me/htna/reference/plot_frequencies_htna.md).
 
 ## Usage
 
@@ -17,47 +31,24 @@ mosaic_plot_htna(x, ...)
 
 - x:
 
-  An htna network built with `method = "frequency"` (or other object
-  accepted by
-  [`Nestimate::mosaic_plot()`](https://pak.dynasite.org/Nestimate/reference/mosaic_plot.html));
-  S3 dispatch on `x` is preserved, so `htna` objects use
-  `mosaic_plot.htna`.
+  An htna network built with `method = "frequency"`.
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments of
   [`Nestimate::mosaic_plot()`](https://pak.dynasite.org/Nestimate/reference/mosaic_plot.html),
-  such as `n_perm` and `seed`. See that function for details.
+  such as `n_perm` and `seed`.
 
 ## Value
 
-A ggplot or gtable, depending on input shape. See
-[`Nestimate::mosaic_plot()`](https://pak.dynasite.org/Nestimate/reference/mosaic_plot.html)
-for full details and the per-class S3 methods.
-
-## Details
-
-Designed with htna in mind: Nestimate ships an explicit
-`mosaic_plot.htna` S3 method that recognises the actor partition on
-`htna` networks. Pass an htna network from
-[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
-directly. The underlying transition matrix must be integer-weighted
-(build with `method = "frequency"`), since the chi-square test needs
-counts.
-
-Axis tick labels are coloured by actor group using the htna palette
-([htna_palette](https://sonsoles.me/htna/reference/htna_palette.md)),
-matching the colours used elsewhere in htna (e.g.
-[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md)).
-
-Suffixed `_htna` to avoid clashing with
-[`Nestimate::mosaic_plot()`](https://pak.dynasite.org/Nestimate/reference/mosaic_plot.html)
-when both packages are loaded.
+A `ggplot` object (or a `gtable` for some inputs), which is drawn when
+printed.
 
 ## See also
 
-[`plot_frequencies_htna()`](https://sonsoles.me/htna/reference/plot_frequencies_htna.md)
-for the marginal-frequency companion view.
+[`plot_frequencies_htna()`](https://sonsoles.me/htna/reference/plot_frequencies_htna.md),
+[`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md),
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
 
 ## Examples
 
@@ -67,8 +58,4 @@ net <- build_htna(human_ai, actor_type = "actor_type",
                   method = "frequency")
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 mosaic_plot_htna(net, n_perm = 50, seed = 1)
-#> Warning: Vectorized input to `element_text()` is not officially supported.
-#> ℹ Results may be unexpected or may change in future versions of ggplot2.
-#> Warning: Vectorized input to `element_text()` is not officially supported.
-#> ℹ Results may be unexpected or may change in future versions of ggplot2.
 ```

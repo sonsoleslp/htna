@@ -1,12 +1,27 @@
-# Simplified Human + AI Interaction Sequences
+# Human and AI turns in vibe-coding sessions
 
-A long-format heterogeneous sequence dataset built from
-[`Nestimate::human_long`](https://pak.dynasite.org/Nestimate/reference/long-data.html)
+`human_ai` is a coded dataset of the turns in 429 human-AI
+pair-programming ("vibe coding") sessions in 34 projects, held between 5
+February and 8 March 2026. The data are the standard example for a
+heterogeneous transition network with two actor types: six human codes
+(Check, Frustrate, Inquire, Refine, Request, Specify) and six AI codes
+(Ask, Delegate, Execute, Plan, Repair, Report). In each session a person
+directs an AI coding assistant; every turn is coded with one or more
+interaction codes, and the codes of both actors are interleaved in the
+order in which they occurred.
+
+The codes are a simplified version of the original coding, with
+near-synonyms merged. AI codes: Investigate, Ask and Inquire became Ask;
+Explain and Report became Report. Human codes: Command and Request
+became Request; Correct and Verify became Check; Interrupt and Frustrate
+became Frustrate. The `phase` column splits the sessions into an early
+and a late half for grouped examples. The same rows are available split
+by actor type in
+[human_simplified](https://sonsoles.me/htna/reference/human_simplified.md)
 and
-[`Nestimate::ai_long`](https://pak.dynasite.org/Nestimate/reference/long-data.html)
-by collapsing several near-synonym codes into a smaller, more
-interpretable alphabet. Suitable as a teaching example for
-[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
+[ai_simplified](https://sonsoles.me/htna/reference/ai_simplified.md),
+and the code-to-actor lookup in
+[human_ai_codebook](https://sonsoles.me/htna/reference/human_ai_codebook.md).
 
 ## Usage
 
@@ -16,98 +31,73 @@ human_ai
 
 ## Format
 
-A data frame with 19347 rows and 11 columns:
+A data frame with 19,347 rows (10,796 human and 8,551 AI codes) and 11
+columns, one row per code:
 
 - message_id:
 
-  Integer. Source message identifier.
+  Integer identifier of the turn; the codes of one turn share it.
 
 - project:
 
-  Character. Project label (e.g. `"Project_1"`).
+  Project identifier, `"Project_1"` to `"Project_34"`.
 
 - session_id:
 
-  Character. Session identifier; pass to
-  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) as
-  the session key.
+  Session identifier (the session key for
+  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)).
 
 - timestamp:
 
-  Integer. Unix timestamp of the message.
+  Integer Unix time of the session date (day resolution).
 
 - session_date:
 
-  Character. Date of the session (`YYYY-MM-DD`).
+  Date of the row, `"YYYY-MM-DD"`.
 
 - code:
 
-  Character. Simplified action code; the `code`-column value passed to
-  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
+  Simplified interaction code.
 
 - cluster:
 
-  Character. Original cluster label from the source data, retained for
-  reference (see Details).
+  High-level cluster of the original code, kept for reference; because
+  merged codes may come from different clusters, one simplified code can
+  carry more than one cluster label.
 
 - code_order:
 
-  Integer. Order of the code within the message.
+  Order of the code within its turn.
 
 - order_in_session:
 
-  Integer. Order of the row within the session; pass as the order key to
-  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
+  Position of the row in its session, counting both actors (the order
+  key for
+  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)).
 
 - actor_type:
 
-  Character. `"AI"` or `"Human"`: the actor partition for
-  [`build_htna`](https://sonsoles.me/htna/reference/build_htna.md)`(actor_type = "actor_type")`.
+  `"Human"` or `"AI"`.
 
 - phase:
 
-  Factor with levels `"Early"` and `"Late"`. Session-level cohort tag
-  from a chronological split: sessions ordered by their first
-  `session_date` (with `session_id` as a deterministic tiebreak), then
-  split in half. Suitable for
-  [`build_htna`](https://sonsoles.me/htna/reference/build_htna.md)`(group = "phase")`.
+  Factor with levels `"Early"` and `"Late"`: sessions ordered by their
+  first date (session id breaking ties) and split in half, 214 early and
+  215 late sessions.
 
 ## Source
 
-Derived from
-[`Nestimate::human_long`](https://pak.dynasite.org/Nestimate/reference/long-data.html)
-and
-[`Nestimate::ai_long`](https://pak.dynasite.org/Nestimate/reference/long-data.html);
-see `data-raw/human_ai.R` for the build script.
-
-## Details
-
-Code remapping (all other codes pass through unchanged):
-
-- AI: `Investigate`, `Ask`, `Inquire` \\\to\\ `Ask`; `Explain`, `Report`
-  \\\to\\ `Report`.
-
-- Human: `Command`, `Request` \\\to\\ `Request`; `Correct`, `Verify`
-  \\\to\\ `Check`; `Interrupt`, `Frustrate` \\\to\\ `Frustrate`.
-
-Resulting alphabets:
-
-- AI (6): `Ask`, `Delegate`, `Execute`, `Plan`, `Repair`, `Report`.
-
-- Human (6): `Check`, `Frustrate`, `Inquire`, `Refine`, `Request`,
-  `Specify`.
-
-Because two source codes can map to the same simplified code while
-originally belonging to different `cluster` values, a single simplified
-`code` may appear with more than one `cluster` label across rows. The
-`cluster` column is preserved verbatim from the source data and should
-be treated as informational only.
+Saqr, M. (2026). Human-AI vibe coding interaction study.
+<https://saqr.me/blog/2026/human-ai-interaction-cograph/>. Derived from
+the `human_long` and `ai_long` data of the 'Nestimate' package; the
+build script is `data-raw/human_ai.R` in the package sources.
 
 ## See also
 
-[`human_simplified`](https://sonsoles.me/htna/reference/human_simplified.md),
-[`ai_simplified`](https://sonsoles.me/htna/reference/ai_simplified.md),
-[`human_ai_codebook`](https://sonsoles.me/htna/reference/human_ai_codebook.md).
+[human_simplified](https://sonsoles.me/htna/reference/human_simplified.md),
+[ai_simplified](https://sonsoles.me/htna/reference/ai_simplified.md),
+[human_ai_codebook](https://sonsoles.me/htna/reference/human_ai_codebook.md),
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
 
 ## Examples
 

@@ -1,17 +1,33 @@
-# Plot Method for htna Centrality Stability Objects
+# Plot centrality stability against the proportion of sessions dropped
 
-S3 method for plotting htna centrality stability results. Draws, with
-'ggplot2', the mean correlation between the original and the
-case-dropped centralities against the proportion of sessions dropped:
-one line per measure, a +/- 1 SD ribbon, and a dashed line at the
-stability `threshold`. A measure is stable up to the drop proportion at
-which its line falls below that threshold. Requires the 'ggplot2'
-package (Suggests).
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) plots the
+case-dropping stability of an `htna_stability` result from
+[`centrality_stability_htna()`](https://sonsoles.me/htna/reference/centrality_stability_htna.md):
+for each centrality measure, how closely the centralities of networks
+estimated from a subset of sessions correlate with those of the full
+network as more sessions are dropped. A measure whose mean correlation
+stays above the threshold until a large share of the sessions is dropped
+has a node ranking that does not depend on a few sessions; a measure
+whose line falls early cannot be interpreted with confidence.
+
+The plot draws one line per measure (distinguished by colour, line type
+and point shape), a ribbon of plus or minus one standard deviation of
+the correlations, and a dashed line at the stability threshold. The
+grouped method draws one such chart per cohort, titled with the cohort
+name. The charts are drawn with 'ggplot2', which must be installed, and
+are returned invisibly as `ggplot` objects. The CS coefficients
+themselves are reported by
+[`print.htna_stability()`](https://sonsoles.me/htna/reference/print.htna_stability.md)
+and returned as a table by
+[`as.data.frame.htna_stability()`](https://sonsoles.me/htna/reference/as.data.frame.htna_stability.md).
 
 ## Usage
 
 ``` r
 # S3 method for class 'htna_stability'
+plot(x, ...)
+
+# S3 method for class 'htna_stability_group'
 plot(x, ...)
 ```
 
@@ -19,16 +35,30 @@ plot(x, ...)
 
 - x:
 
-  An object of class `htna_stability` from
-  [`centrality_stability_htna()`](https://sonsoles.me/htna/reference/centrality_stability_htna.md).
+  A result of
+  [`centrality_stability_htna()`](https://sonsoles.me/htna/reference/centrality_stability_htna.md):
+  an `htna_stability` or, for a grouped network, an
+  `htna_stability_group`.
 
 - ...:
 
-  Unused; present for consistency with the generic.
+  Unused.
 
 ## Value
 
-Invisibly, the `ggplot` object; the plot is printed as a side effect.
+Invisibly, the `ggplot` object (for `htna_stability`) or a named list of
+`ggplot` objects, one per cohort (for `htna_stability_group`). The
+charts are printed.
+
+## Conditions
+
+An error of class `htna_missing_package` is raised when 'ggplot2' is not
+installed.
+
+## See also
+
+[`centrality_stability_htna()`](https://sonsoles.me/htna/reference/centrality_stability_htna.md),
+[`as.data.frame.htna_stability()`](https://sonsoles.me/htna/reference/as.data.frame.htna_stability.md)
 
 ## Examples
 

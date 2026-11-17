@@ -1,9 +1,29 @@
-# Subsequence Pattern Comparison Across Groups
+# Compare short sequence patterns between groups of sessions
 
-Extends
-[`Nestimate::sequence_compare()`](https://pak.dynasite.org/Nestimate/reference/sequence_compare.html)
-with a `level` argument that lets the comparison run on type-level
-(meta-path) sequences as well as state-level sequences.
+`sequence_compare_htna()` compares short sequence patterns between the
+cohorts of a grouped htna network, or between the groups of a single
+network given by `group`. It counts every k-gram (a run of k consecutive
+codes) in each group and finds the patterns that are more or less
+frequent in a group than expected if pattern and group were independent.
+Each pattern gets a standardized residual per group (Haberman, 1973)
+and, optionally, a permutation test (the session is the unit) or a
+chi-square test of whether its frequency differs between the groups,
+with p-values adjusted across all patterns. Two groups of sessions can
+differ not only in single transitions but in longer runs of codes, such
+as a human request followed by an AI plan and an AI execution.
+
+With `level = "type"` every code is first replaced by its actor type, so
+the patterns are meta-paths such as `Human->AI->Human` and the
+comparison shows how the turn-taking between actors differs between the
+groups. `sequence_compare_htna()` runs Nestimate's `sequence_compare()`
+on the sequences and returns a `net_sequence_comparison` object.
+
+For single transitions use
+[`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)
+or
+[`mosaic_plot_htna()`](https://sonsoles.me/htna/reference/mosaic_plot_htna.md);
+for descriptive counts of patterns in one network use
+[`extract_meta_paths()`](https://sonsoles.me/htna/reference/extract_meta_paths.md).
 
 ## Usage
 
@@ -15,68 +35,53 @@ sequence_compare_htna(x, group = NULL, level = c("state", "type"), ...)
 
 - x:
 
-  A grouped htna network, a single htna network (paired with `group`),
-  or wide-format sequence data. See
-  [`Nestimate::sequence_compare()`](https://pak.dynasite.org/Nestimate/reference/sequence_compare.html).
+  A grouped htna network (an `htna_group`), or an htna network together
+  with `group`.
 
 - group:
 
-  Grouping specification for the cohorts to compare, when not already
-  carried by a grouped htna network. See
-  [`Nestimate::sequence_compare()`](https://pak.dynasite.org/Nestimate/reference/sequence_compare.html).
+  The grouping of the sessions when `x` is a single network (default
+  `NULL`).
 
 - level:
 
-  Character. `"state"` (default) compares concrete state-level k-grams;
-  `"type"` first replaces each state with its actor type so the
-  comparison runs on meta-paths (e.g. `Human->AI->Human`). Only
-  meaningful when `x` is an htna network with an actor partition.
+  `"state"` (default) compares patterns of codes; `"type"` compares
+  patterns of actor types.
 
 - ...:
 
-  Additional arguments passed to
-  [`Nestimate::sequence_compare()`](https://pak.dynasite.org/Nestimate/reference/sequence_compare.html),
-  such as `sub`, `min_freq`, `test`, `iter`, and `adjust`. See that
-  function for the full, current argument list.
+  Settings: `sub` (pattern lengths, default `3:5`), `min_freq` (minimum
+  count in every group, 5), `test` (`"permutation"`, `"chisq"` or
+  `"none"`), `iter` (permutations, 1000), `adjust` (multiplicity
+  correction, `"fdr"`) and `actor` (needs Nestimate 1.0.19 or later).
 
 ## Value
 
-An object of class `net_sequence_comparison` with components `patterns`,
-`groups`, `n_patterns` and `params`.
-[`summary()`](https://rdrr.io/r/base/summary.html) returns the tidy
-pattern table: one row per k-gram, with columns `pattern`, `length`,
-per-cohort frequencies (`freq_<cohort>`), proportions (`prop_<cohort>`)
-and standardised residuals (`resid_<cohort>`), `effect_size` and, when a
-test is run, `p_value`. [`print()`](https://rdrr.io/r/base/print.html)
-and [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
-(`style = "pyramid"` or `"heatmap"`) methods are supplied by Nestimate;
-see
-[`Nestimate::sequence_compare()`](https://pak.dynasite.org/Nestimate/reference/sequence_compare.html).
+An object of class `net_sequence_comparison` with
+[`print()`](https://rdrr.io/r/base/print.html),
+[`summary()`](https://rdrr.io/r/base/summary.html) and
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) methods.
+[`summary()`](https://rdrr.io/r/base/summary.html) returns a data frame
+with one row per pattern and columns `pattern`, `length`, one
+`freq_<group>`, `prop_<group>` and `resid_<group>` column per group,
+`effect_size` and, when a test is run, `p_value`.
 
-## Details
+## Conditions
 
-Extracts all k-gram patterns (subsequences of length `k`) from the
-sequences in each cohort, computes standardised residuals against the
-independence model, and optionally runs a permutation or chi-square test
-for differences in pattern rates between cohorts.
+An error of class `htna_bad_input` when `level = "type"` and `x` has no
+actor partition.
 
-Operates on grouped htna networks (built via
-`build_htna(..., group = ...)`), single htna networks paired with a
-`group` argument, or wide-format sequence data with an explicit `group`
-argument. The actor partition itself is not consumed when
-`level = "state"`: sequence comparison is between cohorts of sessions,
-not between actors. When `level = "type"`, concrete codes are folded
-into their actor type before pattern enumeration, so the comparison runs
-on meta-paths.
+## References
+
+Haberman, S. J. (1973). The analysis of residuals in cross-classified
+tables. *Biometrics*, 29(1), 205-220.
+[doi:10.2307/2529686](https://doi.org/10.2307/2529686)
 
 ## See also
 
-[`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)
-for whole-network differences,
-[`mosaic_plot_htna()`](https://sonsoles.me/htna/reference/mosaic_plot_htna.md)
-for single-step transition residuals,
-[`extract_meta_paths()`](https://sonsoles.me/htna/reference/extract_meta_paths.md)
-for descriptive meta-path enumeration.
+[`extract_meta_paths()`](https://sonsoles.me/htna/reference/extract_meta_paths.md),
+[`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md),
+[`mosaic_plot_htna()`](https://sonsoles.me/htna/reference/mosaic_plot_htna.md).
 
 ## Examples
 
@@ -85,62 +90,59 @@ data(human_ai)
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 #> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
-
-# State-level comparison (default); few permutations to keep it fast
+# iter = 50 keeps the example fast; use the default 1000 in practice.
 sequence_compare_htna(grp, iter = 50)
 #> Sequence Comparison  [699 patterns | 2 groups: Early, Late]
 #>   Lengths: 3, 4, 5  |  min_freq: 5  |  permutation: 50 iter (fdr)
 #> 
-#>                                 pattern length freq_Early freq_Late
-#>          Specify->Request->Specify->Ask      4         10        58
-#>             Frustrate->Ask->Plan->Check      4         39         7
-#>    Specify->Request->Specify->Ask->Plan      5          8        35
-#>    Specify->Frustrate->Ask->Plan->Check      5         37         6
-#>               Specify->Request->Specify      3         82       116
-#>  Request->Specify->Frustrate->Ask->Plan      5        105        51
-#>                    Ask->Plan->Frustrate      3         74       112
-#>             Request->Specify->Frustrate      3        160        88
-#>                   Request->Specify->Ask      3        147       197
-#>                   Execute->Ask->Request      3          6        22
-#>    prop_Early    prop_Late resid_Early resid_Late effect_size   p_value
-#>  0.0010494281 0.0067963440   -6.296503   6.296503    8.420388 0.3114973
-#>  0.0040927694 0.0008202484    4.356696  -4.356696    6.541789 0.3114973
-#>  0.0008586455 0.0042062252   -4.500415   4.500415    6.420094 0.3114973
-#>  0.0039712354 0.0007210672    4.369457  -4.369457    6.374350 0.3114973
-#>  0.0084171628 0.0132601738   -3.194473   3.194473    5.130398 0.3114973
-#>  0.0112697220 0.0061290710    3.640078  -3.640078    5.102890 0.3114973
-#>  0.0075959762 0.0128029264   -3.542427   3.542427    5.033177 0.3114973
-#>  0.0164237323 0.0100594422    3.756080  -3.756080    4.866214 0.3114973
-#>  0.0150893040 0.0225194330   -3.733134   3.733134    4.556679 0.3114973
-#>  0.0006158900 0.0025148605   -3.315483   3.315483    4.490829 0.3114973
+#>                               pattern length freq_Early freq_Late   prop_Early
+#>        Specify->Request->Specify->Ask      4         10        58 0.0010494281
+#>  Specify->Request->Specify->Ask->Plan      5          8        35 0.0008586455
+#>  Specify->Frustrate->Ask->Plan->Check      5         37         6 0.0039712354
+#>           Frustrate->Ask->Plan->Check      4         39         7 0.0040927694
+#>           Request->Specify->Frustrate      3        160        88 0.0164237323
+#>             Specify->Request->Specify      3         82       116 0.0084171628
+#>                  Plan->Frustrate->Ask      3          5        23 0.0005132416
+#>        Specify->Ask->Request->Execute      4         11        27 0.0011543709
+#>         Specify->Frustrate->Ask->Plan      4        106        51 0.0111239375
+#>                   Ask->Frustrate->Ask      3         11        30 0.0011291316
+#>     prop_Late resid_Early resid_Late effect_size   p_value
+#>  0.0067963440   -6.296503   6.296503   10.605886 0.3045752
+#>  0.0042062252   -4.500415   4.500415    7.809943 0.3045752
+#>  0.0007210672    4.369457  -4.369457    7.700874 0.3045752
+#>  0.0008202484    4.356696  -4.356696    7.135977 0.3045752
+#>  0.0100594422    3.756080  -3.756080    5.395069 0.3045752
+#>  0.0132601738   -3.194473   3.194473    5.112336 0.3045752
+#>  0.0026291724   -3.694281   3.694281    4.738801 0.3045752
+#>  0.0031638153   -2.942670   2.942670    4.723561 0.3045752
+#>  0.0059760956    3.721097  -3.721097    4.581468 0.3045752
+#>  0.0034293553   -3.320004   3.320004    4.486509 0.3045752
 #>   ... and 689 more patterns
-
-# Meta-path comparison
 sequence_compare_htna(grp, level = "type", iter = 50)
 #> Sequence Comparison  [55 patterns | 2 groups: Early, Late]
 #>   Lengths: 3, 4, 5  |  min_freq: 5  |  permutation: 50 iter (fdr)
 #> 
 #>                         pattern length freq_Early freq_Late  prop_Early
 #>  Human->Human->Human->AI->Human      5        112       196 0.012021037
-#>  AI->Human->Human->Human->Human      5         41        71 0.004400558
-#>            Human->AI->AI->Human      4        976       796 0.102424179
 #>            Human->Human->AI->AI      4        846       646 0.088781614
-#>                   Human->AI->AI      3       1203       986 0.123485937
-#>                Human->AI->Human      3       1813      1780 0.186101417
-#>     Human->AI->Human->AI->Human      5        647       695 0.069442954
-#>           AI->Human->AI->AI->AI      5         44        63 0.004722550
+#>  AI->Human->Human->Human->Human      5         41        71 0.004400558
 #>     Human->Human->AI->AI->Human      5        676       525 0.072555544
-#>        AI->AI->Human->AI->Human      5        363       279 0.038961039
+#>                   Human->AI->AI      3       1203       986 0.123485937
+#>     Human->AI->Human->AI->Human      5        647       695 0.069442954
+#>                Human->AI->Human      3       1813      1780 0.186101417
+#>     Human->Human->Human->AI->AI      5        315       228 0.033809166
+#>           AI->Human->AI->AI->AI      5         44        63 0.004722550
+#>            Human->AI->AI->Human      4        976       796 0.102424179
 #>    prop_Late resid_Early resid_Late effect_size   p_value
-#>  0.023554861   -5.837799   5.837799    7.627748 0.1540616
-#>  0.008532628   -3.448798   3.448798    3.804741 0.1540616
-#>  0.093273963    2.064052  -2.064052    3.517733 0.1540616
-#>  0.075697211    3.189261  -3.189261    3.499731 0.1540616
-#>  0.112711477    2.264188  -2.264188    3.290279 0.1540616
-#>  0.203475080   -2.980988   2.980988    3.252581 0.1540616
-#>  0.083523615   -3.520925   3.520925    2.749593 0.1540616
-#>  0.007571205   -2.432177   2.432177    2.809446 0.1659125
-#>  0.063093378    2.490338  -2.490338    2.556875 0.1659125
-#>  0.033529624    1.922749  -1.922749    2.477371 0.1659125
+#>  0.023554861   -5.837799   5.837799    6.613494 0.1540616
+#>  0.075697211    3.189261  -3.189261    3.715947 0.1540616
+#>  0.008532628   -3.448798   3.448798    3.550704 0.1540616
+#>  0.063093378    2.490338  -2.490338    3.198563 0.1540616
+#>  0.112711477    2.264188  -2.264188    3.079960 0.1540616
+#>  0.083523615   -3.520925   3.520925    2.537843 0.1540616
+#>  0.203475080   -2.980988   2.980988    2.259193 0.1540616
+#>  0.027400553    2.459688  -2.459688    2.504977 0.1960784
+#>  0.007571205   -2.432177   2.432177    2.379338 0.1960784
+#>  0.093273963    2.064052  -2.064052    2.319371 0.1960784
 #>   ... and 45 more patterns
 ```

@@ -1,10 +1,30 @@
-# Compute Centrality Measures for an htna Network
+# Compute node centralities of an htna network
 
-Computes a fixed panel of centrality measures via
-[cograph::cograph](https://sonsoles.me/cograph/reference/cograph.html)
-and returns them as a tidy data frame: one row per node, one column per
-measure (plus `node`, an `actor` column when the htna partition is set,
-and a `group` column when the input is an `htna_group`).
+`centralities_htna()` computes the node centralities of an htna network,
+with the actor type of every code kept. Centrality measures rank the
+codes of a transition network by their position in it: how much
+transition probability a code sends and receives (out- and in-strength),
+how close it is to the other codes (closeness), how often it lies on the
+shortest paths between other codes (betweenness), and how far its
+influence spreads (diffusion). Because the actor type is kept, the table
+shows whether the human or the AI codes hold the central positions, for
+example which actor's codes broker the hand-overs.
+
+`centralities_htna()` computes nine measures: `OutStrength`,
+`InStrength`, `ClosenessIn`, `ClosenessOut`, `Closeness`, `Betweenness`,
+`BetweennessRSP` (randomized shortest-path betweenness), `Diffusion` and
+`Clustering` (weighted clustering coefficient). Path-based measures
+treat a larger transition weight as a shorter distance (the weights are
+inverted); strength, diffusion and clustering use the weights as they
+are. For a grouped network the measures are computed per cohort. It
+returns a data frame with one row per code (per cohort and code for a
+grouped network) and one column per measure.
+
+Draw the result with
+[`plot_centralities()`](https://sonsoles.me/htna/reference/plot_centralities.md).
+To check whether the ranking of the codes would survive dropping
+sessions use
+[`centrality_stability_htna()`](https://sonsoles.me/htna/reference/centrality_stability_htna.md).
 
 ## Usage
 
@@ -27,62 +47,30 @@ centralities_htna(
 
 - measures:
 
-  Character vector of measure names. Defaults to all nine.
+  Names of the measures to compute. Default: all nine.
 
 - ...:
 
-  Forwarded to the underlying cograph centrality functions.
+  Further arguments for the centrality computations.
 
 ## Value
 
-A data frame of class `c("htna_centralities", "data.frame")` with one
-row per node and columns `node`, `actor` (the node's actor type, when
-the partition is set) and one numeric column per requested measure. For
-an `htna_group`, the rows of all cohorts are stacked, one row per
-(cohort, node), with a leading `group` column naming the cohort.
+A data frame of class `c("htna_centralities", "data.frame")`, one row
+per node, with columns `node`, `actor` (its actor type) and one numeric
+column per measure. For an `htna_group`, the rows of all cohorts are
+stacked (one row per cohort and node) with a leading `group` column.
 
-## Details
+## Conditions
 
-The measures are: `OutStrength`, `InStrength`, `ClosenessIn`,
-`ClosenessOut`, `Closeness`, `Betweenness`, `BetweennessRSP`,
-`Diffusion`, `Clustering`. Path-based measures (closeness and
-betweenness variants) are computed with `invert_weights = TRUE`, since
-in transition networks larger weight = stronger link = shorter distance.
-Strength and the closed-form measures (`Diffusion`, `Clustering`) use
-raw weights.
+`htna_bad_input` when `x` is not an htna network or a measure name is
+unknown; `htna_empty_input` for a grouped network without cohorts;
+`htna_unnamed_nodes` when the nodes of the network have no names.
 
-Mapping from measure name to cograph implementation:
+## See also
 
-- `OutStrength`:
-  [`cograph::centrality_outstrength()`](https://sonsoles.me/cograph/reference/centrality_strength.html)
-
-- `InStrength`:
-  [`cograph::centrality_instrength()`](https://sonsoles.me/cograph/reference/centrality_strength.html)
-
-- `ClosenessIn`:
-  [`cograph::centrality_incloseness()`](https://sonsoles.me/cograph/reference/centrality_closeness.html)
-  (inverted)
-
-- `ClosenessOut`:
-  [`cograph::centrality_outcloseness()`](https://sonsoles.me/cograph/reference/centrality_closeness.html)
-  (inverted)
-
-- `Closeness`:
-  [`cograph::centrality_closeness()`](https://sonsoles.me/cograph/reference/centrality_closeness.html)
-  (inverted)
-
-- `Betweenness`:
-  [`cograph::centrality_betweenness()`](https://sonsoles.me/cograph/reference/centrality_betweenness.html)
-  (inverted)
-
-- `BetweennessRSP`:
-  [`cograph::centrality_current_flow_betweenness()`](https://sonsoles.me/cograph/reference/centrality_current_flow_betweenness.html)
-
-- `Diffusion`:
-  [`cograph::centrality_diffusion()`](https://sonsoles.me/cograph/reference/centrality_diffusion.html)
-
-- `Clustering`:
-  [`cograph::centrality_transitivity()`](https://sonsoles.me/cograph/reference/centrality_transitivity.html)
+[`plot_centralities()`](https://sonsoles.me/htna/reference/plot_centralities.md),
+[`centrality_stability_htna()`](https://sonsoles.me/htna/reference/centrality_stability_htna.md),
+[`edge_betweenness_htna()`](https://sonsoles.me/htna/reference/edge_betweenness_htna.md)
 
 ## Examples
 

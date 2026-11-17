@@ -2,17 +2,19 @@ pandoc: 3.8.3
 pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
+  articles/case-early-late: case-early-late.html
+  articles/case-vibe-coding: case-vibe-coding.html
   articles/clustering: clustering.html
+  articles/comparing-networks: comparing-networks.html
   articles/frequencies-and-mosaic: frequencies-and-mosaic.html
-  articles/grouped: grouped.html
+  grouped: grouped.html
   htna: htna.html
-  input-formats: input-formats.html
+  articles/input-formats: input-formats.html
   articles/markov-order: markov-order.html
   articles/model-assessment: model-assessment.html
   articles/multigroup: multigroup.html
-  articles/sequence-comparison: sequence-comparison.html
-  articles/sequence-plots: sequence-plots.html
-last_built: 2026-11-08T10:54Z
+  articles/sequences-and-patterns: sequences-and-patterns.html
+last_built: 2026-11-17T21:21Z
 urls:
   reference: https://sonsoles.me/htna/reference
   article: https://sonsoles.me/htna/articles

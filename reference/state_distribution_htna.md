@@ -1,9 +1,17 @@
-# State Distribution Across Time
+# Tabulate the distribution of the codes within each actor
 
-htna-named wrapper for
-[`Nestimate::state_distribution()`](https://pak.dynasite.org/Nestimate/reference/state_distribution.html).
-Returns the within-network distribution of states: how often each state
-occurs and its share of the events in its group.
+`state_distribution_htna()` returns the state distribution of a network:
+how often each code occurs and its share of the events of its group. For
+an htna network the group is the actor type, so the table shows how each
+actor divides its activity over its own codes; for a network without an
+actor partition all codes form one group, `"all"`.
+
+`state_distribution_htna()` runs Nestimate's `state_distribution()` and
+returns a data frame with one row per group and code. For an htna
+network it is the same table as
+[`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md);
+the function is provided under its general name for code written for
+other network types.
 
 ## Usage
 
@@ -15,44 +23,25 @@ state_distribution_htna(x, ...)
 
 - x:
 
-  An htna network (or other object accepted by
-  [`Nestimate::state_distribution()`](https://pak.dynasite.org/Nestimate/reference/state_distribution.html));
-  S3 dispatch on `x` is preserved, so `htna` objects use
-  `state_distribution.htna`.
+  An htna network from
+  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md), or
+  another network.
 
 - ...:
 
-  Additional arguments passed to
-  [`Nestimate::state_distribution()`](https://pak.dynasite.org/Nestimate/reference/state_distribution.html).
-  See that function for details.
+  Unused for htna networks.
 
 ## Value
 
-A data frame with one row per `(group, state)` pair and columns `group`,
-`state`, `count` and `proportion` (proportions sum to 1 within each
-group). For an htna network `group` is the actor type; for a network
-without an actor partition it is `"all"`. See
-[`Nestimate::state_distribution()`](https://pak.dynasite.org/Nestimate/reference/state_distribution.html).
-
-## Details
-
-Designed with htna in mind: Nestimate ships an explicit
-`state_distribution.htna` S3 method that uses the actor partition
-carried by
-[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
-networks, so each state is reported under its actor type. For an htna
-network the result is the same table as
-[`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md).
-
-Suffixed `_htna` to avoid clashing with
-[`Nestimate::state_distribution()`](https://pak.dynasite.org/Nestimate/reference/state_distribution.html)
-when both packages are loaded.
+A data frame with one row per group and code and columns `group`,
+`state`, `count` and `proportion` (proportions sum to one within each
+group).
 
 ## See also
 
 [`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md),
 [`state_frequencies_htna()`](https://sonsoles.me/htna/reference/state_frequencies_htna.md)
-for the pooled (actor-blind) frequency table.
+for the pooled table.
 
 ## Examples
 

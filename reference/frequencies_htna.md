@@ -1,9 +1,24 @@
-# Tidy Per-Actor Frequency Table for an htna Network
+# Count the codes of each actor in a network
 
-Returns the within-network state frequency table, partitioned by actor.
-One row per `(actor, state)` pair, with `count` and `proportion`
-columns. The data side of
-[`plot_frequencies_htna()`](https://sonsoles.me/htna/reference/plot_frequencies_htna.md).
+`frequencies_htna()` counts the codes of each actor in an htna network:
+how often each code occurs and how each actor distributes its activity
+over its own codes, such as which requests a human makes most often and
+which actions the AI takes. These counts describe a heterogeneous
+network before its transitions are read.
+
+`frequencies_htna()` counts the occurrences of every code in the
+sessions of an htna network and reports each code under its actor type,
+with its share of that actor's events. The proportions therefore sum to
+one within each actor, not over all events. It runs Nestimate's
+`state_distribution()` on the network and returns a data frame with one
+row per actor and code.
+
+[`plot_frequencies_htna()`](https://sonsoles.me/htna/reference/plot_frequencies_htna.md)
+draws the table.
+[`state_frequencies_htna()`](https://sonsoles.me/htna/reference/state_frequencies_htna.md)
+gives the pooled table without actors, with shares of all events;
+[`state_distribution_htna()`](https://sonsoles.me/htna/reference/state_distribution_htna.md)
+returns the same table as this function.
 
 ## Usage
 
@@ -20,31 +35,18 @@ frequencies_htna(x)
 
 ## Value
 
-A data frame with one row per `(actor, state)` pair and columns `group`
-(the actor type), `state`, `count` and `proportion` (the state's share
-of its own actor's events, so proportions sum to 1 within each actor).
+A data frame with one row per actor and code, sorted by decreasing
+count, and columns `group` (the actor type), `state`, `count` and
+`proportion` (the code's share of its actor's events).
 
-## Details
+## Conditions
 
-Internally a thin wrapper around the htna S3 method shipped by Nestimate
-(`state_distribution.htna`); exposed under the `frequencies_htna()` name
-as the canonical "give me the frequency table for this network" entry
-point.
-
-Suffixed `_htna` to avoid clashing with
-[`Nestimate::frequencies()`](https://pak.dynasite.org/Nestimate/reference/frequencies.html)
-(which takes raw long-format data and a column-name spec) when both
-packages are loaded. If you have raw data rather than an htna network,
-call
-[`Nestimate::frequencies()`](https://pak.dynasite.org/Nestimate/reference/frequencies.html)
-directly.
+An error of class `htna_bad_input` when `x` is not an htna network.
 
 ## See also
 
-[`plot_frequencies_htna()`](https://sonsoles.me/htna/reference/plot_frequencies_htna.md)
-for the rendered version,
-[`state_distribution_htna()`](https://sonsoles.me/htna/reference/state_distribution_htna.md)
-(same function under the upstream name),
+[`plot_frequencies_htna()`](https://sonsoles.me/htna/reference/plot_frequencies_htna.md),
+[`state_frequencies_htna()`](https://sonsoles.me/htna/reference/state_frequencies_htna.md),
 [`mosaic_plot_htna()`](https://sonsoles.me/htna/reference/mosaic_plot_htna.md).
 
 ## Examples

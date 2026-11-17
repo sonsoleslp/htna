@@ -1,10 +1,26 @@
-# Network Reliability for an htna Network
+# Estimate the split-half reliability of a heterogeneous transition network
 
-Thin wrapper around
-[`Nestimate::network_reliability()`](https://pak.dynasite.org/Nestimate/reference/network_reliability.html)
-that preserves the htna actor partition on every model in the returned
-`$models` slot, so downstream htna-aware code (plotting, centralities,
-etc.) keeps working on the reliability output.
+`reliability_htna()` estimates the split-half reliability of one or more
+htna networks: how far each network would look the same if it had been
+estimated from a different half of the sessions. The sessions are split
+at random into two halves many times, a network is estimated from each
+half, and the two networks are compared: the mean, median and maximum
+absolute difference of their edge weights and the correlation of their
+weights. High correlations and small deviations over the splits indicate
+that the estimated structure does not depend on which sessions happened
+to be observed.
+
+When several networks are given (for example, built with different
+methods from the same data), each is assessed with the same splits.
+`reliability_htna()` runs Nestimate's `network_reliability()`, and the
+networks re-estimated on the splits keep the actor partition. It returns
+an `htna_reliability` object.
+
+For the stability of the weights when increasing shares of the sessions
+are dropped use
+[`casedrop_reliability_htna()`](https://sonsoles.me/htna/reference/casedrop_reliability_htna.md);
+for edge-level intervals use
+[`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md).
 
 ## Usage
 
@@ -16,57 +32,46 @@ reliability_htna(..., iter = 1000L, split = 0.5, scale = "none", seed = NULL)
 
 - ...:
 
-  One or more htna networks built by
+  One or more htna networks from
   [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
 
 - iter:
 
-  Integer. Number of split-half iterations. Default `1000`.
+  Number of random splits (default 1000).
 
 - split:
 
-  Numeric in (0, 1). Proportion of sessions used for the first
-  half-network. Default `0.5`.
+  Proportion of the sessions in the first half (default 0.5).
 
 - scale:
 
-  One of `"none"`, `"minmax"`, `"standardize"`, `"proportion"`.
-  Forwarded to
-  [`Nestimate::network_reliability()`](https://pak.dynasite.org/Nestimate/reference/network_reliability.html).
+  Scaling of the weights before they are compared: `"none"` (default),
+  `"minmax"`, `"standardize"` or `"proportion"`.
 
 - seed:
 
-  Optional integer seed for reproducibility. Default `NULL` (no seed
-  reset).
+  Random seed (default `NULL`, no seed is set).
 
 ## Value
 
-An object of class `c("htna_reliability", "net_reliability")`, with the
-same components as
-[`Nestimate::network_reliability()`](https://pak.dynasite.org/Nestimate/reference/network_reliability.html)
-(`iterations`, `summary`, `models`, `iter`, `split`, `scale`), and each
-entry of `models` carrying the htna actor partition (`nodes$groups`,
-`node_groups`, `actor_levels`).
+An object of class `c("htna_reliability", "net_reliability")` with
 [`print()`](https://rdrr.io/r/base/print.html),
 [`summary()`](https://rdrr.io/r/base/summary.html) and
-[`plot()`](https://rdrr.io/r/graphics/plot.default.html) methods are
-supplied by Nestimate;
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) methods.
 [`summary()`](https://rdrr.io/r/base/summary.html) returns a data frame
-with one row per (model, metric) and columns `model`, `metric`
+with one row per network and metric and columns `model`, `metric`
 (`mean_dev`, `median_dev`, `cor`, `max_dev`), `mean` and `sd`.
 
-## Details
+## Conditions
 
-Mirrors the signature of the underlying function: pass one or more
-networks via `...` plus the optional `iter`, `split`, `scale`, and
-`seed` arguments. All networks passed through `...` must be htna
-networks built by
-[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
+An error of class `htna_empty_input` when no network is given, and of
+class `htna_bad_input` when an input is not an htna network.
 
 ## See also
 
-[`Nestimate::network_reliability()`](https://pak.dynasite.org/Nestimate/reference/network_reliability.html),
-[`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md).
+[`casedrop_reliability_htna()`](https://sonsoles.me/htna/reference/casedrop_reliability_htna.md),
+[`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md),
+[`centrality_stability_htna()`](https://sonsoles.me/htna/reference/centrality_stability_htna.md).
 
 ## Examples
 

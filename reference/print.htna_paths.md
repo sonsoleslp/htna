@@ -1,8 +1,15 @@
-# Print Method for htna Path/Pattern Objects
+# Print a table of paths or meta-paths
 
-Shared print method for objects returned by
-[`extract_meta_paths()`](https://sonsoles.me/htna/reference/extract_meta_paths.md)
-(class `htna_meta_paths`). Dispatches on the `htna_paths` parent class.
+[`print()`](https://rdrr.io/r/base/print.html) prints the result of
+[`extract_meta_paths()`](https://sonsoles.me/htna/reference/extract_meta_paths.md):
+a header with the level (concrete paths or meta-paths), the template if
+one was given, the number of sessions, the lengths and gaps counted, and
+then the first `n` rows with support, frequency and lift rounded for
+reading. It returns `x` invisibly. The result is itself a data frame, so
+all rows and full precision are available with
+[`utils::head()`](https://rdrr.io/r/utils/head.html),
+[`subset()`](https://rdrr.io/r/base/subset.html) or
+[`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html).
 
 ## Usage
 
@@ -15,11 +22,12 @@ print(x, n = 10L, ...)
 
 - x:
 
-  An `htna_paths` object.
+  A result of
+  [`extract_meta_paths()`](https://sonsoles.me/htna/reference/extract_meta_paths.md).
 
 - n:
 
-  Maximum number of rows to print. Default `10`.
+  Number of rows to print (default 10).
 
 - ...:
 
@@ -27,7 +35,11 @@ print(x, n = 10L, ...)
 
 ## Value
 
-The input object, invisibly.
+`x`, invisibly.
+
+## See also
+
+[`extract_meta_paths()`](https://sonsoles.me/htna/reference/extract_meta_paths.md).
 
 ## Examples
 
@@ -35,8 +47,8 @@ The input object, invisibly.
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
-p <- extract_meta_paths(net, length = 3)
-print(p, n = 5)
+paths <- extract_meta_paths(net, length = 3)
+print(paths, n = 5)
 #> Patterns (state-level) over 429 sequences
 #> Rows: 1058 | Lengths: 3 | Gaps: 0
 #>                     schema      meta_schema length gap count n_seq support

@@ -1,11 +1,12 @@
-# Code-to-Actor-Type Codebook for `human_ai`
+# Code-to-actor codebook for the vibe-coding data
 
-A tidy two-column lookup tagging every simplified code in
-[`human_ai`](https://sonsoles.me/htna/reference/human_ai.md) with its
-actor type. Ready to pass as `node_groups` to
-[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) (Form
-3b in the
-[`vignette("input-formats", package = "htna")`](https://sonsoles.me/htna/articles/input-formats.md)).
+`human_ai_codebook` is the codebook of
+[human_ai](https://sonsoles.me/htna/reference/human_ai.md): the actor
+type of each of its twelve codes. A codebook of this form declares the
+actor partition when the event data have no actor-type column: it is
+passed to
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) as
+`node_groups`.
 
 ## Usage
 
@@ -15,30 +16,27 @@ human_ai_codebook
 
 ## Format
 
-A data frame with 12 rows and 2 columns:
+A data frame with 12 rows, one per code, and 2 columns:
 
 - code:
 
-  Character. Simplified action code (one of the 12 Human + AI codes in
-  [`human_ai`](https://sonsoles.me/htna/reference/human_ai.md)).
+  Simplified interaction code.
 
 - actor_type:
 
-  Character. `"Human"` or `"AI"`.
+  `"Human"` or `"AI"`.
 
 ## Source
 
 Derived from
-[`human_simplified`](https://sonsoles.me/htna/reference/human_simplified.md)
+[human_simplified](https://sonsoles.me/htna/reference/human_simplified.md)
 and
-[`ai_simplified`](https://sonsoles.me/htna/reference/ai_simplified.md);
-see `data-raw/human_ai.R` for the build script.
+[ai_simplified](https://sonsoles.me/htna/reference/ai_simplified.md).
 
 ## See also
 
-[`human_ai`](https://sonsoles.me/htna/reference/human_ai.md),
-[`human_simplified`](https://sonsoles.me/htna/reference/human_simplified.md),
-[`ai_simplified`](https://sonsoles.me/htna/reference/ai_simplified.md).
+[human_ai](https://sonsoles.me/htna/reference/human_ai.md),
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
 
 ## Examples
 

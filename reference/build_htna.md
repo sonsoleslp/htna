@@ -1,9 +1,43 @@
-# Build a Heterogeneous Transition Network (HTNA)
+# Build a heterogeneous transition network
 
-Builds a transition network over a combined sequence of two or more
-actor groups (e.g. Human and AI) and preserves the actor partition on
-the result so downstream plotting and analysis can treat each actor's
-codes as a distinct node group.
+`build_htna()` builds a heterogeneous transition network: one transition
+network over interaction sequences in which the events are produced by
+two or more types of actor, such as a learner and an AI assistant. In
+heterogeneous transition network analysis (HTNA) each node is a code (an
+action or event) and belongs to exactly one actor type, and each
+directed edge is the transition from one code to the next within a
+session (Lopez-Pernas, Misiejuk and Saqr, 2026). Because the actor
+partition is kept on the network, the within-actor transitions (Human to
+Human) and the hand-overs between actors (Human to AI, AI to Human) can
+be estimated, plotted and tested as distinct parts of one model.
+
+`build_htna()` orders the events of every session in time, estimates the
+transition network over the combined sequence with the chosen `method`
+(relative transition probabilities by default, or frequencies,
+co-occurrences or attention weights), and attaches the actor type of
+every node. The actor partition can be given in three ways: a named list
+of one long data frame per actor type, a single data frame with a column
+naming the actor type of each row (`actor_type`), or a single data frame
+together with a code-to-actor lookup (`node_groups`). With `group`, one
+network is estimated per level of a session-level variable (for example
+an early and a late phase), in the order of the factor levels. A fitted
+sequence clustering (from
+[`Nestimate::build_clusters()`](https://pak.dynasite.org/Nestimate/reference/build_clusters.html),
+[`Nestimate::cluster_mmm()`](https://pak.dynasite.org/Nestimate/reference/cluster_mmm.html)
+or
+[`tna::cluster_sequences()`](https://sonsoles.me/tna/reference/cluster_data.html))
+is turned into one network per cluster without refitting, and a fitted
+[`Nestimate::build_mcml()`](https://pak.dynasite.org/Nestimate/reference/build_mcml.html)
+model into one network whose actor types are its node clusters.
+
+It returns an `htna` network, or an `htna_group` with one network per
+cohort or cluster. The grouped result is passed as it is to the
+comparison, assessment and plotting functions, which work through every
+cohort. Use
+[`summary.htna()`](https://sonsoles.me/htna/reference/summary.htna.md)
+to describe the result and
+[`as.data.frame.htna()`](https://sonsoles.me/htna/reference/as.data.frame.htna.md)
+for its edges and nodes.
 
 ## Usage
 
@@ -28,247 +62,276 @@ build_htna(
 
 - data:
 
-  Either:
+  The event data, in one of these forms:
 
-  - A named list of long-format data frames, one per actor type (e.g.
-    `list(Human = human_simplified, AI = ai_simplified)`). All frames
-    must share the same column schema.
+  - a named list of long data frames, one per actor type, with the same
+    columns, e.g. `list(Human = human_simplified, AI = ai_simplified)`;
 
-  - A single long-format data frame. In that case either `actor_type`
-    (row-level actor-type IDs) or `node_groups` (node-level actor-type
-    lookup) must be supplied.
+  - one long data frame, with `actor_type` or `node_groups`;
 
-  - A fitted clustering result from
-    [`Nestimate::build_clusters()`](https://pak.dynasite.org/Nestimate/reference/build_clusters.html),
-    [`Nestimate::cluster_mmm()`](https://pak.dynasite.org/Nestimate/reference/cluster_mmm.html)
-    (a `net_mmm`), or
-    [`tna::cluster_sequences()`](https://sonsoles.me/tna/reference/cluster_data.html),
-    or an already-materialized `netobject_group`. One HTNA network is
-    returned per sequence cluster. The clustering fit is not rerun;
-    assignments, diagnostics, fitted MMM weights, and actor metadata are
-    preserved.
+  - a fitted clustering (`net_clustering`, `net_mmm`, `tna_clustering`)
+    or a `netobject_group`, giving one network per cluster;
 
-  - A fitted
-    [`Nestimate::build_mcml()`](https://pak.dynasite.org/Nestimate/reference/build_mcml.html)
-    object. Its node clusters become the HTNA actor groups and one full
-    node-level network is rebuilt from the original source, including
-    transitions between clusters.
+  - a fitted `mcml` model, whose node clusters become the actor types.
 
 - actor_type:
 
-  Character. Name of the column tagging each row's actor type / group
-  (e.g. `"Human"` vs `"AI"`) when `data` is a single data frame. Ignored
-  when `data` is a named list or when `node_groups` is supplied.
+  Name of the column giving the actor type of each row, for a single
+  data frame. A factor column sets the order of the actor types;
+  otherwise they are ordered by first appearance.
 
 - actor:
 
-  Character. Name of an optional column identifying the individual actor
-  that performed each event (e.g. a learner / user id). Forwarded to
-  [`build_network`](https://pak.dynasite.org/Nestimate/reference/build_network.html)
-  with the same semantics; orthogonal to `actor_type`, which encodes the
-  group/type partition over codes.
+  Name of an optional column identifying the individual who produced
+  each event (for example a learner id). Independent of `actor_type`.
+  Default `NULL`.
 
 - node_groups:
 
-  Node-to-actor-type lookup, in either of two forms:
-
-  - A **named list** mapping actor-type labels to character vectors of
-    code names, e.g.
-    `list(Human = c("Specify", "Command"), AI = c("Plan", "Execute"))`.
-
-  - A **2-column data frame** with one column named after `action` (the
-    codes) and one other column tagging each code with its actor type,
-    e.g.
-    `data.frame(code = c("Specify", "Plan"), actor_type = c("Human", "AI"))`.
-    The actor-type ordering follows the column's factor levels or, for
-    character vectors, the order of first appearance.
-
-  Use `node_groups` when `data` is a single long-format frame with no
-  actor-type column and you want to declare the node-to-type partition
-  directly. Each code in `data[[action]]` must appear in exactly one
-  entry. For clustering inputs, the canonical two-column
-  `data.frame(node, group)` stored on an existing HTNA model is also
-  accepted. The argument may be omitted when Nestimate preserved the
-  partition from an HTNA input. Mutually exclusive with `actor_type`.
-  For an `mcml` input, this optionally overrides `$cluster_members`;
-  otherwise the fitted membership is used.
+  Code-to-actor lookup for a single data frame without an actor-type
+  column: a named list of code vectors, e.g.
+  `list(Human = c("Specify", "Check"), AI = c("Plan", "Execute"))`, or a
+  two-column data frame with the code column (named as `action`) and the
+  actor-type column, such as
+  [human_ai_codebook](https://sonsoles.me/htna/reference/human_ai_codebook.md).
+  Every code must belong to exactly one actor type. For a clustering or
+  `mcml` input it optionally supplies or overrides the partition. Use
+  either `actor_type` or `node_groups`, not both.
 
 - action:
 
-  Character. Name of the action/code column. Default `"code"`.
+  Name of the code column. Default `"code"`.
 
 - session:
 
-  Character. Name of the session column. Default `"session_id"`.
+  Name of the session column. Default `"session_id"`.
 
 - order:
 
-  Character. Name of the within-session order column. Default
-  `"order_in_session"`.
+  Name of the within-session order column. Default `"order_in_session"`.
 
 - method:
 
-  Character. Transition method passed to
-  [`build_network`](https://pak.dynasite.org/Nestimate/reference/build_network.html):
-  `"relative"` (default), `"frequency"`, `"co_occurrence"`, or
-  `"attention"`. Co-occurrence models are undirected and preserve the
-  same actor partition as transition models.
+  Network estimator: `"relative"` (default, transition probabilities),
+  `"frequency"`, `"co_occurrence"` (undirected) or `"attention"`.
 
 - group:
 
-  Character. Optional name of a column in `data` used to split sessions
-  into cohorts (e.g. `"cluster"`). When supplied, one network is built
-  per group level and the result is a named list of htna networks with
-  class `c("htna_group", "netobject_group", "list")`. Pass that object
-  as it is to the downstream verbs; they iterate over the cohorts.
+  Name of a session-level column defining cohorts; one network is built
+  per cohort. Default `NULL` (one network).
 
 - disambiguate:
 
-  Logical. If `FALSE` (default), the function errors when a code label
-  appears in more than one actor-type group. If `TRUE`, codes are
-  prefixed with the actor-type label (`"Human:Ask"`, `"AI:Ask"`) so they
-  become distinct nodes.
+  If `TRUE`, a code used by more than one actor type is split into one
+  node per actor type, prefixed with the actor label (`"Human:Ask"`,
+  `"AI:Ask"`). Default `FALSE` (a shared code is an error).
 
 - source_data:
 
-  Original node-level data for an `mcml` input. Usually unnecessary when
-  [`Nestimate::build_mcml()`](https://pak.dynasite.org/Nestimate/reference/build_mcml.html)
-  retained its sequence source. Required when the fitted object has no
-  expandable source, such as an `mcml` built from a transition matrix or
-  edge list. The fitted macro and within-cluster weights are
-  deliberately not stitched together: rebuilding from this source is
-  what preserves cross-cluster transitions.
+  The original event data for an `mcml` input whose fitted object did
+  not keep it. Default `NULL`.
 
 - ...:
 
-  Additional arguments forwarded to
-  [`build_network`](https://pak.dynasite.org/Nestimate/reference/build_network.html).
+  Further estimation arguments, such as `threshold` or `scaling`.
 
 ## Value
 
 An object of class `c("htna", "netobject", "cograph_network")`: a
-Nestimate `netobject` with the actor partition stored in cograph's
-canonical schema, so `cograph::plot_htna(net)` auto-detects the groups
-with no further arguments:
+transition network with its weight matrix, nodes, sequence data and the
+actor partition (the actor type of every node and the ordered actor
+types). With `group` or a clustering input, an `htna_group`: a named
+list with one `htna` network per cohort or cluster, which keeps the
+clustering assignments and diagnostics as attributes. An `mcml` input
+returns one `htna`.
+[`as.data.frame.htna()`](https://sonsoles.me/htna/reference/as.data.frame.htna.md)
+returns the edges (one row per non-zero transition, with the actor types
+of its source and target) or the nodes.
 
-- `$nodes$groups` - actor label per node (the column name
-  [`cograph::plot_htna`](https://sonsoles.me/cograph/reference/plot_htna.html)
-  auto-detects).
+## Conditions
 
-- `$node_groups` - data frame with columns `node` and `group` (canonical
-  `cograph_network` schema, also readable by
-  [`cograph::get_groups()`](https://sonsoles.me/cograph/reference/get_nodes.html),
-  [`Nestimate::cluster_summary()`](https://pak.dynasite.org/Nestimate/reference/cluster_summary.html),
-  and the `print` method for `cograph_network`).
+Errors inherit from `htna_error`. Specific classes:
+`htna_missing_column` when the session, order or code column is absent;
+`htna_actor_conflict` when a code belongs to more than one actor type
+and `disambiguate = FALSE`; `htna_unassigned_node` when a code has no
+actor type in `node_groups`; `htna_bad_input` for other invalid
+arguments.
 
-- `$actor_levels` - declared actor ordering, also retained as metadata
-  on `$node_groups` so the table can be passed back to `build_htna()`
-  without losing that order.
+## References
 
-All other slots are exactly as returned by
-[`build_network`](https://pak.dynasite.org/Nestimate/reference/build_network.html).
-A `group` argument or a clustering input returns an `htna_group` (a
-named list with one `htna` per cohort or cluster); its children retain
-the actor partition and its outer clustering assignments, posterior
-probabilities, diagnostics, and other attributes are preserved. An
-`mcml` input instead returns one `htna`, equivalent to
-[`Nestimate::as_htna()`](https://pak.dynasite.org/Nestimate/reference/as_htna.html).
+Lopez-Pernas, S., Misiejuk, K., & Saqr, M. (2026). How AI-generated
+feedback hinders or helps learning: A heterogeneous TNA study of
+learning dynamics. *Journal of Computer Assisted Learning*, 42(4),
+e70285. [doi:10.1002/jcal.70285](https://doi.org/10.1002/jcal.70285)
 
 ## See also
 
-[`build_network`](https://pak.dynasite.org/Nestimate/reference/build_network.html),
-[`build_tna`](https://pak.dynasite.org/Nestimate/reference/build_tna.html),
-[`summary.htna`](https://sonsoles.me/htna/reference/summary.htna.md),
-[`plot_htna`](https://sonsoles.me/htna/reference/plot_htna.md) (which
-renders through
-[`plot_htna`](https://sonsoles.me/cograph/reference/plot_htna.html))
+[`summary.htna()`](https://sonsoles.me/htna/reference/summary.htna.md)
+and
+[`as.data.frame.htna()`](https://sonsoles.me/htna/reference/as.data.frame.htna.md)
+to describe the network;
+[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md) to draw
+it;
+[`compare_htna()`](https://sonsoles.me/htna/reference/compare_htna.md),
+[`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)
+and
+[`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
+for inference.
 
 ## Examples
 
 ``` r
-data(human_ai, human_simplified, ai_simplified, human_ai_codebook)
-
-# Form 1: named list of per-actor frames
-net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
-#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
-summary(net)
-#> <htna network>
-#>   Method:    relative
-#>   Sessions:  429   (max 287 timesteps)
-#>   Nodes:     12
-#>   Edges:     135 / 144 (non-zero)
-#> 
-#> Actor types (2):
-#>   Human (6 nodes):  Check, Frustrate, Inquire, Refine, Request, Specify
-#>   AI    (6 nodes):  Ask, Delegate, Execute, Plan, Repair, Report
-#> 
-#> Edge counts by actor (rows = source, cols = target):
-#>           Human    AI
-#>   Human      35    36
-#>   AI         36    28
-#> 
-#> Network metrics:
-#>                       metric        value
-#>                   Node Count  12.00000000
-#>                   Edge Count 135.00000000
-#>              Network Density   1.00000000
-#>                Mean Distance   0.02743124
-#>            Mean Out-Strength   1.00000000
-#>              SD Out-Strength   0.00000000
-#>             Mean In-Strength   1.00000000
-#>               SD In-Strength   0.63085045
-#>              Mean Out-Degree  11.25000000
-#>                SD Out-Degree   0.96530730
-#>  Centralization (Out-Degree)   0.05785124
-#>   Centralization (In-Degree)   0.05785124
-#>                  Reciprocity   0.96000000
-
-# Form 2: single combined frame with a row-level actor-type tag
+data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
+net
+#> Transition Network (relative probabilities) [directed]
+#>   Weights: [0.002, 0.611]  |  mean: 0.089
+#> 
+#>   Weight matrix:
+#>               Ask Check Delegate Execute Frustrate Inquire  Plan Refine Repair
+#>   Ask       0.018 0.063    0.000   0.022     0.116   0.063 0.409  0.051  0.004
+#>   Check     0.117 0.050    0.015   0.411     0.058   0.005 0.008  0.042  0.033
+#>   Delegate  0.000 0.039    0.000   0.011     0.110   0.032 0.611  0.014  0.000
+#>   Execute   0.061 0.087    0.000   0.074     0.143   0.088 0.107  0.069  0.002
+#>   Frustrate 0.194 0.104    0.039   0.119     0.114   0.060 0.004  0.098  0.029
+#>   Inquire   0.251 0.069    0.027   0.285     0.039   0.033 0.009  0.016  0.042
+#>   Plan      0.000 0.146    0.000   0.015     0.215   0.083 0.003  0.086  0.005
+#>   Refine    0.143 0.045    0.006   0.206     0.008   0.014 0.013  0.000  0.025
+#>   Repair    0.241 0.012    0.028   0.391     0.043   0.047 0.016  0.024  0.004
+#>   Report    0.102 0.114    0.000   0.009     0.124   0.102 0.050  0.058  0.039
+#>   Request   0.148 0.055    0.018   0.292     0.016   0.010 0.008  0.009  0.007
+#>   Specify   0.269 0.017    0.040   0.273     0.096   0.011 0.015  0.002  0.013
+#>             Report Request Specify
+#>   Ask        0.028   0.173   0.052
+#>   Check      0.055   0.049   0.156
+#>   Delegate   0.018   0.131   0.035
+#>   Execute    0.010   0.293   0.065
+#>   Frustrate  0.021   0.135   0.085
+#>   Inquire    0.170   0.028   0.029
+#>   Plan       0.026   0.325   0.095
+#>   Refine     0.023   0.105   0.413
+#>   Repair     0.103   0.071   0.020
+#>   Report     0.077   0.257   0.066
+#>   Request    0.034   0.067   0.336
+#>   Specify    0.037   0.126   0.101 
+#> 
+#>   Initial probabilities:
+#>   Specify       0.818  ████████████████████████████████████████
+#>   Request       0.156  ████████
+#>   Frustrate     0.023  █
+#>   Refine        0.002  
+#>   Ask           0.000  
+#>   Check         0.000  
+#>   Delegate      0.000  
+#>   Execute       0.000  
+#>   Inquire       0.000  
+#>   Plan          0.000  
+#>   Repair        0.000  
+#>   Report        0.000  
 
-# Form 3: combined frame plus a code-to-actor codebook
-net <- build_htna(human_ai, node_groups = human_ai_codebook)
+# the same network from one data frame per actor type
+build_htna(list(Human = human_simplified, AI = ai_simplified))
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
+#> Transition Network (relative probabilities) [directed]
+#>   Weights: [0.002, 0.611]  |  mean: 0.089
+#> 
+#>   Weight matrix:
+#>               Ask Check Delegate Execute Frustrate Inquire  Plan Refine Repair
+#>   Ask       0.018 0.063    0.000   0.022     0.116   0.063 0.409  0.051  0.004
+#>   Check     0.117 0.050    0.015   0.411     0.058   0.005 0.008  0.042  0.033
+#>   Delegate  0.000 0.039    0.000   0.011     0.110   0.032 0.611  0.014  0.000
+#>   Execute   0.061 0.087    0.000   0.074     0.143   0.088 0.107  0.069  0.002
+#>   Frustrate 0.194 0.104    0.039   0.119     0.114   0.060 0.004  0.098  0.029
+#>   Inquire   0.251 0.069    0.027   0.285     0.039   0.033 0.009  0.016  0.042
+#>   Plan      0.000 0.146    0.000   0.015     0.215   0.083 0.003  0.086  0.005
+#>   Refine    0.143 0.045    0.006   0.206     0.008   0.014 0.013  0.000  0.025
+#>   Repair    0.241 0.012    0.028   0.391     0.043   0.047 0.016  0.024  0.004
+#>   Report    0.102 0.114    0.000   0.009     0.124   0.102 0.050  0.058  0.039
+#>   Request   0.148 0.055    0.018   0.292     0.016   0.010 0.008  0.009  0.007
+#>   Specify   0.269 0.017    0.040   0.273     0.096   0.011 0.015  0.002  0.013
+#>             Report Request Specify
+#>   Ask        0.028   0.173   0.052
+#>   Check      0.055   0.049   0.156
+#>   Delegate   0.018   0.131   0.035
+#>   Execute    0.010   0.293   0.065
+#>   Frustrate  0.021   0.135   0.085
+#>   Inquire    0.170   0.028   0.029
+#>   Plan       0.026   0.325   0.095
+#>   Refine     0.023   0.105   0.413
+#>   Repair     0.103   0.071   0.020
+#>   Report     0.077   0.257   0.066
+#>   Request    0.034   0.067   0.336
+#>   Specify    0.037   0.126   0.101 
+#> 
+#>   Initial probabilities:
+#>   Specify       0.818  ████████████████████████████████████████
+#>   Request       0.156  ████████
+#>   Frustrate     0.023  █
+#>   Refine        0.002  
+#>   Ask           0.000  
+#>   Check         0.000  
+#>   Delegate      0.000  
+#>   Execute       0.000  
+#>   Inquire       0.000  
+#>   Plan          0.000  
+#>   Repair        0.000  
+#>   Report        0.000  
 
-# One network per cohort
+# or from a code-to-actor codebook
+build_htna(human_ai, node_groups = human_ai_codebook)
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
+#> Transition Network (relative probabilities) [directed]
+#>   Weights: [0.002, 0.611]  |  mean: 0.089
+#> 
+#>   Weight matrix:
+#>               Ask Check Delegate Execute Frustrate Inquire  Plan Refine Repair
+#>   Ask       0.018 0.063    0.000   0.022     0.116   0.063 0.409  0.051  0.004
+#>   Check     0.117 0.050    0.015   0.411     0.058   0.005 0.008  0.042  0.033
+#>   Delegate  0.000 0.039    0.000   0.011     0.110   0.032 0.611  0.014  0.000
+#>   Execute   0.061 0.087    0.000   0.074     0.143   0.088 0.107  0.069  0.002
+#>   Frustrate 0.194 0.104    0.039   0.119     0.114   0.060 0.004  0.098  0.029
+#>   Inquire   0.251 0.069    0.027   0.285     0.039   0.033 0.009  0.016  0.042
+#>   Plan      0.000 0.146    0.000   0.015     0.215   0.083 0.003  0.086  0.005
+#>   Refine    0.143 0.045    0.006   0.206     0.008   0.014 0.013  0.000  0.025
+#>   Repair    0.241 0.012    0.028   0.391     0.043   0.047 0.016  0.024  0.004
+#>   Report    0.102 0.114    0.000   0.009     0.124   0.102 0.050  0.058  0.039
+#>   Request   0.148 0.055    0.018   0.292     0.016   0.010 0.008  0.009  0.007
+#>   Specify   0.269 0.017    0.040   0.273     0.096   0.011 0.015  0.002  0.013
+#>             Report Request Specify
+#>   Ask        0.028   0.173   0.052
+#>   Check      0.055   0.049   0.156
+#>   Delegate   0.018   0.131   0.035
+#>   Execute    0.010   0.293   0.065
+#>   Frustrate  0.021   0.135   0.085
+#>   Inquire    0.170   0.028   0.029
+#>   Plan       0.026   0.325   0.095
+#>   Refine     0.023   0.105   0.413
+#>   Repair     0.103   0.071   0.020
+#>   Report     0.077   0.257   0.066
+#>   Request    0.034   0.067   0.336
+#>   Specify    0.037   0.126   0.101 
+#> 
+#>   Initial probabilities:
+#>   Specify       0.818  ████████████████████████████████████████
+#>   Request       0.156  ████████
+#>   Frustrate     0.023  █
+#>   Refine        0.002  
+#>   Ask           0.000  
+#>   Check         0.000  
+#>   Delegate      0.000  
+#>   Execute       0.000  
+#>   Inquire       0.000  
+#>   Plan          0.000  
+#>   Repair        0.000  
+#>   Report        0.000  
+
+# one network per phase, in the order of the factor levels
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
 #> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
 summary(grp)
-#> <htna_group: 2 cohorts (Late, Early)>
-#> 
-#> === Late ===
-#> <htna network>
-#>   Method:    relative
-#>   Sessions:  215   (max 208 timesteps)
-#>   Nodes:     12
-#>   Edges:     134 / 144 (non-zero)
-#> 
-#> Actor types (2):
-#>   Human (6 nodes):  Check, Frustrate, Inquire, Refine, Request, Specify
-#>   AI    (6 nodes):  Ask, Delegate, Execute, Plan, Repair, Report
-#> 
-#> Edge counts by actor (rows = source, cols = target):
-#>           Human    AI
-#>   Human      35    36
-#>   AI         36    27
-#> 
-#> Network metrics:
-#>                       metric        value
-#>                   Node Count 1.200000e+01
-#>                   Edge Count 1.340000e+02
-#>              Network Density 1.000000e+00
-#>                Mean Distance 2.438201e-02
-#>            Mean Out-Strength 1.000000e+00
-#>              SD Out-Strength 3.347448e-17
-#>             Mean In-Strength 1.000000e+00
-#>               SD In-Strength 6.109845e-01
-#>              Mean Out-Degree 1.116667e+01
-#>                SD Out-Degree 9.374369e-01
-#>  Centralization (Out-Degree) 5.785124e-02
-#>   Centralization (In-Degree) 5.785124e-02
-#>                  Reciprocity 9.600000e-01
+#> <htna_group: 2 cohorts (Early, Late)>
 #> 
 #> === Early ===
 #> <htna network>
@@ -301,4 +364,36 @@ summary(grp)
 #>  Centralization (Out-Degree)   0.05785124
 #>   Centralization (In-Degree)   0.05785124
 #>                  Reciprocity   0.96000000
+#> 
+#> === Late ===
+#> <htna network>
+#>   Method:    relative
+#>   Sessions:  215   (max 208 timesteps)
+#>   Nodes:     12
+#>   Edges:     134 / 144 (non-zero)
+#> 
+#> Actor types (2):
+#>   Human (6 nodes):  Check, Frustrate, Inquire, Refine, Request, Specify
+#>   AI    (6 nodes):  Ask, Delegate, Execute, Plan, Repair, Report
+#> 
+#> Edge counts by actor (rows = source, cols = target):
+#>           Human    AI
+#>   Human      35    36
+#>   AI         36    27
+#> 
+#> Network metrics:
+#>                       metric        value
+#>                   Node Count 1.200000e+01
+#>                   Edge Count 1.340000e+02
+#>              Network Density 1.000000e+00
+#>                Mean Distance 2.438201e-02
+#>            Mean Out-Strength 1.000000e+00
+#>              SD Out-Strength 3.347448e-17
+#>             Mean In-Strength 1.000000e+00
+#>               SD In-Strength 6.109845e-01
+#>              Mean Out-Degree 1.116667e+01
+#>                SD Out-Degree 9.374369e-01
+#>  Centralization (Out-Degree) 5.785124e-02
+#>   Centralization (In-Degree) 5.785124e-02
+#>                  Reciprocity 9.600000e-01
 ```

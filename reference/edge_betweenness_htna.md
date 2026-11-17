@@ -1,11 +1,26 @@
-# Edge Betweenness Network
+# Compute the edge betweenness of an htna network
 
-Computes the edge betweenness of every existing edge in an htna network
-and returns a copy whose `$weights` slot stores those betweenness scores
-instead of the original transition weights. The actor partition is
-preserved, so the result can be plotted with
-[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md) to
-visualise which edges carry the most shortest-path traffic.
+`edge_betweenness_htna()` computes the edge betweenness of an htna
+network. The betweenness of an edge is the number of shortest paths
+between pairs of codes that pass through it. Edges with high betweenness
+are the bridges of the interaction: transitions through which much of
+the flow between otherwise distant codes must pass. In a heterogeneous
+network the high-betweenness edges are often hand-overs between actors,
+which shows which exchanges hold the interaction together.
+
+`edge_betweenness_htna()` computes the betweenness of every non-zero
+edge and returns a copy of the network whose edge weights are these
+scores, with the actor partition kept, so the result can be drawn with
+[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md) and
+tabulated with
+[`as.data.frame.htna()`](https://sonsoles.me/htna/reference/as.data.frame.htna.md).
+By default a larger transition probability is a shorter distance
+(`invert = TRUE`), as in transition network analysis.
+
+To draw the result directly use
+[`plot_edge_betweenness_htna()`](https://sonsoles.me/htna/reference/plot_edge_betweenness_htna.md);
+for node-level betweenness use
+[`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md).
 
 ## Usage
 
@@ -22,33 +37,29 @@ edge_betweenness_htna(x, directed = TRUE, invert = TRUE)
 
 - directed:
 
-  If `TRUE` (default), shortest paths follow edge direction.
+  Follow edge direction in shortest paths. Default `TRUE`.
 
 - invert:
 
-  If `TRUE` (default), use `1 / weight` as the edge cost when computing
-  shortest paths.
+  Use `1 / weight` as the length of an edge. Default `TRUE`.
 
 ## Value
 
-A copy of `x` whose `$weights` matrix entries are edge-betweenness
-scores at every position where the original network had a non-zero
-transition. Class is `c("htna_edge_betweenness", class(x))`.
+An htna network of class `c("htna_edge_betweenness", class(x))` whose
+edge weights are edge-betweenness scores at every position where `x` has
+a non-zero transition.
+[`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) returns
+one row per edge with its score in `weight`.
 
-## Details
+## Conditions
 
-Mirrors
-[`tna::betweenness_network()`](https://sonsoles.me/tna/reference/betweenness_network.html):
-edge weights are inverted to costs by default (`invert = TRUE`) – in
-transition networks a larger transition probability means the edge is
-"easier" and so the equivalent path cost is smaller.
+`htna_bad_input` when `x` is not an htna network.
 
 ## See also
 
-[`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md)
-for node-level centrality measures,
-[`tna::betweenness_network()`](https://sonsoles.me/tna/reference/betweenness_network.html)
-for the tna equivalent.
+[`plot_edge_betweenness_htna()`](https://sonsoles.me/htna/reference/plot_edge_betweenness_htna.md),
+[`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md),
+[`as.data.frame.htna()`](https://sonsoles.me/htna/reference/as.data.frame.htna.md)
 
 ## Examples
 
@@ -57,6 +68,12 @@ data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 eb  <- edge_betweenness_htna(net)
-plot_htna(eb)                 # edge thickness = betweenness score
-
+head(as.data.frame(eb))
+#>    from      to weight source_actor target_actor
+#> 1   Ask    Plan     24           AI           AI
+#> 2 Check     Ask      2        Human           AI
+#> 3 Check Execute      5        Human           AI
+#> 4 Check  Repair      1        Human           AI
+#> 5 Check  Report      1        Human           AI
+#> 6 Check Specify      2        Human        Human
 ```

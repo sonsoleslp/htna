@@ -1,158 +1,181 @@
 # Package index
 
-## Build
+## Overview
 
-Construct, inspect, and convert a heterogeneous transition network
+- [`htna`](https://sonsoles.me/htna/reference/htna-package.md)
+  [`htna-package`](https://sonsoles.me/htna/reference/htna-package.md) :
+  htna: Heterogeneous Transition Network Analysis
+
+## Building networks
+
+Estimate a heterogeneous transition network, one per cohort, or one per
+cluster, and read it as tables.
 
 - [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) :
-  Build a Heterogeneous Transition Network (HTNA)
+  Build a heterogeneous transition network
 - [`summary(`*`<htna>`*`)`](https://sonsoles.me/htna/reference/summary.htna.md)
   [`summary(`*`<htna_group>`*`)`](https://sonsoles.me/htna/reference/summary.htna.md)
-  : Summarise a Heterogeneous Transition Network
+  [`print(`*`<summary.htna>`*`)`](https://sonsoles.me/htna/reference/summary.htna.md)
+  [`print(`*`<summary.htna_group>`*`)`](https://sonsoles.me/htna/reference/summary.htna.md)
+  [`as.data.frame(`*`<summary.htna>`*`)`](https://sonsoles.me/htna/reference/summary.htna.md)
+  [`as.data.frame(`*`<summary.htna_group>`*`)`](https://sonsoles.me/htna/reference/summary.htna.md)
+  : Summarize a heterogeneous transition network
+- [`as.data.frame(`*`<htna>`*`)`](https://sonsoles.me/htna/reference/as.data.frame.htna.md)
+  [`as.data.frame(`*`<htna_group>`*`)`](https://sonsoles.me/htna/reference/as.data.frame.htna.md)
+  : Tabulate the edges and nodes of an htna network
 - [`as.igraph(`*`<htna>`*`)`](https://sonsoles.me/htna/reference/as.igraph.htna.md)
   [`as.igraph(`*`<htna_group>`*`)`](https://sonsoles.me/htna/reference/as.igraph.htna.md)
-  : Convert an HTNA Network to igraph
-
-## Pruning
-
-Remove weak edges, restore them, and report what was removed
-
-- [`prune_htna()`](https://sonsoles.me/htna/reference/prune_htna.md) :
-  Prune Weak Edges from a Transition Network
-- [`deprune_htna()`](https://sonsoles.me/htna/reference/deprune_htna.md)
-  : Restore All Edges of a Pruned Transition Network
-- [`reprune_htna()`](https://sonsoles.me/htna/reference/reprune_htna.md)
-  : Re-apply a Previous Pruning Rule
-- [`pruning_details_htna()`](https://sonsoles.me/htna/reference/pruning_details_htna.md)
-  : Tidy Report of a Network's Pruning
-
-## Frequencies and distributions
-
-Marginal state-level summaries and chi-square mosaics
-
-- [`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md)
-  : Tidy Per-Actor Frequency Table for an htna Network
-- [`plot_frequencies_htna()`](https://sonsoles.me/htna/reference/plot_frequencies_htna.md)
-  : Plot State Frequencies (htna-named)
-- [`state_frequencies_htna()`](https://sonsoles.me/htna/reference/state_frequencies_htna.md)
-  : Tidy State Frequency Table
-- [`state_distribution_htna()`](https://sonsoles.me/htna/reference/state_distribution_htna.md)
-  : State Distribution Across Time
-- [`mosaic_plot_htna()`](https://sonsoles.me/htna/reference/mosaic_plot_htna.md)
-  : Chi-square Mosaic Plot of a Transition Network
-
-## Sequences
-
-Per-session trajectories and k-gram pattern comparison
-
-- [`sequence_plot_htna()`](https://sonsoles.me/htna/reference/sequence_plot_htna.md)
-  [`plot_sequences(`*`<htna>`*`)`](https://sonsoles.me/htna/reference/sequence_plot_htna.md)
-  : Plot Per-Actor Sequences From an htna Network
-- [`plot_sequences()`](https://sonsoles.me/htna/reference/plot_sequences.md)
-  : Sequence plot generic
-- [`sequence_compare_htna()`](https://sonsoles.me/htna/reference/sequence_compare_htna.md)
-  : Subsequence Pattern Comparison Across Groups
+  : Convert an htna network to an igraph graph
 
 ## Network plots
 
-Visualise an htna network and contrasts between networks
+Draw a network with each actor’s codes on its own arc, and the
+difference between two networks.
 
 - [`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md)
   [`plot(`*`<htna>`*`)`](https://sonsoles.me/htna/reference/plot_htna.md)
   [`plot(`*`<htna_group>`*`)`](https://sonsoles.me/htna/reference/plot_htna.md)
-  : Plot a Heterogeneous Transition Network
-- [`plot_htna_bootstrap()`](https://sonsoles.me/htna/reference/plot_htna_bootstrap.md)
-  [`plot(`*`<htna_bootstrap>`*`)`](https://sonsoles.me/htna/reference/plot_htna_bootstrap.md)
-  : Plot an htna Bootstrap Result
+  : Plot a heterogeneous transition network
 - [`plot_htna_diff()`](https://sonsoles.me/htna/reference/plot_htna_diff.md)
-  : Plot the Difference Between Two htna Networks
+  : Plot the difference between two htna networks
 - [`htna_palette`](https://sonsoles.me/htna/reference/htna_palette.md) :
-  Default HTNA colour palette
+  Colours of the actor types in htna plots
 
-## Centrality
+## Pruning
 
-Compute and visualise node-level centralities
+Set weak edges aside, restore them, and list what was removed.
 
-- [`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md)
-  : Compute Centrality Measures for an htna Network
-- [`plot_centralities()`](https://sonsoles.me/htna/reference/plot_centralities.md)
-  : Plot Centrality Measures
+- [`prune_htna()`](https://sonsoles.me/htna/reference/prune_htna.md) :
+  Remove weak edges from a heterogeneous transition network
+- [`deprune_htna()`](https://sonsoles.me/htna/reference/deprune_htna.md)
+  : Restore the edges removed by pruning
+- [`reprune_htna()`](https://sonsoles.me/htna/reference/reprune_htna.md)
+  : Re-apply a recorded pruning rule
+- [`pruning_details_htna()`](https://sonsoles.me/htna/reference/pruning_details_htna.md)
+  : List the edges removed by pruning
 
-## Edge betweenness
+## Frequencies and distributions
 
-Replace edge weights with shortest-path betweenness scores
+How often each code occurs, within each actor and overall, and the
+associations between codes and sessions.
 
-- [`edge_betweenness_htna()`](https://sonsoles.me/htna/reference/edge_betweenness_htna.md)
-  : Edge Betweenness Network
-- [`plot_edge_betweenness_htna()`](https://sonsoles.me/htna/reference/plot_edge_betweenness_htna.md)
-  : Plot the Edge Betweenness Network
+- [`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md)
+  : Count the codes of each actor in a network
+- [`plot_frequencies_htna()`](https://sonsoles.me/htna/reference/plot_frequencies_htna.md)
+  : Plot the frequencies of the codes of an htna network
+- [`state_frequencies_htna()`](https://sonsoles.me/htna/reference/state_frequencies_htna.md)
+  : Count the codes of a network over all actors
+- [`state_distribution_htna()`](https://sonsoles.me/htna/reference/state_distribution_htna.md)
+  : Tabulate the distribution of the codes within each actor
+- [`mosaic_plot_htna()`](https://sonsoles.me/htna/reference/mosaic_plot_htna.md)
+  : Plot a chi-square mosaic of the transitions of an htna network
+
+## Sequences
+
+The sessions as sequences of codes, and the comparison of short patterns
+between groups of sessions.
+
+- [`sequence_plot_htna()`](https://sonsoles.me/htna/reference/sequence_plot_htna.md)
+  [`plot_sequences(`*`<htna>`*`)`](https://sonsoles.me/htna/reference/sequence_plot_htna.md)
+  : Plot the sessions of an htna network as sequences
+- [`plot_sequences()`](https://sonsoles.me/htna/reference/plot_sequences.md)
+  : Plot sequences
+- [`sequence_compare_htna()`](https://sonsoles.me/htna/reference/sequence_compare_htna.md)
+  : Compare short sequence patterns between groups of sessions
 
 ## Paths and patterns
 
-Discover meta-paths, state-level patterns, and association rules
+Recurring paths, meta-paths of turn-taking, and association rules.
 
 - [`extract_meta_paths()`](https://sonsoles.me/htna/reference/extract_meta_paths.md)
-  : Extract Path Patterns from a Heterogeneous Transition Network
+  : Count recurring paths and meta-paths in the sessions
 - [`print(`*`<htna_paths>`*`)`](https://sonsoles.me/htna/reference/print.htna_paths.md)
-  : Print Method for htna Path/Pattern Objects
+  : Print a table of paths or meta-paths
 - [`association_rules_htna()`](https://sonsoles.me/htna/reference/association_rules_htna.md)
-  : Association Rule Mining over Transitions
+  : Mine association rules from the sessions of a network
+
+## Centrality
+
+The position of each code in the network and of each edge on shortest
+paths.
+
+- [`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md)
+  : Compute node centralities of an htna network
+- [`plot_centralities()`](https://sonsoles.me/htna/reference/plot_centralities.md)
+  : Plot node centralities of an htna network
+- [`edge_betweenness_htna()`](https://sonsoles.me/htna/reference/edge_betweenness_htna.md)
+  : Compute the edge betweenness of an htna network
+- [`plot_edge_betweenness_htna()`](https://sonsoles.me/htna/reference/plot_edge_betweenness_htna.md)
+  : Plot the edge betweenness of an htna network
 
 ## Comparing networks
 
-Descriptive, permutation, and Bayesian comparison of htna networks
+Descriptive, permutation and Bayesian comparison of two networks or of
+the cohorts of a grouped network.
 
 - [`compare_htna()`](https://sonsoles.me/htna/reference/compare_htna.md)
-  : Compare Heterogeneous Transition Networks
+  : Describe the differences between heterogeneous transition networks
+- [`print(`*`<htna_comparison>`*`)`](https://sonsoles.me/htna/reference/htna_comparison-methods.md)
+  [`summary(`*`<htna_comparison>`*`)`](https://sonsoles.me/htna/reference/htna_comparison-methods.md)
+  [`as.data.frame(`*`<htna_comparison>`*`)`](https://sonsoles.me/htna/reference/htna_comparison-methods.md)
+  [`print(`*`<htna_comparison_group>`*`)`](https://sonsoles.me/htna/reference/htna_comparison-methods.md)
+  [`summary(`*`<htna_comparison_group>`*`)`](https://sonsoles.me/htna/reference/htna_comparison-methods.md)
+  [`as.data.frame(`*`<htna_comparison_group>`*`)`](https://sonsoles.me/htna/reference/htna_comparison-methods.md)
+  : Print, summarize and tabulate an htna network comparison
 - [`plot(`*`<htna_comparison_group>`*`)`](https://sonsoles.me/htna/reference/plot.htna_comparison_group.md)
-  : Plot All Comparisons in an HTNA Comparison Group
+  : Plot the comparisons of a grouped network
 - [`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)
-  : Permutation Test for Network Differences
+  : Test differences between networks by permutation
 - [`bayes_compare_htna()`](https://sonsoles.me/htna/reference/bayes_compare_htna.md)
-  : Bayesian Comparison of Two Networks
+  : Compare networks edge by edge with a Bayesian model
 
 ## Model assessment
 
-Bootstrap, certainty, reliability, stability, and Markov-order adequacy
+Certainty of the edges, reliability and stability of the estimates, and
+the adequacy of a first-order model.
 
 - [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
   [`bootstrap(`*`<htna>`*`)`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
-  : Bootstrap an HTNA Network
+  : Bootstrap the edges of a heterogeneous transition network
 - [`bootstrap()`](https://sonsoles.me/htna/reference/bootstrap.md) :
-  Bootstrap generic
+  Bootstrap a network
+- [`print(`*`<htna_bootstrap_group>`*`)`](https://sonsoles.me/htna/reference/print.htna_bootstrap_group.md)
+  [`summary(`*`<htna_bootstrap_group>`*`)`](https://sonsoles.me/htna/reference/print.htna_bootstrap_group.md)
+  : Print and summarize the bootstraps of a grouped network
+- [`plot_htna_bootstrap()`](https://sonsoles.me/htna/reference/plot_htna_bootstrap.md)
+  [`plot(`*`<htna_bootstrap>`*`)`](https://sonsoles.me/htna/reference/plot_htna_bootstrap.md)
+  : Plot the bootstrap-assessed edges of an htna network
 - [`certainty_htna()`](https://sonsoles.me/htna/reference/certainty_htna.md)
-  : Closed-form Edge Certainty of a Network
+  : Estimate the closed-form certainty of the edge weights
 - [`reliability_htna()`](https://sonsoles.me/htna/reference/reliability_htna.md)
-  : Network Reliability for an htna Network
+  : Estimate the split-half reliability of a heterogeneous transition
+  network
 - [`casedrop_reliability_htna()`](https://sonsoles.me/htna/reference/casedrop_reliability_htna.md)
-  : Edge-Weight Case-Dropping Stability
+  : Assess the case-dropping stability of the edge weights
 - [`centrality_stability_htna()`](https://sonsoles.me/htna/reference/centrality_stability_htna.md)
-  : Centrality Stability for an htna Network
-- [`plot(`*`<htna_stability>`*`)`](https://sonsoles.me/htna/reference/plot.htna_stability.md)
-  : Plot Method for htna Centrality Stability Objects
-- [`plot(`*`<htna_stability_group>`*`)`](https://sonsoles.me/htna/reference/plot.htna_stability_group.md)
-  : Plot Method for htna Stability Groups
+  : Assess the case-dropping stability of node centralities
 - [`print(`*`<htna_stability>`*`)`](https://sonsoles.me/htna/reference/print.htna_stability.md)
-  : Print Method for htna Centrality Stability Objects
-- [`print(`*`<htna_stability_group>`*`)`](https://sonsoles.me/htna/reference/print.htna_stability_group.md)
-  : Print Method for htna Stability Groups
+  [`print(`*`<htna_stability_group>`*`)`](https://sonsoles.me/htna/reference/print.htna_stability.md)
+  : Print centrality stability coefficients
+- [`plot(`*`<htna_stability>`*`)`](https://sonsoles.me/htna/reference/plot.htna_stability.md)
+  [`plot(`*`<htna_stability_group>`*`)`](https://sonsoles.me/htna/reference/plot.htna_stability.md)
+  : Plot centrality stability against the proportion of sessions dropped
+- [`as.data.frame(`*`<htna_stability>`*`)`](https://sonsoles.me/htna/reference/as.data.frame.htna_stability.md)
+  [`as.data.frame(`*`<htna_stability_group>`*`)`](https://sonsoles.me/htna/reference/as.data.frame.htna_stability.md)
+  [`summary(`*`<htna_stability_group>`*`)`](https://sonsoles.me/htna/reference/as.data.frame.htna_stability.md)
+  : Tabulate centrality stability results
 - [`markov_order_test_htna()`](https://sonsoles.me/htna/reference/markov_order_test_htna.md)
-  : Markov-Order Adequacy Test
+  : Test the Markov order of the sessions
 
-## Datasets
+## Data
 
-Sample datasets
+Coded sessions of programmers working with an AI coding agent.
 
-- [`human_ai`](https://sonsoles.me/htna/reference/human_ai.md) :
-  Simplified Human + AI Interaction Sequences
-
+- [`human_ai`](https://sonsoles.me/htna/reference/human_ai.md) : Human
+  and AI turns in vibe-coding sessions
 - [`human_simplified`](https://sonsoles.me/htna/reference/human_simplified.md)
-  : Simplified Human Interaction Sequences (per-actor frame)
-
+  : Human turns of the vibe-coding sessions
 - [`ai_simplified`](https://sonsoles.me/htna/reference/ai_simplified.md)
-  : Simplified AI Interaction Sequences (per-actor frame)
-
+  : AI turns of the vibe-coding sessions
 - [`human_ai_codebook`](https://sonsoles.me/htna/reference/human_ai_codebook.md)
-  :
-
-  Code-to-Actor-Type Codebook for `human_ai`
+  : Code-to-actor codebook for the vibe-coding data

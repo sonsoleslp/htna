@@ -1,166 +1,79 @@
-# Clustering inputs to build_htna()
+# Clustering inputs
 
-[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
-accepts clustering results from the `Nestimate` ecosystem as first-class
-inputs. You can hand a clustering object straight to
-[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) and
-get back an `htna`-aware result with the actor partition already
-attached.
+A network estimated from all sessions describes an average interaction.
+When the sessions follow different patterns, such as some in which the
+human specifies and the AI executes in long runs and others in which the
+two alternate rapidly, the average network describes none of them well.
+Grouping the sessions by a known variable (a condition, a phase of a
+course) is one answer; when no such variable exists, the groups have to
+be found from the sessions themselves. Two families of methods do this.
+Distance-based clustering groups sessions whose sequences are similar
+under a distance measure. A mixture of Markov chains groups sessions by
+the transition process most likely to have generated them, so each
+cluster is a network in its own right.
 
-The clustering constructors covered here all operate at the **cohort
-level**: sessions are grouped into *k* clusters and one htna network is
-built per cluster. The result is an `htna_group`, identical in shape to
-what `build_htna(..., group = ...)` returns, so every grouped-htna
-wrapper
-([`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md),
-[`plot_htna_diff()`](https://sonsoles.me/htna/reference/plot_htna_diff.md),
-[`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md),
-[`centrality_stability_htna()`](https://sonsoles.me/htna/reference/centrality_stability_htna.md),
-etc.) works unchanged.
-
-## Setup
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) takes
+a fitted clustering of an htna network and returns one heterogeneous
+network per cluster, each with the actor partition of the original
+network. The result is a grouped network, the same kind of object that
+`build_htna(..., group = )` returns, so every function that works on
+cohorts works on clusters. This guide fits both kinds of clustering,
+shows how to choose the number of clusters, and compares the resulting
+cluster networks.
 
 ``` r
 
 library(htna)
-data(human_ai)
+```
 
+## Data
+
+`human_ai` holds 429 sessions of human-AI pair programming; each row is
+one coded event.
+
+- **Session**: `session_id`; the unit that is clustered.
+- **Code**: `code`; six human and six AI codes.
+- **Actor type**: `actor_type`, `"Human"` or `"AI"`.
+- **Order**: `order_in_session`.
+
+The clusterings start from the htna network of all sessions, which
+carries the sequences and the actor partition.
+
+``` r
+
+data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 ```
 
-## `Nestimate::build_clusters()` (distance-based)
+## Clustering sessions by sequence similarity
 
-`build_clusters()` computes a pairwise dissimilarity between sessions
-(Hamming by default) and applies a partitioning algorithm (`pam` by
-default) to split them into *k* cohorts. Feed the returned
-`net_clustering` object straight to
-[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md):
-
-``` r
-
-cc  <- Nestimate::build_clusters(net, k = 2, seed = 1)
-grp <- build_htna(cc)
-
-class(grp)
-#> [1] "htna_group"      "netobject_group" "list"
-names(grp)
-#> [1] "Cluster 1" "Cluster 2"
-```
-
-The result is an `htna_group`: one htna network per cluster, each
-carrying the same actor partition inherited from `net`. Plot the two
-cohorts side by side:
+[`Nestimate::build_clusters()`](https://pak.dynasite.org/Nestimate/reference/build_clusters.html)
+computes a dissimilarity between every pair of sessions (Hamming
+distance by default) and partitions them with partitioning around
+medoids into `k` clusters.
 
 ``` r
 
-op <- par(mfrow = c(1, 2))
-plot_htna(grp)
-```
-
-![](clustering_files/figure-html/unnamed-chunk-3-1.png)
-
-``` r
-
-par(op)
-```
-
-Because both networks share the alphabet, they compose with the
-comparison wrappers:
-
-``` r
-
-plot_htna_diff(grp[[1]], grp[[2]])
-```
-
-![](clustering_files/figure-html/unnamed-chunk-4-1.png)
-
-## `Nestimate::cluster_mmm()` (mixture of Markov chains)
-
-`cluster_mmm()` fits a *k*-component mixture of first-order Markov
-chains via EM and assigns each session probabilistically to a component.
-The returned `net_mmm` object is also a legal
-[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
-input:
-
-``` r
-
-cm    <- Nestimate::cluster_mmm(net, k = 2, seed = 1)
-grp_m <- build_htna(cm)
-
-names(grp_m)
-#> [1] "Cluster 1" "Cluster 2"
-```
-
-`grp_m` is again an `htna_group`, ready to feed any of the grouped
-wrappers.
-
-`build_clusters()` and `cluster_mmm()` answer different questions:
-`build_clusters()` groups sessions by *trajectory similarity* under a
-fixed distance metric; `cluster_mmm()` groups sessions by the
-first-order transition process most likely to have generated them. The
-Nestimate documentation covers the trade-offs.
-
-## Choosing the number of clusters
-
-Both constructors take a *k*. Two Nestimate helpers sweep a range of
-candidate values and score them, so the choice does not have to be made
-blind. A third helper reports per-cluster quality once a particular fit
-has been settled on.
-
-### For `build_clusters()`: `cluster_choice()`
-
-`cluster_choice()` fits the same partitioning algorithm at each *k* in a
-grid and reports the average silhouette width, mean within-cluster
-distance, and the cluster-size range. Higher silhouette (closer to 1) is
-better; extreme size ratios flag partitions with a single dominant
-cluster and a tiny satellite. The row flagged `<-- best` in the print
-method is the largest silhouette across the grid.
-
-``` r
-
-Nestimate::cluster_choice(net, k = 2:4)
-#> Cluster Choice (sweep: k)
+fit_distance <- Nestimate::build_clusters(net, k = 2, seed = 1)
+fit_distance
+#> Sequence Clustering [pam]
+#>   Sequences: 429  |  Clusters: 2
+#>   Dissimilarity: hamming
+#>   Quality: silhouette = 0.300
 #> 
-#>  k silhouette within_dist sizes     ratio  best    
-#>  2 0.756      56.274      [11, 418] 38.000 <-- best
-#>  3 0.501      49.323      [11, 349] 31.727         
-#>  4 0.503      48.827      [5, 349]  69.800
+#>   Cluster  N            Mean within-dist  Medoid
+#>   1        288 (67.1%)  36.300            44
+#>   2        141 (32.9%)  93.620            303
 ```
 
-### For `cluster_mmm()`: `compare_mmm()`
-
-`compare_mmm()` fits the mixture at each candidate *k* and returns the
-standard information criteria (`AIC`, `BIC`, `ICL`) plus the average
-posterior probability (`AvePP`, higher = more confident assignments) and
-normalised entropy (lower = more separated components). The row flagged
-`<-- BIC` is the best BIC across the grid; ICL trades off fit against
-classification uncertainty and is often preferred when the cohorts must
-be used for downstream inference.
+The two clusters hold 288 and 141 sessions, but the partition is weak:
+the average silhouette is 0.300, and the second cluster has a mean
+within-cluster distance of 93.6 against 36.3 for the first. The
+per-cluster diagnostics make the problem explicit.
 
 ``` r
 
-Nestimate::compare_mmm(net, k = 2:3, seed = 1)
-#> MMM Model Comparison
-#> 
-#>  k log_likelihood AIC      BIC      ICL      AvePP     Entropy   converged
-#>  2 -36345.27      73264.54 74430.17 74510.27 0.9211857 0.2658902 TRUE     
-#>  3 -36115.29      73092.59 74843.08 74932.82 0.9136712 0.1967376 TRUE     
-#>  best   
-#>  <-- BIC
-#> 
-```
-
-### Validating a specific fit: `cluster_diagnostics()`
-
-Once you have picked a *k* and fit the clustering, pass the result to
-`cluster_diagnostics()` to see per-cluster sizes, mean within- cluster
-distance, and silhouette. Small satellites or negative silhouettes on
-one cluster indicate that the partition is stretched by outliers even if
-the aggregate score is acceptable.
-
-``` r
-
-Nestimate::cluster_diagnostics(cc)
+Nestimate::cluster_diagnostics(fit_distance)
 #> Cluster Diagnostics (distance) [pam / hamming]
 #>   Sequences: 429  |  Clusters: 2
 #>   Quality: silhouette = 0.300
@@ -170,85 +83,227 @@ Nestimate::cluster_diagnostics(cc)
 #>   2        141 (32.9%)  93.620            -0.215
 ```
 
-## Comparing the resulting cohorts
+The second cluster has a negative silhouette (-0.215): on average its
+sessions are closer to the other cluster’s medoid than to their own. It
+is a remainder of long, dissimilar sessions rather than a coherent
+group, which is common for Hamming distances on sequences of very
+different lengths.
 
-Once clustering has produced an `htna_group`,
+## How many clusters?
+
+[`Nestimate::cluster_choice()`](https://pak.dynasite.org/Nestimate/reference/cluster_choice.html)
+fits the distance-based clustering for a range of `k` and reports the
+silhouette and the cluster sizes.
+
+``` r
+
+Nestimate::cluster_choice(net, k = 2:4)
+#> Cluster Choice (sweep: k)
+#> 
+#>  k silhouette within_dist sizes     ratio best    
+#>  2 0.756      56.3        [11, 418] 38.0  <-- best
+#>  3 0.501      49.3        [11, 349] 31.7          
+#>  4 0.503      48.8        [5, 349]  69.8
+```
+
+The highest silhouette (0.756 at `k = 2`) belongs to a partition that
+separates 11 sessions from the other 418, a ratio of 38 between the
+largest and the smallest cluster. A high silhouette for a small
+satellite and one large cluster does not describe two kinds of
+collaboration, so the size column has to be read with the silhouette.
+Neither criterion supports a distance-based clustering of these
+sessions.
+
+## Clustering sessions by their transition process
+
+[`Nestimate::cluster_mmm()`](https://pak.dynasite.org/Nestimate/reference/cluster_mmm.html)
+fits a mixture of first-order Markov chains with the EM algorithm. Every
+session receives a posterior probability of belonging to each component,
+and each component has its own transition matrix.
+
+``` r
+
+fit_mmm <- Nestimate::cluster_mmm(net, k = 2, seed = 1)
+fit_mmm
+#> Mixed Markov Model
+#>   Sequences: 429  |  Clusters: 2  |  States: 12
+#>   ICs: LL = -36345.268  |  BIC = 74430.175  |  AIC = 73264.537  |  ICL = 74510.272
+#>   Quality: AvePP = 0.921  |  Entropy = 0.266  |  Class.Err = 7.9%
+#> 
+#>   Cluster  N            Mix%   AvePP
+#>   1        280 (65.3%)  64.2%  0.932
+#>   2        149 (34.7%)  35.8%  0.902
+```
+
+The two components hold 280 and 149 sessions. The average posterior
+probability of the assigned component is 0.921 (0.932 and 0.902 per
+cluster), and the classification error is 7.9%, so the sessions are
+assigned with confidence.
+[`Nestimate::compare_mmm()`](https://pak.dynasite.org/Nestimate/reference/compare_mmm.html)
+compares mixtures with different numbers of components.
+
+``` r
+
+Nestimate::compare_mmm(net, k = 2:3, seed = 1)
+#> MMM Model Comparison
+#> 
+#>  k log_likelihood AIC   BIC   ICL   AvePP Entropy converged best   
+#>  2 -36345         73265 74430 74510 0.921 0.266   TRUE      <-- BIC
+#>  3 -36115         73093 74843 74933 0.914 0.197   TRUE
+```
+
+BIC and ICL both prefer two components (BIC 74,430 against 74,843),
+while the log-likelihood and AIC improve slightly with a third. The
+two-component mixture is the model to interpret.
+
+## One network per cluster
+
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) turns
+either fit into a grouped network, one heterogeneous network per
+cluster. The fit is not rerun; the assignments are those of the fit.
+
+``` r
+
+clusters <- build_htna(fit_mmm)
+as.data.frame(summary(clusters), what = "actor_pairs")
+#>       group source_actor target_actor n_edges
+#> 1 Cluster 1        Human        Human      36
+#> 2 Cluster 1        Human           AI      36
+#> 3 Cluster 1           AI        Human      36
+#> 4 Cluster 1           AI           AI      36
+#> 5 Cluster 2        Human        Human      36
+#> 6 Cluster 2        Human           AI      36
+#> 7 Cluster 2           AI        Human      36
+#> 8 Cluster 2           AI           AI      36
+```
+
+Both cluster networks have the same actor partition, and all 36 edges of
+every actor-pair block are non-zero. The weights of a cluster network
+are the fitted transition probabilities of its mixture component, which
+give every transition a non-zero probability, including the transitions
+never observed in the data. The networks are drawn side by side:
+
+``` r
+
+op <- par(mfrow = c(1, 2), mar = c(1, 1, 3, 1))
+plot_htna(clusters)
+```
+
+![](clustering_files/figure-html/mmm-plot-1.png)
+
+``` r
+
+par(op)
+```
+
+The distance-based fit is converted in the same way, with
+`build_htna(fit_distance)`.
+
+## How do the clusters differ?
+
 [`compare_htna()`](https://sonsoles.me/htna/reference/compare_htna.md)
-computes a descriptive summary of every cohort pair in one call — you do
-not need to pull out individual cohorts by hand.
+compares every pair of clusters and summarizes the differences by
+actor-pair block.
 
 ``` r
 
-comparisons <- compare_htna(grp)
-
-class(comparisons)
-#> [1] "htna_comparison_group" "list"
-names(comparisons)
-#> [1] "Cluster 1 vs Cluster 2"
+comparison <- compare_htna(clusters)
+comparison
+#> HTNA network comparisons: 1 cohort pair
+#> 
+#> --- Cluster 1 vs Cluster 2 ---
+#>   Pearson correlation of edge weights: 0.877
+#>   Mean absolute difference:            0.0336
+#>  source target cells changed mean_diff mean_abs_diff max_abs_diff
+#>   Human  Human    36      36  -0.00666        0.0308        0.139
+#>   Human     AI    36      36   0.00666        0.0319        0.142
+#>      AI  Human    36      36   0.00449        0.0475        0.182
+#>      AI     AI    36      36  -0.00449        0.0243        0.268
 ```
 
-Each element is an `htna_comparison`: the `Nestimate` `net_comparison`
-fields (`summary_metrics`, `edge_metrics`, `network_metrics`,
-`matrices`, `difference_matrix`) plus an `htna`-aware
-`actor_pair_metrics` table that summarises the difference for every
-directed actor-type block:
+The two transition processes are more different than the early and late
+sessions of the [Comparing
+networks](https://sonsoles.me/htna/articles/comparing-networks.md)
+guide: the correlation of their edge weights is 0.877 and the mean
+absolute difference 0.0336. The actor-pair table locates the differences
+(`Cluster 1` minus `Cluster 2`). A human code is followed by another
+human code with a probability about 0.040 lower in the first cluster
+(six target codes times -0.00666 per cell) and by an AI code
+correspondingly more often, and an AI code hands back to the human about
+0.027 more often (6 x 0.00449). The first cluster is the more
+alternating collaboration. The largest single difference, 0.268, lies in
+the AI-to-AI block. The similarity, correlation and distance measures of
+the two weight matrices are returned with `what = "metrics"`.
 
 ``` r
 
-one <- comparisons[[1]]
-one$summary_metrics
-#>                category               metric       value
-#> 1     Weight Deviations      Mean Abs. Diff.  0.02025425
-#> 2     Weight Deviations    Median Abs. Diff.  0.01020158
-#> 3     Weight Deviations            RMS Diff.  0.03290003
-#> 4     Weight Deviations       Max Abs. Diff.  0.14058447
-#> 5     Weight Deviations Rel. Mean Abs. Diff.  0.24305095
-#> 6     Weight Deviations             CV Ratio  1.09485122
-#> 7          Correlations              Pearson  0.95470530
-#> 8          Correlations             Spearman  0.94189862
-#> 9          Correlations              Kendall  0.80856141
-#> 10         Correlations             Distance  0.94324186
-#> 11      Dissimilarities            Euclidean  0.39480036
-#> 12      Dissimilarities            Manhattan  2.91661145
-#> 13      Dissimilarities             Canberra 26.14861488
-#> 14      Dissimilarities          Bray-Curtis  0.12152548
-#> 15      Dissimilarities            Frobenius  0.16117657
-#> 16         Similarities               Cosine  0.97133126
-#> 17         Similarities              Jaccard  0.78328539
-#> 18         Similarities                 Dice  0.87847452
-#> 19         Similarities              Overlap  0.87847452
-#> 20         Similarities                   RV  0.95884110
-#> 21 Pattern Similarities       Rank Agreement  0.88636364
-#> 22 Pattern Similarities       Sign Agreement  0.97916667
-head(one$actor_pair_metrics)
-#>   source_actor target_actor n_cells n_nonzero_x n_nonzero_y n_changed
-#> 1        Human        Human      36          35          35        35
-#> 2        Human           AI      36          36          36        36
-#> 3           AI        Human      36          34          36        36
-#> 4           AI           AI      36          27          28        28
-#>   mean_difference mean_absolute_difference rms_difference
-#> 1     0.001072078               0.01887634     0.02928339
-#> 2    -0.001072078               0.02612978     0.04044685
-#> 3    -0.005198687               0.01894510     0.02313669
-#> 4     0.005198687               0.01706576     0.03606767
-#>   max_absolute_difference
-#> 1              0.09083051
-#> 2              0.13076689
-#> 3              0.05596170
-#> 4              0.14058447
+as.data.frame(comparison, what = "metrics")
+#>                comparison             category               metric   value
+#> 1  Cluster 1 vs Cluster 2    Weight Deviations      Mean Abs. Diff.  0.0336
+#> 2  Cluster 1 vs Cluster 2    Weight Deviations    Median Abs. Diff.  0.0189
+#> 3  Cluster 1 vs Cluster 2    Weight Deviations            RMS Diff.  0.0521
+#> 4  Cluster 1 vs Cluster 2    Weight Deviations       Max Abs. Diff.  0.2684
+#> 5  Cluster 1 vs Cluster 2    Weight Deviations Rel. Mean Abs. Diff.  0.4035
+#> 6  Cluster 1 vs Cluster 2    Weight Deviations             CV Ratio  1.0124
+#> 7  Cluster 1 vs Cluster 2         Correlations              Pearson  0.8772
+#> 8  Cluster 1 vs Cluster 2         Correlations             Spearman  0.8549
+#> 9  Cluster 1 vs Cluster 2         Correlations              Kendall  0.6823
+#> 10 Cluster 1 vs Cluster 2         Correlations             Distance  0.8616
+#> 11 Cluster 1 vs Cluster 2      Dissimilarities            Euclidean  0.6253
+#> 12 Cluster 1 vs Cluster 2      Dissimilarities            Manhattan  4.8419
+#> 13 Cluster 1 vs Cluster 2      Dissimilarities             Canberra 40.7741
+#> 14 Cluster 1 vs Cluster 2      Dissimilarities          Bray-Curtis  0.2017
+#> 15 Cluster 1 vs Cluster 2      Dissimilarities            Frobenius  0.2553
+#> 16 Cluster 1 vs Cluster 2         Similarities               Cosine  0.9246
+#> 17 Cluster 1 vs Cluster 2         Similarities              Jaccard  0.6642
+#> 18 Cluster 1 vs Cluster 2         Similarities                 Dice  0.7983
+#> 19 Cluster 1 vs Cluster 2         Similarities              Overlap  0.7983
+#> 20 Cluster 1 vs Cluster 2         Similarities                   RV  0.8917
+#> 21 Cluster 1 vs Cluster 2 Pattern Similarities       Rank Agreement  0.8258
+#> 22 Cluster 1 vs Cluster 2 Pattern Similarities       Sign Agreement  1.0000
 ```
 
-[`plot()`](https://rdrr.io/r/graphics/plot.default.html) dispatches
-through
-[`plot.htna_comparison_group()`](https://sonsoles.me/htna/reference/plot.htna_comparison_group.md)
-and draws one panel per pair with the actor styling preserved:
+A permutation test of the same pair asks whether the differences exceed
+what random splits of the sessions produce. Because the clusters were
+formed to differ, a significant result is expected and confirms only
+that the mixture separated distinct processes; the useful output is
+where the differences lie.
 
 ``` r
 
-plot(comparisons)
+perm <- permutation_htna(clusters, iter = 200, seed = 1)
+perm
+#> Grouped Permutation Test
+#> Groups: Cluster 1 vs Cluster 2 
+#> 
+#> -- Cluster 1 vs Cluster 2 --
+#> Permutation Test: Transition Network (relative probabilities) [directed]
+#>   Iterations: 200  |  Alpha: 0.05
+#>   Nodes: 12  |  Edges tested: 144  |  Significant: 66
+#>   Global test (networks differ overall?): M = 4.842 (p = 0.00498)  |  S = 0.268 (p = 0.00498)
+plot_htna_diff(perm)
 ```
 
-For a full statistical test of the same pairs, feed the group to
-[`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)
-instead — see the [grouped
-vignette](https://sonsoles.me/htna/articles/grouped.md).
+![](clustering_files/figure-html/compare-permutation-1.png)
+
+Both global statistics reach the smallest p-value attainable with 200
+permutations (0.00498), and 66 of the 144 edges differ at an unadjusted
+p-value below 0.05; green edges in the plot are stronger in the first
+cluster, red edges in the second. The [Comparing
+networks](https://sonsoles.me/htna/articles/comparing-networks.md) guide
+explains the three comparisons in detail.
+
+## Which clustering to use
+
+| Question | Function |
+|----|----|
+| Group sessions by the similarity of their sequences | [`Nestimate::build_clusters()`](https://pak.dynasite.org/Nestimate/reference/build_clusters.html), then `build_htna(fit)` |
+| Group sessions by the transition process that generated them | [`Nestimate::cluster_mmm()`](https://pak.dynasite.org/Nestimate/reference/cluster_mmm.html), then `build_htna(fit)` |
+| Choose `k` for distance-based clusters | [`Nestimate::cluster_choice()`](https://pak.dynasite.org/Nestimate/reference/cluster_choice.html) (read sizes with the silhouette) |
+| Choose `k` for a mixture | [`Nestimate::compare_mmm()`](https://pak.dynasite.org/Nestimate/reference/compare_mmm.html) (BIC, ICL) |
+| Check one fitted partition | [`Nestimate::cluster_diagnostics()`](https://pak.dynasite.org/Nestimate/reference/cluster_diagnostics.html) |
+| Compare the cluster networks | [`compare_htna()`](https://sonsoles.me/htna/reference/compare_htna.md), [`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md) |
+
+For heterogeneous networks the mixture of Markov chains is usually the
+more informative choice, because its clusters are defined by transition
+processes, the same object the networks describe.

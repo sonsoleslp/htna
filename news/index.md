@@ -1,50 +1,112 @@
 # Changelog
 
-## htna 0.3.4
+## htna 0.3.5
 
-### Tests
+This section covers all changes since the CRAN release 0.3.1.
 
-- The Edge Count test in
-  [`summary()`](https://rdrr.io/r/base/summary.html) works with CRAN
-  Nestimate as well as with Nestimate 1.0.7 and later. It failed on CRAN
-  Nestimate since 0.3.3.
+### New features
 
-## htna 0.3.3
+- [`bootstrap()`](https://sonsoles.me/htna/reference/bootstrap.md) and
+  [`plot_sequences()`](https://sonsoles.me/htna/reference/plot_sequences.md)
+  reach the htna methods whichever of htna and tna is attached last: the
+  methods are also registered on tna’s generics of the same names.
+  Through
+  [`tna::bootstrap()`](https://sonsoles.me/tna/reference/bootstrap.html),
+  tna’s argument names (`level`, `method`, `threshold`) are mapped onto
+  those of
+  [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
+  (`ci_level`, `inference`, `edge_threshold`).
+- [`centrality_stability_htna()`](https://sonsoles.me/htna/reference/centrality_stability_htna.md)
+  passes further arguments to
+  [`Nestimate::centrality_stability()`](https://pak.dynasite.org/Nestimate/reference/centrality_stability.html)
+  through `...`, as the other wrappers do, so Nestimate’s `actor`
+  argument (resample whole actors) reaches it.
+- Result objects have tidy accessors.
+  [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) returns
+  the edges (with the actor types of source and target) or the nodes of
+  an htna network or grouped network; the tables of a
+  [`summary()`](https://rdrr.io/r/base/summary.html) (`what = "actors"`,
+  `"actor_pairs"`, `"metrics"`); the actor-pair, edge, metric and
+  network tables of a
+  [`compare_htna()`](https://sonsoles.me/htna/reference/compare_htna.md)
+  result; and the CS coefficients or correlation traces of
+  [`centrality_stability_htna()`](https://sonsoles.me/htna/reference/centrality_stability_htna.md).
+  Grouped results are stacked with a `group` or `comparison` column.
+- [`compare_htna()`](https://sonsoles.me/htna/reference/compare_htna.md)
+  results have [`print()`](https://rdrr.io/r/base/print.html) and
+  [`summary()`](https://rdrr.io/r/base/summary.html) methods; a grouped
+  comparison prints one block per cohort pair instead of the raw list.
+- Grouped bootstraps
+  ([`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
+  on an `htna_group`) have
+  [`print()`](https://rdrr.io/r/base/print.html) and
+  [`summary()`](https://rdrr.io/r/base/summary.html) methods, and
+  grouped stability results a
+  [`summary()`](https://rdrr.io/r/base/summary.html).
+- [`plot_htna_diff()`](https://sonsoles.me/htna/reference/plot_htna_diff.md)
+  draws a grouped
+  [`bayes_compare_htna()`](https://sonsoles.me/htna/reference/bayes_compare_htna.md)
+  result, one difference network per cohort pair.
+- Errors are classed conditions inheriting from `htna_error`
+  (`htna_bad_input`, `htna_missing_column`, `htna_actor_conflict`,
+  `htna_unassigned_node`, `htna_empty_input`, `htna_missing_package`,
+  `htna_unnamed_nodes`), documented in the Conditions section of each
+  help page.
 
-### Tests
+### Changes
 
-- The expected Edge Count in the
-  [`summary()`](https://rdrr.io/r/base/summary.html) test follows the
-  network’s `directed` flag, for Nestimate 1.0.7.
-
-## htna 0.3.2
+- [`summary()`](https://rdrr.io/r/base/summary.html) of an htna network
+  or grouped network returns a `summary.htna` / `summary.htna_group`
+  object that prints the same report; it no longer prints as a side
+  effect of the call.
+- `build_htna(group = )` returns the cohorts in the order of the levels
+  when the grouping column is a factor (for `human_ai`, `Early` then
+  `Late`), so grouped comparisons are named `"Early vs Late"`. Character
+  grouping columns keep their previous order.
+- [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
+  detects a code used by two actors also when there are three or more
+  actor types and the code is not used by all of them.
+- [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) on an
+  htna network now returns htna’s edge table (with actor columns)
+  instead of cograph’s.
+- The centrality stability plot uses the Okabe-Ito palette,
+  distinguishes the measures by line type and point shape as well as
+  colour, titles each cohort’s chart with the cohort name, and raises a
+  classed error when ‘ggplot2’ is not installed.
+- Unused suggested packages ‘codyna’ and ‘janitor’ were removed.
 
 ### Documentation
 
-- Documentation revision. Help-page examples now run unwrapped (no
-  `\donttest{}`) and use the package’s verbs instead of reaching into
-  result objects (`summary(boot)`, `summary(rel)`, `print(cs)`, grouped
-  networks passed as they are to
-  [`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)).
-- Corrected return-value documentation:
-  [`markov_order_test_htna()`](https://sonsoles.me/htna/reference/markov_order_test_htna.md)
-  returns a `net_markov_order` (and accepts an htna network directly);
-  [`sequence_compare_htna()`](https://sonsoles.me/htna/reference/sequence_compare_htna.md)
-  returns a `net_sequence_comparison`;
-  [`state_distribution_htna()`](https://sonsoles.me/htna/reference/state_distribution_htna.md)
-  returns the within-network (group, state) table, not a per-timestep
-  distribution;
+- Help pages were rewritten to describe the method each function
+  implements, with return structures, conditions and runnable examples
+  on the bundled data. Examples no longer reach into result objects.
+- New vignette “Grouped heterogeneous transition networks”; the main
+  vignette sets out the model and a complete analysis.
+- New guides “Comparing networks” and “Sequences and patterns”
+  (replacing the sequence plot and sequence comparison articles), and
+  two case studies on the vibe-coding sessions. “Input formats” is now a
+  guide on the package website.
+- The examples of
+  [`sequence_plot_htna()`](https://sonsoles.me/htna/reference/sequence_plot_htna.md)
+  and
+  [`plot_sequences()`](https://sonsoles.me/htna/reference/plot_sequences.md)
+  use one project, so they run quickly when the ‘stringdist’ package is
+  not available.
+- Corrected return-value documentation of
+  [`markov_order_test_htna()`](https://sonsoles.me/htna/reference/markov_order_test_htna.md),
+  [`sequence_compare_htna()`](https://sonsoles.me/htna/reference/sequence_compare_htna.md),
+  [`state_distribution_htna()`](https://sonsoles.me/htna/reference/state_distribution_htna.md),
   [`pruning_details_htna()`](https://sonsoles.me/htna/reference/pruning_details_htna.md)
-  lists the removed edges;
-  [`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md)
-  returns cograph’s value invisibly.
-  [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
-  now documents its `htna_group` form.
-- Vignettes and articles no longer subset grouped networks or results by
-  hand; [`vignette("htna")`](https://sonsoles.me/htna/articles/htna.md)
-  builds the early and late networks from their own sessions, and the
-  Markov-order articles test networks directly.
-- The pkgdown reference index now lists every exported topic.
+  and [`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md)
+  (0.3.2).
+
+### Tests
+
+- The shipped tests no longer compare against ‘Nestimate’ or ‘tna’;
+  those comparisons moved to a local equivalence suite. The Edge Count
+  test of [`summary()`](https://rdrr.io/r/base/summary.html) follows the
+  network’s `directed` flag, for CRAN ‘Nestimate’ and ‘Nestimate’ 1.0.7
+  or later (0.3.3, 0.3.4).
 
 ## htna 0.3.1
 

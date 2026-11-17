@@ -1,9 +1,29 @@
-# Prune Weak Edges from a Transition Network
+# Remove weak edges from a heterogeneous transition network
 
-htna-named wrapper for
-[`Nestimate::net_prune()`](https://pak.dynasite.org/Nestimate/reference/net_prune.html).
-Removes edges that fall below a weight/threshold rule, returning a
-pruned network of the same shape.
+`prune_htna()` removes weak edges from a heterogeneous transition
+network so that the plot and the descriptive measures focus on the
+transitions that carry the process. A relative transition network
+estimated from many sessions is usually dense: almost every code is
+followed by almost every other code at least once, and most of these
+transitions are rare. Because the weights are kept in the network and
+only set aside, pruning can be undone or re-applied.
+
+`prune_htna()` sets to zero the edges that fail a rule: weights below a
+fixed `threshold` (`method = "threshold"`, the default), the `lowest`
+share of the weights (`method = "lowest"`), or edges that are not
+supported by a bootstrap (`method = "bootstrap"`, with `boot` from
+[`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)).
+It runs Nestimate's `net_prune()` with the actor partition kept, so
+[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md) and the
+other functions work on the pruned network unchanged. It returns an htna
+network with the removed edges set to zero and the rule recorded.
+
+[`deprune_htna()`](https://sonsoles.me/htna/reference/deprune_htna.md)
+restores the removed edges,
+[`reprune_htna()`](https://sonsoles.me/htna/reference/reprune_htna.md)
+removes them again, and
+[`pruning_details_htna()`](https://sonsoles.me/htna/reference/pruning_details_htna.md)
+lists them.
 
 ## Usage
 
@@ -16,48 +36,32 @@ prune_htna(x, ...)
 - x:
 
   An htna network from
-  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) (or
-  other object accepted by
-  [`Nestimate::net_prune()`](https://pak.dynasite.org/Nestimate/reference/net_prune.html));
-  S3 dispatch on `x` is preserved.
+  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
 
 - ...:
 
-  Additional arguments passed to
-  [`Nestimate::net_prune()`](https://pak.dynasite.org/Nestimate/reference/net_prune.html),
-  such as `method`, `threshold`, `lowest`, `level`, and `boot`. See that
-  function for the full, current argument list.
+  Pruning rule: `method` (`"threshold"`, default, `"lowest"` or
+  `"bootstrap"`), `threshold` (default 0.1), `lowest` (default 0.05),
+  `level` (default 0.5) and `boot` (a bootstrap result for
+  `method = "bootstrap"`).
 
 ## Value
 
-A pruned htna network: class
-`c("htna", "netobject", "cograph_network")`, the same structure as
+An htna network of the same class and structure as
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
-returns, with the removed edges set to zero in `weights` and the pruning
+returns, with the removed edges set to zero in its weight matrix and the
 rule recorded for
 [`deprune_htna()`](https://sonsoles.me/htna/reference/deprune_htna.md),
 [`reprune_htna()`](https://sonsoles.me/htna/reference/reprune_htna.md)
 and
 [`pruning_details_htna()`](https://sonsoles.me/htna/reference/pruning_details_htna.md).
-See
-[`Nestimate::net_prune()`](https://pak.dynasite.org/Nestimate/reference/net_prune.html).
-
-## Details
-
-The actor partition (`$node_groups`, `$actor_levels`, `htna` class) is
-preserved on the pruned network, so
-[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md) and the
-other htna verbs keep working on the result.
-
-Suffixed `_htna` to avoid clashing with the tna verb `prune()` and to
-sit alongside the rest of the htna API.
 
 ## See also
 
 [`deprune_htna()`](https://sonsoles.me/htna/reference/deprune_htna.md),
 [`reprune_htna()`](https://sonsoles.me/htna/reference/reprune_htna.md),
 [`pruning_details_htna()`](https://sonsoles.me/htna/reference/pruning_details_htna.md),
-[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
+[`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md).
 
 ## Examples
 
@@ -65,49 +69,36 @@ sit alongside the rest of the htna API.
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
-prune_htna(net, method = "threshold", threshold = 0.05)
-#> Transition Network (relative probabilities) [directed]
-#>   Weights: [0.003, 0.611]  |  mean: 0.146
+pruned <- prune_htna(net, threshold = 0.05)
+summary(pruned)
+#> <htna network>
+#>   Method:    relative
+#>   Sessions:  429   (max 287 timesteps)
+#>   Nodes:     12
+#>   Edges:     73 / 144 (non-zero)
 #> 
-#>   Weight matrix:
-#>               Ask Check Delegate Execute Frustrate Inquire  Plan Refine Repair
-#>   Ask       0.018 0.063        0   0.000     0.116   0.063 0.409  0.051  0.000
-#>   Check     0.117 0.050        0   0.411     0.058   0.000 0.000  0.000  0.000
-#>   Delegate  0.000 0.000        0   0.000     0.110   0.000 0.611  0.000  0.000
-#>   Execute   0.061 0.087        0   0.074     0.143   0.088 0.107  0.069  0.000
-#>   Frustrate 0.194 0.104        0   0.119     0.114   0.060 0.000  0.098  0.000
-#>   Inquire   0.251 0.069        0   0.285     0.000   0.033 0.000  0.000  0.000
-#>   Plan      0.000 0.146        0   0.000     0.215   0.083 0.003  0.086  0.000
-#>   Refine    0.143 0.000        0   0.206     0.000   0.000 0.000  0.000  0.000
-#>   Repair    0.241 0.000        0   0.391     0.000   0.000 0.000  0.000  0.004
-#>   Report    0.102 0.114        0   0.000     0.124   0.102 0.000  0.058  0.000
-#>   Request   0.148 0.055        0   0.292     0.000   0.000 0.000  0.000  0.000
-#>   Specify   0.269 0.000        0   0.273     0.096   0.000 0.000  0.000  0.000
-#>             Report Request Specify
-#>   Ask        0.000   0.173   0.052
-#>   Check      0.055   0.000   0.156
-#>   Delegate   0.000   0.131   0.000
-#>   Execute    0.000   0.293   0.065
-#>   Frustrate  0.000   0.135   0.085
-#>   Inquire    0.170   0.000   0.000
-#>   Plan       0.000   0.325   0.095
-#>   Refine     0.000   0.105   0.413
-#>   Repair     0.103   0.071   0.000
-#>   Report     0.077   0.257   0.066
-#>   Request    0.000   0.067   0.336
-#>   Specify    0.000   0.126   0.101 
+#> Actor types (2):
+#>   Human (6 nodes):  Check, Frustrate, Inquire, Refine, Request, Specify
+#>   AI    (6 nodes):  Ask, Delegate, Execute, Plan, Repair, Report
 #> 
-#>   Initial probabilities:
-#>   Specify       0.818  ████████████████████████████████████████
-#>   Request       0.156  ████████
-#>   Frustrate     0.023  █
-#>   Refine        0.002  
-#>   Ask           0.000  
-#>   Check         0.000  
-#>   Delegate      0.000  
-#>   Execute       0.000  
-#>   Inquire       0.000  
-#>   Plan          0.000  
-#>   Repair        0.000  
-#>   Report        0.000  
+#> Edge counts by actor (rows = source, cols = target):
+#>           Human    AI
+#>   Human      19    14
+#>   AI         27    13
+#> 
+#> Network metrics:
+#>                       metric       value
+#>                   Node Count 12.00000000
+#>                   Edge Count 73.00000000
+#>              Network Density  0.55303030
+#>                Mean Distance  0.16539036
+#>            Mean Out-Strength  0.88699823
+#>              SD Out-Strength  0.05614162
+#>             Mean In-Strength  0.88699823
+#>               SD In-Strength  0.67704425
+#>              Mean Out-Degree  6.08333333
+#>                SD Out-Degree  1.88092498
+#>  Centralization (Out-Degree)  0.27272727
+#>   Centralization (In-Degree)  0.37190083
+#>                  Reciprocity  0.53968254
 ```

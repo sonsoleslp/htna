@@ -1,11 +1,18 @@
-# Plot the Edge Betweenness Network
+# Plot the edge betweenness of an htna network
 
-Computes
+`plot_edge_betweenness_htna()` plots the edge-betweenness network of an
+htna network: each transition is drawn with a width given by the number
+of shortest paths that pass through it, in the layout and actor styling
+of [`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md). The
+widest edges are the bridges of the interaction, the transitions through
+which the flow between the codes of the actors is channeled.
+
+`plot_edge_betweenness_htna()` computes the scores with
 [`edge_betweenness_htna()`](https://sonsoles.me/htna/reference/edge_betweenness_htna.md)
-and renders it with the htna actor styling (multi-actor circular layout,
-[htna_palette](https://sonsoles.me/htna/reference/htna_palette.md) node
-colours, actor legend). Edges are scaled by their betweenness score, so
-the most-traveled shortest-path edges stand out.
+(unless `x` already holds them) and draws all edges with a non-zero
+score, unless `minimum` is given. It is called for the plot and returns,
+invisibly, the value of
+[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md).
 
 ## Usage
 
@@ -17,34 +24,34 @@ plot_edge_betweenness_htna(x, directed = TRUE, invert = TRUE, ...)
 
 - x:
 
-  An htna network from
-  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) or,
-  equivalently, the result of
+  An htna network, or a result of
   [`edge_betweenness_htna()`](https://sonsoles.me/htna/reference/edge_betweenness_htna.md).
 
 - directed, invert:
 
-  Forwarded to
+  Passed to
   [`edge_betweenness_htna()`](https://sonsoles.me/htna/reference/edge_betweenness_htna.md)
-  when `x` is a plain htna network. Ignored when `x` already inherits
-  from `htna_edge_betweenness`.
+  when `x` is an htna network; ignored otherwise. Defaults `TRUE`.
 
 - ...:
 
-  Forwarded to
-  [`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md) (e.g.
-  `minimum`, `layout`, `group_colors`).
+  Further arguments of
+  [`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md), such
+  as `minimum`, `layout` or `group_colors`.
 
 ## Value
 
-The value returned by
-[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md)
-(invisibly).
+Called for the plot. Invisibly, the value of
+[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md).
+
+## Conditions
+
+`htna_bad_input` when `x` is not an htna network.
 
 ## See also
 
 [`edge_betweenness_htna()`](https://sonsoles.me/htna/reference/edge_betweenness_htna.md),
-[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md).
+[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md)
 
 ## Examples
 

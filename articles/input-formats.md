@@ -1,60 +1,84 @@
-# Input formats for build_htna()
+# Input formats
+
+A heterogeneous transition network needs two pieces of information that
+ordinary event logs store in different ways: the order of the coded
+events within each session, and the actor type that owns each code. Some
+studies keep one table per actor, because the two streams were coded
+separately (the messages of a learner and the replies of a chatbot, for
+example); others keep one table of all events with a column naming the
+actor; and others keep the events in one table and the coding scheme,
+which assigns every code to an actor, in a codebook. The analysis should
+not depend on which of these layouts the data happen to arrive in.
 
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
-accepts raw event data in **three interchangeable shapes**:
-
-1.  a named list of per-actor-type data frames
-2.  a single combined frame with an actor-type column
-3.  a single combined frame with a node-to-actor-type dictionary.
-
-It also accepts fitted clustering and MCML results; those forms are
-listed in the cheat sheet at the end.
-
-This vignette walks through each form, shows that all three produce the
-same network, and then covers two extra parameters that compose with any
-input form: `disambiguate` (for code-label collisions) and `group` (for
-per-cohort networks).
-
-To keep the examples concrete, `htna` ships four bundled objects
-covering every shape the vignette needs:
-
-- `human_simplified` and `ai_simplified`: per-actor long datasets, one
-  per actor type. These feed **Form 1** directly.
-- `human_ai`: the same data row-bound into one long frame with an
-  `actor_type` column (and a pre-computed `phase` cohort tag for the
-  grouped example at the end). This feeds **Form 2** and **Form 3**.
-- `human_ai_codebook` — a tidy two-column code → actor-type lookup,
-  ready to pass to **Form 3**.
-
-## Setup
+accepts all three layouts and resolves them to the same interleaved
+sequence per session, so the resulting networks are identical. This
+guide shows each layout on the bundled data, verifies that they give the
+same network, and then covers two arguments that work with any layout:
+`disambiguate`, for a code label used by more than one actor, and
+`group`, for one network per cohort of sessions. Fitted clustering
+results are a fourth kind of input, covered in [Clustering
+inputs](https://sonsoles.me/htna/articles/clustering.md).
 
 ``` r
 
 library(htna)
-data(human_ai)
-data(human_simplified)
-data(ai_simplified)
-data(human_ai_codebook)
 ```
 
-All three long frames share the column schema that
-[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
-expects by default: `session_id` (the `session` argument), `code` (the
-`action` argument) and `order_in_session` (the `order` argument). Within
-each session, `order_in_session` is a **shared** time index across both
-actors.
+## Data
 
-## Form 1 — Named list of per-actor frames
+The package ships the same vibe-coding sessions (429 sessions of
+human-AI pair programming) in the three layouts.
 
-The most direct form. Each entry is one actor’s long frame; the list
-name becomes the actor-type label on the network. The bundled
-`human_simplified` and `ai_simplified` frames already have this shape —
-one per actor type, sharing the canonical schema.
+- **`human_simplified`, `ai_simplified`**: one long table per actor;
+  each row is one coded event of that actor.
+- **`human_ai`**: both tables stacked, with the actor in `actor_type`
+  (`"Human"` or `"AI"`) and a session-level cohort tag `phase`
+  (`"Early"`, `"Late"`).
+- **`human_ai_codebook`**: the coding scheme, one row per code, with
+  columns `code` and `actor_type`.
+
+All tables share the columns
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) reads
+by default:
+
+- **Session**: `session_id` (argument `session`).
+- **Code**: `code` (argument `action`).
+- **Order**: `order_in_session` (argument `order`), a time index shared
+  by both actors within a session, so the two streams interleave in the
+  order in which the events happened.
 
 ``` r
 
-net_list <- build_htna(list(Human = human_simplified, AI = ai_simplified), 
-                       actor = "session_id")
+data(human_ai, human_simplified, ai_simplified, human_ai_codebook)
+human_ai_codebook
+#>         code actor_type
+#> 1    Specify      Human
+#> 2    Request      Human
+#> 3  Frustrate      Human
+#> 4      Check      Human
+#> 5    Inquire      Human
+#> 6     Refine      Human
+#> 7   Delegate         AI
+#> 8       Plan         AI
+#> 9    Execute         AI
+#> 10       Ask         AI
+#> 11    Repair         AI
+#> 12    Report         AI
+```
+
+The codebook assigns six codes to each actor: the human specifies,
+requests, checks, inquires, refines and expresses frustration; the AI
+delegates, plans, executes, asks, repairs and reports.
+
+## One table per actor
+
+When each actor’s events are in a separate table, the tables are passed
+as a named list. The names become the actor types, in the order given.
+
+``` r
+
+net_list <- build_htna(list(Human = human_simplified, AI = ai_simplified))
 summary(net_list)
 #> <htna network>
 #>   Method:    relative
@@ -72,293 +96,211 @@ summary(net_list)
 #>   AI         36    28
 #> 
 #> Network metrics:
-#>                       metric        value
-#>                   Node Count  12.00000000
-#>                   Edge Count 135.00000000
-#>              Network Density   1.00000000
-#>                Mean Distance   0.02743124
-#>            Mean Out-Strength   1.00000000
-#>              SD Out-Strength   0.00000000
-#>             Mean In-Strength   1.00000000
-#>               SD In-Strength   0.63085045
-#>              Mean Out-Degree  11.25000000
-#>                SD Out-Degree   0.96530730
-#>  Centralization (Out-Degree)   0.05785124
-#>   Centralization (In-Degree)   0.05785124
-#>                  Reciprocity   0.96000000
+#>                       metric    value
+#>                   Node Count  12.0000
+#>                   Edge Count 135.0000
+#>              Network Density   1.0000
+#>                Mean Distance   0.0274
+#>            Mean Out-Strength   1.0000
+#>              SD Out-Strength   0.0000
+#>             Mean In-Strength   1.0000
+#>               SD In-Strength   0.6309
+#>              Mean Out-Degree  11.2500
+#>                SD Out-Degree   0.9653
+#>  Centralization (Out-Degree)   0.0579
+#>   Centralization (In-Degree)   0.0579
+#>                  Reciprocity   0.9600
 ```
+
+The network has 12 nodes, six per actor, built from 429 sessions. Of the
+144 possible directed edges 135 are non-zero, and the edge counts by
+actor show that transitions occur in every block: 35 within the human
+codes, 36 from human to AI, 36 from AI to human and 28 within the AI
+codes.
+
+## One table with an actor column
+
+When all events are in one table, the column that names the actor of
+each row is passed as `actor_type`. The actor order follows the levels
+of that column if it is a factor, and the order of first appearance
+otherwise.
 
 ``` r
 
-plot_htna(net_list)
+net_actor_type <- build_htna(human_ai, actor_type = "actor_type")
 ```
 
-![](input-formats_files/figure-html/unnamed-chunk-3-1.png)
+## One table and a codebook
 
-Use this form when each actor’s data lives in a separate frame (the
-typical case when the two streams were prepared independently).
-
-## Form 2 — Single combined frame with `actor_type`
-
-When the data already comes as one long table, tag each row with the
-actor-type and pass the column name to `actor_type =`.
+When the event table has no actor column, the assignment of codes to
+actors is declared with `node_groups`, either as a named list of codes
+or as a two-column codebook whose code column is named like `action`
+(here `code`).
 
 ``` r
 
-net_actor_type <- build_htna(human_ai, 
-                             actor_type = "actor_type", 
-                             actor = "session_id", 
-                             order = "order_in_session")
-```
-
-The actor-type order on the resulting network follows the factor levels
-(or, for character vectors, the order of first appearance), which is how
-the actor groups will be ordered in legends and plots.
-
-## Form 3 — Single combined frame with `node_groups`
-
-When the combined frame has **no** actor-type column, declare the
-node-to-actor partition directly via `node_groups`. `node_groups`
-accepts two interchangeable shapes:
-
-### 3a. Named list of code vectors
-
-Extract the per-actor code sets from the bundled per-actor frames and
-pass them as a named list. The list names become the actor-type labels
-on the network.
-
-``` r
-
-human_codes <- c("Specify", "Request", "Frustrate", "Check", "Inquire", "Refine")
-ai_codes    <- c("Delegate", "Plan", "Execute", "Ask", "Repair", "Report")
-
-net_node_groups <- build_htna(
+net_codes <- build_htna(
   human_ai,
-  actor = "session_id",
-  node_groups = list(Human = human_codes, AI = ai_codes)
+  node_groups = list(
+    Human = c("Specify", "Request", "Frustrate", "Check", "Inquire", "Refine"),
+    AI    = c("Delegate", "Plan", "Execute", "Ask", "Repair", "Report")
+  )
 )
-net_node_groups
-#> Transition Network (relative probabilities) [directed]
-#>   Weights: [0.002, 0.611]  |  mean: 0.089
-#> 
-#>   Weight matrix:
-#>               Ask Check Delegate Execute Frustrate Inquire  Plan Refine Repair
-#>   Ask       0.018 0.063    0.000   0.022     0.116   0.063 0.409  0.051  0.004
-#>   Check     0.117 0.050    0.015   0.411     0.058   0.005 0.008  0.042  0.033
-#>   Delegate  0.000 0.039    0.000   0.011     0.110   0.032 0.611  0.014  0.000
-#>   Execute   0.061 0.087    0.000   0.074     0.143   0.088 0.107  0.069  0.002
-#>   Frustrate 0.194 0.104    0.039   0.119     0.114   0.060 0.004  0.098  0.029
-#>   Inquire   0.251 0.069    0.027   0.285     0.039   0.033 0.009  0.016  0.042
-#>   Plan      0.000 0.146    0.000   0.015     0.215   0.083 0.003  0.086  0.005
-#>   Refine    0.143 0.045    0.006   0.206     0.008   0.014 0.013  0.000  0.025
-#>   Repair    0.241 0.012    0.028   0.391     0.043   0.047 0.016  0.024  0.004
-#>   Report    0.102 0.114    0.000   0.009     0.124   0.102 0.050  0.058  0.039
-#>   Request   0.148 0.055    0.018   0.292     0.016   0.010 0.008  0.009  0.007
-#>   Specify   0.269 0.017    0.040   0.273     0.096   0.011 0.015  0.002  0.013
-#>             Report Request Specify
-#>   Ask        0.028   0.173   0.052
-#>   Check      0.055   0.049   0.156
-#>   Delegate   0.018   0.131   0.035
-#>   Execute    0.010   0.293   0.065
-#>   Frustrate  0.021   0.135   0.085
-#>   Inquire    0.170   0.028   0.029
-#>   Plan       0.026   0.325   0.095
-#>   Refine     0.023   0.105   0.413
-#>   Repair     0.103   0.071   0.020
-#>   Report     0.077   0.257   0.066
-#>   Request    0.034   0.067   0.336
-#>   Specify    0.037   0.126   0.101 
-#> 
-#>   Initial probabilities:
-#>   Specify       0.818  ████████████████████████████████████████
-#>   Request       0.156  ████████
-#>   Frustrate     0.023  █
-#>   Refine        0.002  
-#>   Ask           0.000  
-#>   Check         0.000  
-#>   Delegate      0.000  
-#>   Execute       0.000  
-#>   Inquire       0.000  
-#>   Plan          0.000  
-#>   Repair        0.000  
-#>   Report        0.000
+net_codebook <- build_htna(human_ai, node_groups = human_ai_codebook)
 ```
 
-### 3b. Two-column data frame (codebook)
+A code in the data that is missing from `node_groups`, or listed under
+two actors, raises an error, so the declared scheme is checked against
+the data.
 
-The same partition expressed as a tidy codebook — one row per code, one
-column for the action and one for the actor type. The action column must
-match the `action` parameter (default `"code"`); the other column is
-treated as the actor-type tag. Column order is irrelevant.
+## Do the layouts give the same network?
 
-The bundled `human_ai_codebook` already has this shape, so it can be
-passed straight through:
+The edge table of a network
+([`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html)) lists
+every non-zero transition with its weight and the actors of its two
+codes. If the four networks agree, their edge tables are equal.
 
 ``` r
 
-head(human_ai_codebook)
-#>        code actor_type
-#> 1   Specify      Human
-#> 2   Request      Human
-#> 3 Frustrate      Human
-#> 4     Check      Human
-#> 5   Inquire      Human
-#> 6    Refine      Human
-
-net_node_groups_df <- build_htna(
-  human_ai,
-  session = "session_id",
-  node_groups = human_ai_codebook
-)
+edges_list <- as.data.frame(net_list)
+all.equal(edges_list, as.data.frame(net_actor_type))
+#> [1] TRUE
+all.equal(edges_list, as.data.frame(net_codes))
+#> [1] TRUE
+all.equal(edges_list, as.data.frame(net_codebook))
+#> [1] TRUE
 ```
 
-The actor-type ordering follows the column’s factor levels (if a factor)
-or the order of first appearance (if a character vector). Use this form
-when your code/actor mapping already lives in a tidy lookup table.
-
-## All forms produce the same network
-
-[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
-resolves every input shape to the same combined sequence and forwards to
-[`Nestimate::build_network()`](https://pak.dynasite.org/Nestimate/reference/build_network.html),
-so the four networks have identical nodes, actor partition and edge
-weights. Passing them to
-[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md) as a
-named list draws one network per element, titled with its name; the
-layout, colours, and edges are indistinguishable:
+All three comparisons return `TRUE`: the 135 edges, their weights and
+their actor assignments are the same whichever layout the data came in.
+The choice of layout is therefore a matter of how the data are stored,
+not of the analysis. A named list of networks is drawn one network per
+element:
 
 ``` r
-
-forms <- list(
-  list_form        = net_list,
-  actor_type_form  = net_actor_type,
-  node_groups_list = net_node_groups,
-  node_groups_df   = net_node_groups_df
-)
 
 op <- par(mfrow = c(2, 2), mar = c(1, 1, 3, 1))
-plot_htna(forms)
+plot_htna(list(list = net_list, actor_type = net_actor_type,
+               node_groups = net_codes, codebook = net_codebook))
 ```
 
-![](input-formats_files/figure-html/unnamed-chunk-7-1.png)
+![](input-formats_files/figure-html/plot-forms-1.png)
 
 ``` r
 
 par(op)
 ```
 
-## Handling code-label collisions with `disambiguate =`
+The four panels are indistinguishable, as the edge tables predicted.
 
-If both actor types share a code label (e.g. both Human and AI have a
-code called `Ask` and another code called `Reply`),
+## What if two actors use the same code label?
+
+Some coding schemes give the same label to a move of either actor, for
+example `Ask` for a question from the human and a clarification request
+from the AI. Such codes are different behaviours, and merging them into
+one node would mix the two actors.
 [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
-errors by default — keeping such states distinct is usually what you
-want. Pass `disambiguate = TRUE` to prefix every code with its
-actor-type label so the two `Ask` nodes become `Human:Ask` and `AI:Ask`.
+therefore stops when a label occurs under more than one actor. The small
+table below has `Ask` and `Reply` for both actors in each of three
+sessions.
 
 ``` r
 
 overlap <- data.frame(
-  session_id        = rep(paste0("s", seq_len(3)), each = 6),
-  code              = rep(c("Ask", "Reply", "Ask", "Reply", "Ask", "Reply"), 3),
-  actor_type        = rep(c("Human", "Human", "AI", "AI", "Human", "AI"), 3),
-  order_in_session  = rep(seq_len(6), 3),
-  stringsAsFactors  = FALSE
+  session_id       = rep(c("s1", "s2", "s3"), each = 6),
+  code             = rep(c("Ask", "Reply", "Ask", "Reply", "Ask", "Reply"), 3),
+  actor_type       = rep(c("Human", "Human", "AI", "AI", "Human", "AI"), 3),
+  order_in_session = rep(seq_len(6), 3)
 )
-
-# Without disambiguate=, this errors:
-try(build_htna(overlap, actor_type = "actor_type"))
-#> Error : Code(s) appear in more than one actor group: Ask, Reply. Pass `disambiguate = TRUE` to prefix codes with the actor label.
-
-# With disambiguate=, the two `Ask`s become distinct nodes:
-net_dis <- build_htna(overlap, actor_type = "actor_type",
-                      disambiguate = TRUE)
-summary(net_dis)
-#> <htna network>
-#>   Method:    relative
-#>   Sessions:  3   (max 6 timesteps)
-#>   Nodes:     4
-#>   Edges:     5 / 16 (non-zero)
-#> 
-#> Actor types (2):
-#>   Human (2 nodes):  Human:Ask, Human:Reply
-#>   AI    (2 nodes):  AI:Ask, AI:Reply
-#> 
-#> Edge counts by actor (rows = source, cols = target):
-#>           Human    AI
-#>   Human       1     2
-#>   AI          1     1
-#> 
-#> Network metrics:
-#>                       metric     value
-#>                   Node Count 4.0000000
-#>                   Edge Count 5.0000000
-#>              Network Density 0.4166667
-#>                Mean Distance 1.5833333
-#>            Mean Out-Strength 1.0000000
-#>              SD Out-Strength 0.0000000
-#>             Mean In-Strength 1.0000000
-#>               SD In-Strength 0.4082483
-#>              Mean Out-Degree 1.2500000
-#>                SD Out-Degree 0.5000000
-#>  Centralization (Out-Degree) 0.3333333
-#>   Centralization (In-Degree) 0.3333333
-#>                  Reciprocity 0.4000000
-plot(net_dis)
 ```
 
-![](input-formats_files/figure-html/unnamed-chunk-8-1.png)
+Building the network as usual raises an error of class
+`htna_actor_conflict` that names the shared labels.
 
-## Splitting into cohorts with `group =`
+``` r
 
-Any of the three input forms can additionally be split into per-cohort
-networks by passing `group =` — the result is an `htna_group`, one
-`htna` network per level of the grouping column. `human_ai` already
-ships with a `phase` column tagging each session as `Early` or `Late` (a
-chronological split: first-half of sessions = early, rest = late), so
-the cohort build is a one-liner:
+build_htna(overlap, actor_type = "actor_type")
+#> Error:
+#> ! Code(s) appear in more than one actor group: Ask, Reply. Pass `disambiguate = TRUE` to prefix codes with the actor label.
+```
+
+With `disambiguate = TRUE` every code is prefixed with its actor, so the
+two `Ask` codes become the separate nodes `Human:Ask` and `AI:Ask`.
+
+``` r
+
+net_dis <- build_htna(overlap, actor_type = "actor_type",
+                      disambiguate = TRUE)
+as.data.frame(net_dis, what = "nodes")
+#>          node actor
+#> 1      AI:Ask    AI
+#> 2    AI:Reply    AI
+#> 3   Human:Ask Human
+#> 4 Human:Reply Human
+```
+
+The network has four nodes, two per actor, and each keeps its actor
+type.
+
+## How is one network built per cohort?
+
+Any layout can be split into one network per cohort of sessions with
+`group`, which names a session-level column. `human_ai` has the column
+`phase`, which places the first 214 sessions in chronological order in
+`Early` and the remaining 215 in `Late`. The result is a grouped network
+(an `htna_group`) whose cohorts follow the factor levels of `phase`.
 
 ``` r
 
 grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-grp
-#> Group Networks (2 groups)
-#> 
-#>   Group  Nodes  Edges  Weights
-#>   Late   12     134    [0.001, 0.508]
-#>   Early  12     135    [0.001, 0.689]
+as.data.frame(summary(grp), what = "actor_pairs")
+#>   group source_actor target_actor n_edges
+#> 1 Early        Human        Human      35
+#> 2 Early        Human           AI      36
+#> 3 Early           AI        Human      36
+#> 4 Early           AI           AI      28
+#> 5  Late        Human        Human      35
+#> 6  Late        Human           AI      36
+#> 7  Late           AI        Human      36
+#> 8  Late           AI           AI      27
 ```
 
-Pass `grp` as it is to the downstream verbs
+Both cohorts have the same actor partition; the early network has 28
+non-zero AI-to-AI edges and the late network 27, and the other blocks
+have the same counts in both. A grouped network is passed as it is to
+the other functions
 ([`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md),
 [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md),
 [`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md),
-[`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md),
-…); they iterate over the cohorts.
+[`compare_htna()`](https://sonsoles.me/htna/reference/compare_htna.md)
+and the rest), which work through its cohorts. The [Grouped
+heterogeneous transition
+networks](https://sonsoles.me/htna/articles/grouped.md) vignette and the
+[Comparing
+networks](https://sonsoles.me/htna/articles/comparing-networks.md) guide
+continue from here.
 
 ``` r
 
+op <- par(mfrow = c(1, 2), mar = c(1, 1, 3, 1))
 plot_htna(grp)
 ```
 
-![](input-formats_files/figure-html/unnamed-chunk-10-1.png)![](input-formats_files/figure-html/unnamed-chunk-10-2.png)
+![](input-formats_files/figure-html/plot-group-1.png)
 
-## Cheat sheet
+``` r
 
-| Form | When to use |
+par(op)
+```
+
+## Which layout to use
+
+| Data at hand | Call |
 |----|----|
-| `list(Actor1 = a1, Actor2 = a2)` | Each actor’s data is in its own frame |
-| `df, actor_type = "actor_type"` | One combined frame, actor identity in a row-level column |
-| `df, node_groups = list(Actor1 = ..., Actor2 = ...)` | One combined frame; partition declared as a named list of codes |
-| `df, node_groups = data.frame(code = ..., actor_type = ...)` | One combined frame; partition declared as a tidy codebook |
-| `Nestimate::build_clusters(htna, ...)` | Distance-based sequence clusters; returns one HTNA network per cluster |
-| `Nestimate::cluster_mmm(htna, ...)` | Already-fitted latent Markov clusters; preserves fitted weights and posterior diagnostics |
-| `tna::cluster_sequences(...), node_groups = ...` | Legacy sequence-clustering result; builds one HTNA network per cluster |
-| `Nestimate::build_mcml(...)` | Node clusters of a fitted MCML model become the actor groups; one full node-level HTNA is rebuilt from the source data |
-| `+ actor = "user_id"` | Identify the individual actor that performed each event (forwarded to [`Nestimate::build_network()`](https://pak.dynasite.org/Nestimate/reference/build_network.html)) |
-| `+ disambiguate = TRUE` | Same code label appears in more than one actor type |
-| `+ group = "phase"` | Build one network per cohort/phase |
-
-The row/list forms build one network directly. Clustering forms build or
-preserve an outer `htna_group`, while every child keeps the same actor
-partition.
+| One table per actor | `build_htna(list(Human = h, AI = a))` |
+| One table with an actor column | `build_htna(d, actor_type = "actor_type")` |
+| One table and a codebook | `build_htna(d, node_groups = codebook)` |
+| One table and code lists | `build_htna(d, node_groups = list(Human = ..., AI = ...))` |
+| A fitted clustering of sessions | `build_htna(fit)`; see [Clustering inputs](https://sonsoles.me/htna/articles/clustering.md) |
+| A label shared by two actors | add `disambiguate = TRUE` |
+| One network per cohort | add `group = "phase"` |

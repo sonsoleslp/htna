@@ -1,9 +1,14 @@
-# Re-apply a Previous Pruning Rule
+# Re-apply a recorded pruning rule
 
-htna-named wrapper for
-[`Nestimate::net_reprune()`](https://pak.dynasite.org/Nestimate/reference/net_reprune.html).
-Re-applies the pruning rule recorded on a network (e.g. after the
-weights have been re-estimated), without having to restate the rule.
+`reprune_htna()` re-applies the recorded pruning rule of a network and
+returns the pruned network with its actor partition. A network that has
+been pruned and then restored with
+[`deprune_htna()`](https://sonsoles.me/htna/reference/deprune_htna.md)
+still carries the pruning rule; re-applying it removes the same weak
+edges again without restating the method and threshold.
+
+`reprune_htna()` runs Nestimate's `net_reprune()` and returns an htna
+network with the edges that fail the recorded rule set to zero.
 
 ## Usage
 
@@ -15,29 +20,18 @@ reprune_htna(x, ...)
 
 - x:
 
-  An htna network carrying a prior pruning rule (or other object
-  accepted by
-  [`Nestimate::net_reprune()`](https://pak.dynasite.org/Nestimate/reference/net_reprune.html));
-  S3 dispatch on `x` is preserved.
+  An htna network that was pruned with
+  [`prune_htna()`](https://sonsoles.me/htna/reference/prune_htna.md) and
+  restored with
+  [`deprune_htna()`](https://sonsoles.me/htna/reference/deprune_htna.md).
 
 - ...:
 
-  Additional arguments passed to
-  [`Nestimate::net_reprune()`](https://pak.dynasite.org/Nestimate/reference/net_reprune.html).
-  See that function for details.
+  Unused.
 
 ## Value
 
-The re-pruned htna network. See
-[`Nestimate::net_reprune()`](https://pak.dynasite.org/Nestimate/reference/net_reprune.html).
-
-## Details
-
-The actor partition (`$node_groups`, `$actor_levels`, `htna` class) is
-preserved, so the re-pruned network stays htna-aware.
-
-Suffixed `_htna` to avoid clashing with the tna verb `reprune()` and to
-sit alongside the rest of the htna API.
+An htna network with the edges that fail the recorded rule set to zero.
 
 ## See also
 
@@ -51,7 +45,7 @@ sit alongside the rest of the htna API.
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
-pruned <- prune_htna(net, method = "threshold", threshold = 0.05)
+pruned <- prune_htna(net, threshold = 0.05)
 reprune_htna(deprune_htna(pruned))
 #> Transition Network (relative probabilities) [directed]
 #>   Weights: [0.003, 0.611]  |  mean: 0.146

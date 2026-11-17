@@ -1,12 +1,12 @@
-# Simplified AI Interaction Sequences (per-actor frame)
+# AI turns of the vibe-coding sessions
 
-The AI-only slice of
-[`human_ai`](https://sonsoles.me/htna/reference/human_ai.md), in a
-long-format data frame ready to feed the named-list form of
-[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
-Codes have already been collapsed into the simplified AI alphabet; see
-[`human_ai`](https://sonsoles.me/htna/reference/human_ai.md) for the
-remapping rules.
+`ai_simplified` is the AI part of
+[human_ai](https://sonsoles.me/htna/reference/human_ai.md): its AI rows,
+as one data frame for one actor type. Together with
+[human_simplified](https://sonsoles.me/htna/reference/human_simplified.md)
+it is the input for the named-list form of
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md), in
+which each actor type comes in its own data frame.
 
 ## Usage
 
@@ -16,27 +16,31 @@ ai_simplified
 
 ## Format
 
-A data frame with 8551 rows and 10 columns. Schema matches
-[`human_ai`](https://sonsoles.me/htna/reference/human_ai.md) minus the
-`phase` column; every value in `actor_type` is `"AI"`.
+A data frame with 8,551 rows and 10 columns: the columns of
+[human_ai](https://sonsoles.me/htna/reference/human_ai.md) without
+`phase`; `actor_type` is always `"AI"`.
 
 ## Source
 
-Derived from
-[`Nestimate::ai_long`](https://pak.dynasite.org/Nestimate/reference/long-data.html);
-see `data-raw/human_ai.R` for the build script.
+Derived from the `ai_long` data of the 'Nestimate' package (see
+[human_ai](https://sonsoles.me/htna/reference/human_ai.md)).
 
 ## See also
 
-[`human_ai`](https://sonsoles.me/htna/reference/human_ai.md),
-[`human_simplified`](https://sonsoles.me/htna/reference/human_simplified.md),
-[`human_ai_codebook`](https://sonsoles.me/htna/reference/human_ai_codebook.md).
+[human_ai](https://sonsoles.me/htna/reference/human_ai.md),
+[human_simplified](https://sonsoles.me/htna/reference/human_simplified.md),
+[human_ai_codebook](https://sonsoles.me/htna/reference/human_ai_codebook.md)
 
 ## Examples
 
 ``` r
 data(human_simplified, ai_simplified)
 net <- build_htna(list(Human = human_simplified, AI = ai_simplified))
+#> Registered S3 methods overwritten by 'Nestimate':
+#>   method            from       
+#>   plot.net_mlvar    idiographic
+#>   print.net_mlvar   idiographic
+#>   summary.net_mlvar idiographic
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 summary(net)
 #> <htna network>

@@ -1,28 +1,32 @@
 # Articles
 
-### Getting started
+### Vignettes
 
-- [Getting Started with
-  htna](https://sonsoles.me/htna/articles/htna.md):
-- [Input formats for
-  build_htna()](https://sonsoles.me/htna/articles/input-formats.md):
-- [Grouped HTNA](https://sonsoles.me/htna/articles/grouped.md):
+- [Heterogeneous transition network
+  analysis](https://sonsoles.me/htna/articles/htna.md):
+- [Grouped heterogeneous transition
+  networks](https://sonsoles.me/htna/articles/grouped.md):
 
-### Analysis
+### Guides
 
-- [State frequencies and chi-square
-  mosaics](https://sonsoles.me/htna/articles/frequencies-and-mosaic.md):
-- [Sequence plots](https://sonsoles.me/htna/articles/sequence-plots.md):
-- [Sequence pattern comparison: early vs late Human-AI
-  interactions](https://sonsoles.me/htna/articles/sequence-comparison.md):
+- [Input formats](https://sonsoles.me/htna/articles/input-formats.md):
+- [Comparing
+  networks](https://sonsoles.me/htna/articles/comparing-networks.md):
+- [Model
+  assessment](https://sonsoles.me/htna/articles/model-assessment.md):
+- [Markov-order
+  adequacy](https://sonsoles.me/htna/articles/markov-order.md):
+- [Sequences and
+  patterns](https://sonsoles.me/htna/articles/sequences-and-patterns.md):
+- [Frequencies and mosaic
+  plots](https://sonsoles.me/htna/articles/frequencies-and-mosaic.md):
+- [Clustering inputs](https://sonsoles.me/htna/articles/clustering.md):
+- [Three or more actor
+  groups](https://sonsoles.me/htna/articles/multigroup.md):
 
-### Advanced
+### Case studies
 
-- [Multi-Group HTNA (3+ Actor
-  Groups)](https://sonsoles.me/htna/articles/multigroup.md):
-- [Clustering inputs to
-  build_htna()](https://sonsoles.me/htna/articles/clustering.md):
-- [Markov-order adequacy in heterogeneous transition
-  networks](https://sonsoles.me/htna/articles/markov-order.md):
-- [Model assessment for htna
-  networks](https://sonsoles.me/htna/articles/model-assessment.md):
+- [Case study: early and late sessions of vibe
+  coding](https://sonsoles.me/htna/articles/case-early-late.md):
+- [Case study: help-seeking in vibe
+  coding](https://sonsoles.me/htna/articles/case-vibe-coding.md):

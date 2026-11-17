@@ -1,10 +1,18 @@
-# Tidy State Frequency Table
+# Count the codes of a network over all actors
 
-htna-named wrapper for
-[`Nestimate::state_frequencies()`](https://pak.dynasite.org/Nestimate/reference/state_frequencies.html).
-Returns a tidy data frame with `state`, `count`, and `proportion`
-columns summarising the within-network state vocabulary, pooled across
-actors.
+`state_frequencies_htna()` counts the codes of a network over all
+actors: every code in the sessions of an htna network, or in raw
+sequence data, in decreasing order of frequency. The pooled table shows
+which codes dominate the interaction as a whole, whichever actor
+produces them. Each code's proportion is its share of all events, so the
+shares of the different actors can be compared directly.
+
+`state_frequencies_htna()` runs Nestimate's `state_frequencies()` and
+returns a data frame with one row per code.
+
+The table has no actor column;
+[`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md)
+reports each code under its actor, with shares within the actor.
 
 ## Usage
 
@@ -17,40 +25,23 @@ state_frequencies_htna(data, ...)
 - data:
 
   An htna network from
-  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md)
-  (its session sequences are counted), or raw sequence data. See
-  [`Nestimate::state_frequencies()`](https://pak.dynasite.org/Nestimate/reference/state_frequencies.html).
+  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md), or
+  sequence data (a wide data frame or a list of character vectors).
 
 - ...:
 
-  Additional arguments passed to
-  [`Nestimate::state_frequencies()`](https://pak.dynasite.org/Nestimate/reference/state_frequencies.html).
-  See that function for details.
+  Unused.
 
 ## Value
 
-A data frame with one row per state, sorted by decreasing count, and
-columns `state`, `count` and `proportion`. See
-[`Nestimate::state_frequencies()`](https://pak.dynasite.org/Nestimate/reference/state_frequencies.html).
-
-## Details
-
-Companion to
-[`plot_frequencies_htna()`](https://sonsoles.me/htna/reference/plot_frequencies_htna.md).
-Unlike
-[`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md),
-the table carries no actor column; use
-[`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md)
-when each state should be reported under its actor type.
-
-Suffixed `_htna` to avoid clashing with
-[`Nestimate::state_frequencies()`](https://pak.dynasite.org/Nestimate/reference/state_frequencies.html)
-when both packages are loaded.
+A data frame with one row per code, sorted by decreasing count, and
+columns `state`, `count` and `proportion` (the share of all events,
+rounded to four decimals).
 
 ## See also
 
-[`plot_frequencies_htna()`](https://sonsoles.me/htna/reference/plot_frequencies_htna.md),
-[`state_distribution_htna()`](https://sonsoles.me/htna/reference/state_distribution_htna.md).
+[`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md),
+[`plot_frequencies_htna()`](https://sonsoles.me/htna/reference/plot_frequencies_htna.md).
 
 ## Examples
 

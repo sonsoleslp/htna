@@ -1,7 +1,10 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://sonsoles.me/htna/404.html</loc></url>
 <url><loc>https://sonsoles.me/htna/LICENSE-text.html</loc></url>
+<url><loc>https://sonsoles.me/htna/articles/case-early-late.html</loc></url>
+<url><loc>https://sonsoles.me/htna/articles/case-vibe-coding.html</loc></url>
 <url><loc>https://sonsoles.me/htna/articles/clustering.html</loc></url>
+<url><loc>https://sonsoles.me/htna/articles/comparing-networks.html</loc></url>
 <url><loc>https://sonsoles.me/htna/articles/frequencies-and-mosaic.html</loc></url>
 <url><loc>https://sonsoles.me/htna/articles/grouped.html</loc></url>
 <url><loc>https://sonsoles.me/htna/articles/htna.html</loc></url>
@@ -10,12 +13,13 @@
 <url><loc>https://sonsoles.me/htna/articles/markov-order.html</loc></url>
 <url><loc>https://sonsoles.me/htna/articles/model-assessment.html</loc></url>
 <url><loc>https://sonsoles.me/htna/articles/multigroup.html</loc></url>
-<url><loc>https://sonsoles.me/htna/articles/sequence-comparison.html</loc></url>
-<url><loc>https://sonsoles.me/htna/articles/sequence-plots.html</loc></url>
+<url><loc>https://sonsoles.me/htna/articles/sequences-and-patterns.html</loc></url>
 <url><loc>https://sonsoles.me/htna/authors.html</loc></url>
 <url><loc>https://sonsoles.me/htna/index.html</loc></url>
 <url><loc>https://sonsoles.me/htna/news/index.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/ai_simplified.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/as.data.frame.htna.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/as.data.frame.htna_stability.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/as.igraph.htna.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/association_rules_htna.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/bayes_compare_htna.html</loc></url>
@@ -32,6 +36,7 @@
 <url><loc>https://sonsoles.me/htna/reference/extract_meta_paths.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/frequencies_htna.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/htna-package.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/htna_comparison-methods.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/htna_palette.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/human_ai.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/human_ai_codebook.html</loc></url>
@@ -42,7 +47,6 @@
 <url><loc>https://sonsoles.me/htna/reference/permutation_htna.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/plot.htna_comparison_group.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/plot.htna_stability.html</loc></url>
-<url><loc>https://sonsoles.me/htna/reference/plot.htna_stability_group.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/plot_centralities.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/plot_edge_betweenness_htna.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/plot_frequencies_htna.html</loc></url>
@@ -50,9 +54,9 @@
 <url><loc>https://sonsoles.me/htna/reference/plot_htna_bootstrap.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/plot_htna_diff.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/plot_sequences.html</loc></url>
+<url><loc>https://sonsoles.me/htna/reference/print.htna_bootstrap_group.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/print.htna_paths.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/print.htna_stability.html</loc></url>
-<url><loc>https://sonsoles.me/htna/reference/print.htna_stability_group.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/prune_htna.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/pruning_details_htna.html</loc></url>
 <url><loc>https://sonsoles.me/htna/reference/reliability_htna.html</loc></url>

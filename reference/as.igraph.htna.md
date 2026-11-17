@@ -1,9 +1,21 @@
-# Convert an HTNA Network to igraph
+# Convert an htna network to an igraph graph
 
-Converts an `htna` network to an igraph::igraph object while preserving
-its node-to-actor partition. The actor type is stored as the vertex
-attribute `actor_type`, and the canonical actor ordering is stored as
-the graph attribute `actor_levels`.
+`as.igraph()` converts a heterogeneous transition network to an 'igraph'
+graph and keeps its actor partition. Many network measures and
+algorithms are available for 'igraph' graphs; because the partition is
+kept, a measure computed in 'igraph' can still be summarized by actor
+type, for example to compare the centrality of human and AI codes.
+
+`as.igraph()` creates a weighted graph from the transition weights,
+stores the actor type of every vertex as the vertex attribute
+`actor_type`, the ordered actor types as the graph attribute
+`actor_levels` and the estimation method as `htna_method`. A grouped
+network is converted cohort by cohort; each graph also records its
+cohort name in the graph attribute `cohort`. It returns an `igraph`
+graph, or a list of graphs, one per cohort, for a grouped network.
+
+For the edge and node tables of the network without 'igraph', use
+[`as.data.frame.htna()`](https://sonsoles.me/htna/reference/as.data.frame.htna.md).
 
 ## Usage
 
@@ -19,38 +31,44 @@ as.igraph(x, mode = NULL, weighted = TRUE, diag = TRUE, ...)
 
 - x:
 
-  An `htna` network or `htna_group`.
+  An htna network from
+  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) or
+  an `htna_group`.
 
 - mode:
 
-  Character igraph adjacency mode. The default, `NULL`, uses
-  `"directed"` when `x$directed` is true and `"undirected"` otherwise.
+  Graph mode. Default `NULL`: `"directed"` for a directed network,
+  `"undirected"` otherwise.
 
 - weighted:
 
-  Passed to
-  [`igraph::graph_from_adjacency_matrix()`](https://r.igraph.org/reference/graph_from_adjacency_matrix.html).
-  Default `TRUE`.
+  Use the transition weights as edge weights. Default `TRUE`.
 
 - diag:
 
-  Include diagonal/self-loop entries? Default `TRUE`.
+  Keep self-transitions as loops. Default `TRUE`.
 
 - ...:
 
-  Additional arguments passed to
+  Further arguments to
   [`igraph::graph_from_adjacency_matrix()`](https://r.igraph.org/reference/graph_from_adjacency_matrix.html).
 
 ## Value
 
-An `igraph` object for an `htna`, or a named list of `igraph` objects
-inheriting from `htna_igraph_group` for an `htna_group`.
+An `igraph` graph for an htna network. For an `htna_group`, a named list
+of `igraph` graphs, one per cohort, of class
+`c("htna_igraph_group", "list")`.
 
-## Details
+## Conditions
 
-Passing an `htna_group` converts every cohort and returns a named list.
-Each graph additionally stores its cohort name in the graph attribute
-`cohort`.
+`htna_bad_input` when `x` is not an htna network or an argument is
+invalid; `htna_unassigned_node` when a node has no actor type.
+
+## See also
+
+[`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md),
+[`as.data.frame.htna()`](https://sonsoles.me/htna/reference/as.data.frame.htna.md),
+[`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md)
 
 ## Examples
 

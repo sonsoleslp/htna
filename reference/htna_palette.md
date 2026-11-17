@@ -1,8 +1,11 @@
-# Default HTNA colour palette
+# Colours of the actor types in htna plots
 
-A colour palette for up to 6 actor groups, used by
-[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md) when no
-explicit colours are supplied.
+`htna_palette` gives the default fill colours of the actor types in the
+network plots of htna: the first actor type takes the first colour, the
+second the second, and so on. With more than six actor types the colours
+are recycled with a warning, so pass a longer vector to `group_colors`
+in that case. Each plot also gives the actor types different node
+shapes, so the actor types are not distinguished by colour alone.
 
 ## Usage
 
@@ -12,11 +15,17 @@ htna_palette
 
 ## Format
 
-An object of class `character` of length 6.
+A character vector of six hexadecimal colours.
 
 ## Value
 
-A character vector of 6 hex colour codes.
+A character vector of six hexadecimal colours.
+
+## See also
+
+[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md),
+[`plot_htna_diff()`](https://sonsoles.me/htna/reference/plot_htna_diff.md),
+[`plot_htna_bootstrap()`](https://sonsoles.me/htna/reference/plot_htna_bootstrap.md)
 
 ## Examples
 

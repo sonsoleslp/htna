@@ -1,8 +1,24 @@
-# Plot Centrality Measures
+# Plot node centralities of an htna network
 
-Faceted bar plot of node-level centralities, one panel per measure,
-drawn with 'ggplot2' (Suggests). Mirrors the look of
-[`tna::plot.tna_centralities()`](https://sonsoles.me/tna/reference/plot.tna_centralities.html).
+`plot_centralities()` plots the node centralities of an htna network:
+the value of each centrality measure for every code, one panel per
+measure, so the codes that hold the central positions of the interaction
+can be read at a glance and compared across measures. Colouring the bars
+by actor type shows whether the central codes belong to one actor or are
+shared between them.
+
+`plot_centralities()` draws horizontal bars, one per code, in one facet
+per measure, sorted by value within each facet by default and labelled
+with the value. It accepts an htna network, a grouped network or a table
+from
+[`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md).
+For a grouped network each panel shows one line-and-point profile per
+cohort over the same codes, so differences between cohorts read along
+one axis; `by` is then not used. The chart is a 'ggplot2' chart and
+needs that package; it is returned as a `ggplot` object.
+
+The values themselves are returned by
+[`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md).
 
 ## Usage
 
@@ -25,22 +41,21 @@ plot_centralities(
 
 - x:
 
-  An htna network, `htna_group`, or `htna_centralities` data frame from
+  An htna network, an `htna_group`, or a table from
   [`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md).
 
 - measures:
 
-  Centralities to plot. Default: all nine.
+  Measures to plot. Default: all nine.
 
 - by:
 
-  `"state"` (default) gives each node its own colour; `"group"` colours
-  by actor group (Human, AI, ...) using
-  [htna_palette](https://sonsoles.me/htna/reference/htna_palette.md).
+  `"state"` (default) gives every code its own colour; `"group"` colours
+  the bars by actor type.
 
 - reorder:
 
-  If `TRUE`, sort nodes by value within each measure.
+  Sort the codes by value within each measure. Default `TRUE`.
 
 - ncol:
 
@@ -48,37 +63,39 @@ plot_centralities(
 
 - scales:
 
-  Facet scaling: `"free_x"` (default) or `"fixed"`.
+  Facet scales: `"free_x"` (default) or `"fixed"`.
 
 - colors:
 
-  Optional fill colours, recycled per group/node.
+  Fill colours, recycled over codes or actor types. Default `NULL`
+  (Okabe-Ito for codes,
+  [htna_palette](https://sonsoles.me/htna/reference/htna_palette.md) for
+  actor types).
 
 - labels:
 
-  If `TRUE` (default), draw the value next to each bar.
+  Print the value next to each bar. Default `TRUE`.
 
 - ...:
 
-  Forwarded to
+  Further arguments for
   [`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md)
-  when computing on the fly.
+  when `x` is a network.
 
 ## Value
 
-A `ggplot` object (printed when returned at top level).
+A `ggplot` object, drawn when printed.
 
-## Details
+## Conditions
 
-Accepts an htna network, an `htna_group`, or a data frame produced by
-[`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md).
-For an `htna_group` the bars are replaced by one line-and-point profile
-per cohort in each panel (colour = cohort), so cohort differences on a
-measure read along the same node axis; `by` is then not used.
+`htna_missing_package` when 'ggplot2' is not installed; `htna_bad_input`
+when none of `measures` is in the table or `by = "group"` is asked for a
+table without an `actor` column.
 
 ## See also
 
-[`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md).
+[`centralities_htna()`](https://sonsoles.me/htna/reference/centralities_htna.md),
+[`centrality_stability_htna()`](https://sonsoles.me/htna/reference/centrality_stability_htna.md)
 
 ## Examples
 
@@ -86,29 +103,16 @@ measure read along the same node axis; `by` is then not used.
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   data(human_ai)
   net <- build_htna(human_ai, actor_type = "actor_type")
-  plot_centralities(net)
-  plot_centralities(net, by = "group")
+  plot_centralities(net, measures = c("InStrength", "OutStrength",
+                                      "Betweenness"), by = "group")
 
   grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
-  plot_centralities(grp)
+  plot_centralities(grp, measures = c("InStrength", "Betweenness"))
 }
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 #> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
-#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
-#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
-#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
-#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
-#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
-#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
-#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
 #> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
-#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
-#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
-#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
-#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
-#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
-#> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
 #> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
 #> Note: Weights inverted (1/w^1) for path-based measures (invert_weights=TRUE). Higher weights = shorter paths.
 ```

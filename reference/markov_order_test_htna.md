@@ -1,11 +1,28 @@
-# Markov-Order Adequacy Test
+# Test the Markov order of the sessions
 
-htna-named wrapper for
-[`Nestimate::markov_order_test()`](https://pak.dynasite.org/Nestimate/reference/markov_order_test.html).
-Tests whether a first-order Markov model is adequate for the observed
-sequences, or whether a higher order is required, by comparing the
-empirical transition structure against orders `1..max_order` via
-permutation.
+`markov_order_test_htna()` tests the Markov order of the session
+sequences of an htna network (or of raw sequence data). The Markov-order
+test compares the fit of models of increasing order (zero, one, two and
+so on) with likelihood-ratio statistics, judged against a permutation
+null, and reports the information criteria of each order. A transition
+network is a first-order Markov model: the next code is assumed to
+depend only on the current one. When the next code also depends on the
+codes before it, a first-order network misses part of the process and a
+higher order describes it better.
+
+The orders are tested in turn: the selected `optimal_order` is the
+highest order reached before the first step that is not significant at
+`alpha`, and equals `max_order` when every step is significant, in which
+case the search should be widened. The orders preferred by BIC and AIC
+are reported alongside. `markov_order_test_htna()` runs Nestimate's
+`markov_order_test()` on the sequences and returns a `net_markov_order`
+object.
+
+Use it before interpreting a first-order network, together with
+[`reliability_htna()`](https://sonsoles.me/htna/reference/reliability_htna.md)
+and
+[`casedrop_reliability_htna()`](https://sonsoles.me/htna/reference/casedrop_reliability_htna.md)
+for the stability of the estimated weights.
 
 ## Usage
 
@@ -19,52 +36,24 @@ markov_order_test_htna(data, ...)
 
   An htna network from
   [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md), or
-  raw sequence data: a list of character vectors or a wide-format data
-  frame. See
-  [`Nestimate::markov_order_test()`](https://pak.dynasite.org/Nestimate/reference/markov_order_test.html).
+  sequence data (a wide data frame or a list of character vectors).
 
 - ...:
 
-  Additional arguments passed to
-  [`Nestimate::markov_order_test()`](https://pak.dynasite.org/Nestimate/reference/markov_order_test.html),
-  such as `max_order`, `n_perm`, `alpha`, `parallel`, `n_cores`, and
-  `seed`. See that function for the full, current argument list.
+  Settings: `max_order` (default 3), `n_perm` (permutations, 500),
+  `alpha` (0.05), `parallel` (`FALSE`), `n_cores` (2), `seed` and `dof`
+  (`"paths"` or `"observed"`).
 
 ## Value
 
-An object of class `net_markov_order` with components `optimal_order`
-(sequential permutation-test order), `bic_order`, `aic_order`,
-`test_table` (a data frame with one row per tested order and columns
-`order`, `loglik`, `AIC`, `BIC`, `df`, `g2`, `p_permutation`,
-`p_asymptotic`, `significant`), the permutation null distributions,
-fitted transition matrices, and the inputs.
+An object of class `net_markov_order` with
 [`print()`](https://rdrr.io/r/base/print.html),
 [`summary()`](https://rdrr.io/r/base/summary.html) and
-[`plot()`](https://rdrr.io/r/graphics/plot.default.html) methods are
-supplied by Nestimate; see
-[`Nestimate::markov_order_test()`](https://pak.dynasite.org/Nestimate/reference/markov_order_test.html).
-
-## Details
-
-Accepts an htna network directly (its session sequences are tested), or
-raw sequence data (a list of character vectors or a wide-format data
-frame). Use alongside
-[`reliability_htna()`](https://sonsoles.me/htna/reference/reliability_htna.md)
-and
-[`casedrop_reliability_htna()`](https://sonsoles.me/htna/reference/casedrop_reliability_htna.md)
-when assessing whether a Markov-1 transition network is appropriate
-before trusting downstream htna analyses.
-
-The orders are tested sequentially: `optimal_order` is the highest order
-`k` for which every step from order `j - 1` to `j`, `j = 1, ..., k`, is
-significant at `alpha`. It is therefore one less than the first order
-whose step is not significant, and equals `max_order` when every step is
-significant (in which case the search should be widened). The BIC- and
-AIC-preferred orders are reported alongside.
-
-Suffixed `_htna` to avoid clashing with
-[`Nestimate::markov_order_test()`](https://pak.dynasite.org/Nestimate/reference/markov_order_test.html)
-when both packages are loaded.
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) methods.
+[`summary()`](https://rdrr.io/r/base/summary.html) returns a data frame
+with one row per tested order and columns `order`, `loglik`, `AIC`,
+`BIC`, `df`, `g2`, `p_permutation`, `p_asymptotic` and `significant`.
+The object also holds `optimal_order`, `bic_order` and `aic_order`.
 
 ## See also
 
@@ -78,8 +67,9 @@ when both packages are loaded.
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
-# Few permutations to keep the example fast; use the default 500 in practice.
-markov_order_test_htna(net, max_order = 2, n_perm = 20, seed = 1)
+# n_perm = 20 keeps the example fast; use the default 500 in practice.
+mo <- markov_order_test_htna(net, max_order = 2, n_perm = 20, seed = 1)
+mo
 #> Markov Order Test  [within-w permutation, n_perm = 20, alpha = 0.050]
 #>   428 sequences / 19346 observations / 12 states
 #> 
@@ -93,4 +83,13 @@ markov_order_test_htna(net, max_order = 2, n_perm = 20, seed = 1)
 #>           NA
 #>         TRUE
 #>         TRUE
+summary(mo)
+#>   order    loglik      AIC      BIC   df        g2 p_permutation p_asymptotic
+#> 1     0 -43741.91 87505.83 87592.40   NA        NA            NA           NA
+#> 2     1 -37315.96 74899.92 75954.53  121 12815.987    0.04761905            0
+#> 3     2 -33812.56 70683.12 82716.72 1272  6481.756    0.04761905            0
+#>   significant
+#> 1          NA
+#> 2        TRUE
+#> 3        TRUE
 ```

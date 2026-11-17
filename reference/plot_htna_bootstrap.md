@@ -1,13 +1,30 @@
-# Plot an htna Bootstrap Result
+# Plot the bootstrap-assessed edges of an htna network
 
-Renders the bootstrap result via
-[`cograph::splot.net_bootstrap()`](https://sonsoles.me/cograph/reference/splot.html)
-so the CI / significance / dashed-edge overlay is preserved, but
-overrides the layout and node styling to match
-[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md)
-(multi-group circular layout, warm
-[htna_palette](https://sonsoles.me/htna/reference/htna_palette.md),
-darkened donut).
+`plot_htna_bootstrap()` plots the bootstrap-assessed edges of an htna
+network: it shows which transitions of a heterogeneous network are
+stable enough to interpret. Edges that are significant across resamples
+are drawn solid, the others dashed (or hidden), so the reader sees which
+within-actor transitions and which hand-overs between actors the data
+support. A bootstrap of a transition network resamples the sessions many
+times and records how often each edge is present and how much its weight
+varies.
+
+`plot_htna_bootstrap()` draws the result of
+[`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
+in the layout and actor styling of
+[`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md). With
+`display = "significant"` only the significant edges are drawn;
+`show_ci = TRUE` adds the confidence interval of each edge weight. A
+grouped bootstrap is drawn as one plot per cohort, titled with its
+cohort name. [`plot()`](https://rdrr.io/r/graphics/plot.default.html) on
+a bootstrap result calls this function. It is called for the plot and
+returns, invisibly, the value of the drawing call, or `boot` for a
+grouped bootstrap.
+
+The table behind the plot (one row per edge, with its weight, interval
+and p-value) is returned by
+[`summary()`](https://rdrr.io/r/base/summary.html) of the bootstrap
+result.
 
 ## Usage
 
@@ -20,48 +37,41 @@ plot(x, ...)
 
 ## Arguments
 
-- boot:
+- boot, x:
 
-  An object from
-  [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
-  (or a `htna_bootstrap_group` list of them).
+  A result of
+  [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md):
+  an `htna_bootstrap` or an `htna_bootstrap_group`.
 
 - group_colors:
 
-  Character vector of colours, one per actor group. Defaults to the
-  built-in
+  Colours of the actor types, in actor order. Default
   [htna_palette](https://sonsoles.me/htna/reference/htna_palette.md).
 
 - ...:
 
-  Forwarded to
-  [`cograph::splot.net_bootstrap()`](https://sonsoles.me/cograph/reference/splot.html)
-  (e.g. `display`, `show_ci`, `show_stars`). User args win.
-
-- x:
-
-  Same as `boot`; used when calling via the
-  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) generic.
+  Further drawing arguments: `display` (`"styled"` (default),
+  `"significant"` or `"full"`), `show_ci` (default `FALSE`),
+  `show_stars` (default `TRUE`), `title`, and the arguments of
+  [`cograph::splot()`](https://sonsoles.me/cograph/reference/splot.html).
 
 ## Value
 
-The value returned by
-[`cograph::splot.net_bootstrap()`](https://sonsoles.me/cograph/reference/splot.html)
-(invisibly), or the input group invisibly.
+Called for the plot. Invisibly, the value of the drawing call for one
+bootstrap, or `boot` for a grouped bootstrap.
 
-## Details
+## Conditions
 
-For an `htna_bootstrap_group` (i.e. the result of running
+`htna_empty_input` for a grouped bootstrap without cohorts;
+`htna_bad_input` when `boot` is not a result of
 [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
-on a `build_htna(..., group = ...)` output), each element is plotted
-individually with its name as the title - this function does not manage
-`par(mfrow=...)`.
+on an htna network.
 
 ## See also
 
 [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md),
 [`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md),
-[`cograph::splot.net_bootstrap()`](https://sonsoles.me/cograph/reference/splot.html).
+[`certainty_htna()`](https://sonsoles.me/htna/reference/certainty_htna.md)
 
 ## Examples
 

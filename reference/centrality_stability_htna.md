@@ -1,10 +1,33 @@
-# Centrality Stability for an htna Network
+# Assess the case-dropping stability of node centralities
 
-Thin wrapper around
-[`Nestimate::centrality_stability()`](https://pak.dynasite.org/Nestimate/reference/centrality_stability.html)
-that validates the input is an htna network (or `htna_group`), forwards
-the call, and tags the result with an `htna_stability` class so callers
-can dispatch on the htna form.
+`centrality_stability_htna()` computes the case-dropping stability (CS)
+coefficients of the node centralities of an htna network, or of every
+cohort of a grouped network (Epskamp et al., 2018). The procedure
+re-estimates the network after dropping increasing proportions of the
+sessions and correlates the centralities of each reduced network with
+those of the full network; the CS coefficient of a measure is the
+largest proportion of sessions that can be dropped while the correlation
+stays above `threshold` with probability `certainty`. Epskamp et al.
+(2018) recommend a coefficient of at least 0.25 and preferably above
+0.5.
+
+Centrality measures rank the codes of a network, for example by how much
+transition weight flows into them (in-strength) or how often they lie on
+shortest paths (betweenness); before such a ranking is interpreted, it
+should be shown not to depend on a few sessions.
+`centrality_stability_htna()` runs Nestimate's `centrality_stability()`
+on the network and returns an `htna_stability` object (an
+`htna_stability_group` for a grouped network). Printing the result shows
+the coefficients,
+[`plot.htna_stability()`](https://sonsoles.me/htna/reference/plot.htna_stability.md)
+draws the correlation traces, and
+[`as.data.frame.htna_stability()`](https://sonsoles.me/htna/reference/as.data.frame.htna_stability.md)
+returns the coefficients or the traces as data frames.
+
+For the stability of the edge weights use
+[`casedrop_reliability_htna()`](https://sonsoles.me/htna/reference/casedrop_reliability_htna.md);
+for edge-level intervals use
+[`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md).
 
 ## Usage
 
@@ -19,7 +42,8 @@ centrality_stability_htna(
   method = "pearson",
   centrality_fn = NULL,
   loops = FALSE,
-  seed = NULL
+  seed = NULL,
+  ...
 )
 ```
 
@@ -33,75 +57,65 @@ centrality_stability_htna(
 
 - measures:
 
-  Character vector of centrality measures to assess. Default
-  `c("InStrength", "OutStrength", "Betweenness")`: the three measures
-  whose values are bit-equal between htna's `cograph` engine and
-  Nestimate's default centrality implementation. To assess htna's nine
-  measures (including the three that differ between engines:
-  `BetweennessRSP`, `Diffusion`, `Clustering`), pass them explicitly
-  together with a custom `centrality_fn`.
+  Centrality measures to assess (default
+  `c("InStrength", "OutStrength", "Betweenness")`).
 
 - iter:
 
-  Integer. Number of resamples per drop proportion. Default `1000`.
+  Resamples per drop proportion (default 1000).
 
 - drop_prop:
 
-  Numeric vector. Proportions of sessions to drop. Default
-  `seq(0.1, 0.9, by = 0.1)`.
+  Proportions of sessions to drop (default `seq(0.1, 0.9, by = 0.1)`).
 
 - threshold:
 
-  Numeric in \[0, 1\]. Correlation threshold for the case-dropping
-  stability coefficient. Default `0.7`.
+  Correlation the reduced networks must reach (default 0.7).
 
 - certainty:
 
-  Numeric in \[0, 1\]. Probability of meeting the threshold required for
-  a drop proportion to count as stable. Default `0.95`.
+  Probability of reaching `threshold` required at a drop proportion
+  (default 0.95).
 
 - method:
 
-  Correlation method, one of `"pearson"`, `"spearman"`, `"kendall"`.
-  Default `"pearson"`.
+  Correlation: `"pearson"` (default), `"spearman"` or `"kendall"`.
 
 - centrality_fn:
 
-  Optional function to compute centralities. Default `NULL` (use
-  Nestimate's internal implementation). See
-  [`Nestimate::centrality_stability()`](https://pak.dynasite.org/Nestimate/reference/centrality_stability.html)
-  for the expected signature.
+  A function computing the centralities from a weight matrix; `NULL`
+  (default) uses the built-in measures.
 
 - loops:
 
-  Logical. Whether to retain self-loops. Default `FALSE`.
+  Keep self-transitions when computing centralities (default `FALSE`).
 
 - seed:
 
-  Optional integer seed for reproducibility. Default `NULL` (no seed
-  reset).
+  Random seed (default `NULL`, no seed is set).
+
+- ...:
+
+  Further arguments passed to
+  [`Nestimate::centrality_stability()`](https://pak.dynasite.org/Nestimate/reference/centrality_stability.html),
+  for example `actor` (drop whole actors instead of sessions; Nestimate
+  1.0.19 or later).
 
 ## Value
 
-For a single htna network, an object of class
-`c("htna_stability", "net_stability")` with the same components as
-[`Nestimate::centrality_stability()`](https://pak.dynasite.org/Nestimate/reference/centrality_stability.html):
-`cs` (the stability coefficients, one per measure), `correlations`
-(per-drop-proportion correlation traces), and the parameters that were
-used. [`summary()`](https://rdrr.io/r/base/summary.html) returns the
-tidy table: one row per (measure, drop proportion), with columns
-`measure`, `drop_prop`, `mean_cor`, `sd_cor` and `prop_above`. See
-[`print.htna_stability()`](https://sonsoles.me/htna/reference/print.htna_stability.md)
-and
-[`plot.htna_stability()`](https://sonsoles.me/htna/reference/plot.htna_stability.md).
-For an `htna_group`, a named list of such objects with class
-`c("htna_stability_group", "list")`.
+For a network, an object of class `c("htna_stability", "net_stability")`
+holding the CS coefficients (`cs`, one per measure), the correlation
+traces and the settings. For an `htna_group`, a named list of such
+objects with class `c("htna_stability_group", "list")`.
+[`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) returns
+the coefficients (one row per measure) or, with `what = "correlations"`,
+the traces (one row per measure and drop proportion);
+[`summary()`](https://rdrr.io/r/base/summary.html) returns the traces.
 
-## Details
+## Conditions
 
-For an `htna_group`, the call is iterated per cohort and the result is a
-named list (one `htna_stability` per cohort), with class
-`c("htna_stability_group", "list")`.
+Errors of class `htna_bad_input` when `x` is not an htna network and
+`htna_empty_input` when a group is empty.
 
 ## References
 
@@ -112,9 +126,10 @@ Research Methods*, 50(1), 195-212.
 
 ## See also
 
-[`Nestimate::centrality_stability()`](https://pak.dynasite.org/Nestimate/reference/centrality_stability.html),
-[`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md),
-[`reliability_htna()`](https://sonsoles.me/htna/reference/reliability_htna.md).
+[`plot.htna_stability()`](https://sonsoles.me/htna/reference/plot.htna_stability.md),
+[`as.data.frame.htna_stability()`](https://sonsoles.me/htna/reference/as.data.frame.htna_stability.md),
+[`casedrop_reliability_htna()`](https://sonsoles.me/htna/reference/casedrop_reliability_htna.md),
+[`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md).
 
 ## Examples
 
@@ -123,17 +138,15 @@ data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 #> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (42 sessions), 'actor_type' (24 sessions)
 cs  <- centrality_stability_htna(net, iter = 30, seed = 1)
-cs            # CS-coefficient per measure
-#> HTNA Centrality Stability Analysis
-#> ===================================
-#> Centrality Stability (30 iterations, threshold = 0.7)
-#>   Drop proportions: 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9
+cs
+#> HTNA centrality stability
+#>   30 iterations, threshold = 0.70, drop proportions 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9
 #> 
 #>   CS-coefficients:
 #>     InStrength       0.90
 #>     OutStrength      0.90
 #>     Betweenness      0.80
-summary(cs)   # mean correlation per measure and drop proportion
+as.data.frame(cs, what = "correlations")
 #>        measure drop_prop  mean_cor       sd_cor prop_above
 #> 1   InStrength       0.1 0.9997933 9.399327e-05  1.0000000
 #> 2   InStrength       0.2 0.9995121 2.589640e-04  1.0000000
