@@ -103,6 +103,15 @@ plot.htna_bootstrap <- function(x, ...) plot_htna_bootstrap(x, ...)
 htna_shape_palette <- c("circle", "square", "diamond", "triangle",
                         "pentagon", "hexagon", "star", "cross")
 
+#' Colours, shapes and coordinates of the nodes of an htna network
+#'
+#' The actor types are laid out on arcs of a circle, the first on the left,
+#' as `plot_htna()` draws them. The start and end states are not an arc:
+#' they are anchors above and below the actor types, whose coordinates are
+#' therefore the same with and without them.
+#' @return A list: `groups`, `colors` and `shapes` (legend entries, in actor
+#'   order), `layout` (one row of x, y per node, radius 2), `node_colors`,
+#'   `node_shapes`, `dark` (per node) and `n_groups`.
 #' @keywords internal
 #' @noRd
 .htna_node_styling <- function(net, group_colors,
@@ -112,43 +121,70 @@ htna_shape_palette <- c("circle", "square", "diamond", "triangle",
   colors   <- unname(.htna_actor_colors(n_groups, palette = group_colors))
   shapes   <- rep_len(group_shapes, n_groups)
 
-  ng        <- net$node_groups
-  node_list <- lapply(groups,
-                      function(g) ng$node[as.character(ng$group) == g])
-  names(node_list) <- groups
+  ng       <- net$node_groups
+  labels   <- net$nodes$label %||% rownames(.weights_of(net))
+  boundary <- .htna_boundary_nodes(net)
 
-  # Apply the same reversal as plot_htna() for consistent layout and styling
-  # across plotting functions. This ensures the first group appears on the
-  # left for 2+ group networks.
-  layout_node_list <- node_list
-  layout_colors    <- colors
-  layout_shapes    <- shapes
-  if (n_groups >= 2L) {
-    layout_node_list <- rev(node_list)
-    layout_colors    <- rev(colors)
-    layout_shapes    <- rev(shapes)
-  }
+  # The actor types that get an arc. cograph's circular layout places the
+  # first list entry clockwise from the top, i.e. on the right for two
+  # types; the reversed list puts the first actor type on the left.
+  arc_groups <- if (length(boundary)) setdiff(groups, .boundary_type) else groups
+  node_list  <- lapply(arc_groups, function(g) {
+    as.character(ng$node[as.character(ng$group) == g])
+  })
+  names(node_list) <- arc_groups
+  if (length(arc_groups) >= 2L) node_list <- rev(node_list)
+  layout <- .htna_place_boundary(.htna_circular(node_list, labels), labels,
+                                 boundary, n_arcs = length(arc_groups))
 
-  labels <- net$nodes$label %||% rownames(.weights_of(net))
-  layout <- .htna_circular(layout_node_list, labels)
-
-  # Use the layout-reversed colors and shapes for consistent styling
-  if (n_groups >= 2L) {
-    color_map     <- setNames(layout_colors, names(layout_node_list))
-    shape_map     <- setNames(layout_shapes, names(layout_node_list))
-  } else {
-    color_map     <- setNames(colors, groups)
-    shape_map     <- setNames(shapes, groups)
-  }
   node_to_actor <- setNames(as.character(ng$group), as.character(ng$node))
   actor_per     <- unname(node_to_actor[labels])
-  node_colors   <- unname(color_map[actor_per])
-  node_shapes   <- unname(shape_map[actor_per])
-  dark          <- .darken(node_colors)
+  node_colors   <- unname(setNames(colors, groups)[actor_per])
+  node_shapes   <- unname(setNames(shapes, groups)[actor_per])
 
-  list(groups   = groups,    n_groups = n_groups,
-       colors   = layout_colors,    shapes   = layout_shapes,
-       node_list = layout_node_list,
-       layout   = layout,    node_colors = node_colors,
-       node_shapes = node_shapes, dark = dark)
+  # The legend names the start and end states only when they are drawn.
+  shown <- groups != .boundary_type | length(boundary) > 0L |
+    .boundary_type %in% actor_per
+  list(groups = groups[shown], n_groups = n_groups,
+       colors = colors[shown], shapes = shapes[shown],
+       node_list = node_list, layout = layout, boundary = boundary,
+       node_colors = node_colors, node_shapes = node_shapes,
+       dark = .darken(node_colors))
+}
+
+#' The start and end states among the nodes of a network
+#' @return A character vector named `start` and/or `end`; empty when the
+#'   network has none.
+#' @keywords internal
+#' @noRd
+.htna_boundary_nodes <- function(net) {
+  boundary <- net$boundary
+  if (is.null(boundary)) return(character(0L))
+  labels <- net$nodes$label %||% rownames(.weights_of(net))
+  boundary[boundary %in% labels]
+}
+
+#' Place the start state above and the end state below the actor types
+#'
+#' With two actor types the circle has a gap at the top and at the bottom,
+#' and the two states sit in them, on the circle. With more, the arcs cover
+#' the top and bottom, so the states go above and below the bounding box of
+#' the actor-type nodes, centred on it.
+#' @keywords internal
+#' @noRd
+.htna_place_boundary <- function(layout, labels, boundary, n_arcs,
+                                 radius = 2) {
+  if (!length(boundary)) return(layout)
+  rows <- match(boundary, labels)
+  if (n_arcs == 2L) {
+    centre <- 0
+    height <- c(start = radius, end = -radius)
+  } else {
+    arcs <- layout[-rows, , drop = FALSE]
+    centre <- mean(range(arcs[, 1L]))
+    height <- c(start = max(arcs[, 2L]) + 0.3 * radius,
+                end = min(arcs[, 2L]) - 0.3 * radius)
+  }
+  layout[rows, ] <- cbind(centre, unname(height[names(boundary)]))
+  layout
 }

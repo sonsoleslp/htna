@@ -62,7 +62,8 @@
 #'   probabilities), `"frequency"`, `"co_occurrence"` (undirected),
 #'   `"attention"`, `"reverse"`, `"ngram"`, `"gap"` or `"latency"`.
 #'   `"latency"` weights each reply by its speed and needs `time`
-#'   (Nestimate 1.0.20 or later).
+#'   (Nestimate 1.0.20 or later), with times that differ within a session;
+#'   the bundled `human_ai` has one time per session and cannot be used.
 #' @param group Name of a session-level column defining cohorts; one network
 #'   is built per cohort. Default `NULL` (one network).
 #' @param disambiguate If `TRUE`, a code used by more than one actor type is
@@ -78,7 +79,10 @@
 #'   `method = "latency"`. Default `NULL`.
 #' @param ... Further estimation arguments, such as `threshold`, `scaling`,
 #'   `time_threshold`, or `latency_floor`, `latency_cap`, `latency_aggregate`
-#'   and `latency_scope` for `method = "latency"`.
+#'   and `latency_scope` for `method = "latency"`. With `start` or `end` the
+#'   network gains a start or an end state; these belong to no actor and
+#'   form the actor type `"Boundary"`, placed last. The plots draw them
+#'   above and below the actor types.
 #'
 #' @return An object of class `c("htna", "netobject", "cograph_network")`:
 #'   a transition network with its weight matrix, nodes, sequence data and
@@ -95,7 +99,9 @@
 #' absent;
 #' `htna_actor_conflict` when a code belongs to more than one actor type and
 #' `disambiguate = FALSE`; `htna_unassigned_node` when a code has no actor
-#' type in `node_groups`; `htna_bad_input` for other invalid arguments.
+#' type in `node_groups`; `htna_tied_times` when `method = "latency"` is
+#' given times that are tied within sessions; `htna_bad_input` for
+#' other invalid arguments.
 #'
 #' @references
 #' Lopez-Pernas, S., Misiejuk, K., & Saqr, M. (2026). How AI-generated
@@ -404,6 +410,13 @@ build_htna <- function(data,
     combined <- combined[order(combined[[session]]), , drop = FALSE]
   }
 
+  if (identical(method, "latency") && !is.null(time) &&
+      !is.character(dots$latency_cap)) {
+    .check_latency_times(combined, time = time, action = action,
+                         unit = if (session_exists) session else actor,
+                         cap = dots$latency_cap %||% 0.95)
+  }
+
   # ---- Delegate to Nestimate::build_network ----
   nestimate_args <- list(data    = combined,
                         method  = method,
@@ -435,6 +448,28 @@ build_htna <- function(data,
   actor_flat   <- rep(names(codes_by_actor), lengths(codes_by_actor))
   actor_lookup <- setNames(actor_flat, codes_flat)
 
+  # The start and end states (`start`, `end`) are produced by no actor: they
+  # form an actor type of their own, placed last.
+  boundary <- .boundary_labels(dots)
+  if (length(boundary)) {
+    clash <- intersect(boundary, codes_flat)
+    if (length(clash)) {
+      .htna_stop("The start or end state is named like a code: ",
+                 paste(clash, collapse = ", "),
+                 ". Give it another label with `start` or `end`.",
+                 class = "htna_actor_conflict")
+    }
+    if (.boundary_type %in% actor_levels) {
+      .htna_stop("`", .boundary_type, "` is the actor type of the start and ",
+                 "end states; rename that actor type or leave out `start` ",
+                 "and `end`.", class = "htna_actor_conflict")
+    }
+    actor_lookup <- c(actor_lookup,
+                      setNames(rep(.boundary_type, length(boundary)),
+                               unname(boundary)))
+    actor_levels <- c(actor_levels, .boundary_type)
+  }
+
   if (!is.null(group)) {
     # When using node_groups, filter each group to only include codes that
     # actually appear in that group's data
@@ -448,19 +483,34 @@ build_htna <- function(data,
 
       group_codes <- split(as.character(combined[[action]]), group_col)
       net <- Map(function(subnet, group_name) {
-        actual_codes <- unique(group_codes[[group_name]])
+        actual_codes <- c(unique(group_codes[[group_name]]),
+                          unname(boundary))
         .inject_htna_partition_filtered(subnet, actor_lookup, actor_levels, actual_codes)
       }, net, names(net))
     } else {
       net <- lapply(net, .inject_htna_partition, actor_lookup, actor_levels)
     }
+    net <- lapply(net, .set_boundary, boundary = boundary)
     net <- net[.cohort_order(names(net), combined[[group]])]
     class(net) <- c("htna_group", "netobject_group", "list")
     attr(net, "actor_levels") <- actor_levels
     return(net)
   }
 
-  .inject_htna_partition(net, actor_lookup, actor_levels)
+  .set_boundary(.inject_htna_partition(net, actor_lookup, actor_levels),
+                boundary)
+}
+
+#' Record which nodes are the start and the end state
+#'
+#' `boundary` is a character vector named `start` and/or `end`. The plots
+#' read it to place the two states as anchors instead of laying them out as
+#' an actor type.
+#' @keywords internal
+#' @noRd
+.set_boundary <- function(net, boundary) {
+  if (length(boundary)) net$boundary <- boundary
+  net
 }
 
 #' Order cohorts by the levels of a factor grouping column
@@ -494,29 +544,140 @@ build_htna <- function(data,
   net
 }
 
+#' Keep only the codes a cohort uses, then attach the actor partition
+#'
+#' The engine builds every cohort over the codes of all cohorts. With
+#' `node_groups` a cohort keeps the codes that occur in it, and every field
+#' that depends on the node set follows: weights, nodes and their ids, the
+#' edge list, the counts and the initial probabilities.
 #' @keywords internal
 #' @noRd
-.inject_htna_partition_filtered <- function(net, actor_lookup, actor_levels, actual_codes) {
-  # Filter nodes to only include those that actually appear in this group's data
-  nodes_to_keep <- net$nodes$label %in% actual_codes
+.inject_htna_partition_filtered <- function(net, actor_lookup, actor_levels,
+                                            actual_codes) {
+  net <- .htna_set_nodes(net, intersect(net$nodes$label, actual_codes))
+  .inject_htna_partition(net, actor_lookup, actor_levels)
+}
 
-  # Filter nodes dataframe
-  net$nodes <- net$nodes[nodes_to_keep, , drop = FALSE]
-
-  # Filter weights matrix
-  codes_to_keep <- rownames(net$weights) %in% actual_codes
-  net$weights <- net$weights[codes_to_keep, codes_to_keep, drop = FALSE]
-
-  # Add actor group information for remaining nodes
-  node_actor <- unname(actor_lookup[net$nodes$label])
-  net$nodes$groups <- factor(node_actor, levels = actor_levels)
-  net$node_groups <- data.frame(
-    node  = net$nodes$label,
-    group = as.character(node_actor),
-    stringsAsFactors = FALSE
-  )
-  attr(net$node_groups, "actor_levels") <- actor_levels
-  net$actor_levels <- actor_levels
-  if (!inherits(net, "htna")) class(net) <- c("htna", class(net))
+#' Give a network the node set `nodes`, in that order
+#'
+#' Nodes not in `nodes` are dropped and nodes the network lacks are added
+#' with zero weights, so two cohorts can be brought to one node set. The
+#' sequence data are not touched.
+#' @keywords internal
+#' @noRd
+.htna_set_nodes <- function(net, nodes) {
+  resize <- function(m) {
+    if (!is.matrix(m)) return(m)
+    out <- matrix(0, nrow = length(nodes), ncol = length(nodes),
+                  dimnames = list(nodes, nodes))
+    shared <- intersect(nodes, rownames(m))
+    out[shared, shared] <- m[shared, shared]
+    storage.mode(out) <- storage.mode(m)
+    out
+  }
+  net$weights <- resize(net$weights)
+  net$frequency_matrix <- resize(net$frequency_matrix)
+  if (!is.null(net$initial) && !is.null(names(net$initial))) {
+    initial <- stats::setNames(numeric(length(nodes)), nodes)
+    shared <- intersect(nodes, names(net$initial))
+    initial[shared] <- net$initial[shared]
+    net$initial <- initial
+  }
+  net$nodes <- data.frame(id = seq_along(nodes), label = nodes, name = nodes,
+                          stringsAsFactors = FALSE)
+  W <- net$weights
+  keep <- W != 0 & !is.na(W)
+  if (isFALSE(net$directed)) keep <- keep & upper.tri(W, diag = TRUE)
+  idx <- which(keep, arr.ind = TRUE)
+  net$edges <- data.frame(from = unname(idx[, 1L]), to = unname(idx[, 2L]),
+                          weight = W[idx], stringsAsFactors = FALSE)
+  net$n_nodes <- length(nodes)
+  net$n_edges <- nrow(net$edges)
   net
+}
+
+#' Bring networks with different node sets to their union
+#'
+#' Cohorts built with `node_groups` keep only their own codes, and the
+#' engine compares networks over one node set. Networks that already share
+#' their nodes are returned unchanged.
+#' @keywords internal
+#' @noRd
+.htna_align_nodes <- function(nets) {
+  node_sets <- lapply(nets, function(net) as.character(net$nodes$label))
+  same <- vapply(node_sets, setequal, logical(1L), y = node_sets[[1L]])
+  if (all(same)) return(nets)
+  partition <- do.call(rbind, lapply(unname(nets), function(net) {
+    net$node_groups
+  }))
+  partition <- partition[!duplicated(partition$node), , drop = FALSE]
+  conflict <- unique(unlist(lapply(nets, function(net) {
+    ng <- net$node_groups
+    ng$node[ng$group != partition$group[match(ng$node, partition$node)]]
+  })))
+  if (length(conflict)) {
+    .htna_stop("Nodes assigned to different actor types across the networks: ",
+               paste(conflict, collapse = ", "), ".",
+               class = "htna_actor_conflict")
+  }
+  nodes <- sort(partition$node, method = "radix")
+  actor_lookup <- stats::setNames(as.character(partition$group),
+                                  as.character(partition$node))
+  out <- lapply(nets, function(net) {
+    .inject_htna_partition(.htna_set_nodes(net, nodes), actor_lookup,
+                           net$actor_levels)
+  })
+  attributes(out) <- attributes(nets)
+  out
+}
+
+.boundary_type <- "Boundary"
+
+#' Labels of the start and end states requested through `start` and `end`
+#' @keywords internal
+#' @noRd
+.boundary_labels <- function(dots) {
+  label <- function(value, default) {
+    if (is.null(value) || isFALSE(value)) return(character(0L))
+    if (isTRUE(value)) return(default)
+    as.character(value)
+  }
+  c(start = label(dots$start, "Start"), end = label(dots$end, "End"))
+}
+
+#' Stop when the event times cannot give a reply latency
+#'
+#' `method = "latency"` weights a reply (an event following an event with
+#' another code) by the time since the previous event, capped at a
+#' percentile of those times. When so many replies carry the time of the
+#' event before them that this percentile is zero, the engine cannot place
+#' the cap. `data` is ordered within sessions; ordering by time is stable,
+#' so tied events keep that order.
+#' @keywords internal
+#' @noRd
+.check_latency_times <- function(data, time, action, unit = NULL,
+                                 cap = 0.95) {
+  units <- if (is.null(unit)) rep(1L, nrow(data)) else data[[unit]]
+  ord <- order(units, data[[time]])
+  n <- length(ord)
+  if (n < 2L) return(invisible(TRUE))
+  units <- units[ord]
+  times <- data[[time]][ord]
+  codes <- as.character(data[[action]][ord])
+  reply <- units[-1L] == units[-n] & codes[-1L] != codes[-n]
+  tied <- (times[-1L] == times[-n])[which(reply)]
+  tied <- tied[!is.na(tied)]
+  if (!length(tied) ||
+      stats::quantile(as.numeric(!tied), probs = cap, names = FALSE) > 0) {
+    return(invisible(TRUE))
+  }
+  .htna_stop("`method = \"latency\"` needs the time of each event, but in `",
+             time, "` ", sprintf("%.0f%%", 100 * mean(tied)),
+             " of the replies carry the same time as the event before ",
+             "them: the times are tied within ",
+             if (is.null(unit)) "the sequence" else "sessions",
+             ", so the reply latencies are 0. Use a column that times the ",
+             "single events, or give the cap in seconds (for example ",
+             "`latency_cap = \"120s\"`).",
+             class = "htna_tied_times")
 }

@@ -23,7 +23,9 @@ plot_htna(
 \item{x}{An htna network from \code{\link[=build_htna]{build_htna()}}, or an \code{htna_group}.}
 
 \item{layout}{Node layout. Default \code{"circular"}; \code{"polygon"} places three
-or more actor types on the sides of a polygon.}
+or more actor types on the sides of a polygon. Start and end states
+are placed as anchors in the circular layout only; in another layout
+they are laid out as one more actor type.}
 
 \item{group_colors}{Colours of the actor types, in actor order. Default
 \link{htna_palette}.}
@@ -57,6 +59,13 @@ first actor type is placed on the left of the circular layout. \code{plot()}
 on an htna network or \code{htna_group} calls \code{plot_htna()}. It is called for
 the plot and returns, invisibly, the value of \code{\link[cograph:plot_htna]{cograph::plot_htna()}} for
 one network, or \code{x} for a grouped network.
+
+A start and an end state (\code{build_htna(start = , end = )}) are not an arc
+of the circular layout. The actor types keep the positions they have
+without them, and the start state is placed at the top centre and the
+end state at the bottom centre, in the colour and shape of the
+\code{"Boundary"} type. \code{\link[=plot_htna_bootstrap]{plot_htna_bootstrap()}} and \code{\link[=plot_htna_diff]{plot_htna_diff()}} place
+them the same way.
 
 To show the difference between two networks use \code{\link[=plot_htna_diff]{plot_htna_diff()}}; to
 show only the edges that survive bootstrapping use \code{\link[=plot_htna_bootstrap]{plot_htna_bootstrap()}}.

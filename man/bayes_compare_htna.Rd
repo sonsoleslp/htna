@@ -8,7 +8,9 @@ bayes_compare_htna(x, y = NULL, ...)
 }
 \arguments{
 \item{x, y}{Two htna networks, or an \code{htna_group} in \code{x} with \code{y = NULL},
-in which case every pair of cohorts is compared.}
+in which case every pair of cohorts is compared. Networks that do not
+hold the same codes are compared over the codes of both; a code a
+network lacks has no transitions in it.}
 
 \item{...}{Settings: \code{prior} (Dirichlet concentration, default 0.5),
 \code{draws} (Monte Carlo draws, 10000), \code{ci} (credible level, 0.95),

@@ -8,7 +8,9 @@ permutation_htna(x, y = NULL, ...)
 }
 \arguments{
 \item{x, y}{Two htna networks, or an \code{htna_group} in \code{x} with \code{y = NULL},
-in which case every pair of cohorts is tested.}
+in which case every pair of cohorts is tested. Networks that do not
+hold the same codes are compared over the codes of both; a code a
+network lacks has no transitions in it.}
 
 \item{...}{Settings: \code{iter} (shuffles, default 1000), \code{alpha} (0.05),
 \code{paired} (\code{FALSE}), \code{adjust} (multiplicity correction, \code{"none"}),

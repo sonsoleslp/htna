@@ -59,7 +59,8 @@ supplies or overrides the partition. Use either \code{actor_type} or
 probabilities), \code{"frequency"}, \code{"co_occurrence"} (undirected),
 \code{"attention"}, \code{"reverse"}, \code{"ngram"}, \code{"gap"} or \code{"latency"}.
 \code{"latency"} weights each reply by its speed and needs \code{time}
-(Nestimate 1.0.20 or later).}
+(Nestimate 1.0.20 or later), with times that differ within a session;
+the bundled \code{human_ai} has one time per session and cannot be used.}
 
 \item{group}{Name of a session-level column defining cohorts; one network
 is built per cohort. Default \code{NULL} (one network).}
@@ -80,7 +81,10 @@ apart than \code{time_threshold} seconds (900 by default; pass
 
 \item{...}{Further estimation arguments, such as \code{threshold}, \code{scaling},
 \code{time_threshold}, or \code{latency_floor}, \code{latency_cap}, \code{latency_aggregate}
-and \code{latency_scope} for \code{method = "latency"}.}
+and \code{latency_scope} for \code{method = "latency"}. With \code{start} or \code{end} the
+network gains a start or an end state; these belong to no actor and
+form the actor type \code{"Boundary"}, placed last. The plots draw them
+above and below the actor types.}
 }
 \value{
 An object of class \code{c("htna", "netobject", "cograph_network")}:
@@ -132,7 +136,9 @@ Errors inherit from \code{htna_error}. Specific classes:
 absent;
 \code{htna_actor_conflict} when a code belongs to more than one actor type and
 \code{disambiguate = FALSE}; \code{htna_unassigned_node} when a code has no actor
-type in \code{node_groups}; \code{htna_bad_input} for other invalid arguments.
+type in \code{node_groups}; \code{htna_tied_times} when \code{method = "latency"} is
+given times that are tied within sessions; \code{htna_bad_input} for
+other invalid arguments.
 }
 
 \examples{

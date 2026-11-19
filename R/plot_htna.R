@@ -46,12 +46,21 @@ htna_palette <- c(
 #' the plot and returns, invisibly, the value of [cograph::plot_htna()] for
 #' one network, or `x` for a grouped network.
 #'
+#' A start and an end state (`build_htna(start = , end = )`) are not an arc
+#' of the circular layout. The actor types keep the positions they have
+#' without them, and the start state is placed at the top centre and the
+#' end state at the bottom centre, in the colour and shape of the
+#' `"Boundary"` type. [plot_htna_bootstrap()] and [plot_htna_diff()] place
+#' them the same way.
+#'
 #' To show the difference between two networks use [plot_htna_diff()]; to
 #' show only the edges that survive bootstrapping use [plot_htna_bootstrap()].
 #'
 #' @param x An htna network from [build_htna()], or an `htna_group`.
 #' @param layout Node layout. Default `"circular"`; `"polygon"` places three
-#'   or more actor types on the sides of a polygon.
+#'   or more actor types on the sides of a polygon. Start and end states
+#'   are placed as anchors in the circular layout only; in another layout
+#'   they are laid out as one more actor type.
 #' @param group_colors Colours of the actor types, in actor order. Default
 #'   [htna_palette].
 #' @param group_shapes Node shapes of the actor types, in actor order.
@@ -96,6 +105,15 @@ plot_htna <- function(x, layout = "circular",
     return(invisible(x))
   }
 
+  # Start and end states are anchors above and below the actor types, not
+  # an arc of their own (circular layout).
+  if (length(.htna_boundary_nodes(x)) &&
+      (identical(layout, "circular") || identical(layout, "auto"))) {
+    return(.plot_htna_anchored(x, group_colors = group_colors,
+                               group_shapes = group_shapes,
+                               minimum = minimum, ...))
+  }
+
   groups <- x$actor_levels %||% unique(as.character(x$node_groups$group))
   n_groups <- length(groups)
   colors <- unname(.htna_actor_colors(n_groups, palette = group_colors))
@@ -126,14 +144,7 @@ plot_htna <- function(x, layout = "circular",
     cograph_shapes    <- rev(shapes)
   }
 
-  # Create clean vertex labels for disambiguated nodes
-  vertex_labels <- as.character(ng$node)
-  disambiguated <- grepl(":", vertex_labels, fixed = TRUE)
-  if (any(disambiguated)) {
-    vertex_labels[disambiguated] <- sapply(vertex_labels[disambiguated], function(node) {
-      strsplit(node, ":", fixed = TRUE)[[1]][2]
-    })
-  }
+  vertex_labels <- .htna_vertex_labels(ng$node)
 
   result <- cograph::plot_htna(x, node_list = cograph_node_list,
                                node_fill    = node_colors,
@@ -147,6 +158,68 @@ plot_htna <- function(x, layout = "circular",
                                ...)
   if (n_groups >= 2L) .htna_legend(groups, colors)
   invisible(result)
+}
+
+#' Node labels without the actor prefix of a disambiguated code
+#' @keywords internal
+#' @noRd
+.htna_vertex_labels <- function(nodes) {
+  parts <- strsplit(as.character(nodes), ":", fixed = TRUE)
+  vapply(parts, function(part) {
+    if (length(part) > 1L) part[[2L]] else part[[1L]]
+  }, character(1L))
+}
+
+#' Draw a network that has a start or an end state
+#'
+#' The actor types take the coordinates `plot_htna()` gives them in the same
+#' network without those states (cograph's circular layout, scaled to the
+#' unit square over the actor-type nodes), and the start and end states are
+#' placed above and below. cograph's `plot_htna()` computes its layout from
+#' the groups alone and takes no coordinates, so the network is drawn with
+#' `cograph::tplot()` and the settings `plot_htna()` passes to it.
+#' @keywords internal
+#' @noRd
+.plot_htna_anchored <- function(x, group_colors, group_shapes, minimum,
+                                ...) {
+  styling <- .htna_node_styling(x, group_colors, group_shapes)
+  labels  <- x$nodes$label %||% rownames(.weights_of(x))
+  coords  <- .htna_unit_layout(styling$layout,
+                               over = !labels %in% styling$boundary)
+  n <- length(labels)
+  # every edge takes the colour of the actor type it leaves, darkened by a
+  # quarter as cograph's plot_htna() darkens it
+  source_rgb  <- t(grDevices::col2rgb(styling$node_colors)) / 255 * 0.75
+  edge_colors <- matrix(grDevices::rgb(source_rgb), n, n)
+
+  settings <- list(
+    x = x, layout = coords, color = styling$node_colors,
+    node_shape = styling$node_shapes, curvature = 0.4,
+    layout_margin = 0.15, rescale = FALSE, layout_scale = 1,
+    node_fill = styling$node_colors, donut_color = styling$dark,
+    minimum = minimum, vertex.label = .htna_vertex_labels(labels),
+    edge.color = edge_colors
+  )
+  user_args <- list(...)
+  settings[names(user_args)] <- user_args
+  result <- do.call(cograph::tplot, settings)
+  if (styling$n_groups >= 2L) .htna_legend(styling$groups, styling$colors)
+  invisible(result)
+}
+
+#' Scale a layout to the unit square, as cograph's `plot_htna()` does
+#'
+#' Centre and span are taken over the rows in `over` only, so the rows
+#' outside it (the start and end states) do not move the others.
+#' @keywords internal
+#' @noRd
+.htna_unit_layout <- function(layout, over = rep(TRUE, nrow(layout))) {
+  x_range <- range(layout[over, 1L])
+  y_range <- range(layout[over, 2L])
+  span <- max(diff(x_range), diff(y_range))
+  if (span <= 0) return(layout)
+  cbind(x = (layout[, 1L] - mean(x_range)) / (span / 2),
+        y = (layout[, 2L] - mean(y_range)) / (span / 2))
 }
 
 #' @export

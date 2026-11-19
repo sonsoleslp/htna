@@ -26,7 +26,9 @@
 #' @param x A grouped htna network (an `htna_group`), or an htna network
 #'   together with `group`.
 #' @param group The grouping of the sessions when `x` is a single network:
-#'   a vector with one label per session (default `NULL`).
+#'   the name of a session-level column of the data the network was built
+#'   from (for example `"phase"`), or a vector with one label per session
+#'   (default `NULL`).
 #' @param level `"state"` (default) compares patterns of codes; `"type"`
 #'   compares patterns of actor types.
 #' @param ... Settings: `sub` (pattern lengths, default `3:5`), `min_freq`
@@ -43,7 +45,8 @@
 #'
 #' @section Conditions:
 #' An error of class `htna_bad_input` when `level = "type"` and `x` has no
-#' actor partition.
+#' actor partition; `htna_missing_column` when `group` names a column the
+#' network does not hold.
 #'
 #' @references
 #' Haberman, S. J. (1973). The analysis of residuals in cross-classified
@@ -63,6 +66,10 @@ sequence_compare_htna <- function(x,
                                   level = c("state", "type"),
                                   ...) {
   level <- match.arg(level)
+  if (inherits(x, "htna") && is.character(group) && length(group) == 1L &&
+      !is.na(group) && nrow(x$data) != 1L) {
+    group <- .session_column(x, group)
+  }
 
   if (level == "type") {
     if (inherits(x, "htna_group")) {
@@ -105,4 +112,20 @@ sequence_compare_htna <- function(x,
   })
   net$data <- d
   net
+}
+
+# The values of a session-level column of a network, one per session: a
+# column of the metadata the network keeps beside its sequences.
+.session_column <- function(net, column) {
+  sessions <- net$metadata
+  if (!is.data.frame(sessions) || !column %in% names(sessions) ||
+      nrow(sessions) != nrow(net$data)) {
+    .htna_stop("`group` names no session-level column of `x`: `", column,
+               "`. Available: ",
+               paste(setdiff(names(sessions), ".session_label"),
+                     collapse = ", "),
+               ". Give a column name or one label per session.",
+               class = "htna_missing_column")
+  }
+  sessions[[column]]
 }

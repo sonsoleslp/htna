@@ -7,12 +7,16 @@
 frequencies_htna(x)
 }
 \arguments{
-\item{x}{An htna network from \code{\link[=build_htna]{build_htna()}}.}
+\item{x}{An htna network from \code{\link[=build_htna]{build_htna()}}, or an \code{htna_group}, in
+which case the codes are counted in every cohort.}
 }
 \value{
 A data frame with one row per actor and code, sorted by
 decreasing count, and columns \code{group} (the actor type), \code{state},
-\code{count} and \code{proportion} (the code's share of its actor's events).
+\code{count} and \code{proportion} (the code's share of its actor's events). For
+a grouped network, one row per cohort, actor and code, with columns
+\code{group} (the cohort), \code{actor} (the actor type), \code{state}, \code{count} and
+\code{proportion} (the share of that actor's events in the cohort).
 }
 \description{
 \code{frequencies_htna()} counts the codes of each actor in an htna network:
@@ -34,13 +38,18 @@ gives the pooled table without actors, with shares of all events;
 }
 \section{Conditions}{
 
-An error of class \code{htna_bad_input} when \code{x} is not an htna network.
+An error of class \code{htna_bad_input} when \code{x} is neither an htna network
+nor an \code{htna_group}.
 }
 
 \examples{
 data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 frequencies_htna(net)
+
+# one table for all cohorts
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+frequencies_htna(grp)
 }
 \seealso{
 \code{\link[=plot_frequencies_htna]{plot_frequencies_htna()}}, \code{\link[=state_frequencies_htna]{state_frequencies_htna()}},

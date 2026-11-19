@@ -114,8 +114,28 @@ NULL
   if (is.null(model$actor_levels) && !is.null(src$actor_levels)) {
     model$actor_levels <- src$actor_levels
   }
+  if (is.null(model$boundary) && !is.null(src$boundary)) {
+    model$boundary <- src$boundary
+  }
   if (!inherits(model, "htna")) {
     class(model) <- c("htna", class(model))
   }
   model
+}
+
+#' Align the node sets of the networks given to a two-network comparison
+#'
+#' `x` is a grouped network (with `y = NULL`) or `x` and `y` are two
+#' networks. Anything that is not an htna network is passed through.
+#' @keywords internal
+#' @noRd
+.htna_align_xy <- function(x, y) {
+  if (inherits(x, "htna_group") && is.null(y)) {
+    return(list(x = .htna_align_nodes(x), y = NULL))
+  }
+  if (inherits(x, "htna") && inherits(y, "htna")) {
+    pair <- .htna_align_nodes(list(x, y))
+    return(list(x = pair[[1L]], y = pair[[2L]]))
+  }
+  list(x = x, y = y)
 }

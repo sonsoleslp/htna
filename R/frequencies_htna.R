@@ -18,14 +18,19 @@
 #' gives the pooled table without actors, with shares of all events;
 #' [state_distribution_htna()] returns the same table as this function.
 #'
-#' @param x An htna network from [build_htna()].
+#' @param x An htna network from [build_htna()], or an `htna_group`, in
+#'   which case the codes are counted in every cohort.
 #'
 #' @return A data frame with one row per actor and code, sorted by
 #'   decreasing count, and columns `group` (the actor type), `state`,
-#'   `count` and `proportion` (the code's share of its actor's events).
+#'   `count` and `proportion` (the code's share of its actor's events). For
+#'   a grouped network, one row per cohort, actor and code, with columns
+#'   `group` (the cohort), `actor` (the actor type), `state`, `count` and
+#'   `proportion` (the share of that actor's events in the cohort).
 #'
 #' @section Conditions:
-#' An error of class `htna_bad_input` when `x` is not an htna network.
+#' An error of class `htna_bad_input` when `x` is neither an htna network
+#' nor an `htna_group`.
 #'
 #' @seealso [plot_frequencies_htna()], [state_frequencies_htna()],
 #'   [mosaic_plot_htna()].
@@ -33,8 +38,19 @@
 #' data(human_ai)
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' frequencies_htna(net)
+#'
+#' # one table for all cohorts
+#' grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#' frequencies_htna(grp)
 #' @export
 frequencies_htna <- function(x) {
+  if (inherits(x, "htna_group")) {
+    return(.stack_by(x, "group", function(net) {
+      counts <- frequencies_htna(net)
+      names(counts)[names(counts) == "group"] <- "actor"
+      counts
+    }))
+  }
   if (!inherits(x, "htna")) {
     .htna_stop("`frequencies_htna()` needs an htna network from build_htna().")
   }

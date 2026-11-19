@@ -29,7 +29,9 @@
 #' [plot_htna_diff()] draws the result.
 #'
 #' @param x,y Two htna networks, or an `htna_group` in `x` with `y = NULL`,
-#'   in which case every pair of cohorts is compared.
+#'   in which case every pair of cohorts is compared. Networks that do not
+#'   hold the same codes are compared over the codes of both; a code a
+#'   network lacks has no transitions in it.
 #' @param ... Settings: `prior` (Dirichlet concentration, default 0.5),
 #'   `draws` (Monte Carlo draws, 10000), `ci` (credible level, 0.95),
 #'   `mean_threshold` (0.01), `bound_threshold` (0.001) and `seed`.
@@ -53,5 +55,6 @@
 #' plot_htna_diff(bc)
 #' @export
 bayes_compare_htna <- function(x, y = NULL, ...) {
-  Nestimate::bayes_compare(x, y = y, ...)
+  aligned <- .htna_align_xy(x, y)
+  Nestimate::bayes_compare(aligned$x, y = aligned$y, ...)
 }

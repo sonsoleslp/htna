@@ -11,7 +11,9 @@ sequence_compare_htna(x, group = NULL, level = c("state", "type"), ...)
 together with \code{group}.}
 
 \item{group}{The grouping of the sessions when \code{x} is a single network:
-a vector with one label per session (default \code{NULL}).}
+the name of a session-level column of the data the network was built
+from (for example \code{"phase"}), or a vector with one label per session
+(default \code{NULL}).}
 
 \item{level}{\code{"state"} (default) compares patterns of codes; \code{"type"}
 compares patterns of actor types.}
@@ -55,7 +57,8 @@ for descriptive counts of patterns in one network use
 \section{Conditions}{
 
 An error of class \code{htna_bad_input} when \code{level = "type"} and \code{x} has no
-actor partition.
+actor partition; \code{htna_missing_column} when \code{group} names a column the
+network does not hold.
 }
 
 \examples{

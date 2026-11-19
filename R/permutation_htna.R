@@ -27,7 +27,9 @@
 #' differences per actor pair, and [plot_htna_diff()] draws the result.
 #'
 #' @param x,y Two htna networks, or an `htna_group` in `x` with `y = NULL`,
-#'   in which case every pair of cohorts is tested.
+#'   in which case every pair of cohorts is tested. Networks that do not
+#'   hold the same codes are compared over the codes of both; a code a
+#'   network lacks has no transitions in it.
 #' @param ... Settings: `iter` (shuffles, default 1000), `alpha` (0.05),
 #'   `paired` (`FALSE`), `adjust` (multiplicity correction, `"none"`),
 #'   `measures` (centralities to test), `nlambda`, `seed` and `actor`
@@ -50,5 +52,6 @@
 #' head(summary(perm))
 #' @export
 permutation_htna <- function(x, y = NULL, ...) {
-  Nestimate::permutation(x, y = y, ...)
+  aligned <- .htna_align_xy(x, y)
+  Nestimate::permutation(aligned$x, y = aligned$y, ...)
 }

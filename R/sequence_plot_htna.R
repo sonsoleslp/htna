@@ -101,9 +101,21 @@ sequence_plot_htna <- function(net,
   actors    <- net$actor_levels %||%
                unique(as.character(net$node_groups$group))
 
+  # An actor type without an event in the sessions (the start and end
+  # states, or an actor absent from a cohort) has no sequence to draw; the
+  # others keep the colours they have in the full partition.
+  all_actors <- as.character(actors)
+  occurring  <- unique(unname(type_map[as.character(unlist(
+    net$data, use.names = FALSE))]))
+  actors     <- actors[all_actors %in% occurring]
+  if (!length(actors)) {
+    .htna_stop("The sessions of `net` hold no code of any actor type; ",
+               "there is nothing to plot.", class = "htna_empty_input")
+  }
+
   if (by == "group") {
     actor_chr <- as.character(actors)
-    color_map <- .htna_actor_colors(actor_chr)
+    color_map <- .htna_actor_colors(all_actors)
 
     # Nestimate's `.encode_states()` always alphabetises levels, so a
     # naive label of "Human" / "AI" would put AI as level 1 (the bottom

@@ -174,7 +174,8 @@ plot_htna_diff <- function(x, y = NULL,
                               groups = ng_combined$group,
                               stringsAsFactors = FALSE),
     node_groups  = ng_combined,
-    actor_levels = x$actor_levels
+    actor_levels = x$actor_levels,
+    boundary     = x$boundary %||% y$boundary
   )
   class(synthetic) <- c("htna", "netobject", "cograph_network")
   list(diff = diff_mat, net = synthetic)
