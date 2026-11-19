@@ -10,7 +10,9 @@ times and records how often each edge is present and how much its weight
 varies.
 
 `plot_htna_bootstrap()` draws the result of
-[`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
+[`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md),
+or the closed-form result of
+[`certainty_htna()`](https://sonsoles.me/htna/reference/certainty_htna.md),
 in the layout and actor styling of
 [`plot_htna()`](https://sonsoles.me/htna/reference/plot_htna.md). With
 `display = "significant"` only the significant edges are drawn;
@@ -40,8 +42,9 @@ plot(x, ...)
 - boot, x:
 
   A result of
-  [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md):
-  an `htna_bootstrap` or an `htna_bootstrap_group`.
+  [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
+  (an `htna_bootstrap` or an `htna_bootstrap_group`) or of
+  [`certainty_htna()`](https://sonsoles.me/htna/reference/certainty_htna.md).
 
 - group_colors:
 
@@ -65,6 +68,8 @@ bootstrap, or `boot` for a grouped bootstrap.
 `htna_empty_input` for a grouped bootstrap without cohorts;
 `htna_bad_input` when `boot` is not a result of
 [`bootstrap_htna()`](https://sonsoles.me/htna/reference/bootstrap_htna.md)
+or
+[`certainty_htna()`](https://sonsoles.me/htna/reference/certainty_htna.md)
 on an htna network.
 
 ## See also

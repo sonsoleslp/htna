@@ -11,7 +11,8 @@ network's size (sessions, nodes and non-zero edges), the nodes of each
 actor, the number of non-zero edges in every directed actor-pair block
 (for example Human to AI), and the standard network-level descriptive
 metrics (density, mean distance, strength, degree centralization and
-reciprocity).
+reciprocity). In an undirected network (`method = "co_occurrence"`)
+every edge is counted once, so the blocks are the unordered actor pairs.
 
 [`summary()`](https://rdrr.io/r/base/summary.html) returns the summary
 as a `summary.htna` object; printing it shows the report. For a grouped
@@ -82,18 +83,20 @@ as.data.frame(
 
   Table to return: `"actors"` (default; one row per actor type with its
   number of nodes and their names), `"actor_pairs"` (one row per
-  directed actor pair with the number of non-zero edges) or `"metrics"`
-  (one row per network metric).
+  directed actor pair with the number of non-zero edges; one row per
+  unordered pair for an undirected network) or `"metrics"` (one row per
+  network metric).
 
 ## Value
 
 [`summary()`](https://rdrr.io/r/base/summary.html) returns an object of
 class `summary.htna`: a list with `actors` (data frame: `actor`,
 `n_nodes`, `nodes`), `edges_by_actor` (integer matrix of non-zero edge
-counts, source actors in rows), `network_metrics` (data frame: `metric`,
-`value`), and the scalars `n_nodes`, `n_edges`, `n_sessions`,
-`n_timesteps` and `method`. For an `htna_group` it returns a
-`summary.htna_group`, a named list of `summary.htna` objects.
+counts, source actors in rows; symmetric for an undirected network),
+`network_metrics` (data frame: `metric`, `value`), and the scalars
+`n_nodes`, `n_edges`, `directed`, `n_sessions`, `n_timesteps` and
+`method`. For an `htna_group` it returns a `summary.htna_group`, a named
+list of `summary.htna` objects.
 [`print()`](https://rdrr.io/r/base/print.html) returns its input
 invisibly.
 [`as.data.frame()`](https://rdrr.io/r/base/as.data.frame.html) returns

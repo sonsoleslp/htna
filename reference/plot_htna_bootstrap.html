@@ -7,8 +7,9 @@ within-actor transitions and which hand-overs between actors the data
 support. A bootstrap of a transition network resamples the sessions many
 times and records how often each edge is present and how much its weight
 varies.
-plot_htna_bootstrap() draws the result of bootstrap_htna() in the
-layout and actor styling of plot_htna(). With display = &quot;significant&quot;
+plot_htna_bootstrap() draws the result of bootstrap_htna(), or the
+closed-form result of certainty_htna(), in the layout and actor styling
+of plot_htna(). With display = &quot;significant&quot;
 only the significant edges are drawn; show_ci = TRUE adds the
 confidence interval of each edge weight. A grouped bootstrap is drawn as
 one plot per cohort, titled with its cohort name. plot() on a
@@ -24,8 +25,9 @@ within-actor transitions and which hand-overs between actors the data
 support. A bootstrap of a transition network resamples the sessions many
 times and records how often each edge is present and how much its weight
 varies.
-plot_htna_bootstrap() draws the result of bootstrap_htna() in the
-layout and actor styling of plot_htna(). With display = &quot;significant&quot;
+plot_htna_bootstrap() draws the result of bootstrap_htna(), or the
+closed-form result of certainty_htna(), in the layout and actor styling
+of plot_htna(). With display = &quot;significant&quot;
 only the significant edges are drawn; show_ci = TRUE adds the
 confidence interval of each edge weight. A grouped bootstrap is drawn as
 one plot per cohort, titled with its cohort name. plot() on a
@@ -41,7 +43,7 @@ and p-value) is returned by summary() of the bootstrap result."><meta property="
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,8 +98,9 @@ within-actor transitions and which hand-overs between actors the data
 support. A bootstrap of a transition network resamples the sessions many
 times and records how often each edge is present and how much its weight
 varies.</p>
-<p><code>plot_htna_bootstrap()</code> draws the result of <code><a href="bootstrap_htna.html">bootstrap_htna()</a></code> in the
-layout and actor styling of <code><a href="plot_htna.html">plot_htna()</a></code>. With <code>display = "significant"</code>
+<p><code>plot_htna_bootstrap()</code> draws the result of <code><a href="bootstrap_htna.html">bootstrap_htna()</a></code>, or the
+closed-form result of <code><a href="certainty_htna.html">certainty_htna()</a></code>, in the layout and actor styling
+of <code><a href="plot_htna.html">plot_htna()</a></code>. With <code>display = "significant"</code>
 only the significant edges are drawn; <code>show_ci = TRUE</code> adds the
 confidence interval of each edge weight. A grouped bootstrap is drawn as
 one plot per cohort, titled with its cohort name. <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> on a
@@ -121,8 +124,8 @@ and p-value) is returned by <code><a href="https://rdrr.io/r/base/summary.html" 
 
 
 <dl><dt id="arg-boot-x">boot, x<a class="anchor" aria-label="anchor" href="#arg-boot-x"></a></dt>
-<dd><p>A result of <code><a href="bootstrap_htna.html">bootstrap_htna()</a></code>: an <code>htna_bootstrap</code> or an
-<code>htna_bootstrap_group</code>.</p></dd>
+<dd><p>A result of <code><a href="bootstrap_htna.html">bootstrap_htna()</a></code> (an <code>htna_bootstrap</code> or an
+<code>htna_bootstrap_group</code>) or of <code><a href="certainty_htna.html">certainty_htna()</a></code>.</p></dd>
 
 
 <dt id="arg-group-colors">group_colors<a class="anchor" aria-label="anchor" href="#arg-group-colors"></a></dt>
@@ -146,8 +149,8 @@ one bootstrap, or <code>boot</code> for a grouped bootstrap.</p>
 
 
 <p><code>htna_empty_input</code> for a grouped bootstrap without cohorts;
-<code>htna_bad_input</code> when <code>boot</code> is not a result of <code><a href="bootstrap_htna.html">bootstrap_htna()</a></code> on an
-htna network.</p>
+<code>htna_bad_input</code> when <code>boot</code> is not a result of <code><a href="bootstrap_htna.html">bootstrap_htna()</a></code> or
+<code><a href="certainty_htna.html">certainty_htna()</a></code> on an htna network.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

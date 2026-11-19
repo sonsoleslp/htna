@@ -35,12 +35,14 @@ association_rules_htna(x, ...)
 
   An htna network from
   [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md), or
-  a binary session-by-code matrix.
+  a binary session-by-code matrix (declared with `format = "binary"`
+  from Nestimate 1.0.9). A grouped network is not accepted; pass one
+  cohort.
 
 - ...:
 
   Thresholds: `min_support` (default 0.1), `min_confidence` (0.5),
-  `min_lift` (1) and `max_length` (largest itemset, 5).
+  `min_lift` (1), `max_length` (largest itemset, 5) and `format`.
 
 ## Value
 

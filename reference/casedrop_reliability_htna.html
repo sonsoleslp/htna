@@ -45,7 +45,7 @@ bootstrap_htna()."><meta property="og:image" content="https://sonsoles.me/htna/l
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -131,8 +131,10 @@ network and returns a <code>net_casedrop_reliability</code> object (a
 <dd><p>Settings: <code>iter</code> (resamples per drop proportion, default
 1000), <code>drop_prop</code> (default <code>seq(0.1, 0.9, by = 0.1)</code>), <code>threshold</code>
 (0.7), <code>certainty</code> (0.95), <code>method</code> (correlation, <code>"spearman"</code>),
-<code>include_diag</code> (<code>FALSE</code>), <code>seed</code> and <code>actor</code> (drop whole actors
-instead of sessions; needs Nestimate 1.0.19 or later).</p></dd>
+<code>include_diag</code> (<code>FALSE</code>), <code>seed</code>, <code>target</code> (the edges assessed:
+<code>"auto"</code>, <code>"existing"</code> or <code>"all"</code>; Nestimate 1.0.2 or later) and
+<code>actor</code> (drop whole actors instead of sessions; Nestimate 1.0.19 or
+later).</p></dd>
 
 </dl></div>
     <div class="section level2">

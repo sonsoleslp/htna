@@ -8,7 +8,8 @@ size (sessions, nodes and non-zero edges), the nodes of each actor, the
 number of non-zero edges in every directed actor-pair block (for example
 Human to AI), and the standard network-level descriptive metrics
 (density, mean distance, strength, degree centralization and
-reciprocity).
+reciprocity). In an undirected network (method = &quot;co_occurrence&quot;) every
+edge is counted once, so the blocks are the unordered actor pairs.
 summary() returns the summary as a summary.htna object; printing it
 shows the report. For a grouped network, the summary of every cohort is
 returned and printed in turn. The tables of the summary are returned as
@@ -21,7 +22,8 @@ size (sessions, nodes and non-zero edges), the nodes of each actor, the
 number of non-zero edges in every directed actor-pair block (for example
 Human to AI), and the standard network-level descriptive metrics
 (density, mean distance, strength, degree centralization and
-reciprocity).
+reciprocity). In an undirected network (method = &quot;co_occurrence&quot;) every
+edge is counted once, so the blocks are the unordered actor pairs.
 summary() returns the summary as a summary.htna object; printing it
 shows the report. For a grouped network, the summary of every cohort is
 returned and printed in turn. The tables of the summary are returned as
@@ -33,7 +35,7 @@ data frames by as.data.frame()."><meta property="og:image" content="https://sons
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,7 +91,8 @@ size (sessions, nodes and non-zero edges), the nodes of each actor, the
 number of non-zero edges in every directed actor-pair block (for example
 Human to AI), and the standard network-level descriptive metrics
 (density, mean distance, strength, degree centralization and
-reciprocity).</p>
+reciprocity). In an undirected network (<code>method = "co_occurrence"</code>) every
+edge is counted once, so the blocks are the unordered actor pairs.</p>
 <p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> returns the summary as a <code>summary.htna</code> object; printing it
 shows the report. For a grouped network, the summary of every cohort is
 returned and printed in turn. The tables of the summary are returned as
@@ -157,8 +160,9 @@ summary is printed (default 12).</p></dd>
 <dt id="arg-what">what<a class="anchor" aria-label="anchor" href="#arg-what"></a></dt>
 <dd><p>Table to return: <code>"actors"</code> (default; one row per actor type
 with its number of nodes and their names), <code>"actor_pairs"</code> (one row per
-directed actor pair with the number of non-zero edges) or <code>"metrics"</code>
-(one row per network metric).</p></dd>
+directed actor pair with the number of non-zero edges; one row per
+unordered pair for an undirected network) or <code>"metrics"</code> (one row per
+network metric).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -166,8 +170,9 @@ directed actor pair with the number of non-zero edges) or <code>"metrics"</code>
     <p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> returns an object of class <code>summary.htna</code>: a list
 with <code>actors</code> (data frame: <code>actor</code>, <code>n_nodes</code>, <code>nodes</code>),
 <code>edges_by_actor</code> (integer matrix of non-zero edge counts, source actors
-in rows), <code>network_metrics</code> (data frame: <code>metric</code>, <code>value</code>), and the
-scalars <code>n_nodes</code>, <code>n_edges</code>, <code>n_sessions</code>, <code>n_timesteps</code> and <code>method</code>.
+in rows; symmetric for an undirected network), <code>network_metrics</code> (data
+frame: <code>metric</code>, <code>value</code>), and the scalars <code>n_nodes</code>, <code>n_edges</code>,
+<code>directed</code>, <code>n_sessions</code>, <code>n_timesteps</code> and <code>method</code>.
 For an <code>htna_group</code> it returns a <code>summary.htna_group</code>, a named list of
 <code>summary.htna</code> objects. <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> returns its input invisibly.
 <code><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame()</a></code> returns the table chosen by <code>what</code>; for a grouped

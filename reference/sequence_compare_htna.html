@@ -43,7 +43,7 @@ extract_meta_paths()."><meta property="og:image" content="https://sonsoles.me/ht
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -126,8 +126,8 @@ together with <code>group</code>.</p></dd>
 
 
 <dt id="arg-group">group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
-<dd><p>The grouping of the sessions when <code>x</code> is a single network
-(default <code>NULL</code>).</p></dd>
+<dd><p>The grouping of the sessions when <code>x</code> is a single network:
+a vector with one label per session (default <code>NULL</code>).</p></dd>
 
 
 <dt id="arg-level">level<a class="anchor" aria-label="anchor" href="#arg-level"></a></dt>
@@ -139,8 +139,8 @@ compares patterns of actor types.</p></dd>
 <dd><p>Settings: <code>sub</code> (pattern lengths, default <code>3:5</code>), <code>min_freq</code>
 (minimum count in every group, 5), <code>test</code> (<code>"permutation"</code>,
 <code>"chisq"</code> or <code>"none"</code>), <code>iter</code> (permutations, 1000), <code>adjust</code>
-(multiplicity correction, <code>"fdr"</code>) and <code>actor</code> (needs Nestimate 1.0.19
-or later).</p></dd>
+(multiplicity correction, <code>"fdr"</code>) and <code>actor</code> (reassign whole actors
+in the permutation test; needs Nestimate 1.0.13 or later).</p></dd>
 
 </dl></div>
     <div class="section level2">

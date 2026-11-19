@@ -47,9 +47,9 @@ certainty_htna(x, ...)
 ## Value
 
 An object of class `c("net_certainty", "net_bootstrap")` with
-[`print()`](https://rdrr.io/r/base/print.html),
-[`summary()`](https://rdrr.io/r/base/summary.html) and
-[`plot()`](https://rdrr.io/r/graphics/plot.default.html) methods.
+[`print()`](https://rdrr.io/r/base/print.html) and
+[`summary()`](https://rdrr.io/r/base/summary.html) methods, drawn by
+[`plot_htna_bootstrap()`](https://sonsoles.me/htna/reference/plot_htna_bootstrap.md).
 [`summary()`](https://rdrr.io/r/base/summary.html) returns a data frame
 with one row per edge and columns `from`, `to`, `weight`, `mean`, `sd`,
 `p_value`, `sig`, `ci_lower`, `ci_upper`, `cr_lower` and `cr_upper`. A
@@ -85,4 +85,5 @@ head(summary(cert))
 #> 4 0.10311449 0.12888880 0.08683206 0.14472010
 #> 5 0.05378625 0.07339399 0.04739186 0.07898643
 #> 6 0.38826334 0.42787396 0.30661578 0.51102629
+plot_htna_bootstrap(cert)
 ```

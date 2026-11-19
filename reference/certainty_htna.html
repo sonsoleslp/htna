@@ -41,7 +41,7 @@ method = &quot;bootstrap&quot; to keep only supported edges."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -130,7 +130,8 @@ frequency and co-occurrence networks, and <code><a href="prune_htna.html">prune_
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>c("net_certainty", "net_bootstrap")</code> with
-<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> methods. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> returns a
+<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> methods, drawn by <code><a href="plot_htna_bootstrap.html">plot_htna_bootstrap()</a></code>.
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> returns a
 data frame with one row per edge and columns <code>from</code>, <code>to</code>, <code>weight</code>,
 <code>mean</code>, <code>sd</code>, <code>p_value</code>, <code>sig</code>, <code>ci_lower</code>, <code>ci_upper</code>, <code>cr_lower</code>
 and <code>cr_upper</code>. A grouped network gives a <code>net_certainty_group</code>, a
@@ -163,6 +164,8 @@ named list with one result per cohort.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4 0.10311449 0.12888880 0.08683206 0.14472010</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5 0.05378625 0.07339399 0.04739186 0.07898643</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6 0.38826334 0.42787396 0.30661578 0.51102629</span>
+<span class="r-in"><span><span class="fu"><a href="plot_htna_bootstrap.html">plot_htna_bootstrap</a></span><span class="op">(</span><span class="va">cert</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="certainty_htna-1.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

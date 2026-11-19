@@ -63,7 +63,7 @@ as.data.frame.htna() for its edges and nodes."><meta property="og:image" content
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -155,6 +155,7 @@ cohort. Use <code><a href="summary.htna.html">summary.htna()</a></code> to descr
 <span>  group <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  disambiguate <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  source_data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  time <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -211,8 +212,10 @@ supplies or overrides the partition. Use either <code>actor_type</code> or
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>Network estimator: <code>"relative"</code> (default, transition
-probabilities), <code>"frequency"</code>, <code>"co_occurrence"</code> (undirected) or
-<code>"attention"</code>.</p></dd>
+probabilities), <code>"frequency"</code>, <code>"co_occurrence"</code> (undirected),
+<code>"attention"</code>, <code>"reverse"</code>, <code>"ngram"</code>, <code>"gap"</code> or <code>"latency"</code>.
+<code>"latency"</code> weights each reply by its speed and needs <code>time</code>
+(Nestimate 1.0.20 or later).</p></dd>
 
 
 <dt id="arg-group">group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
@@ -231,8 +234,19 @@ split into one node per actor type, prefixed with the actor label
 object did not keep it. Default <code>NULL</code>.</p></dd>
 
 
+<dt id="arg-time">time<a class="anchor" aria-label="anchor" href="#arg-time"></a></dt>
+<dd><p>Name of an optional column holding the time of each event.
+With it the events of a session are ordered by time, the <code>order</code> column
+is not required, and a session is split where two events are further
+apart than <code>time_threshold</code> seconds (900 by default; pass
+<code>time_threshold = Inf</code> to keep sessions whole). Required for
+<code>method = "latency"</code>. Default <code>NULL</code>.</p></dd>
+
+
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Further estimation arguments, such as <code>threshold</code> or <code>scaling</code>.</p></dd>
+<dd><p>Further estimation arguments, such as <code>threshold</code>, <code>scaling</code>,
+<code>time_threshold</code>, or <code>latency_floor</code>, <code>latency_cap</code>, <code>latency_aggregate</code>
+and <code>latency_scope</code> for <code>method = "latency"</code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -251,7 +265,8 @@ transition, with the actor types of its source and target) or the nodes.</p>
 
 
 <p>Errors inherit from <code>htna_error</code>. Specific classes:
-<code>htna_missing_column</code> when the session, order or code column is absent;
+<code>htna_missing_column</code> when the session, order, time or code column is
+absent;
 <code>htna_actor_conflict</code> when a code belongs to more than one actor type and
 <code>disambiguate = FALSE</code>; <code>htna_unassigned_node</code> when a code has no actor
 type in <code>node_groups</code>; <code>htna_bad_input</code> for other invalid arguments.</p>

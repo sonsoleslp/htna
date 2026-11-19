@@ -41,7 +41,8 @@ plot_frequencies_htna(x, view = c("treemap", "bars", "facet"), ...)
 
   Further arguments of
   [`Nestimate::plot_state_frequencies()`](https://pak.dynasite.org/Nestimate/reference/plot_state_frequencies.html)
-  for the treemap; ignored by the bar views.
+  for the treemap; ignored by the bar views. An argument the treemap
+  does not take raises a warning (Nestimate 1.0.12 or later).
 
 ## Value
 

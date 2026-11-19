@@ -40,8 +40,8 @@ sequence_compare_htna(x, group = NULL, level = c("state", "type"), ...)
 
 - group:
 
-  The grouping of the sessions when `x` is a single network (default
-  `NULL`).
+  The grouping of the sessions when `x` is a single network: a vector
+  with one label per session (default `NULL`).
 
 - level:
 
@@ -53,7 +53,8 @@ sequence_compare_htna(x, group = NULL, level = c("state", "type"), ...)
   Settings: `sub` (pattern lengths, default `3:5`), `min_freq` (minimum
   count in every group, 5), `test` (`"permutation"`, `"chisq"` or
   `"none"`), `iter` (permutations, 1000), `adjust` (multiplicity
-  correction, `"fdr"`) and `actor` (needs Nestimate 1.0.19 or later).
+  correction, `"fdr"`) and `actor` (reassign whole actors in the
+  permutation test; needs Nestimate 1.0.13 or later).
 
 ## Value
 

@@ -37,7 +37,10 @@ mosaic_plot_htna(x, ...)
 
   Further arguments of
   [`Nestimate::mosaic_plot()`](https://pak.dynasite.org/Nestimate/reference/mosaic_plot.html),
-  such as `n_perm` and `seed`.
+  such as `n_perm` and `seed`. With Nestimate 1.0.13 or later,
+  `nested = TRUE` draws residuals that allow for transitions nested in
+  sessions, or in the actors named by `actor`; `nested_method` chooses
+  the test and `report = TRUE` adds the overall test as the subtitle.
 
 ## Value
 

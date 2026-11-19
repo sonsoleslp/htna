@@ -26,7 +26,10 @@ state_frequencies_htna(data, ...)
 
   An htna network from
   [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md), or
-  sequence data (a wide data frame or a list of character vectors).
+  sequence data (a wide data frame or a list of character vectors). A
+  grouped network is not accepted; use
+  [`state_distribution_htna()`](https://sonsoles.me/htna/reference/state_distribution_htna.md)
+  for the counts of every cohort.
 
 - ...:
 
