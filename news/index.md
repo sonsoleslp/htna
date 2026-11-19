@@ -1,5 +1,37 @@
 # Changelog
 
+## htna 0.3.7
+
+- The start and end states added with `build_htna(start = , end = )`
+  have an actor type of their own, `"Boundary"`, so such a network can
+  be plotted, summarized, compared and converted like any other. In the
+  plots the actor types keep the positions they have without these
+  states; the start state is drawn at the top centre and the end state
+  at the bottom centre.
+- The legend of
+  [`plot_htna_bootstrap()`](https://sonsoles.me/htna/reference/plot_htna_bootstrap.md)
+  and
+  [`plot_htna_diff()`](https://sonsoles.me/htna/reference/plot_htna_diff.md)
+  showed the colours of the actor types in reverse order; it now matches
+  the nodes.
+- A cohort built with `node_groups` and `group` that lacks a code is
+  consistent throughout (node and edge counts, edge list), and
+  [`permutation_htna()`](https://sonsoles.me/htna/reference/permutation_htna.md)
+  and
+  [`bayes_compare_htna()`](https://sonsoles.me/htna/reference/bayes_compare_htna.md)
+  compare cohorts that do not hold the same codes.
+- [`frequencies_htna()`](https://sonsoles.me/htna/reference/frequencies_htna.md)
+  accepts a grouped network and returns one table for all cohorts, with
+  columns `group` (the cohort) and `actor`.
+- [`sequence_compare_htna()`](https://sonsoles.me/htna/reference/sequence_compare_htna.md)
+  takes the name of a session-level column in `group`, for example
+  `group = "phase"`, as well as a vector.
+- `build_htna(method = "latency")` stops with a clear error of class
+  `htna_tied_times` when the event times are tied within sessions, as in
+  the bundled `human_ai`, which records one time per session.
+- Sequence plots leave out an actor type that has no event in the
+  sessions.
+
 ## htna 0.3.6
 
 - [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md) has

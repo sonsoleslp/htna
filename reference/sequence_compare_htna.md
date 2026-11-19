@@ -40,8 +40,10 @@ sequence_compare_htna(x, group = NULL, level = c("state", "type"), ...)
 
 - group:
 
-  The grouping of the sessions when `x` is a single network: a vector
-  with one label per session (default `NULL`).
+  The grouping of the sessions when `x` is a single network: the name of
+  a session-level column of the data the network was built from (for
+  example `"phase"`), or a vector with one label per session (default
+  `NULL`).
 
 - level:
 
@@ -70,7 +72,8 @@ with one row per pattern and columns `pattern`, `length`, one
 ## Conditions
 
 An error of class `htna_bad_input` when `level = "type"` and `x` has no
-actor partition.
+actor partition; `htna_missing_column` when `group` names a column the
+network does not hold.
 
 ## References
 

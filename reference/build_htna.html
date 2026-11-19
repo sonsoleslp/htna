@@ -63,7 +63,7 @@ as.data.frame.htna() for its edges and nodes."><meta property="og:image" content
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -215,7 +215,8 @@ supplies or overrides the partition. Use either <code>actor_type</code> or
 probabilities), <code>"frequency"</code>, <code>"co_occurrence"</code> (undirected),
 <code>"attention"</code>, <code>"reverse"</code>, <code>"ngram"</code>, <code>"gap"</code> or <code>"latency"</code>.
 <code>"latency"</code> weights each reply by its speed and needs <code>time</code>
-(Nestimate 1.0.20 or later).</p></dd>
+(Nestimate 1.0.20 or later), with times that differ within a session;
+the bundled <code>human_ai</code> has one time per session and cannot be used.</p></dd>
 
 
 <dt id="arg-group">group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
@@ -246,7 +247,10 @@ apart than <code>time_threshold</code> seconds (900 by default; pass
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Further estimation arguments, such as <code>threshold</code>, <code>scaling</code>,
 <code>time_threshold</code>, or <code>latency_floor</code>, <code>latency_cap</code>, <code>latency_aggregate</code>
-and <code>latency_scope</code> for <code>method = "latency"</code>.</p></dd>
+and <code>latency_scope</code> for <code>method = "latency"</code>. With <code>start</code> or <code>end</code> the
+network gains a start or an end state; these belong to no actor and
+form the actor type <code>"Boundary"</code>, placed last. The plots draw them
+above and below the actor types.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -269,7 +273,9 @@ transition, with the actor types of its source and target) or the nodes.</p>
 absent;
 <code>htna_actor_conflict</code> when a code belongs to more than one actor type and
 <code>disambiguate = FALSE</code>; <code>htna_unassigned_node</code> when a code has no actor
-type in <code>node_groups</code>; <code>htna_bad_input</code> for other invalid arguments.</p>
+type in <code>node_groups</code>; <code>htna_tied_times</code> when <code>method = "latency"</code> is
+given times that are tied within sessions; <code>htna_bad_input</code> for
+other invalid arguments.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

@@ -19,6 +19,16 @@ and returns, invisibly, the value of
 [`cograph::plot_htna()`](https://sonsoles.me/cograph/reference/plot_htna.html)
 for one network, or `x` for a grouped network.
 
+A start and an end state (`build_htna(start = , end = )`) are not an arc
+of the circular layout. The actor types keep the positions they have
+without them, and the start state is placed at the top centre and the
+end state at the bottom centre, in the colour and shape of the
+`"Boundary"` type.
+[`plot_htna_bootstrap()`](https://sonsoles.me/htna/reference/plot_htna_bootstrap.md)
+and
+[`plot_htna_diff()`](https://sonsoles.me/htna/reference/plot_htna_diff.md)
+place them the same way.
+
 To show the difference between two networks use
 [`plot_htna_diff()`](https://sonsoles.me/htna/reference/plot_htna_diff.md);
 to show only the edges that survive bootstrapping use
@@ -54,7 +64,9 @@ plot(x, ...)
 - layout:
 
   Node layout. Default `"circular"`; `"polygon"` places three or more
-  actor types on the sides of a polygon.
+  actor types on the sides of a polygon. Start and end states are placed
+  as anchors in the circular layout only; in another layout they are
+  laid out as one more actor type.
 
 - group_colors:
 

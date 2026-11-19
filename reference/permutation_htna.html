@@ -49,7 +49,7 @@ differences per actor pair, and plot_htna_diff() draws the result."><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -131,7 +131,9 @@ differences per actor pair, and <code><a href="plot_htna_diff.html">plot_htna_di
 
 <dl><dt id="arg-x-y">x, y<a class="anchor" aria-label="anchor" href="#arg-x-y"></a></dt>
 <dd><p>Two htna networks, or an <code>htna_group</code> in <code>x</code> with <code>y = NULL</code>,
-in which case every pair of cohorts is tested.</p></dd>
+in which case every pair of cohorts is tested. Networks that do not
+hold the same codes are compared over the codes of both; a code a
+network lacks has no transitions in it.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

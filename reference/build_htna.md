@@ -116,7 +116,9 @@ build_htna(
   Network estimator: `"relative"` (default, transition probabilities),
   `"frequency"`, `"co_occurrence"` (undirected), `"attention"`,
   `"reverse"`, `"ngram"`, `"gap"` or `"latency"`. `"latency"` weights
-  each reply by its speed and needs `time` (Nestimate 1.0.20 or later).
+  each reply by its speed and needs `time` (Nestimate 1.0.20 or later),
+  with times that differ within a session; the bundled `human_ai` has
+  one time per session and cannot be used.
 
 - group:
 
@@ -147,7 +149,10 @@ build_htna(
 
   Further estimation arguments, such as `threshold`, `scaling`,
   `time_threshold`, or `latency_floor`, `latency_cap`,
-  `latency_aggregate` and `latency_scope` for `method = "latency"`.
+  `latency_aggregate` and `latency_scope` for `method = "latency"`. With
+  `start` or `end` the network gains a start or an end state; these
+  belong to no actor and form the actor type `"Boundary"`, placed last.
+  The plots draw them above and below the actor types.
 
 ## Value
 
@@ -168,8 +173,9 @@ Errors inherit from `htna_error`. Specific classes:
 `htna_missing_column` when the session, order, time or code column is
 absent; `htna_actor_conflict` when a code belongs to more than one actor
 type and `disambiguate = FALSE`; `htna_unassigned_node` when a code has
-no actor type in `node_groups`; `htna_bad_input` for other invalid
-arguments.
+no actor type in `node_groups`; `htna_tied_times` when
+`method = "latency"` is given times that are tied within sessions;
+`htna_bad_input` for other invalid arguments.
 
 ## References
 

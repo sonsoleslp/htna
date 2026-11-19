@@ -14,6 +14,12 @@ first actor type is placed on the left of the circular layout. plot()
 on an htna network or htna_group calls plot_htna(). It is called for
 the plot and returns, invisibly, the value of cograph::plot_htna() for
 one network, or x for a grouped network.
+A start and an end state (build_htna(start = , end = )) are not an arc
+of the circular layout. The actor types keep the positions they have
+without them, and the start state is placed at the top centre and the
+end state at the bottom centre, in the colour and shape of the
+&quot;Boundary&quot; type. plot_htna_bootstrap() and plot_htna_diff() place
+them the same way.
 To show the difference between two networks use plot_htna_diff(); to
 show only the edges that survive bootstrapping use plot_htna_bootstrap()."><meta property="og:description" content="plot_htna() plots a heterogeneous transition network: the codes of
 every actor type as nodes and the transitions between them as directed
@@ -30,6 +36,12 @@ first actor type is placed on the left of the circular layout. plot()
 on an htna network or htna_group calls plot_htna(). It is called for
 the plot and returns, invisibly, the value of cograph::plot_htna() for
 one network, or x for a grouped network.
+A start and an end state (build_htna(start = , end = )) are not an arc
+of the circular layout. The actor types keep the positions they have
+without them, and the start state is placed at the top centre and the
+end state at the bottom centre, in the colour and shape of the
+&quot;Boundary&quot; type. plot_htna_bootstrap() and plot_htna_diff() place
+them the same way.
 To show the difference between two networks use plot_htna_diff(); to
 show only the edges that survive bootstrapping use plot_htna_bootstrap()."><meta property="og:image" content="https://sonsoles.me/htna/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -39,7 +51,7 @@ show only the edges that survive bootstrapping use plot_htna_bootstrap()."><meta
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,6 +113,12 @@ first actor type is placed on the left of the circular layout. <code><a href="ht
 on an htna network or <code>htna_group</code> calls <code>plot_htna()</code>. It is called for
 the plot and returns, invisibly, the value of <code><a href="https://sonsoles.me/cograph/reference/plot_htna.html" class="external-link">cograph::plot_htna()</a></code> for
 one network, or <code>x</code> for a grouped network.</p>
+<p>A start and an end state (<code>build_htna(start = , end = )</code>) are not an arc
+of the circular layout. The actor types keep the positions they have
+without them, and the start state is placed at the top centre and the
+end state at the bottom centre, in the colour and shape of the
+<code>"Boundary"</code> type. <code><a href="plot_htna_bootstrap.html">plot_htna_bootstrap()</a></code> and <code><a href="plot_htna_diff.html">plot_htna_diff()</a></code> place
+them the same way.</p>
 <p>To show the difference between two networks use <code><a href="plot_htna_diff.html">plot_htna_diff()</a></code>; to
 show only the edges that survive bootstrapping use <code><a href="plot_htna_bootstrap.html">plot_htna_bootstrap()</a></code>.</p>
     </div>
@@ -133,7 +151,9 @@ show only the edges that survive bootstrapping use <code><a href="plot_htna_boot
 
 <dt id="arg-layout">layout<a class="anchor" aria-label="anchor" href="#arg-layout"></a></dt>
 <dd><p>Node layout. Default <code>"circular"</code>; <code>"polygon"</code> places three
-or more actor types on the sides of a polygon.</p></dd>
+or more actor types on the sides of a polygon. Start and end states
+are placed as anchors in the circular layout only; in another layout
+they are laid out as one more actor type.</p></dd>
 
 
 <dt id="arg-group-colors">group_colors<a class="anchor" aria-label="anchor" href="#arg-group-colors"></a></dt>

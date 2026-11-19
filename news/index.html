@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,6 +52,19 @@
       <small>Source: <a href="https://github.com/sonsoleslp/htna/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.3.7" id="htna-037">htna 0.3.7<a class="anchor" aria-label="anchor" href="#htna-037"></a></h2>
+<ul><li>The start and end states added with <code>build_htna(start = , end = )</code> have an actor type of their own, <code>"Boundary"</code>, so such a network can be plotted, summarized, compared and converted like any other. In the plots the actor types keep the positions they have without these states; the start state is drawn at the top centre and the end state at the bottom centre.</li>
+<li>The legend of <code><a href="../reference/plot_htna_bootstrap.html">plot_htna_bootstrap()</a></code> and <code><a href="../reference/plot_htna_diff.html">plot_htna_diff()</a></code> showed the colours of the actor types in reverse order; it now matches the nodes.</li>
+<li>A cohort built with <code>node_groups</code> and <code>group</code> that lacks a code is consistent throughout (node and edge counts, edge list), and <code><a href="../reference/permutation_htna.html">permutation_htna()</a></code> and <code><a href="../reference/bayes_compare_htna.html">bayes_compare_htna()</a></code> compare cohorts that do not hold the same codes.</li>
+<li>
+<code><a href="../reference/frequencies_htna.html">frequencies_htna()</a></code> accepts a grouped network and returns one table for all cohorts, with columns <code>group</code> (the cohort) and <code>actor</code>.</li>
+<li>
+<code><a href="../reference/sequence_compare_htna.html">sequence_compare_htna()</a></code> takes the name of a session-level column in <code>group</code>, for example <code>group = "phase"</code>, as well as a vector.</li>
+<li>
+<code>build_htna(method = "latency")</code> stops with a clear error of class <code>htna_tied_times</code> when the event times are tied within sessions, as in the bundled <code>human_ai</code>, which records one time per session.</li>
+<li>Sequence plots leave out an actor type that has no event in the sessions.</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.3.6" id="htna-036">htna 0.3.6<a class="anchor" aria-label="anchor" href="#htna-036"></a></h2>
 <ul><li>

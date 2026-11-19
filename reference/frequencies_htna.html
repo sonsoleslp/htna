@@ -33,7 +33,7 @@ state_distribution_htna() returns the same table as this function."><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -106,20 +106,25 @@ gives the pooled table without actors, with shares of all events;
 
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
-<dd><p>An htna network from <code><a href="build_htna.html">build_htna()</a></code>.</p></dd>
+<dd><p>An htna network from <code><a href="build_htna.html">build_htna()</a></code>, or an <code>htna_group</code>, in
+which case the codes are counted in every cohort.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A data frame with one row per actor and code, sorted by
 decreasing count, and columns <code>group</code> (the actor type), <code>state</code>,
-<code>count</code> and <code>proportion</code> (the code's share of its actor's events).</p>
+<code>count</code> and <code>proportion</code> (the code's share of its actor's events). For
+a grouped network, one row per cohort, actor and code, with columns
+<code>group</code> (the cohort), <code>actor</code> (the actor type), <code>state</code>, <code>count</code> and
+<code>proportion</code> (the share of that actor's events in the cohort).</p>
     </div>
     <div class="section level2">
     <h2 id="conditions">Conditions<a class="anchor" aria-label="anchor" href="#conditions"></a></h2>
 
 
-<p>An error of class <code>htna_bad_input</code> when <code>x</code> is not an htna network.</p>
+<p>An error of class <code>htna_bad_input</code> when <code>x</code> is neither an htna network
+nor an <code>htna_group</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -146,6 +151,37 @@ decreasing count, and columns <code>group</code> (the actor type), <code>state</
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10    AI    Report   705 0.08244650</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 11    AI  Delegate   295 0.03449889</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 12    AI    Repair   257 0.03005496</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># one table for all cohorts</span></span></span>
+<span class="r-in"><span><span class="va">grp</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_htna.html">build_htna</a></span><span class="op">(</span><span class="va">human_ai</span>, actor_type <span class="op">=</span> <span class="st">"actor_type"</span>, group <span class="op">=</span> <span class="st">"phase"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)</span>
+<span class="r-in"><span><span class="fu">frequencies_htna</span><span class="op">(</span><span class="va">grp</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    group actor     state count proportion</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  Early    AI   Execute  1849 0.40861878</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  Early Human   Request  1606 0.28449956</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  Early Human   Specify  1548 0.27422498</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4  Early    AI       Ask  1191 0.26320442</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  Early Human Frustrate   889 0.15748450</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  Early    AI      Plan   883 0.19513812</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7  Early Human     Check   763 0.13516386</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  Early Human    Refine   424 0.07511072</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  Early Human   Inquire   415 0.07351639</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 Early    AI    Report   289 0.06386740</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 11 Early    AI  Delegate   168 0.03712707</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12 Early    AI    Repair   145 0.03204420</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 13  Late Human   Request  1498 0.29081732</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 14  Late    AI   Execute  1409 0.34997516</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15  Late Human   Specify  1372 0.26635605</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 16  Late    AI       Ask  1225 0.30427223</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17  Late Human Frustrate   940 0.18248884</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18  Late    AI      Plan   737 0.18306011</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19  Late Human     Check   535 0.10386333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20  Late Human   Inquire   438 0.08503203</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 21  Late    AI    Report   416 0.10332837</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22  Late Human    Refine   368 0.07144244</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 23  Late    AI  Delegate   127 0.03154496</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24  Late    AI    Repair   112 0.02781918</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

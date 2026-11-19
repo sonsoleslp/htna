@@ -40,7 +40,9 @@ permutation_htna(x, y = NULL, ...)
 - x, y:
 
   Two htna networks, or an `htna_group` in `x` with `y = NULL`, in which
-  case every pair of cohorts is tested.
+  case every pair of cohorts is tested. Networks that do not hold the
+  same codes are compared over the codes of both; a code a network lacks
+  has no transitions in it.
 
 - ...:
 

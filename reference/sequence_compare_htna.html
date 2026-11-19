@@ -43,7 +43,7 @@ extract_meta_paths()."><meta property="og:image" content="https://sonsoles.me/ht
 
     <a class="navbar-brand me-2" href="../index.html">htna</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -127,7 +127,9 @@ together with <code>group</code>.</p></dd>
 
 <dt id="arg-group">group<a class="anchor" aria-label="anchor" href="#arg-group"></a></dt>
 <dd><p>The grouping of the sessions when <code>x</code> is a single network:
-a vector with one label per session (default <code>NULL</code>).</p></dd>
+the name of a session-level column of the data the network was built
+from (for example <code>"phase"</code>), or a vector with one label per session
+(default <code>NULL</code>).</p></dd>
 
 
 <dt id="arg-level">level<a class="anchor" aria-label="anchor" href="#arg-level"></a></dt>
@@ -156,7 +158,8 @@ with one row per pattern and columns <code>pattern</code>, <code>length</code>, 
 
 
 <p>An error of class <code>htna_bad_input</code> when <code>level = "type"</code> and <code>x</code> has no
-actor partition.</p>
+actor partition; <code>htna_missing_column</code> when <code>group</code> names a column the
+network does not hold.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

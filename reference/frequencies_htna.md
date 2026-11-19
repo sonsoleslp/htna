@@ -31,17 +31,22 @@ frequencies_htna(x)
 - x:
 
   An htna network from
-  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md).
+  [`build_htna()`](https://sonsoles.me/htna/reference/build_htna.md), or
+  an `htna_group`, in which case the codes are counted in every cohort.
 
 ## Value
 
 A data frame with one row per actor and code, sorted by decreasing
 count, and columns `group` (the actor type), `state`, `count` and
-`proportion` (the code's share of its actor's events).
+`proportion` (the code's share of its actor's events). For a grouped
+network, one row per cohort, actor and code, with columns `group` (the
+cohort), `actor` (the actor type), `state`, `count` and `proportion`
+(the share of that actor's events in the cohort).
 
 ## Conditions
 
-An error of class `htna_bad_input` when `x` is not an htna network.
+An error of class `htna_bad_input` when `x` is neither an htna network
+nor an `htna_group`.
 
 ## See also
 
@@ -69,4 +74,35 @@ frequencies_htna(net)
 #> 10    AI    Report   705 0.08244650
 #> 11    AI  Delegate   295 0.03449889
 #> 12    AI    Repair   257 0.03005496
+
+# one table for all cohorts
+grp <- build_htna(human_ai, actor_type = "actor_type", group = "phase")
+#> Metadata aggregated per session: ties resolved by first occurrence in 'cluster' (24 sessions), 'actor_type' (9 sessions)
+#> Metadata aggregated per session: ties resolved by first occurrence in 'session_date' (1 sessions), 'cluster' (18 sessions), 'actor_type' (15 sessions)
+frequencies_htna(grp)
+#>    group actor     state count proportion
+#> 1  Early    AI   Execute  1849 0.40861878
+#> 2  Early Human   Request  1606 0.28449956
+#> 3  Early Human   Specify  1548 0.27422498
+#> 4  Early    AI       Ask  1191 0.26320442
+#> 5  Early Human Frustrate   889 0.15748450
+#> 6  Early    AI      Plan   883 0.19513812
+#> 7  Early Human     Check   763 0.13516386
+#> 8  Early Human    Refine   424 0.07511072
+#> 9  Early Human   Inquire   415 0.07351639
+#> 10 Early    AI    Report   289 0.06386740
+#> 11 Early    AI  Delegate   168 0.03712707
+#> 12 Early    AI    Repair   145 0.03204420
+#> 13  Late Human   Request  1498 0.29081732
+#> 14  Late    AI   Execute  1409 0.34997516
+#> 15  Late Human   Specify  1372 0.26635605
+#> 16  Late    AI       Ask  1225 0.30427223
+#> 17  Late Human Frustrate   940 0.18248884
+#> 18  Late    AI      Plan   737 0.18306011
+#> 19  Late Human     Check   535 0.10386333
+#> 20  Late Human   Inquire   438 0.08503203
+#> 21  Late    AI    Report   416 0.10332837
+#> 22  Late Human    Refine   368 0.07144244
+#> 23  Late    AI  Delegate   127 0.03154496
+#> 24  Late    AI    Repair   112 0.02781918
 ```
