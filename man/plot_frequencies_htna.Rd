@@ -12,7 +12,8 @@ plot_frequencies_htna(x, view = c("treemap", "bars", "facet"), ...)
 \item{view}{\code{"treemap"} (default), \code{"bars"} or \code{"facet"}.}
 
 \item{...}{Further arguments of \code{Nestimate::plot_state_frequencies()} for
-the treemap; ignored by the bar views.}
+the treemap; ignored by the bar views. An argument the treemap does
+not take raises a warning (Nestimate 1.0.12 or later).}
 }
 \value{
 For \code{"treemap"}, invisibly, the frequency object of class

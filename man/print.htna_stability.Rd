@@ -24,7 +24,8 @@ centrality measure of an \code{htna_stability} result. The CS coefficient is
 the largest proportion of sessions that can be dropped while the
 correlation with the full-network centralities stays above the threshold
 with the required certainty. The header gives the number of resamples,
-the threshold and the drop proportions. The grouped method prints one
+the threshold and the drop proportions, and says when whole actors were
+dropped instead of sessions (\code{actor}). The grouped method prints one
 block per cohort. It returns \code{x} invisibly.
 }
 \examples{

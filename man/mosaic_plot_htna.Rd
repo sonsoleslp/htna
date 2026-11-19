@@ -10,7 +10,10 @@ mosaic_plot_htna(x, ...)
 \item{x}{An htna network built with \code{method = "frequency"}.}
 
 \item{...}{Further arguments of \code{Nestimate::mosaic_plot()}, such as
-\code{n_perm} and \code{seed}.}
+\code{n_perm} and \code{seed}. With Nestimate 1.0.13 or later, \code{nested = TRUE}
+draws residuals that allow for transitions nested in sessions, or in
+the actors named by \code{actor}; \code{nested_method} chooses the test and
+\code{report = TRUE} adds the overall test as the subtitle.}
 }
 \value{
 A \code{ggplot} object (or a \code{gtable} for some inputs), which is drawn

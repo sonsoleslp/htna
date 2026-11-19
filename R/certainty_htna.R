@@ -28,7 +28,8 @@
 #'   (`c(0.75, 1.25)`) and `edge_threshold`.
 #'
 #' @return An object of class `c("net_certainty", "net_bootstrap")` with
-#'   `print()`, `summary()` and `plot()` methods. `summary()` returns a
+#'   `print()` and `summary()` methods, drawn by [plot_htna_bootstrap()].
+#'   `summary()` returns a
 #'   data frame with one row per edge and columns `from`, `to`, `weight`,
 #'   `mean`, `sd`, `p_value`, `sig`, `ci_lower`, `ci_upper`, `cr_lower`
 #'   and `cr_upper`. A grouped network gives a `net_certainty_group`, a
@@ -41,7 +42,20 @@
 #' net <- build_htna(human_ai, actor_type = "actor_type")
 #' cert <- certainty_htna(net)
 #' head(summary(cert))
+#' plot_htna_bootstrap(cert)
 #' @export
 certainty_htna <- function(x, ...) {
-  Nestimate::certainty(x, ...)
+  cert <- Nestimate::certainty(x, ...)
+  # The engine returns the model as a plain network; the actor partition is
+  # put back so plot_htna_bootstrap() draws the result.
+  if (inherits(x, "htna_group") && is.list(cert) &&
+      length(cert) == length(x)) {
+    cert[] <- Map(function(item, src) {
+      item$model <- .restore_htna_model(item$model, src)
+      item
+    }, cert, unclass(x))
+  } else if (inherits(x, "htna") && !is.null(cert$model)) {
+    cert$model <- .restore_htna_model(cert$model, x)
+  }
+  cert
 }

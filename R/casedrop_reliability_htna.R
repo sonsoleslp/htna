@@ -28,8 +28,10 @@
 #' @param ... Settings: `iter` (resamples per drop proportion, default
 #'   1000), `drop_prop` (default `seq(0.1, 0.9, by = 0.1)`), `threshold`
 #'   (0.7), `certainty` (0.95), `method` (correlation, `"spearman"`),
-#'   `include_diag` (`FALSE`), `seed` and `actor` (drop whole actors
-#'   instead of sessions; needs Nestimate 1.0.19 or later).
+#'   `include_diag` (`FALSE`), `seed`, `target` (the edges assessed:
+#'   `"auto"`, `"existing"` or `"all"`; Nestimate 1.0.2 or later) and
+#'   `actor` (drop whole actors instead of sessions; Nestimate 1.0.19 or
+#'   later).
 #'
 #' @return An object of class `net_casedrop_reliability` (one network) or
 #'   `net_casedrop_reliability_group` (a grouped network), with `print()`,

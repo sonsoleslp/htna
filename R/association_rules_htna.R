@@ -23,9 +23,10 @@
 #' for associations between codes and sessions use [mosaic_plot_htna()].
 #'
 #' @param x An htna network from [build_htna()], or a binary
-#'   session-by-code matrix.
+#'   session-by-code matrix (declared with `format = "binary"` from
+#'   Nestimate 1.0.9). A grouped network is not accepted; pass one cohort.
 #' @param ... Thresholds: `min_support` (default 0.1), `min_confidence`
-#'   (0.5), `min_lift` (1) and `max_length` (largest itemset, 5).
+#'   (0.5), `min_lift` (1), `max_length` (largest itemset, 5) and `format`.
 #'
 #' @return An object of class `net_association_rules` with `print()`,
 #'   `summary()` and `plot()` methods. Its rules table has one row per

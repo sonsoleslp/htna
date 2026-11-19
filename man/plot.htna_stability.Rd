@@ -28,7 +28,8 @@ correlate with those of the full network as more sessions are dropped.
 A measure whose mean correlation stays above the threshold until a large
 share of the sessions is dropped has a node ranking that does not depend
 on a few sessions; a measure whose line falls early cannot be interpreted
-with confidence.
+with confidence. When the result was computed with \code{actor}, the
+horizontal axis is the proportion of actors dropped.
 
 The plot draws one line per measure (distinguished by colour, line type
 and point shape), a ribbon of plus or minus one standard deviation of the

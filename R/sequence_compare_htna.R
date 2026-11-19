@@ -25,15 +25,15 @@
 #'
 #' @param x A grouped htna network (an `htna_group`), or an htna network
 #'   together with `group`.
-#' @param group The grouping of the sessions when `x` is a single network
-#'   (default `NULL`).
+#' @param group The grouping of the sessions when `x` is a single network:
+#'   a vector with one label per session (default `NULL`).
 #' @param level `"state"` (default) compares patterns of codes; `"type"`
 #'   compares patterns of actor types.
 #' @param ... Settings: `sub` (pattern lengths, default `3:5`), `min_freq`
 #'   (minimum count in every group, 5), `test` (`"permutation"`,
 #'   `"chisq"` or `"none"`), `iter` (permutations, 1000), `adjust`
-#'   (multiplicity correction, `"fdr"`) and `actor` (needs Nestimate 1.0.19
-#'   or later).
+#'   (multiplicity correction, `"fdr"`) and `actor` (reassign whole actors
+#'   in the permutation test; needs Nestimate 1.0.13 or later).
 #'
 #' @return An object of class `net_sequence_comparison` with `print()`,
 #'   `summary()` and `plot()` methods. `summary()` returns a data frame

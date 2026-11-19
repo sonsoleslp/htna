@@ -23,7 +23,10 @@
 #'
 #' @param x An htna network built with `method = "frequency"`.
 #' @param ... Further arguments of `Nestimate::mosaic_plot()`, such as
-#'   `n_perm` and `seed`.
+#'   `n_perm` and `seed`. With Nestimate 1.0.13 or later, `nested = TRUE`
+#'   draws residuals that allow for transitions nested in sessions, or in
+#'   the actors named by `actor`; `nested_method` chooses the test and
+#'   `report = TRUE` adds the overall test as the subtitle.
 #'
 #' @return A `ggplot` object (or a `gtable` for some inputs), which is drawn
 #'   when printed.

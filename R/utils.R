@@ -94,3 +94,28 @@ NULL
   rownames(out) <- NULL
   out
 }
+
+#' Put the actor partition of `src` back on a model the engine returned
+#'
+#' The estimation engine returns the model of a bootstrap, certainty or
+#' reliability result as a plain network. The partition of the htna network
+#' it was computed from is restored so the model plots and summarizes as an
+#' htna network.
+#' @keywords internal
+#' @noRd
+.restore_htna_model <- function(model, src) {
+  if (is.null(model)) return(model)
+  if (is.null(model$nodes$groups) && !is.null(src$nodes$groups)) {
+    model$nodes$groups <- src$nodes$groups
+  }
+  if (is.null(model$node_groups) && !is.null(src$node_groups)) {
+    model$node_groups <- src$node_groups
+  }
+  if (is.null(model$actor_levels) && !is.null(src$actor_levels)) {
+    model$actor_levels <- src$actor_levels
+  }
+  if (!inherits(model, "htna")) {
+    class(model) <- c("htna", class(model))
+  }
+  model
+}

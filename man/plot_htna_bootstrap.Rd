@@ -10,8 +10,8 @@ plot_htna_bootstrap(boot, group_colors = htna_palette, ...)
 \method{plot}{htna_bootstrap}(x, ...)
 }
 \arguments{
-\item{boot, x}{A result of \code{\link[=bootstrap_htna]{bootstrap_htna()}}: an \code{htna_bootstrap} or an
-\code{htna_bootstrap_group}.}
+\item{boot, x}{A result of \code{\link[=bootstrap_htna]{bootstrap_htna()}} (an \code{htna_bootstrap} or an
+\code{htna_bootstrap_group}) or of \code{\link[=certainty_htna]{certainty_htna()}}.}
 
 \item{group_colors}{Colours of the actor types, in actor order. Default
 \link{htna_palette}.}
@@ -34,8 +34,9 @@ support. A bootstrap of a transition network resamples the sessions many
 times and records how often each edge is present and how much its weight
 varies.
 
-\code{plot_htna_bootstrap()} draws the result of \code{\link[=bootstrap_htna]{bootstrap_htna()}} in the
-layout and actor styling of \code{\link[=plot_htna]{plot_htna()}}. With \code{display = "significant"}
+\code{plot_htna_bootstrap()} draws the result of \code{\link[=bootstrap_htna]{bootstrap_htna()}}, or the
+closed-form result of \code{\link[=certainty_htna]{certainty_htna()}}, in the layout and actor styling
+of \code{\link[=plot_htna]{plot_htna()}}. With \code{display = "significant"}
 only the significant edges are drawn; \code{show_ci = TRUE} adds the
 confidence interval of each edge weight. A grouped bootstrap is drawn as
 one plot per cohort, titled with its cohort name. \code{plot()} on a
@@ -49,8 +50,8 @@ and p-value) is returned by \code{summary()} of the bootstrap result.
 \section{Conditions}{
 
 \code{htna_empty_input} for a grouped bootstrap without cohorts;
-\code{htna_bad_input} when \code{boot} is not a result of \code{\link[=bootstrap_htna]{bootstrap_htna()}} on an
-htna network.
+\code{htna_bad_input} when \code{boot} is not a result of \code{\link[=bootstrap_htna]{bootstrap_htna()}} or
+\code{\link[=certainty_htna]{certainty_htna()}} on an htna network.
 }
 
 \examples{

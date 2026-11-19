@@ -1,3 +1,22 @@
+# htna 0.3.6
+
+* `build_htna()` has a `time` argument naming the column with the time of
+  each event. With it the events are ordered by time and the `order` column
+  is not needed. It makes `method = "latency"` of Nestimate 1.0.20
+  available, a network in which each reply is weighted by its speed.
+* `summary()` of an undirected network (`method = "co_occurrence"`) counts
+  each edge once, in the header and in the actor-pair table, which has one
+  row per unordered pair of actor types. The counts agree with the network
+  metrics of Nestimate 1.0.7 and later and with `as.data.frame()`.
+* `print()` of a `centrality_stability_htna()` result says when whole actors
+  were dropped (`actor`), and its plot labels the axis accordingly.
+* `certainty_htna()` keeps the actor types on its result, and
+  `plot_htna_bootstrap()` draws it.
+* Help pages name the settings recent Nestimate versions added: nested
+  mosaics, `target` for case-dropping reliability, `format` for association
+  rules, and the estimation methods `"reverse"`, `"ngram"`, `"gap"` and
+  `"latency"`.
+
 # htna 0.3.5
 
 This section covers all changes since the CRAN release 0.3.1.

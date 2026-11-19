@@ -22,7 +22,8 @@
 #' @param x An htna network from [build_htna()].
 #' @param view `"treemap"` (default), `"bars"` or `"facet"`.
 #' @param ... Further arguments of `Nestimate::plot_state_frequencies()` for
-#'   the treemap; ignored by the bar views.
+#'   the treemap; ignored by the bar views. An argument the treemap does
+#'   not take raises a warning (Nestimate 1.0.12 or later).
 #'
 #' @return For `"treemap"`, invisibly, the frequency object of class
 #'   `state_freq` (its table via `as.data.frame()`). For `"bars"` and

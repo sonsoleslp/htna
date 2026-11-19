@@ -10,7 +10,8 @@
 #' number of non-zero edges in every directed actor-pair block (for example
 #' Human to AI), and the standard network-level descriptive metrics
 #' (density, mean distance, strength, degree centralization and
-#' reciprocity).
+#' reciprocity). In an undirected network (`method = "co_occurrence"`) every
+#' edge is counted once, so the blocks are the unordered actor pairs.
 #'
 #' `summary()` returns the summary as a `summary.htna` object; printing it
 #' shows the report. For a grouped network, the summary of every cohort is
@@ -24,15 +25,17 @@
 #' @param row.names,optional Ignored; present for the generic.
 #' @param what Table to return: `"actors"` (default; one row per actor type
 #'   with its number of nodes and their names), `"actor_pairs"` (one row per
-#'   directed actor pair with the number of non-zero edges) or `"metrics"`
-#'   (one row per network metric).
+#'   directed actor pair with the number of non-zero edges; one row per
+#'   unordered pair for an undirected network) or `"metrics"` (one row per
+#'   network metric).
 #' @param ... Unused.
 #'
 #' @return `summary()` returns an object of class `summary.htna`: a list
 #'   with `actors` (data frame: `actor`, `n_nodes`, `nodes`),
 #'   `edges_by_actor` (integer matrix of non-zero edge counts, source actors
-#'   in rows), `network_metrics` (data frame: `metric`, `value`), and the
-#'   scalars `n_nodes`, `n_edges`, `n_sessions`, `n_timesteps` and `method`.
+#'   in rows; symmetric for an undirected network), `network_metrics` (data
+#'   frame: `metric`, `value`), and the scalars `n_nodes`, `n_edges`,
+#'   `directed`, `n_sessions`, `n_timesteps` and `method`.
 #'   For an `htna_group` it returns a `summary.htna_group`, a named list of
 #'   `summary.htna` objects. `print()` returns its input invisibly.
 #'   `as.data.frame()` returns the table chosen by `what`; for a grouped
@@ -102,7 +105,8 @@ as.data.frame.summary.htna <- function(x, row.names = NULL, optional = FALSE,
   what <- match.arg(what)
   switch(what,
     actors = x$actors,
-    actor_pairs = .actor_pair_counts(x$edges_by_actor),
+    actor_pairs = .actor_pair_counts(x$edges_by_actor,
+                                     directed = x$directed %||% TRUE),
     metrics = {
       metrics <- x$network_metrics
       class(metrics) <- "data.frame"
@@ -127,16 +131,22 @@ as.data.frame.summary.htna_group <- function(x, row.names = NULL,
 #' Tidy one-row-per-block table from the actor edge-count matrix
 #' @keywords internal
 #' @noRd
-.actor_pair_counts <- function(em) {
+.actor_pair_counts <- function(em, directed = TRUE) {
   actors <- rownames(em)
   blocks <- expand.grid(target_actor = actors, source_actor = actors,
                         stringsAsFactors = FALSE)
-  data.frame(
+  out <- data.frame(
     source_actor = factor(blocks$source_actor, levels = actors),
     target_actor = factor(blocks$target_actor, levels = actors),
     n_edges = em[cbind(blocks$source_actor, blocks$target_actor)],
     stringsAsFactors = FALSE
   )
+  if (directed) return(out)
+  # An undirected network has one block per unordered actor pair.
+  out <- out[as.integer(out$source_actor) <= as.integer(out$target_actor), ,
+             drop = FALSE]
+  rownames(out) <- NULL
+  out
 }
 
 #' Compute the summary list of one htna network
@@ -165,20 +175,33 @@ as.data.frame.summary.htna_group <- function(x, row.names = NULL,
     stringsAsFactors = FALSE
   )
 
-  nz <- which(W != 0, arr.ind = TRUE)
+  # An undirected network holds every edge in both triangles of the weight
+  # matrix; it is counted once, as the estimation engine counts it.
+  directed <- !isFALSE(net$directed)
+  nonzero <- W != 0 & !is.na(W)
+  if (!directed) nonzero <- nonzero & upper.tri(W, diag = TRUE)
+  nz <- which(nonzero, arr.ind = TRUE)
   em <- unclass(table(
     factor(node_actor[rownames(W)][nz[, 1L]], levels = actor_levels),
     factor(node_actor[colnames(W)][nz[, 2L]], levels = actor_levels)
   ))
   em <- matrix(as.integer(em), nrow = length(actor_levels),
                dimnames = list(actor_levels, actor_levels))
+  # Undirected: the cell of two actor types counts the edges between them,
+  # whichever end comes first, so the matrix is symmetric.
+  if (!directed) {
+    within <- diag(em)
+    em <- em + t(em)
+    diag(em) <- within
+  }
 
   structure(list(
     actors          = actors_df,
     edges_by_actor  = em,
     network_metrics = network_metrics,
     n_nodes         = nrow(W),
-    n_edges         = sum(W != 0, na.rm = TRUE),
+    n_edges         = sum(nonzero),
+    directed        = directed,
     n_sessions      = if (is.data.frame(data_df)) nrow(data_df) else NA_integer_,
     n_timesteps     = if (is.data.frame(data_df)) ncol(data_df) else NA_integer_,
     method          = net$method %||% "?"
@@ -196,8 +219,11 @@ as.data.frame.summary.htna_group <- function(x, row.names = NULL,
                 s$n_sessions, s$n_timesteps))
   }
   cat(sprintf("  Nodes:     %d\n", s$n_nodes))
-  cat(sprintf("  Edges:     %d / %d (non-zero)\n", s$n_edges,
-              s$n_nodes^2))
+  directed <- s$directed %||% TRUE
+  possible <- if (directed) s$n_nodes^2 else s$n_nodes * (s$n_nodes + 1) / 2
+  cat(sprintf("  Edges:     %d / %d (non-zero%s)\n", s$n_edges,
+              as.integer(possible),
+              if (directed) "" else ", undirected"))
 
   actors <- s$actors
   cat(sprintf("\nActor types (%d):\n", nrow(actors)))
@@ -212,7 +238,11 @@ as.data.frame.summary.htna_group <- function(x, row.names = NULL,
               actors$actor, actors$n_nodes, shown), sep = "")
 
   if (nrow(actors) >= 2L) {
-    cat("\nEdge counts by actor (rows = source, cols = target):\n")
+    if (directed) {
+      cat("\nEdge counts by actor (rows = source, cols = target):\n")
+    } else {
+      cat("\nEdge counts by actor pair (undirected, each edge once):\n")
+    }
     .print_actor_matrix(s$edges_by_actor)
   }
   if (!is.null(s$network_metrics)) {

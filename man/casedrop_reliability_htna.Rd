@@ -12,8 +12,10 @@ casedrop_reliability_htna(x, ...)
 \item{...}{Settings: \code{iter} (resamples per drop proportion, default
 1000), \code{drop_prop} (default \code{seq(0.1, 0.9, by = 0.1)}), \code{threshold}
 (0.7), \code{certainty} (0.95), \code{method} (correlation, \code{"spearman"}),
-\code{include_diag} (\code{FALSE}), \code{seed} and \code{actor} (drop whole actors
-instead of sessions; needs Nestimate 1.0.19 or later).}
+\code{include_diag} (\code{FALSE}), \code{seed}, \code{target} (the edges assessed:
+\code{"auto"}, \code{"existing"} or \code{"all"}; Nestimate 1.0.2 or later) and
+\code{actor} (drop whole actors instead of sessions; Nestimate 1.0.19 or
+later).}
 }
 \value{
 An object of class \code{net_casedrop_reliability} (one network) or

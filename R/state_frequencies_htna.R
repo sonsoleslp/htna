@@ -15,7 +15,9 @@
 #' under its actor, with shares within the actor.
 #'
 #' @param data An htna network from [build_htna()], or sequence data (a
-#'   wide data frame or a list of character vectors).
+#'   wide data frame or a list of character vectors). A grouped network is
+#'   not accepted; use [state_distribution_htna()] for the counts of every
+#'   cohort.
 #' @param ... Unused.
 #'
 #' @return A data frame with one row per code, sorted by decreasing count,

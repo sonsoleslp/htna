@@ -10,8 +10,9 @@
 #' times and records how often each edge is present and how much its weight
 #' varies.
 #'
-#' `plot_htna_bootstrap()` draws the result of [bootstrap_htna()] in the
-#' layout and actor styling of [plot_htna()]. With `display = "significant"`
+#' `plot_htna_bootstrap()` draws the result of [bootstrap_htna()], or the
+#' closed-form result of [certainty_htna()], in the layout and actor styling
+#' of [plot_htna()]. With `display = "significant"`
 #' only the significant edges are drawn; `show_ci = TRUE` adds the
 #' confidence interval of each edge weight. A grouped bootstrap is drawn as
 #' one plot per cohort, titled with its cohort name. `plot()` on a
@@ -22,8 +23,8 @@
 #' The table behind the plot (one row per edge, with its weight, interval
 #' and p-value) is returned by `summary()` of the bootstrap result.
 #'
-#' @param boot,x A result of [bootstrap_htna()]: an `htna_bootstrap` or an
-#'   `htna_bootstrap_group`.
+#' @param boot,x A result of [bootstrap_htna()] (an `htna_bootstrap` or an
+#'   `htna_bootstrap_group`) or of [certainty_htna()].
 #' @param group_colors Colours of the actor types, in actor order. Default
 #'   [htna_palette].
 #' @param ... Further drawing arguments: `display` (`"styled"` (default),
@@ -35,8 +36,8 @@
 #'
 #' @section Conditions:
 #' `htna_empty_input` for a grouped bootstrap without cohorts;
-#' `htna_bad_input` when `boot` is not a result of [bootstrap_htna()] on an
-#' htna network.
+#' `htna_bad_input` when `boot` is not a result of [bootstrap_htna()] or
+#' [certainty_htna()] on an htna network.
 #'
 #' @seealso [bootstrap_htna()], [plot_htna()], [certainty_htna()]
 #'
@@ -50,7 +51,7 @@
 #' @export
 plot_htna_bootstrap <- function(boot, group_colors = htna_palette, ...) {
   if (inherits(boot, "htna_bootstrap_group") ||
-      (is.list(boot) && !inherits(boot, "htna_bootstrap"))) {
+      (is.list(boot) && !inherits(boot, "net_bootstrap"))) {
     if (length(boot) == 0L) .htna_stop("Empty htna_bootstrap_group.",
                                        class = "htna_empty_input")
     nms <- names(boot) %||% as.character(seq_along(boot))
@@ -60,8 +61,8 @@ plot_htna_bootstrap <- function(boot, group_colors = htna_palette, ...) {
     })
     return(invisible(boot))
   }
-  if (!inherits(boot, "htna_bootstrap")) {
-    .htna_stop("`boot` must come from bootstrap_htna().")
+  if (!inherits(boot, "net_bootstrap")) {
+    .htna_stop("`boot` must come from bootstrap_htna() or certainty_htna().")
   }
   net <- boot$model
   if (is.null(net) || is.null(net$node_groups)) {

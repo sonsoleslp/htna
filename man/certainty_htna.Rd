@@ -15,7 +15,8 @@ certainty_htna(x, ...)
 }
 \value{
 An object of class \code{c("net_certainty", "net_bootstrap")} with
-\code{print()}, \code{summary()} and \code{plot()} methods. \code{summary()} returns a
+\code{print()} and \code{summary()} methods, drawn by \code{\link[=plot_htna_bootstrap]{plot_htna_bootstrap()}}.
+\code{summary()} returns a
 data frame with one row per edge and columns \code{from}, \code{to}, \code{weight},
 \code{mean}, \code{sd}, \code{p_value}, \code{sig}, \code{ci_lower}, \code{ci_upper}, \code{cr_lower}
 and \code{cr_upper}. A grouped network gives a \code{net_certainty_group}, a
@@ -48,6 +49,7 @@ data(human_ai)
 net <- build_htna(human_ai, actor_type = "actor_type")
 cert <- certainty_htna(net)
 head(summary(cert))
+plot_htna_bootstrap(cert)
 }
 \seealso{
 \code{\link[=bootstrap_htna]{bootstrap_htna()}} for the resampling estimate,

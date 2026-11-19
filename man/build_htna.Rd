@@ -16,6 +16,7 @@ build_htna(
   group = NULL,
   disambiguate = FALSE,
   source_data = NULL,
+  time = NULL,
   ...
 )
 }
@@ -55,8 +56,10 @@ supplies or overrides the partition. Use either \code{actor_type} or
 \code{"order_in_session"}.}
 
 \item{method}{Network estimator: \code{"relative"} (default, transition
-probabilities), \code{"frequency"}, \code{"co_occurrence"} (undirected) or
-\code{"attention"}.}
+probabilities), \code{"frequency"}, \code{"co_occurrence"} (undirected),
+\code{"attention"}, \code{"reverse"}, \code{"ngram"}, \code{"gap"} or \code{"latency"}.
+\code{"latency"} weights each reply by its speed and needs \code{time}
+(Nestimate 1.0.20 or later).}
 
 \item{group}{Name of a session-level column defining cohorts; one network
 is built per cohort. Default \code{NULL} (one network).}
@@ -68,7 +71,16 @@ split into one node per actor type, prefixed with the actor label
 \item{source_data}{The original event data for an \code{mcml} input whose fitted
 object did not keep it. Default \code{NULL}.}
 
-\item{...}{Further estimation arguments, such as \code{threshold} or \code{scaling}.}
+\item{time}{Name of an optional column holding the time of each event.
+With it the events of a session are ordered by time, the \code{order} column
+is not required, and a session is split where two events are further
+apart than \code{time_threshold} seconds (900 by default; pass
+\code{time_threshold = Inf} to keep sessions whole). Required for
+\code{method = "latency"}. Default \code{NULL}.}
+
+\item{...}{Further estimation arguments, such as \code{threshold}, \code{scaling},
+\code{time_threshold}, or \code{latency_floor}, \code{latency_cap}, \code{latency_aggregate}
+and \code{latency_scope} for \code{method = "latency"}.}
 }
 \value{
 An object of class \code{c("htna", "netobject", "cograph_network")}:
@@ -116,7 +128,8 @@ cohort. Use \code{\link[=summary.htna]{summary.htna()}} to describe the result a
 \section{Conditions}{
 
 Errors inherit from \code{htna_error}. Specific classes:
-\code{htna_missing_column} when the session, order or code column is absent;
+\code{htna_missing_column} when the session, order, time or code column is
+absent;
 \code{htna_actor_conflict} when a code belongs to more than one actor type and
 \code{disambiguate = FALSE}; \code{htna_unassigned_node} when a code has no actor
 type in \code{node_groups}; \code{htna_bad_input} for other invalid arguments.

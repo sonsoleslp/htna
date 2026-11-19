@@ -69,22 +69,7 @@ reliability_htna <- function(..., iter = 1000L, split = 0.5,
   # builds models via build_network() which strips the partition;
   # we restore it slot-for-slot from the matching input network.
   if (!is.null(rel$models) && length(rel$models) == length(nets)) {
-    rel$models <- Map(function(m, src) {
-      if (is.null(m)) return(m)
-      if (is.null(m$nodes$groups) && !is.null(src$nodes$groups)) {
-        m$nodes$groups <- src$nodes$groups
-      }
-      if (is.null(m$node_groups) && !is.null(src$node_groups)) {
-        m$node_groups <- src$node_groups
-      }
-      if (is.null(m$actor_levels) && !is.null(src$actor_levels)) {
-        m$actor_levels <- src$actor_levels
-      }
-      if (!inherits(m, "htna")) {
-        class(m) <- c("htna", class(m))
-      }
-      m
-    }, rel$models, nets)
+    rel$models <- Map(.restore_htna_model, rel$models, nets)
   }
 
   if (!inherits(rel, "htna_reliability")) {

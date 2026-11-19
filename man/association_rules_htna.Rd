@@ -8,10 +8,11 @@ association_rules_htna(x, ...)
 }
 \arguments{
 \item{x}{An htna network from \code{\link[=build_htna]{build_htna()}}, or a binary
-session-by-code matrix.}
+session-by-code matrix (declared with \code{format = "binary"} from
+Nestimate 1.0.9). A grouped network is not accepted; pass one cohort.}
 
 \item{...}{Thresholds: \code{min_support} (default 0.1), \code{min_confidence}
-(0.5), \code{min_lift} (1) and \code{max_length} (largest itemset, 5).}
+(0.5), \code{min_lift} (1), \code{max_length} (largest itemset, 5) and \code{format}.}
 }
 \value{
 An object of class \code{net_association_rules} with \code{print()},

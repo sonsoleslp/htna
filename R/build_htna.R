@@ -59,8 +59,10 @@
 #' @param order Name of the within-session order column. Default
 #'   `"order_in_session"`.
 #' @param method Network estimator: `"relative"` (default, transition
-#'   probabilities), `"frequency"`, `"co_occurrence"` (undirected) or
-#'   `"attention"`.
+#'   probabilities), `"frequency"`, `"co_occurrence"` (undirected),
+#'   `"attention"`, `"reverse"`, `"ngram"`, `"gap"` or `"latency"`.
+#'   `"latency"` weights each reply by its speed and needs `time`
+#'   (Nestimate 1.0.20 or later).
 #' @param group Name of a session-level column defining cohorts; one network
 #'   is built per cohort. Default `NULL` (one network).
 #' @param disambiguate If `TRUE`, a code used by more than one actor type is
@@ -68,7 +70,15 @@
 #'   (`"Human:Ask"`, `"AI:Ask"`). Default `FALSE` (a shared code is an error).
 #' @param source_data The original event data for an `mcml` input whose fitted
 #'   object did not keep it. Default `NULL`.
-#' @param ... Further estimation arguments, such as `threshold` or `scaling`.
+#' @param time Name of an optional column holding the time of each event.
+#'   With it the events of a session are ordered by time, the `order` column
+#'   is not required, and a session is split where two events are further
+#'   apart than `time_threshold` seconds (900 by default; pass
+#'   `time_threshold = Inf` to keep sessions whole). Required for
+#'   `method = "latency"`. Default `NULL`.
+#' @param ... Further estimation arguments, such as `threshold`, `scaling`,
+#'   `time_threshold`, or `latency_floor`, `latency_cap`, `latency_aggregate`
+#'   and `latency_scope` for `method = "latency"`.
 #'
 #' @return An object of class `c("htna", "netobject", "cograph_network")`:
 #'   a transition network with its weight matrix, nodes, sequence data and
@@ -81,7 +91,8 @@
 #'
 #' @section Conditions:
 #' Errors inherit from `htna_error`. Specific classes:
-#' `htna_missing_column` when the session, order or code column is absent;
+#' `htna_missing_column` when the session, order, time or code column is
+#' absent;
 #' `htna_actor_conflict` when a code belongs to more than one actor type and
 #' `disambiguate = FALSE`; `htna_unassigned_node` when a code has no actor
 #' type in `node_groups`; `htna_bad_input` for other invalid arguments.
@@ -123,9 +134,16 @@ build_htna <- function(data,
                        group        = NULL,
                        disambiguate = FALSE,
                        source_data  = NULL,
+                       time         = NULL,
                        ...) {
 
   dots <- list(...)
+  if (!is.null(time)) {
+    if (!is.character(time) || length(time) != 1L || is.na(time)) {
+      .htna_stop("`time` must be the name of one column, or NULL.")
+    }
+    dots$time <- time
+  }
   if ("actor_col" %in% names(dots)) {
     .htna_stop("`actor_col` was renamed to `actor_type`. Use `actor_type = ",
                deparse(dots$actor_col), "`.")
@@ -323,12 +341,20 @@ build_htna <- function(data,
   # If actor is provided and session column doesn't exist, sessions will be auto-generated
   session_exists <- session %in% names(combined)
 
-  # Order is only required if no actor is provided
-  if (is.null(actor) && !order %in% names(combined)) {
+  if (!is.null(time) && !time %in% names(combined)) {
+    .htna_stop("Column '", time, "' (`time`) not found in data. ",
+               "Available columns: ", paste(names(combined), collapse = ", "),
+               ".", class = "htna_missing_column")
+  }
+
+  # Order is only required when neither an actor nor a time column orders
+  # the events
+  if (is.null(actor) && is.null(time) && !order %in% names(combined)) {
     .htna_stop("Column '", order, "' not found in data. ",
                "Available columns: ", paste(names(combined), collapse = ", "), ". ",
-               "Either provide a data frame with an '", order, "' column or ",
-               "specify an 'actor' parameter for automatic ordering.",
+               "Either provide a data frame with an '", order, "' column, ",
+               "name a time column with `time`, or specify an 'actor' ",
+               "parameter for automatic ordering.",
                class = "htna_missing_column")
   }
 

@@ -534,7 +534,8 @@ test_that("summary.htna() returns structured info and prints actor partition", {
 
   # Returned structure
   expect_named(s, c("actors", "edges_by_actor", "network_metrics", "n_nodes",
-                    "n_edges", "n_sessions", "n_timesteps", "method"))
+                    "n_edges", "directed", "n_sessions", "n_timesteps",
+                    "method"))
   expect_s3_class(s$actors, "data.frame")
   expect_setequal(s$actors$actor, c("Human", "AI"))
   expect_equal(sum(s$actors$n_nodes), nrow(net$node_groups))

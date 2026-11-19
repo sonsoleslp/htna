@@ -8,7 +8,9 @@ state_frequencies_htna(data, ...)
 }
 \arguments{
 \item{data}{An htna network from \code{\link[=build_htna]{build_htna()}}, or sequence data (a
-wide data frame or a list of character vectors).}
+wide data frame or a list of character vectors). A grouped network is
+not accepted; use \code{\link[=state_distribution_htna]{state_distribution_htna()}} for the counts of every
+cohort.}
 
 \item{...}{Unused.}
 }

@@ -47,15 +47,17 @@ summary is printed (default 12).}
 
 \item{what}{Table to return: \code{"actors"} (default; one row per actor type
 with its number of nodes and their names), \code{"actor_pairs"} (one row per
-directed actor pair with the number of non-zero edges) or \code{"metrics"}
-(one row per network metric).}
+directed actor pair with the number of non-zero edges; one row per
+unordered pair for an undirected network) or \code{"metrics"} (one row per
+network metric).}
 }
 \value{
 \code{summary()} returns an object of class \code{summary.htna}: a list
 with \code{actors} (data frame: \code{actor}, \code{n_nodes}, \code{nodes}),
 \code{edges_by_actor} (integer matrix of non-zero edge counts, source actors
-in rows), \code{network_metrics} (data frame: \code{metric}, \code{value}), and the
-scalars \code{n_nodes}, \code{n_edges}, \code{n_sessions}, \code{n_timesteps} and \code{method}.
+in rows; symmetric for an undirected network), \code{network_metrics} (data
+frame: \code{metric}, \code{value}), and the scalars \code{n_nodes}, \code{n_edges},
+\code{directed}, \code{n_sessions}, \code{n_timesteps} and \code{method}.
 For an \code{htna_group} it returns a \code{summary.htna_group}, a named list of
 \code{summary.htna} objects. \code{print()} returns its input invisibly.
 \code{as.data.frame()} returns the table chosen by \code{what}; for a grouped
@@ -71,7 +73,8 @@ size (sessions, nodes and non-zero edges), the nodes of each actor, the
 number of non-zero edges in every directed actor-pair block (for example
 Human to AI), and the standard network-level descriptive metrics
 (density, mean distance, strength, degree centralization and
-reciprocity).
+reciprocity). In an undirected network (\code{method = "co_occurrence"}) every
+edge is counted once, so the blocks are the unordered actor pairs.
 
 \code{summary()} returns the summary as a \code{summary.htna} object; printing it
 shows the report. For a grouped network, the summary of every cohort is

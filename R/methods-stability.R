@@ -8,7 +8,8 @@
 #' A measure whose mean correlation stays above the threshold until a large
 #' share of the sessions is dropped has a node ranking that does not depend
 #' on a few sessions; a measure whose line falls early cannot be interpreted
-#' with confidence.
+#' with confidence. When the result was computed with `actor`, the
+#' horizontal axis is the proportion of actors dropped.
 #'
 #' The plot draws one line per measure (distinguished by colour, line type
 #' and point shape), a ribbon of plus or minus one standard deviation of the
@@ -104,7 +105,8 @@ plot.htna_stability_group <- function(x, ...) {
     ggplot2::scale_shape_manual(values = shapes) +
     ggplot2::scale_x_continuous(breaks = x$drop_prop) +
     ggplot2::coord_cartesian(ylim = c(0, 1)) +
-    ggplot2::labs(x = "Proportion of sessions dropped",
+    ggplot2::labs(x = sprintf("Proportion of %s dropped",
+                              if (is.null(x$actor)) "sessions" else "actors"),
                   y = sprintf("Mean correlation (%s)", x$method),
                   title = title, colour = "Measure", fill = "Measure",
                   linetype = "Measure", shape = "Measure") +
@@ -120,7 +122,8 @@ plot.htna_stability_group <- function(x, ...) {
 #' the largest proportion of sessions that can be dropped while the
 #' correlation with the full-network centralities stays above the threshold
 #' with the required certainty. The header gives the number of resamples,
-#' the threshold and the drop proportions. The grouped method prints one
+#' the threshold and the drop proportions, and says when whole actors were
+#' dropped instead of sessions (`actor`). The grouped method prints one
 #' block per cohort. It returns `x` invisibly.
 #'
 #' @param x A result of [centrality_stability_htna()]: an `htna_stability`
@@ -142,6 +145,10 @@ print.htna_stability <- function(x, ...) {
   cat("HTNA centrality stability\n")
   cat(sprintf("  %d iterations, threshold = %.2f, drop proportions %s\n",
               x$iter, x$threshold, paste(x$drop_prop, collapse = ", ")))
+  if (!is.null(x$actor)) {
+    cat(sprintf("  whole actors dropped (%s, %d actors)\n",
+                x$actor[[1L]], x$n_actors))
+  }
   cat("\n  CS-coefficients:\n")
   cat(sprintf("    %-15s  %.2f\n", names(x$cs), x$cs), sep = "")
   invisible(x)

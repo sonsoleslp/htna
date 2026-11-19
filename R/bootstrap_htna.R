@@ -74,22 +74,7 @@ bootstrap_htna <- function(x, ...) {
 
   boot <- Nestimate::bootstrap_network(x, ...)
 
-  if (!is.null(boot$model)) {
-    # nocov start - defensive: Nestimate currently preserves nodes$groups
-    if (is.null(boot$model$nodes$groups) && !is.null(x$nodes$groups)) {
-      boot$model$nodes$groups <- x$nodes$groups
-    }
-    # nocov end
-    if (is.null(boot$model$node_groups) && !is.null(x$node_groups)) {
-      boot$model$node_groups <- x$node_groups
-    }
-    if (is.null(boot$model$actor_levels) && !is.null(x$actor_levels)) {
-      boot$model$actor_levels <- x$actor_levels
-    }
-    if (!inherits(boot$model, "htna")) {
-      class(boot$model) <- c("htna", class(boot$model))
-    }
-  }
+  boot$model <- .restore_htna_model(boot$model, x)
 
   class(boot) <- c("htna_bootstrap", class(boot))
   boot

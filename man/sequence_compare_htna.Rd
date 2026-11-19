@@ -10,8 +10,8 @@ sequence_compare_htna(x, group = NULL, level = c("state", "type"), ...)
 \item{x}{A grouped htna network (an \code{htna_group}), or an htna network
 together with \code{group}.}
 
-\item{group}{The grouping of the sessions when \code{x} is a single network
-(default \code{NULL}).}
+\item{group}{The grouping of the sessions when \code{x} is a single network:
+a vector with one label per session (default \code{NULL}).}
 
 \item{level}{\code{"state"} (default) compares patterns of codes; \code{"type"}
 compares patterns of actor types.}
@@ -19,8 +19,8 @@ compares patterns of actor types.}
 \item{...}{Settings: \code{sub} (pattern lengths, default \code{3:5}), \code{min_freq}
 (minimum count in every group, 5), \code{test} (\code{"permutation"},
 \code{"chisq"} or \code{"none"}), \code{iter} (permutations, 1000), \code{adjust}
-(multiplicity correction, \code{"fdr"}) and \code{actor} (needs Nestimate 1.0.19
-or later).}
+(multiplicity correction, \code{"fdr"}) and \code{actor} (reassign whole actors
+in the permutation test; needs Nestimate 1.0.13 or later).}
 }
 \value{
 An object of class \code{net_sequence_comparison} with \code{print()},
