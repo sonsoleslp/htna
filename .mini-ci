@@ -9,3 +9,9 @@ job test   Rscript -e 'testthat::test_local(stop_on_failure = TRUE)'
 # separate library that comes first), for the release order where CRAN Nestimate
 # 0.9.24 must keep working with this htna.
 job check-cran Rscript -e 'lib <- file.path(Sys.getenv("HOME"), "cran-deps-htna"); dir.create(lib, showWarnings = FALSE); install.packages(c("Nestimate", "cograph"), lib = lib, repos = "https://cloud.r-project.org"); print(installed.packages(lib)[, "Version"]); r <- rcmdcheck::rcmdcheck(args = c("--no-manual", "--as-cran"), libpath = c(lib, .libPaths()), error_on = "never"); print(r); if (r$status != 0 || length(r$errors) || length(r$warnings)) quit(status = 1)'
+
+# The declared equivalence tests (tests/equivalence, the standard: ../equivalence/STANDARD.md): every
+# comparison with a reference, recorded in .ci/verify-capture/capture.json. Then, on the Mac:
+#   sh ../equivalence/push.sh htna
+job verify Rscript -e 'source("tests/equivalence/helper-verify.R"); verify_tests(lib = "~/equiv-lib")'
+fetch .ci/verify-capture

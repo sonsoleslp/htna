@@ -25,3 +25,4 @@
 ^vignettes/articles$
 ^Project_docs$
 ^inst/.*\.qmd$
+^tests/equivalence$
