@@ -2,6 +2,8 @@
 
 ## htna 0.3.7
 
+CRAN release: 2026-11-20
+
 - The start and end states added with `build_htna(start = , end = )`
   have an actor type of their own, `"Boundary"`, so such a network can
   be plotted, summarized, compared and converted like any other. In the
